@@ -5,9 +5,18 @@ title: 'Travel'
 
 # Travel Information
 
-The course is held at SciLifeLab, Tomtebodavägen 23A, 17 165 Solna
-Gamma 2, Room: Fire
+## Course location
+**SciLifeLab, Uppsala University, BMC, Husargatan 3**
 
-We are at number 23a on [Karolinska Solna Campus Map](files/karta_campus_solna_16_11_14.pdf)
+**Room: E10:1308, BMC**
 
-To travel in Stockholm see [https://sl.se/en/](https://sl.se/en/).
+## Travel
+
+**To travel in Uppsala: see [UL website][ul]**
+
+**To find room within BMC: see [Mazemap][mazemap]**
+
+
+
+[ul]: [https://www.ul.se/en]
+[mazemap]: https://use.mazemap.com/#v=1&zlevel=1&left=17.5570095&right=17.7032085&top=59.8806680&bottom=59.8361040&campusid=49&campuses=uu&starttype=poi&start=383383&desttype=poi&dest=383419
