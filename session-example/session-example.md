@@ -1,5 +1,16 @@
-Untitled
+Session example
 ================
+
+### Learning outcomes
+
+  - outcome 1
+  - outcome 2
+  - outcome 3
+
+## Content
+
+  - [Including Code](#part1)
+  - [Including Plots](#part2)
 
 ## GitHub Documents
 
@@ -7,7 +18,7 @@ This is an R Markdown format used for publishing markdown documents to
 GitHub. When you click the **Knit** button all R code chunks are run and
 a markdown file (.md) suitable for publishing to GitHub is generated.
 
-## Including Code
+## Including Code <a name="part1"></a>
 
 You can include R code in the document as follows:
 
@@ -23,7 +34,7 @@ summary(cars)
     ##  3rd Qu.:19.0   3rd Qu.: 56.00  
     ##  Max.   :25.0   Max.   :120.00
 
-## Including Plots
+## Including Plots <a name="part1"></a>
 
 You can also embed plots, for example:
 
