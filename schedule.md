@@ -3,8 +3,9 @@ layout: default
 title:  'Schedule'
 ---
 
-Course is held at SciLifeLab, Uppsala University, BMC, Husargatan 3
-Room:
+Course location: SciLifeLab, Uppsala University, BMC, Husargatan 3
+
+Room: E10:1308, BMC
 
 **09.00 - 10.00** [example session](session-example/session-example.md)
 
@@ -14,14 +15,14 @@ Room:
 ### Tuesday 2019-05-21
 *coffee*
 
-**09.00 - 09.30** arriving
+**09.00 - 09.30** Arriving
 
-**09.30 - 10.00** welcome & introduction (Olga, Eva)
+**09.30 - 10.00** Welcome & introduction (Olga, Eva)
 
 **10.00 - 12.00** Statistical theory and concepts I (Eva)
 (mix of lectures, groups discussions, paper exercises, live-coding, leg stretches)
 
-**12.00 - 13.00** lunch
+**12.00 - 13.00** *lunch*
 
 **13.00 - 15.00** Statistical theory and concepts II (Eva)
 
@@ -42,7 +43,7 @@ Room:
 
   *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
-**12.00 - 13.00** lunch
+**12.00 - 13.00** *lunch*
 
 **13.00 - 15.00** Regression II (Olga, Eva)
 
@@ -61,7 +62,7 @@ Room:
 
 *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
-**12.00 - 13.00** lunch
+**12.00 - 13.00** *lunch*
 
 **13.00 - 14.30** What comes next & introduction to machine learning (Marcin, Bengt)
 
@@ -69,13 +70,12 @@ Room:
 
 **14.30 - 17.00** Wrap-up session & feedback
 
-
 ----
 
 
 _coffee and snacks will arrive twice a day_
 
-_lunch will be at:_ X
+_lunch will be at:_ Restaurang Bikupan
 
 ____
 **Teaching team**
