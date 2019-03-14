@@ -44,10 +44,22 @@ The fee includes lunches, coffee and snacks.
 
 *Please note that NBIS cannot invoice individuals*
 
-
+### Teaching team
+- [Eva Freyhult][eva], PhD, NBIS, SciLifeLab, Uppsala University
+- [Olga Dethlefsen][olga], PhD, NBIS, SciLifeLab, University of Stockholm
+- [Payam Emami][payam], PhD, NBIS, SciLifeLab, University of Stockholm
+- [Ashfaq Ali][ashfaq], PhD, NBIS, Lund University
+- [Paulo Czarnewski][paulo], PhD, NBIS, SciLifeLab, University of Stockholm
+- [Marcin Kierczak][marcin], PhD, NBIS, SciLifeLab, Uppsala University
+- [Bengt Sennblad][bengt], PhD, NBIS, SciLifeLab, Uppsala University
 
 [eva]: https://nbis.se/about/staff/eva-freyhult/
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
+[payam]: https://nbis.se/about/staff/payam-emami/
+[ashfaq]: https://nbis.se/about/staff/ashfaq-ali/
+[paulo]: https://nbis.se/about/staff/paulo-czarnewski/
+[marcin]: https://nbis.se/about/staff/marcin-kierczak/
+[bengt]: https://nbis.se/about/staff/bengt-sennblad/
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
 [book-rai]: http://www.rwdc2.com/files/rafa.pdf
