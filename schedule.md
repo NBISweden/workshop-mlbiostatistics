@@ -70,13 +70,12 @@ Room: E10:1308, BMC
 
 **14.30 - 17.00** Wrap-up session & feedback
 
-
 ----
 
 
 _coffee and snacks will arrive twice a day_
 
-_lunch will be at:_ X
+_lunch will be at:_ Restaurang Bikupan
 
 ____
 **Teaching team**
