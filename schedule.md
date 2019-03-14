@@ -14,7 +14,7 @@ Room:
 **08.45 - 09.00** pre-course coffee
 **09.00 - 17.00** day 1
 
-**13.00 - 14.00** [example lab](labs/lab-example.md)
+**13.00 - 14.00** [example session](session-example/session-example.md)
 ----
 
 ### Wednesday 2019-05-22
