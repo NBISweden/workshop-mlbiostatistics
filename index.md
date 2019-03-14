@@ -3,7 +3,7 @@ layout: default
 title:  'Biostatistics Essentials: a blackboard approach'
 ---
 
-# Biostatistics course
+## Biostatistics Essentials: a blackboard approach
 Course location: SciLifeLab, Uppsala University, BMC, Husargatan 3
 
 Room: E10:1308, BMC
