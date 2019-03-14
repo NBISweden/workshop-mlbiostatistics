@@ -4,20 +4,23 @@ title:  'Biostatistics Essentials: a blackboard approach'
 ---
 
 # Biostatistics course
-Held in SciLifeLab, Uppsala University, BMC, Husargatan 3
-2019-05-21 to 2019-05-23
+Course location: SciLifeLab, Uppsala University, BMC, Husargatan 3
+
+Room: E10:1308, BMC
+
+-----------
 
 ## Course Links
+[Course information](README)    
+
+[Participants](participants)
+
 [Pre-course material](precourse)   
-Participants
+
+[Schedule](schedule)
 
 
-
-[Schedule](schedule)  
-
-## Labs links
+----------
 
 ### Address and travel suggestions
 [Travel Info](travel)  
-
-### Course leaders
