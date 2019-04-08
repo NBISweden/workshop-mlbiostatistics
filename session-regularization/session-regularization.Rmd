@@ -1,0 +1,467 @@
+---
+title: "Session regularization"
+output: 
+  html_document:
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+
+---
+```{r setup, message=FALSE}
+require(knitr)
+opts_chunk$set(echo=FALSE, eval=TRUE,message=FALSE, warning=FALSE, error=FALSE, out.width='100%', fig.height=3) #, fig.width=6)#, knitr.kable.NA = '-')
+```
+
+### Learning outcomes
+
+* Likelihood and penalized likelihood/regularization
+    + $Pr[Y|X,\beta]$
+    + relation to RSS for linear model
+    + not valid for, e.g., logistic regression (mention)
+    + overfitting
+* Model testing 
+    + Likelihood ratio test (mention)
+    + AIC
+    + (mention BIC, etc?)
+* Feature selection
+    + LASSO, ridge regression
+    + glmlnet
+
+## Example data
+
+For simplicity, we will simulate a toy data from a linear model and use this in the exercises. The advantage for us using simulated data is that we know the 'truth', i.e., how the data was simulated.
+
+The data will comprise 100 samples. We first generate 10 variables from a uniform distribution and store them in a Matrix $X$. We then generate outcome variable $Y$ using a linear model $Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon$, where the $\beta$s are generated from a uniform distribution and $\epsilon\sim N(0,\sigma^2=1)$.
+
+
+```{r, seed, echo=TRUE}
+# To obtain exactly the same result as in the demo, set seed to 85
+set.seed(85)
+```
+
+```{r, toydata, echo=TRUE}
+N=100 # no samples
+P=10 # no variables
+
+# Draw variables, x_1,...,x_10, from a uniform distribution in interval (0,1)
+X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+
+# generate a y variable from a multivarite lm of 3 first X variables only
+# intercept
+b0=3
+# effect sizes for first three variables
+b=c(runif(3, min=0.5, max=1.0))
+#b=c(runif(3, min=1.5, max=3.5))
+# generate y
+Y <- b0 + X[,1] * b [1] + X[,2] * b [2] + X[,3] * b [3] + rnorm(N) 
+# This can also be done using matrix multiplication
+#y1 <- b0 + X[,seq(1,3)] %*% b + rnorm(N) 
+# Store in the Y matrix (really just a vector here)
+#Y = as.matrix(y)  
+```
+
+
+
+# Likelihood
+
+Consider a generative model, with parameters $\theta$, for how $X\rightarrow Y$. We would like to test if $\theta$ are good parameters. Given the model, we can compute
+$Pr[Y| X, \theta]$,
+that is, the probability that the model with parameters $\theta$ and given $X$ generates $Y$.
+
+Likelihood builds on the intuition that if $\theta$ (and the model) is close to the 'truth', then $Pr[Y| X, \theta]$ will be higher than for wrong $\theta$ (and model). We should there fore select the $\theta$ that maximizes $L[\theta|Y,X]$; this is called maximum likelihood estimation of $\theta$.
+
+Since statistical model contain an element of randomness, this might not always be the case for any single obeservation. However, if we sum over a large number of observations it will be true n average. Hence the need for datasets that are large enough.
+
+To formalize this intuition, Edwards (1972) defined the likelihood of model parameters being true given observed data as
+
+$$L[\theta|Y,X] \propto Pr[Y|X, \theta]$$
+<details>
+(Notice that this notation is not uncommonly mixed up, so you might also see the notation $L[Y|X,\theta]$)
+</details>
+
+<details>
+The proportionality ($\propto$) means there are some unknown constant factor, $k$, such that $L[\theta|Y,X] = k Pr[Y|X, \theta]$. However, the factor $k$ is assumed to be constant over $\theta$s and over models. When the likelihood of two models and/or $\theta$s are compared this is almost always done as a _likelihood ratio_, 
+
+$$\frac{L[\theta_1|Y,X]}{L[\theta_0|Y,X]} = \frac{k Pr[Y|X, \theta_1]}{ k  Pr[Y|X, \theta_0]} =\frac{Pr[Y|X, \theta_1]}{ Pr[Y|X, \theta_0]}$$
+
+which means that the factor $k$ disappears. Hence the factor $k$ is always ignored. Likelihood ratios is the basis of most model comparison statistics, e.g., the Wald test, the Score test, regularization... 
+</details>
+
+In maximum likelihood estimation of some parameters $\theta$, one simply selects the values $\hat\theta$ that gives the highest likelihood max_{\theta}L[\theta|X,Y] = L[\hat\Theta|X,Y]$.
+Likelihood and maximum likelihood estimation are central concept in statistics. Many statistical methods uses or is based on the concept of maximum likelihood.
+
+
+
+<details>
+In many applications of the likelihood, the logarithm of the likelihood, the logLikelihood, $\log L[\theta_1|Y,X]$, or sometimes the negative logLikelihood, $-\log L[\theta_1|Y,X]$, is used. Notice, that 
+
+1. The $\theta$ estimates that maximizes  $\log L[\theta|Y,X]$ also maximizes $L[\theta|Y,X]$
+2. The $\theta$ estimates that minimizes $-\log L[\theta|Y,X]$ maximizes $L[\theta|Y,X]$
+3. A likelihood ratio corresponds to a logLikelihood difference, $$\log\left(\frac{L[\theta_1|Y,X]}{L[\theta_0|Y,X]}\right) = \frac{\log L[\theta_1|Y,X]}{\log L[\theta_0|Y,X]} = \log L[\theta_1|Y,X] - \log L[\theta_0|Y,X]$$.
+</details>
+
+### Likelihood | `Likelihood and RSS for linear models`
+
+So, why have we used ordinary least squares RSS when estimating linear model parameters $\beta$ rather than maximum likelihood estimation?
+
+Linear models is a special case with some nice properties when it comes to  likelihood. Consider a simple linear regression model,
+
+$$ y = \beta x + \epsilon, $$
+
+where $\epsilon\sim N(0,\sigma^2)$. 
+<details>
+The likelihood for given $\beta$ and $\sigma^2$, given observed data $Y$ and $X$ is given by
+
+$$ L[\beta, \sigma^2|Y,X] = \prod_i pdf_{Normal}(y_i, \mu=\beta x_i, \sigma^2=\sigma^2)$$
+</details>
+
+It turns out that the  likelihood estimates of both $\beta$ and $\sigma^2$ are funktions of the  RSS of the residuals, so that the likelihood can be approximated by
+
+$$  \log L[\beta, \sigma^2|Y,X] \approx \frac{N}{2} \log RSS$$
+
+This means that the maximum likelihood estimates of $\hat\beta$ is exactly the same as those of the minimum RSS.
+
+_**NB!**This is a special case for linear models and are not generally true for other models._
+
+In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., RSS.
+
+In the following, I will simplify notation and not differentiate between etimates and random variables, e.g., $\beta$ will be used also for $\hat\beta$.
+
+
+
+
+##  Likelihood | `Overfitting`
+
+* Consider the two models
+\begin{aligned}
+y & \sim  \beta_0 + \beta_1 x_1 & (1) \\
+y & \sim  \beta_0 + \beta_1 x_1 + \beta_2 x_2 & (2)
+\end{aligned}
+
+* Create `lm` models for the two models
+* What are the max Likelihood estimates of the two models? (we can use the R function `logLik` in the `stats´ package)
+* Let's plot them...
+```{r,echo=T, fig.height=4, echo=TRUE}
+require(stats)
+# compute loglikelihood (ll) for all models including variables
+# 1-i, for i <= P; store results in vector ll
+ll= vector()
+for(i in seq(1,P)){
+  Xi=X[,seq(1,i)]
+  ll[i] <- logLik(lm(Y~Xi))
+}
+# plot likelihoods for models with 1 and 2 vaiables
+plot(ll[seq(1,2)], xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll))),ylab="log L", xlab="model #", type = "b")
+
+```
+
+ ... 2 variables are clearly better than 1 variable -- What if we add more variables?
+
+
+* Now repeat this for the sequence of models obtained by creating the next model by simply adding the next $X$ variable in order.
+
+```{r,echo=T, fig.height=4}
+# plot ll for all models
+plot(ll[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll))),ylab="log L", xlab="model #", type = "b")
+
+```
+
+### Think about:
+
+How does the Likelihood behave as more variables are added?
+
+Which is the best model? Is this correct compared to our generating model?
+
+What could be the problem with this behaviour? How would we like it to behave?
+
+How can we obtain the desired behaviour?
+
+
+
+####Answers
+
+_Nested models_
+
+* Model (1) can be described as a special case of Model (2) with the constraints on $\beta_2=0$
+
+* Therefore Model (2) will always have equal or better ML than Model (1)
+
+
+_Overfitting_
+
+* In the example, the simulated data was generated from the 3 first variables
+  + thus, the subsequent variables increase ML by modeling noise in data
+  
+* This is difficult to detect by just looking at the likelihoods
+
+* Solutions
+  + Seek the simplest model that is "good enough" -> Regularization
+
+
+<details>
+## Model comparison | `Likelihood ratio test`
+
+For nested models $-2 \max LRT$ is $\xi^2(d)$-distributed, with d=the difference in free params in the two models.
+```{r, lrt, echo=F}
+library(lmtest)
+mprev <- lm(Y ~ X[,1])
+lrt=data.frame(models=0, ll1=0, ll2=0, lr=0, P = 0, sign=0)
+for(i in seq(2,P)){
+  m <- lm(Y ~ X[,seq(1,i)])
+  fit=lrtest(mprev,m)
+  mprev=m
+  sign = ifelse(fit$`Pr(>Chisq)`[2]>0.05,"no","yes")#ifelse(fit$`Pr(>Chisq)`[2]>0.01,"*",ifelse(fit$`Pr(>Chisq)`[2]>0.001, "**","***")))
+  lr=fit$LogLik[1]-fit$LogLik[2]
+  lrt[i-1,] = list(paste0(i-1," vs ", i," variables"), signif(fit$LogLik[1], 5), signif(fit$LogLik[2], 5), format(lr, digits=4), format(fit$`Pr(>Chisq)`[2],digits=3, scientific=-1), sign)
+}
+library(kableExtra)
+kable(lrt,"html",row.names=F, col.names=c("Compared models","logL 1st model","logL 2nd model","logLR", "P-value", "Sign at 0.05"),digits=30, format.args=list(snsmall=0)) %>% kable_styling(bootstrap="striped", font_size = 14, full_width=F)
+
+```
+</details>
+
+##  Regularization
+
+* Regularization is a concept that adds auxiliary criteria, so-called *regularization terms*,  to probabilistic models.  This is called regularized likelihood models or penalized likelihood models. Typically, the regularization term is a function of parameters $\beta$;
+
+$$\log rL[\boldsymbol{\beta} | X, Y]  = \log Pr[Y | X, \boldsymbol{\beta}] - f(\beta),$$
+
+
+* A very simple regularized likelihood model uses $f(\beta) = \#\beta = \#X$, that is the number of $X$ variables.  
+$$\log rL[\boldsymbol{\beta} | X, Y]  = \log Pr[Y | X, \boldsymbol{\beta}] - \#X, $$
+where, in the regularization term, $\#X$ denote the _cardinality_ $X$, i.e., the number of variables in the model.
+  - Applying this rL to our example, solves the overfitting problem
+
+```{r,echo=F, fig.height=4, echo=TRUE}
+# compute loglikelihood (ll) for all models including 1-P variables
+pl= vector() 
+for(i in seq(1,P)){
+  xi=X[,seq(1,i)]
+  xi=cbind(rep(1,N), xi)
+  fit = lm(Y~xi)
+  # To make the code simple, we forestall next step and use the AIC function here
+  # AIC= -2(pl) so convert back
+  pl[i] = -AIC(fit)/2
+}
+# plot ll of all models
+plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
+```  
+
+##  Regularization | `AIC and model testing`
+
+* Coming from a _information theory_ base, Hirotugu Akaike came up with a very similar approach for the overfitting problem.
+* The Akaike information criterion (AIC), for a model $m$ with variables $X$, is defined as
+  $$AIC_m = 2\# X - 2\log \max L[\boldsymbol{\beta}|X,Y]$$
+    + We see that $AIC_m = -2 \left(\log \max L[\boldsymbol{\beta}|X,Y] - \#X\right)$, i.e., $-2$ times the simple $rL$, we just looked at. 
+    + The difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
+    + Sometimes, the *relative likelihood* for model $m$ is used, which is
+      $$relL = e^\frac{ AIC_{min} - AIC_{m} }{2}$$
+      where $AIC_{min}$ is the minimum AIC among a set of compared models
+      - $relL$ can be interpreted as proportional to the probability that the model $m$ minimizes the information loss.
+<!--       and can be interpreted as -->
+<!-- $rL \propto Pr[m\textrm{ minimizes estimated information loss}]$. -->
+
+<details>
+   * Notice that
+   
+$$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[\boldsymbol{\beta}_{m}|X_m,Y]}{\max L[\boldsymbol{\beta}_{min}|X_{min},Y]}$$
+  we see that $rL$ can be viewed as a  likelihood ratio weighted by the ratio of number of $X$ variables.
+* However, AIC are not limited to nested models
+
+</details>
+
+
+### Usage
+
+* Typical strategy is to select the model, $m$ with $AIC_m=AIC_{min}$ and then evaluate how much better it is than the other candidate models.
+
+* AIC applied to our example data results in 
+
+```{r, aic, echo=F}
+require(stats)
+require(dplyr)
+require(kableExtra)
+mprev <- lm(Y ~ X[,1])
+aic=data.frame(models=0, aic=0, lowest="-")
+for(i in seq(1,P)){
+  m <- lm(Y ~ X[,seq(1,i)])
+  fit=AIC(mprev,m)
+  mprev=m
+  if(i==2){
+    aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
+  }
+  aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
+}
+minaic=min(aic$aic)
+aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
+aic$lowest = ifelse(aic$aic==minaic,"Yes","-")
+
+kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
+```
+
+* Plotting the $AIC$ and the $reL$
+
+```{r,echo=F, fig.height=4, echo=TRUE}
+# compute loglikelihood (ll) for all models including 1-P variables
+pl= vector() 
+for(i in seq(1,P)){
+  xi=X[,seq(1,i)]
+  xi=cbind(rep(1,N), xi)
+  fit = lm(Y~xi)
+  # To make the code simple, we forestall next slides and use the AIC function here
+  # AIC= -2(pl) so convert back
+  pl[i] = AIC(fit)
+}
+# plot ll of all models
+plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
+```  
+
+```{r,echo=F, fig.height=4, echo=TRUE}
+
+# plot ll of all models
+plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
+```  
+
+We see that the best model is the one with the 3 first X-variables (as expected) and that the second best model (with the first 2 X-variabels) is $\approx70%$ worse.
+
+<details>
+* Sometimes it is desirable to compute a significance for rejecting a model in favour of another model. A NULL distribution for the $relL$ statistic is usally obtained through simulation, e.g., using parameteric bootstrapping.
+</details>
+
+<br><br><br>
+
+## Regularization
+
+#### Question
+Can anyone see a drawback in our model testing approach above?
+
+#### Answer
+Now , we happened to know that the first 3 variables was the right one, so the order we choose to include them was correct. However, in the general case, we do not know this.
+
+* best subset -- 
+
+
+##  Regularization | `LASSO and Feature selection`
+
+* LASSO --  Least absolute shrinkage and selection operator
+    + "shrinkage" is another common term for regularization
+
+* Classical LASSO builds on RSS of a linear regression model $Y \sim X\boldsymbol{\beta}$ with regularization
+    + (extensions to glms exists, but then using a regularized likelihood expression)
+    
+* Regularization term $f(\beta) = \sum_{\beta\in\boldsymbol\beta} |\beta-0|= \sum_{\beta\in\boldsymbol\beta} |\beta|$
+
+<details>
+* Often the regularization term is expressed in terms of the $\ell_1 norm$, which can be viewed simply a short-hand notstion, e.g., the $\ell_1-norm$ of $\boldsymbol\beta$ is
+$$ ||\boldsymbol\beta||_1 = \sum_{\beta\in\boldsymbol\beta} |\beta|$$
+* There is also a $\ell_2-norm$:
+$$ ||\boldsymbol\beta||_2 = \sqrt{\sum_{\beta\in\boldsymbol{\beta}} \beta^2}$$
+which is used, e.g., in ridge regression.
+* We note, BTW, that $RSS = ||Y-X\boldsymbol\beta||_2$, i.e., the $\ell_2$ norm of the residuals.
+</details>  
+    
+* The $\lambda$ parameter sets a limit on the estimation of $\beta$. 
+
+
+* Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
+
+$$min_{\boldsymbol{\beta}}\left\{RSS\right\} - \sum_{\beta\in\boldsymbol\beta} |\beta|.$$
+
+<details>
+* Other common notation for LASSO:
+  + $$min_{\boldsymbol{\beta}}\left\{RSS\right\} \texrm{subject to} ||\boldsymbol{\beta}||_1 <= t$$
+  where $t$ is related to $\lambda$.
+  + Bayesian  prior on $\beta_j ∼ LaPlace(0, 1/\lambda)$ 
+</details>
+
+* The optimal values of $\beta$ are then estimated, using some algorithm (lars or coordinate descent).
+
+<details>
+* Coordinate descent is used in GLMNET
+1. Over a grid of $\lambda\in [0, \infty]$, do
+  1. Start with all $\beta=0$
+  2. until convergence repeat for each $\beta_i$
+    1. while keeping all other $\beta$ fixed and $\beta_i=0$, compute partial residuals
+    2. estimate $\beta_i$ by RSS on the partial residuals
+    3. update $\beta_i using the RSS estimate and $\lambda$.
+</details>
+            
+<details>
+* Alternatives to LASSO, differing mainly in the auxiliary criterion
+  - *Ridge regression* which uses a $L_2$ norm
+  - *Elastic-net*, which uses a mixed model combinationof the  $L_1$ norm and the $L_2$ norm.
+  
+</details>
+
+### Lasso using the glmnet R-package
+
+* Use function `glmnet` to perform LASSO analysis on our toy data.
+    + linear regression (`family='gaussian'`, default)
+    + LASSO (`alpha=1`, default)
+    + standardization
+        + The variables Y and X must be centered and standardized to ensure that all variables are given equal weight in the model selection.
+        + standardization of $X$ to unit variance in `glmnet` is obtained  by setting the argument `standardize=TRUE` which is the default
+        + the values of $Y$ is always standardized (?) for `family=gaussian` (LASSO)
+         + and the coefficients are back-standardized before reported
+
+<details> 
+Standardization in `glmnet`:
+$x' = \frac{x-\bar{x}}{1/\sqrt{N}||X-\bar{x}||_2}$
+</details>
+
+* A graphical way to view the result is to `plot` the paths of $\beta$ for increasing vaules of $\lambda$.
+
+```{r, glm, echo=F,fig.height=5, fig.width=24}
+require(glmnet)
+par(mfrow=c(1,2))
+# run lasso (alpha=1) for linear model (family=gaussian)
+fit = glmnet(X,Y, family="gaussian", alpha=1, standardize=T)
+plot(fit, xvar="lambda",label=T)
+```
+
+### Think about
+* In which order are variables included (i.e., their $\beta$ becomes non-zero? 
+* Given our oracle knwoledge, where would an appropriate $ﬂambda$ be?
+* Can we use that?
+
+
+<br><br><br>
+
+## Cross-validation
+* A problem is to decide $\lambda$ to use as the cutoff. 
+  + glmnet uses cross-validation to obtain an estimate of the minimum $\lambda$ attainable,
+  
+* Use the function `cv.glmnet to perform cross validation
+* `plot` the cross-validation results and 
+* view the estimated $\beta_i$ under this $\lambda$.
+
+
+```{r, coefglm, echo=T,fig.height=5}
+require(glmnet)
+require(dplyr)
+require(kableExtra)
+par(mfrow=c(1,2))
+# run lasso (alpha=1) for linear model (family=gaussian)
+cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
+minlambda=cvglm$lambda.min
+```
+
+```{r, echo=F, fig.height=5}
+plot(cvglm$glmnet.fit, xvar="lambda",label=T)
+plot(cvglm)
+```
+
+* Which is the $\lambda$ selected by `cv.glmnet`?
+* Does this make sense given our _oracel_ knowledge?
+
+* Finally print a table with the $\beta$ coefficients for the optimal model (i.e.,  at minimum $\lambda$).
+
+```{r, echo =T}
+require(dplyr)
+require(kableExtra)
+
+coefglm=as.data.frame(as.matrix(predict(cvglm, s="lambda.min", type="coefficients")))
+coefglm=cbind(seq(0,10),coefglm)
+names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,2),")"))
+kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
+```
