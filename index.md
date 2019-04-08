@@ -19,6 +19,20 @@ Room: E10:1308, BMC
 
 [Schedule](schedule)
 
+----------
+
+## Session Links
+
+
+### Statistical theory and concepts I
+
+### Statistical theory and concepts II
+
+### Regression I
+[Session: regression](session-regression/session-regression.md)    
+
+### Regression II
+[Session: regression](session-regression/session-regression.md)    
 
 ----------
 
