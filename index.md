@@ -3,14 +3,14 @@ layout: default
 title:  'Biostatistics Essentials: a blackboard approach'
 ---
 
-## Biostatistics Essentials: a blackboard approach
+#### Biostatistics Essentials: a blackboard approach
 Course location: SciLifeLab, Uppsala University, BMC, Husargatan 3
 
 Room: E10:1308, BMC
 
 -----------
 
-## Course Links
+##### Course Links
 [Course information](README)    
 
 [Participants](participants)
@@ -21,20 +21,20 @@ Room: E10:1308, BMC
 
 ----------
 
-## Session Links
+##### Session Links
 
 
-### Statistical theory and concepts I
+###### Statistical theory and concepts I
 
-### Statistical theory and concepts II
+###### Statistical theory and concepts II
 
-### Regression I
-[Session: regression](session-regression/session-regression.md)    
+######  Regression I
+[Session: regression](session-regression/session-regression)    
 
-### Regression II
-[Session: regression](session-regression/session-regression.md)    
+###### Regression II
+[Session: regression](session-regression/session-regression)    
 
 ----------
 
-### Address and travel suggestions
+##### Address and travel suggestions
 [Travel Info](travel)  
