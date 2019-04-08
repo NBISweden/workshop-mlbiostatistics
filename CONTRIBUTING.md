@@ -17,6 +17,9 @@ e.g. session-example
 
 *Btw, you get this structure by default if you use R-Studio, New file -> R markdown -> From Template -> GitHub Document (Markdown)*
 
+#### Add link(s) to the session to `index.md`
+_see example under Session Links_
+
 #### Add to GitHub
 
 ```bash
@@ -43,6 +46,9 @@ you add, what type of analyses they can be used for, *etc.*.
 - The body (if any) should be wrapped at 72 characters.
 - The subject and body should be separated by a blank line, start with a capital letter, and the subject line should not end with a period.
 - More about [good commit messages][git-commits]
+
+#### Course website
+https://nbisweden.github.io/workshop-biostatistics/
 
 
 [git-commits]: https://chris.beams.io/posts/git-commit/
