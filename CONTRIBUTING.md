@@ -17,7 +17,6 @@ e.g. session-example
 
 *Btw, you get this structure by default if you use R-Studio, New file -> R markdown -> From Template -> GitHub Document (Markdown)*
 
-
 #### Add to GitHub
 
 ```bash
@@ -25,13 +24,15 @@ e.g. session-example
 git clone https://github.com/NBISweden/workshop-biostatistics.git
 cd workshop-biostatistics
 
-# Checkout draft branch to work on
-git checkout -b draft
+# Checkout feature branch to work on
+git checkout -b myfeature
 
-# Code, commit changes and push to draft when ready
+# Code, commit changes and push to feature when ready
+git add myfeature.md
+git commit -m ""
 git push
 
-# Go to GitHub to make double-check draft and make a Pull request to master branch when ready
+# Go to GitHub to make a pull request to master branch when ready
 
 ```
 
