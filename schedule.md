@@ -64,11 +64,11 @@ Room: E10:1308, BMC
 
 **12.00 - 13.00** *lunch*
 
-**13.00 - 14.30** What comes next & introduction to machine learning (Marcin, Bengt)
+**13.00 - 16.30** What comes next & introduction to machine learning (Marcin, Bengt)
 
 *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
-**14.30 - 17.00** Wrap-up session & feedback
+**16.30 - 17.00** Wrap-up session & feedback
 
 ----
 
