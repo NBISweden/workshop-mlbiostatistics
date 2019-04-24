@@ -1,4 +1,9 @@
 ## Contributing teaching materials
+To contribute teaching materials:
+- prepare teaching materials in a self-contained folder, ideally using `git` while developing the materials
+- add folder to Github repository
+- add links to the session to `index.md`
+
 
 ### Clone Github repository
 ```bash
@@ -10,8 +15,8 @@ cd workshop-biostatistics
 git checkout -b session-example
 ```
 
-#### Prepare a self-contained folder with teaching materials for a given session, e.g. session-[description]
-It is probably easiest to use Markdown for the main document, to be able to display content on Github and NBIS website. However, feel free to use other solutions if you have any other strong preferences.
+### Prepare a self-contained folder
+Prepare a folder with teaching materials for a given session, e.g. `session-example`. It is probably easiest to use Markdown for the main document, to be able to display content on Github and NBIS website. However, feel free to use other solutions if you have any other strong preferences.
 
 **e.g. folder structure with .md and .Rmd**
 
@@ -30,7 +35,7 @@ e.g. session-example
 #### Add link(s) to the session to `index.md`
 _see example under Session Links_
 
-### Code and commit  
+#### Code and commit
 ``` bash
  # Code & commit changes while working on the materials
  git add session-feature.md
@@ -49,29 +54,20 @@ _see example under Session Links_
  - The subject and body should be separated by a blank line, start with a capital letter, and the subject line should not end with a period.
  - More about [good commit messages][git-commits]
 
-#### Add to git and GitHub
 
-``` bash
- # Code & commit changes while working on the materials
- git add session-feature.md
- git commit -m "commit message"
+#### Add to Github
 
- # Push to feature when ready
- git push
- ```
+##### Push feature branch to repo
 
-#### Git commits good practices
-- Commit messages should contain relevant information regarding the feature(s)
-you add, what type of analyses they can be used for, *etc.*.
-- The subject line should be written in an imperative, e.g. *Fix typos* and be 50 characters or less
-- The body (if any) should be wrapped at 72 characters.
-- The subject and body should be separated by a blank line, start with a capital letter, and the subject line should not end with a period.
-- More about [good commit messages][git-commits]
+ ``` bash
+  # Push to feature when ready
+  git push
+  ```
 
-## Go to GitHub to make a pull request to master branch when ready
-Repository [https://github.com/NBISweden/workshop-biostatistics.git](https://github.com/NBISweden/workshop-biostatistics.git)
+##### Make a pull request to master branch when ready
+Go to course repository [https://github.com/NBISweden/workshop-biostatistics.git](https://github.com/NBISweden/workshop-biostatistics.git) and create a pull request 
 
-#### Questions or feedback?
+### Questions or feedback?
 Create an issue or contact Olga Dethlefsen <<olga.dethlefsen@nbis.se>>
 
 ## [Back to main](README.md)
