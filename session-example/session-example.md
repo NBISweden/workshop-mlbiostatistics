@@ -11,6 +11,7 @@ Session example
 
   - [Including Code](#part1)
   - [Including Plots](#part2)
+  - [Including Links](#part3)
 
 ## GitHub Documents
 
@@ -38,7 +39,12 @@ summary(cars)
 
 You can also embed plots, for example:
 
-![](session-example_files/figure-gfm/pressure-1.png)<!-- -->
+![](session-example-files/figures/pressure-1.png)<!-- -->
 
 Note that the `echo = FALSE` parameter was added to the code chunk to
 prevent printing of the R code that generated the plot.
+
+## Including Links <a name="part3"></a>
+
+More [R markdown
+examples](https://rmarkdown.rstudio.com/authoring_basics.html)

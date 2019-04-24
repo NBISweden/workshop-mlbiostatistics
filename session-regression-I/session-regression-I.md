@@ -37,7 +37,7 @@ associated with high weight and *vice verca*. Linear regrssion gives the
 equation of the straight line that best describes how the outcome
 changes (increase or decreases) with a change of exposure variable (in
 red)
-<img src="session-regression_files/figure-gfm/fig-reg-1.png" style="display: block; margin: auto;" />
+<img src="session-regression-I_files/figure-gfm/fig-reg-1.png" style="display: block; margin: auto;" />
 
 The equation of the regression line is:
 
