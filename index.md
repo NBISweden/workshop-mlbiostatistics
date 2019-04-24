@@ -29,7 +29,7 @@ Room: E10:1308, BMC
 ###### Statistical theory and concepts II
 
 ######  Regression I
-[Session: regression](session-regression/session-regression-I)    
+[Session: regression](session-regression-I/session-regression-I)    
 
 ###### Regression II
 Session: regression
