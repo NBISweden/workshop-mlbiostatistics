@@ -32,9 +32,6 @@ e.g. session-example
 
 *Btw, you get this structure by default if you use R-Studio, New file -> R markdown -> From Template -> GitHub Document (Markdown)*
 
-#### Add link(s) to the session to `index.md`
-_see example under Session Links_
-
 #### Code and commit
 ``` bash
  # Code & commit changes while working on the materials
@@ -54,17 +51,19 @@ _see example under Session Links_
  - The subject and body should be separated by a blank line, start with a capital letter, and the subject line should not end with a period.
  - More about [good commit messages][git-commits]
 
+### Add link(s) to the session to `index.md`
+_see example under Session Links_
 
-#### Add to Github
+### Add to Github
 
-##### Push feature branch to repo
+#### Push feature branch to repo
 
  ``` bash
   # Push to feature when ready
   git push
   ```
 
-##### Make a pull request to master branch when ready
+#### Make a pull request to master branch when ready
 Go to course repository [https://github.com/NBISweden/workshop-biostatistics.git](https://github.com/NBISweden/workshop-biostatistics.git) and create a pull request 
 
 ### Questions or feedback?
