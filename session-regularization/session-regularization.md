@@ -8,7 +8,8 @@ output:
 editor_options:
   chunk_output_type: console
 ---
-```{r setup, message=FALSE}
+
+```r
 require(knitr)
 opts_chunk$set(echo=FALSE, eval=TRUE,message=FALSE, warning=FALSE, error=FALSE, out.width='100%', fig.height=3) #, fig.width=6)#, knitr.kable.NA = '-')
 ```
@@ -35,12 +36,14 @@ For simplicity, we will simulate a toy data from a linear model and use this in 
 The data will comprise 100 samples. We first generate 10 variables from a uniform distribution and store them in a Matrix $X$. We then generate outcome variable $Y$ using a linear model $Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon$, where the $\beta$s are generated from a uniform distribution and $\epsilon\sim N(0,\sigma^2=1)$.
 
 
-```{r, seed, echo=TRUE}
+
+```r
 # To obtain exactly the same result as in the demo, set seed to 85
 set.seed(85)
 ```
 
-```{r, toydata, echo=TRUE}
+
+```r
 N=100 # no samples
 P=10 # no variables
 
@@ -142,7 +145,8 @@ y & \sim  \beta_0 + \beta_1 x_1 + \beta_2 x_2 & (2)
 * Create `lm` models for the two models
 * What are the max Likelihood estimates of the two models? (we can use the R function `logLik` in the `stats` package)
 * Let's plot them...
-```{r,echo=T, fig.height=4, echo=TRUE}
+
+```r
 require(stats)
 # compute loglikelihood (ll) for all models including variables
 # 1-i, for i <= P; store results in vector ll
@@ -153,19 +157,22 @@ for(i in seq(1,P)){
 }
 # plot likelihoods for models with 1 and 2 vaiables
 plot(ll[seq(1,2)], xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll))),ylab="log L", xlab="model #", type = "b")
-
 ```
+
+<img src="session-regularization_files/figure-html/unnamed-chunk-1-1.png" width="100%" />
 
  ... 2 variables are clearly better than 1 variable -- What if we add more variables?
 
 
 * Now repeat this for the sequence of models obtained by creating the next model by simply adding the next $X$ variable in order.
 
-```{r,echo=T, fig.height=4}
+
+```r
 # plot ll for all models
 plot(ll[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll))),ylab="log L", xlab="model #", type = "b")
-
 ```
+
+<img src="session-regularization_files/figure-html/unnamed-chunk-2-1.png" width="100%" />
 
 ### Think about:
 
@@ -203,22 +210,92 @@ _Overfitting_
 ## Model comparison | `Likelihood ratio test`
 
 For nested models $-2 \max LRT$ is $\xi^2(d)$-distributed, with d=the difference in free params in the two models.
-```{r, lrt, echo=F}
-library(lmtest)
-mprev <- lm(Y ~ X[,1])
-lrt=data.frame(models=0, ll1=0, ll2=0, lr=0, P = 0, sign=0)
-for(i in seq(2,P)){
-  m <- lm(Y ~ X[,seq(1,i)])
-  fit=lrtest(mprev,m)
-  mprev=m
-  sign = ifelse(fit$`Pr(>Chisq)`[2]>0.05,"no","yes")#ifelse(fit$`Pr(>Chisq)`[2]>0.01,"*",ifelse(fit$`Pr(>Chisq)`[2]>0.001, "**","***")))
-  lr=fit$LogLik[1]-fit$LogLik[2]
-  lrt[i-1,] = list(paste0(i-1," vs ", i," variables"), signif(fit$LogLik[1], 5), signif(fit$LogLik[2], 5), format(lr, digits=4), format(fit$`Pr(>Chisq)`[2],digits=3, scientific=-1), sign)
-}
-library(kableExtra)
-kable(lrt,"html",row.names=F, col.names=c("Compared models","logL 1st model","logL 2nd model","logLR", "P-value", "Sign at 0.05"),digits=30, format.args=list(snsmall=0)) %>% kable_styling(bootstrap="striped", font_size = 14, full_width=F)
-
-```
+<table class="table table-striped" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Compared models </th>
+   <th style="text-align:right;"> logL 1st model </th>
+   <th style="text-align:right;"> logL 2nd model </th>
+   <th style="text-align:left;"> logLR </th>
+   <th style="text-align:left;"> P-value </th>
+   <th style="text-align:left;"> Sign at 0.05 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 1 vs 2 variables </td>
+   <td style="text-align:right;"> -139.86 </td>
+   <td style="text-align:right;"> -137.37 </td>
+   <td style="text-align:left;"> -2.492 </td>
+   <td style="text-align:left;"> 0.0256 </td>
+   <td style="text-align:left;"> yes </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2 vs 3 variables </td>
+   <td style="text-align:right;"> -137.37 </td>
+   <td style="text-align:right;"> -136.00 </td>
+   <td style="text-align:left;"> -1.366 </td>
+   <td style="text-align:left;"> 0.0983 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 3 vs 4 variables </td>
+   <td style="text-align:right;"> -136.00 </td>
+   <td style="text-align:right;"> -135.85 </td>
+   <td style="text-align:left;"> -0.1471 </td>
+   <td style="text-align:left;"> 0.588 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 4 vs 5 variables </td>
+   <td style="text-align:right;"> -135.85 </td>
+   <td style="text-align:right;"> -135.73 </td>
+   <td style="text-align:left;"> -0.1271 </td>
+   <td style="text-align:left;"> 0.614 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 5 vs 6 variables </td>
+   <td style="text-align:right;"> -135.73 </td>
+   <td style="text-align:right;"> -135.27 </td>
+   <td style="text-align:left;"> -0.4527 </td>
+   <td style="text-align:left;"> 0.341 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 6 vs 7 variables </td>
+   <td style="text-align:right;"> -135.27 </td>
+   <td style="text-align:right;"> -135.25 </td>
+   <td style="text-align:left;"> -0.0238 </td>
+   <td style="text-align:left;"> 0.827 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 7 vs 8 variables </td>
+   <td style="text-align:right;"> -135.25 </td>
+   <td style="text-align:right;"> -135.22 </td>
+   <td style="text-align:left;"> -0.02914 </td>
+   <td style="text-align:left;"> 0.809 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 8 vs 9 variables </td>
+   <td style="text-align:right;"> -135.22 </td>
+   <td style="text-align:right;"> -135.19 </td>
+   <td style="text-align:left;"> -0.02746 </td>
+   <td style="text-align:left;"> 0.815 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 9 vs 10 variables </td>
+   <td style="text-align:right;"> -135.19 </td>
+   <td style="text-align:right;"> -134.79 </td>
+   <td style="text-align:left;"> -0.4047 </td>
+   <td style="text-align:left;"> 0.368 </td>
+   <td style="text-align:left;"> no </td>
+  </tr>
+</tbody>
+</table>
 </details>
 
 ##  Regularization
@@ -233,7 +310,8 @@ $$\log rL[\boldsymbol{\beta} | X, Y]  = \log Pr[Y | X, \boldsymbol{\beta}] - \#X
 where, in the regularization term, $\#X$ denote the _cardinality_ $X$, i.e., the number of variables in the model.
   - Applying this rL to our example, solves the overfitting problem
 
-```{r,echo=F, fig.height=4, echo=TRUE}
+
+```r
 # compute loglikelihood (ll) for all models including 1-P variables
 pl= vector() 
 for(i in seq(1,P)){
@@ -246,7 +324,9 @@ for(i in seq(1,P)){
 }
 # plot ll of all models
 plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
-```  
+```
+
+<img src="session-regularization_files/figure-html/unnamed-chunk-3-1.png" width="100%" />
 
 ##  Regularization | `AIC and model testing`
 
@@ -278,31 +358,83 @@ $$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[\boldsymbol{\beta}_{m}|X_
 
 * AIC applied to our example data results in 
 
-```{r, aic, echo=F}
-require(stats)
-require(dplyr)
-require(kableExtra)
-mprev <- lm(Y ~ X[,1])
-aic=data.frame(models=0, aic=0, lowest="-")
-for(i in seq(1,P)){
-  m <- lm(Y ~ X[,seq(1,i)])
-  fit=AIC(mprev,m)
-  mprev=m
-  if(i==2){
-    aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
-  }
-  aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
-}
-minaic=min(aic$aic)
-aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
-aic$lowest = ifelse(aic$aic==minaic,"Yes","-")
-
-kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
-```
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Compared models </th>
+   <th style="text-align:right;"> AIC </th>
+   <th style="text-align:left;"> Minimum AIC </th>
+   <th style="text-align:left;"> rL </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 1 variable </td>
+   <td style="text-align:right;"> 285.71 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.156453 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2 variables </td>
+   <td style="text-align:right;"> 282.73 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.694197 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 3 variables </td>
+   <td style="text-align:right;"> 282.00 </td>
+   <td style="text-align:left;"> Yes </td>
+   <td style="text-align:left;"> 1.000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 4 variables </td>
+   <td style="text-align:right;"> 283.70 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.427415 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 5 variables </td>
+   <td style="text-align:right;"> 285.45 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.178173 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 6 variables </td>
+   <td style="text-align:right;"> 286.55 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.102797 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 7 variables </td>
+   <td style="text-align:right;"> 288.50 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.038774 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 8 variables </td>
+   <td style="text-align:right;"> 290.44 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.014699 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 9 variables </td>
+   <td style="text-align:right;"> 292.38 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.005572 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 10 variables </td>
+   <td style="text-align:right;"> 293.58 </td>
+   <td style="text-align:left;"> - </td>
+   <td style="text-align:left;"> 0.003058 </td>
+  </tr>
+</tbody>
+</table>
 
 * Plotting the $AIC$ and the $reL$
 
-```{r,echo=F, fig.height=4, echo=TRUE}
+
+```r
 # compute loglikelihood (ll) for all models including 1-P variables
 pl= vector() 
 for(i in seq(1,P)){
@@ -315,13 +447,17 @@ for(i in seq(1,P)){
 }
 # plot ll of all models
 plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
-```  
+```
 
-```{r,echo=F, fig.height=4, echo=TRUE}
+<img src="session-regularization_files/figure-html/unnamed-chunk-4-1.png" width="100%" />
 
+
+```r
 # plot ll of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
-```  
+```
+
+<img src="session-regularization_files/figure-html/unnamed-chunk-5-1.png" width="100%" />
 
 We see that the best model is the one with the 3 first X-variables (as expected) and that the second best model (with the first 2 X-variabels) is $\approx70\%$ worse.
 
@@ -414,13 +550,16 @@ $x' = \frac{x-\bar{x}}{1/\sqrt{N}||X-\bar{x}||_2}$
 
 * A graphical way to view the result is to `plot` the paths of $\beta$ for increasing vaules of $\lambda$.
 
-```{r, glm, echo=T, fig.height=5, fig.width=5} 
+
+```r
 require(glmnet)
 par(mfrow=c(1,2))
 # run lasso (alpha=1) for linear model (family=gaussian)
 fit = glmnet(X,Y, family="gaussian", alpha=1, standardize=T)
 plot(fit, xvar="lambda",label=T)
 ```
+
+<img src="session-regularization_files/figure-html/glm-1.png" width="100%" />
 
 ### Think about
 * In which order are variables included (i.e., their $\beta$ becomes non-zero? 
@@ -439,7 +578,8 @@ plot(fit, xvar="lambda",label=T)
 * view the estimated $\beta_i$ under this $\lambda$.
 
 
-```{r, coefglm, echo=T,fig.height=5}
+
+```r
 require(glmnet)
 require(dplyr)
 require(kableExtra)
@@ -449,17 +589,15 @@ cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
 minlambda=cvglm$lambda.min
 ```
 
-```{r, echo=F, fig.height=5}
-plot(cvglm$glmnet.fit, xvar="lambda",label=T)
-plot(cvglm)
-```
+<img src="session-regularization_files/figure-html/unnamed-chunk-6-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-6-2.png" width="100%" />
 
 * Which is the $\lambda$ selected by `cv.glmnet`?
 * Does this make sense given our _oracel_ knowledge?
 
 * Finally print a table with the $\beta$ coefficients for the optimal model (i.e.,  at minimum $\lambda$).
 
-```{r, echo =T}
+
+```r
 require(dplyr)
 require(kableExtra)
 
@@ -468,3 +606,123 @@ coefglm=cbind(seq(0,10),coefglm)
 names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,2),")"))
 kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 ```
+
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> Variable </th>
+   <th style="text-align:right;"> beta(lambda=0.088) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3.7018933 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.1485417 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.4612657 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 0.2341136 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+require(dplyr)
+require(kableExtra)
+
+coefglm=as.data.frame(as.matrix(predict(cvglm, s="lambda.min", type="coefficients")))
+coefglm=cbind(seq(0,10),coefglm)
+names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,2),")"))
+kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
+```
+
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:right;"> Variable </th>
+   <th style="text-align:right;"> beta(lambda=0.088) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3.7018933 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.1485417 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.4612657 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 0.2341136 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+</tbody>
+</table>
