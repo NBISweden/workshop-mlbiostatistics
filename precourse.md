@@ -8,45 +8,14 @@ There are few things **to do** before the course starts. Please read carefully a
 
 # Computational resources
 
-During the course we will be using Uppsala University's high performance computer (Uppmax) as well as run scripts locally on laptops using R and R-Studio.
+During the course we will run scripts locally on laptops using R and R-Studio.
 
 To be able to follow exercises we ask you to
-1. configure access to Uppmax
-2. install R and R-Studio on your laptop
-3. install Integrative Genomics Viewer on your laptop
-
-# Uppmax
-Computational resources are provided by [SNIC_UPPMAX](https://www.uppmax.uu.se). To be able to use them
-1. create a user account (only if you do not already have one)
-2. associate your user account with the course project
-
-## Create user account & request membership in the course project (for those new to Uppmax)
-This involves few steps. Briefly,
-1. registering at SUPR
-2. accepting the User Agreement
-3. becoming a member in the project (g2018030)
-4. applying for an account at Uppmax
-
-To go through the steps follow the instructions on [Uppmax website](http://www.uppmax.uu.se/support/getting-started/applying-for-a-user-account/). While at this keep this information handy:
-- Cluster name: rackham
-- Project ID: g2018030
-
-## Request membership in the course project (for those already having Uppmax account)
-1. log in to [SUPR](https://supr.snic.se)
-2. under Projects: Requesting Membership in Projects, request membership in g2018030
-
-## Check configuration (everyone)
-After you complete setting-up
-- login to rackham.uppmax.uu.se
-- type "id" in the command line
-- copy and email back (course organisers) the output of the command
-
-[A guide on how to log-in for the first time]((http://www.uppmax.uu.se/support/user-guides/guide--first-login-to-uppmax/)
-
+1. install R and R-Studio on your laptop
 
 # R & R-Studio
 
-We will also be using the latest version of R and R-studio locally. Both
+We will be using the latest version of R and R-studio locally. Both
 of these work on computers running Linux, Windows and Macintosh
 operative systems. R-studio is a set of tools as well as an editor
 that facilitates the use of R. Over the last years it has
@@ -124,29 +93,14 @@ If the installation above went without any problem you should be able
 to fire up R-studio and see something like the following:
 <img src="files/R-studio.png" style="width:400px;" />
 
-# IGV
-To install, follow the instructions on the [IGV website](http://software.broadinstitute.org/software/igv/)
-
-
 # Further optional preparations
 For those of you wanting to start ahead and/or brush up on various skills before the course
 
 ## Computer skills
-- [Unix](http://www.ee.surrey.ac.uk/Teaching/Unix/): especially the first three chapters. You can practice on Milou or using this [emulator](http://uppnex.se/emu/)
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
   A very short introduction to using R.
-
-## ChIP-seq  
-- [Video introduction to ChIP-seq data analysis](https://www.youtube.com/watch?v=zwuUveGgmS0) by Dr. Carl Hermann, University of Heidelberg
-- [ChIP-seq and beyond: new and improved methodologies to detect and characterize protein-DNA interactions](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3591838/)
-- [Q&A: ChIP-seq technologies and the study of gene regulation](https://bmcbiol.biomedcentral.com/articles/10.1186/1741-7007-8-56)
-
-<!---
-- [DiffBind tutorial](https://bioconductor.org/packages/release/bioc/vignettes/DiffBind/inst/doc/DiffBind.pdf): introduction to Bioconductor package for differential binding that will be used during the course
-- [ChIPpeakAnno tutorial](http://bioconductor.org/packages/release/bioc/vignettes/ChIPpeakAnno/inst/doc/pipeline.html): introduction to Biocondcutor package for downstream ChIP-seq data analyses that will be used during the course
-
 
 # Useful online resources
 
