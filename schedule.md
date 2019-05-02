@@ -7,9 +7,6 @@ Course location: SciLifeLab, Uppsala University, BMC, Husargatan 3
 
 Room: E10:1308, BMC
 
-**09.00 - 10.00** [example session](session-example/session-example.md)
-
-
 ----
 
 ### Tuesday 2019-05-21
@@ -39,7 +36,7 @@ Room: E10:1308, BMC
 
 **09.00 - 10.00** Group discussion: reflections on day 1 (Olga, Eva)
 
-**10.00 - 12.00** Regression I (Olga, Eva)
+**10.00 - 12.00** [Regression I](session-regression-I/session-regression-I.md) (Olga, Eva)
 
   *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
