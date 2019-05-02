@@ -9,8 +9,8 @@ There are few things **to do** before the course starts. These include both sett
 ## Content
 - [R & R-Studio](#R)
 - [R libraries and datasets](#Rlib)
-- [Recommended reading](#reading)
-- [Recommended exercises](#exercises)
+- [Reading](#reading)
+- [Exercises](#exercises)
 - [Additional resources](#extra)
 
 ---
@@ -36,7 +36,7 @@ Install version 3.5.0 or higher
 
 Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/) download the installer corresponding to your operative system. Unpack the installer and install the app on a suitable place on your system.
 
-#### Test installations
+##### Test installations
 
 If the installation above went without any problem you should be able to fire up R-studio and see something like the following:
 ![](precourse/images/RStudio.png)
@@ -46,7 +46,7 @@ If the installation above went without any problem you should be able to fire up
 
 By default, R instals a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install.
 
-#### Install R packages
+##### Install R packages
 To install R packages, open R-Studio and in the console, type
 
 ``` r
@@ -61,25 +61,28 @@ install.packages(devtools)
 # For developmental packages, not on CRAN
 devtools::install_github("tidyverse/googlesheets4")
 ```
+_e.g._
 ![](precourse/images/RStudio-Rlib.png)
 
-#### Test installation
+##### Test installation
 1. Download R markdown file that we have prepared for you from here [Rtest.Rmd](precourse/Rtest.Rmd)
 2. Open R-Studio
-3. Open Rtest.Rmd by clicking on `File` -> `Open file`and navigating to the `Rtest.Rmd` location on your computer
+3. Open Rtest.Rmd by clicking on `File` -> `Open file` and navigating to the `Rtest.Rmd` location on your computer
 4. Read through the document to understand more about R Markdown
 5. Press `Knit` button
 6. Email us <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR.
-7. Otherwise, you will get error messages in the console. Try to trouble shoot, i.e. by re-installing packages. If you do not manage, email us saying that you will need help during the course, so we can plan accordingly.
+7. Otherwise, you will get error messages in the console. Try to trouble shoot, i.e. by re-installing packages. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. Empty email with a title "Will need help with R/RStudio setup" will do.
 
 ------
 
-### Recommended reading <a name="reading"></a>
+### Reading <a name="reading"></a>
+- Matrix algebra chapter?
+- Chapter 3: Linear regression from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
+
 ------
 
-
-
-### Recommended exercises <a name="exercises"></a>
+### Exercises <a name="exercises"></a>
+- Do lab 2.3 Lab: Introduction to R from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
 
 -------
 ### Additional resources <a name="extra"></a>
@@ -92,3 +95,6 @@ For those of you wanting to start ahead and/or brush up on various skills before
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
   A very short introduction to using R.
 - More on Rnw and KnitR
+
+
+[book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
