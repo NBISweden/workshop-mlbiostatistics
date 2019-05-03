@@ -61,8 +61,13 @@ install.packages(devtools)
 # For developmental packages, not on CRAN
 devtools::install_github("tidyverse/googlesheets4")
 ```
-_e.g._
-![](precourse/images/RStudio-Rlib.png)
+
+<figure>
+<img src="precourse/images/RStudio-Rlib.png">
+<figcaption>
+Example screen shoot with install.packages(ggplot2) command
+</figcaption>
+</figure>
 
 ##### Test installation
 1. Download R markdown file that we have prepared for you from here [Rtest.Rmd](precourse/Rtest.Rmd)
@@ -71,25 +76,31 @@ _e.g._
 4. Read through the document to understand more about R Markdown
 5. Press `Knit` button
 6. Email us <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR.
-7. Otherwise, you will get error messages in the console. Try to trouble shoot, i.e. by re-installing packages. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. Empty email with a title "Will need help with R/RStudio setup" will do.
+7. Otherwise, you will get error messages in the console. You can try to trouble shoot by reading error messages and re-installing packages. If you are new to R and R-Studio try also reading Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. Empty email with a title "Will need help with R/RStudio setup" will do.
 
 ------
 
 ### Reading <a name="reading"></a>
-- Matrix algebra chapter?
+- Chapter 4: Matrix algebra, page 110 (from 4.3 Matrix Notation) to page 117, from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
 - Chapter 3: Linear regression from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
 
 ------
 
 ### Exercises <a name="exercises"></a>
+If you are new to R and/or R Markdown read carefully and practice commands. If you've been using R and R Markdown scan through the materials to double check you it covered.
+
+##### R
+
+- Read and practice commands from Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love.
 - Do lab 2.3 Lab: Introduction to R from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
+
+#### R Markdown
+- [Introduction to R Markdown](https://rmarkdown.rstudio.com/articles_intro.html)
 
 -------
 ### Additional resources <a name="extra"></a>
 
-For those of you wanting to start ahead and/or brush up on various skills before the course
-
-##### Computer skills
+Other potentially useful resources
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
@@ -98,3 +109,4 @@ For those of you wanting to start ahead and/or brush up on various skills before
 
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
+[book-rai]: http://www.rwdc2.com/files/rafa.pdf
