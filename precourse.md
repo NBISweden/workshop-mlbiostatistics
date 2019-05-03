@@ -67,7 +67,7 @@ devtools::install_github("tidyverse/googlesheets4")
 ```
 
 <figure>
-<img src="precourse/images/RStudio-Rlib.png">
+<img src="precourse/images/RStudio-Rlib.png" width="400" height="300">>
 <figcaption>
 Example screen shoot with install.packages(ggplot2) command
 </figcaption>
@@ -106,12 +106,12 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 ### What to bring <a name="whattobring"></a>
 - bring your own laptop with the above R and R-Studio installations
 - bring pen and paper to write on
-- a positive open attitude :) 
+- a positive open attitude :)
 
 -------
 ### Additional resources <a name="extra"></a>
 
-####Other potentially useful resources
+#### Other potentially useful resources
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  

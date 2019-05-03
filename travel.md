@@ -18,10 +18,11 @@ Nearest bus stop: Uppsala Science park (opposite BMC).
 **To walk**
 Ca. 2.5km, 35 min, walk from Uppsala Station.
 <figure>
-<img src="precourse/images/Googlemap.png">
+<img src="precourse/images/Googlemap.png" width="400" height="300">
 <figcaption>
 </figcaption>
 </figure>
+
 
 **To find room within BMC: see [Mazemap][mazemap]**
 
