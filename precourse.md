@@ -41,9 +41,7 @@ Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/)
 
 If the installation above went without any problem you should be able to fire up R-studio and see something like the following:
 <figure>
-<img src="precourse/images/RStudio.png" width="400" height="300">>
-<figcaption>
-</figcaption>
+<img src="precourse/images/RStudio.png" width="500" height="400">
 </figure>
 
 ----------
@@ -89,9 +87,9 @@ Example screen shoot with install.packages(ggplot2) command
 ------
 
 ### Reading <a name="reading"></a>
-- 2-pages [math refresher](precourse/Maths-Refresher.pdf) (Polak, 2015)
--  Chapter: Matrix algebra, page 110 (from 4.3 Matrix Notation) to page 117, from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
-- Chapter 3, session 3.1 Simple Linear Regression, pages 61 - 70, from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani
+- 2-pager [math refresher](precourse/Maths-Refresher.pdf) (Polak, 2015)
+-  Chapter **Matrix algebra**, pages 110 - 117 (from 4.3 Matrix Notation) from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
+- Chapter 3, session **3.1 Simple Linear Regression**, pages 61 - 70, from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani
 
 ------
 
@@ -100,8 +98,8 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 
 ##### R
 
-- Read and practice commands from Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love.
-- Do lab 2.3 Lab: Introduction to R from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
+- Read and practice commands from Chapter: **Getting started** - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love.
+- Do lab **2.3 Lab: Introduction to R** from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
 
 #### R Markdown
 - [Introduction to R Markdown](https://rmarkdown.rstudio.com/articles_intro.html)
