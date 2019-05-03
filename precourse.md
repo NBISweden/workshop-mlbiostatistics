@@ -11,6 +11,7 @@ There are few things **to do** before the course starts. These include both sett
 - [R libraries and datasets](#Rlib)
 - [Reading](#reading)
 - [Exercises](#exercises)
+- [What do bring](#whattobring)
 - [Additional resources](#extra)
 
 ---
@@ -100,6 +101,12 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 
 #### R Markdown
 - [Introduction to R Markdown](https://rmarkdown.rstudio.com/articles_intro.html)
+
+-------
+### What to bring <a name="whattobring"></a>
+- bring your own laptop with the above R and R-Studio installations
+- bring pen and paper to write on
+- a positive open attitude :) 
 
 -------
 ### Additional resources <a name="extra"></a>
