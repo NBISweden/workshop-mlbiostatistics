@@ -57,6 +57,9 @@ install.packages(dplyr)
 install.packages(UsingR)
 install.packages(googledrive)
 install.packages(devtools)
+install.packages(pvclust)
+install.packages(pheatmap)
+install.packages(rafalib)
 
 # For developmental packages, not on CRAN
 devtools::install_github("tidyverse/googlesheets4")
@@ -70,19 +73,20 @@ Example screen shoot with install.packages(ggplot2) command
 </figure>
 
 ##### Test installation
-1. Download R markdown file that we have prepared for you from here [Rtest.Rmd](precourse/Rtest.Rmd)
+1. Download R markdown file that we have prepared for you from here [Rtest.Rmd](precourse/Rtest.Rmd).
 2. Open R-Studio
 3. Open Rtest.Rmd by clicking on `File` -> `Open file` and navigating to the `Rtest.Rmd` location on your computer
-4. Read through the document to understand more about R Markdown
+4. Have a look at the document to see if you can distinguish code from text. Do not worry if you do not understand the code yet. We are testing the installation now. More about R Markdown comes later (see Exercises: R Markdown).
 5. Press `Knit` button
-6. Email us <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR.
-7. Otherwise, you will get error messages in the console. You can try to trouble shoot by reading error messages and re-installing packages. If you are new to R and R-Studio try also reading Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. Empty email with a title "Will need help with R/RStudio setup" will do.
+6. **Email us** <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR. The file should be saved in the same directory as the `Rtest.Rmd`.
+7. Otherwise, you will get error messages in the console. You can try to trouble shoot by reading error messages and re-installing packages. If you are new to R and R-Studio try also reading Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. An empty email with a title "Will need help with R/RStudio setup" will do.
 
 ------
 
 ### Reading <a name="reading"></a>
-- Chapter 4: Matrix algebra, page 110 (from 4.3 Matrix Notation) to page 117, from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
-- Chapter 3: Linear regression from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
+- 2-pages [math refresher](precourse/Maths-Refresher.pdf) (Polak, 2015)
+-  Chapter: Matrix algebra, page 110 (from 4.3 Matrix Notation) to page 117, from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
+- Chapter 3, session 3.1 Simple Linear Regression, pages 61 - 70, from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani
 
 ------
 
@@ -100,12 +104,15 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 -------
 ### Additional resources <a name="extra"></a>
 
-Other potentially useful resources
+####Other potentially useful resources
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
   A very short introduction to using R.
-- More on Rnw and KnitR
+
+
+#### Extra reading
+-  Chapter: Inference from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
 
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
