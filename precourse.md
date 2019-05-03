@@ -40,7 +40,11 @@ Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/)
 ##### Test installations
 
 If the installation above went without any problem you should be able to fire up R-studio and see something like the following:
-![](precourse/images/RStudio.png)
+<figure>
+<img src="precourse/images/RStudio.png" width="400" height="300">>
+<figcaption>
+</figcaption>
+</figure>
 
 ----------
 ### R libraries and datasets <a name="Rlib"></a>
