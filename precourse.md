@@ -18,16 +18,16 @@ There are few things **to do** before the course starts. These include both sett
 
 ### R & R-Studio <a name="R"></a>
 
-During the course we will run scripts locally on laptops using `R` and `R-Studio`. To be able to follow exercises we ask you to install R and R-Studio on your laptop. Both of these work on computers running Linux, Windows and Macintosh operative systems. R-studio is a set of tools as well as an editor that facilitates the use of R. Over the last years it has become a very popular tool and in many ways become a de-facto standard for working with R.
+During the course we will run scripts locally on laptops using `R` and `R-Studio`. To be able to follow exercises we ask you to install R and R-Studio on your laptop. Both of these work on computers running Linux, Windows and Macintosh operating systems. R-studio is a set of tools as well as an editor that facilitates the use of R. Over the last years it has become a very popular tool and in many ways become a de-facto standard for working with R.
 
-Note that on same operative systems it will be easier to install and run R and R-studio if you are administrator of your own computer and hence are allowed to install software on your machine. If you do not have these privileges please ask your system administrator to install the latest version of R and R-studio.
+Note that on some operating systems it will be easier to install and run R and R-studio if you are administrator of your own computer and hence are allowed to install software on your machine. If you do not have these privileges please ask your system administrator to install the latest version of R and R-studio.
 
 ##### Install R
 
 Install version 3.5.0 or higher
 
 1.  Go to [CRAN](https://cran.rstudio.com)
-2.  Click on the link corresponding to your operative system
+2.  Click on the link corresponding to your operating system
 3.  Download the recommended files for your system.
 4.  Run the installer or move the downloaded files to suitable place on
     your computer.
@@ -35,7 +35,7 @@ Install version 3.5.0 or higher
 
 ##### Install R Studio
 
-Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/) download the installer corresponding to your operative system. Unpack the installer and install the app on a suitable place on your system.
+Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/) download the installer corresponding to your operating system. Unpack the installer and install the app on a suitable place on your system.
 
 ##### Test installations
 
