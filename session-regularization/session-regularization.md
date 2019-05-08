@@ -9,10 +9,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-```r
-require(knitr)
-opts_chunk$set(echo=FALSE, eval=TRUE,message=FALSE, warning=FALSE, error=FALSE, out.width='100%', fig.height=3) #, fig.width=6)#, knitr.kable.NA = '-')
-```
 
 ### Learning outcomes
 
