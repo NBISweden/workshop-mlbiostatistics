@@ -1,8 +1,6 @@
 ---
 title: 'Session regression I: simple linear regression'
 output:
-  html_document:
-    df_print: paged
   pdf_document:
     fig_caption: yes
     keep_tex: yes
@@ -15,6 +13,8 @@ urlcolor: blue
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.path="session-regression-I-files/figures/")
 knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(cache.path = "tmp")
+knitr::opts_chunk$set(cache = TRUE)
 ```
 
 
@@ -29,15 +29,14 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 -------
 
-## Introduction
-- [Quiz](https://forms.gle/bHZr1MP454npysAFA): What do we already know about `simple linear regression`? 
-
+# Introduction
+[Quiz](https://forms.gle/bHZr1MP454npysAFA): What do we already know about `simple linear regression`? 
 
 
 #### Description
 - Simple linear regression is a statistical method that allows us to summarize and study relationships between two continuous (quantitative, numerical) variables
   - one variable, denoted `x` is regarded as the *predictor*, *explanatory*, or *indepedent variable*, e.g. body weight (kg)
-  - the other variable, denoted `y`, is regarded as the *response*, *outcome*, or *dependent variable*, e.g. plasma volume (l)
+  - the other variable, denoted `y`, is regarded as the *response*, *outcome*, or *dependent variable*, e.g. plasma volume (liters)
 - It is used to estimate the best-fitting straight line to describe the association
 
 #### Used for to answer questions such as: 
@@ -49,7 +48,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 \newpage
 
 
-```{r, det-vs-stat, echo=F, fig.height=5, fig.cap="**Determinisitc vs. statistical relationship**: a) deterministic: equation exactly describes the relationship between the two variables e.g. $Fahrenheit=9/5*Celcius+32$; b) statistical relationship between x and y is not perfect (increasing), c)  statistical relationship between x and y is not perfect (decreasing), d) random signal", fig.align="center"}
+```{r, fig-intro-det-vs-stat, echo=F, fig.height=5, fig.cap="Determinisitc vs. statistical relationship: a) deterministic: equation exactly describes the relationship between the two variables e.g. $Fahrenheit=9/5*Celcius+32$; b) statistical relationship between x and y is not perfect (increasing), c)  statistical relationship between x and y is not perfect (decreasing), d) random signal", fig.align="center"}
 
 par(mfrow=c(2,2), mar=c(3,4,3,3))
 
@@ -75,18 +74,25 @@ plot(x, y_random, pch=19, xlab="x", ylab="y", main="d)", cex.main=0.8)
 ```
 
 
-
 ### Example data
 
-Example data contain the body weight and plasma volume for eight healthy men. 
+Example data contain the body weight (kg) and plasma volume (literes) for eight healthy men. 
 ```{r}
 
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
 ```
 
-Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*. Linear regrssion gives the equation of the straight line that best describes how the outcome changes (increase or decreases) with a change of exposure variable (in red)
-```{r, fig-reg, echo=F, fig.align="center", fig.height=5, fig.width=5}
+
+```{r, fig-intro-example, echo=F, fig.align="center", fig.height=4, fig.width=4, fig.cap="Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*."}
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]")
+#abline(lm(plasma~weight), col="red") # regression line
+
+```
+
+
+```{r, fig-intro-example-reg, echo=F, fig.align="center", fig.height=4, fig.width=4, fig.cap="Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*. Linear regrssion gives the equation of the straight line that best describes how the outcome changes (increase or decreases) with a change of exposure variable (in red)"}
 
 plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]")
 abline(lm(plasma~weight), col="red") # regression line
@@ -95,59 +101,112 @@ abline(lm(plasma~weight), col="red") # regression line
 
 The equation of the regression line is: 
 
-$$y=beta_0 + beta_1x$$
+$$y=\beta_0 + \beta_1x$$ 
 
+or mathematically using matrix notation
+$$Y=\beta_0 + \beta_1X$$ 
 
+```{r, fig-intro-example-reg-parameters, echo=F, fig.align="center", fig.height=7, fig.width=7, fig.cap="Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*. Linear regrssion gives the equation of the straight line that best describes how the outcome changes (increase or decreases) with a change of exposure variable (in red). Parameters explanation", eval=T}
 
-### Estimating the Coefficients
-### Assessing the Accuracy of the Coefficient Estimates
-### Asesssing the Accuracy of the Model
+par(mfcol=c(2,2), mar=c(4,4,3,2))
 
+# Values from regression model: plasma_volume = 0.0857 + 0.043615*x
 
-```{r reg, echo=F}
+# Fitted line
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+abline(lm(plasma~weight), col="red") # regression line
+text(65, 3.3, "plasma = 0.0857 + 0.0436 * weight", cex=1) 
 
-weight=c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
-plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+# Beta 1 example b
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid(), xlim=c(60, 70), ylim=c(2.8, 3.2))
+abline(lm(plasma~weight), col="red") # regression line
+segments(x0=65, y0=2.92, x1=66, y1=2.92, col="blue")
+segments(x0=66, y0=2.92, x1=66, y1=2.964, col="blue")
+text(67, 2.92, expression(beta[1]), cex=1.2, col="blue")
 
-# correlation 
-cor(weight, plasma)
+# Beta 1 example a
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+abline(lm(plasma~weight), col="red") # regression line
+segments(x0=65, y0=2.92, x1=70, y1=2.92, col="blue")
+segments(x0=70, y0=2.92, x1=70, y1=3.14, col="blue")
+text(72, 2.95, expression(beta[1]), cex=1.2, col="blue")
 
-# linear regression
-x <- weight
-y <- plasma
-model <- lm(y~x)
-summary(model)
+# Beta 0 example a
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid(), xlim=c(-5, 80), ylim=c(0, 5))
+abline(lm(plasma~weight), col="red") # regression line
+abline(h=0.0857) # regression line
+segments(x0=65, y0=2.92, x1=66, y1=2.92, col="blue")
+segments(x0=66, y0=2.92, x1=66, y1=2.964, col="blue")
+text(0, 0.5, expression(beta[0]), cex=1.2, col="blue")
 
-# prediction
-y.hat <- predict(model)
-
-n=length(x)
-RSS <- sum((y.hat-y)^2)
-RSE <- sqrt(RSS/(n-2))
-
-s <- sqrt((sum((y-mean(y))^2) - (model$coefficients[2])^2*sum((x-mean(x))^2))/(n-2))
-se.1 <-s/sqrt(sum((x-mean(x))^2))
-se.1
-
-se.0 <- s*sqrt((1/n + mean(x)^2/(sum((x-mean(x))^2))))
-se.0
-
-
-#             Estimate Std. Error t value Pr(>|t|)  
-# (Intercept)  0.08572    1.02400   0.084   0.9360  
-# x            0.04362    0.01527   2.857   0.0289 *
 ```
 
+[Quiz](https://forms.gle/8jSsdQehGhjw87E38): regression model parameters
+--------
+\newpage
 
 
-## Multiple linear regression
-### Estimating the Regression Coefficients
-### Estimating coefficients
-### Relationship between the response and predictors 
-### Model fit 
-### Predictions 
-### Qualitative predictors 
-### Interaction terms
-### Non-linear transformation of the predictors 
-### Potential problems: non-linearity, collinearity 
-### Logistic regression
+# Estimating the Coefficients
+
+In practice, $\beta_0$ and $\beta_1$ are usually unknown. The best-fitting line is derived using the method of **least squares**, i.e. by finding the values of the parameters $\beta_0$ and $\beta_1$ tht minimize the sum of the squared vertical distances of the points from the line. 
+
+```{r, coeff-residuals, echo=F, warning=F, message=F, fig.align="center", fig.width=4, fig.height=3}
+
+data.reg <- data.frame(plasma=plasma, weight=weight)
+fit.reg <- lm(plasma~weight, data=data.reg)
+data.reg$predicted <- predict(fit.reg)
+data.reg$residuals <- residuals((fit.reg))
+
+library(ggplot2)
+ggplot(data.reg, aes(x=data.reg$weight, data.reg$plasma)) + geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey") + 
+  geom_segment(aes(xend = weight, yend = predicted)) + 
+  geom_point(aes(y = predicted), shape = 1) +
+  geom_point(aes(y = predicted), shape = 1) + 
+  theme_bw() + xlab("body weight [kg]") + ylab("plasma volume [liters]")
+
+
+```
+
+Let $(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)$ represent $n$ observation pairs, each of which consists of a maeasurment of $X$ and $Y$, e.g. in our example we have 8 pairs of observations, e.g. (58, 2.75), (70, 2.86) etc. 
+
+```{r}
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+```
+
+We seek to find coefficients esitmates $\hat{\beta_0}$ and $\hat{\beta_1}$ such that liner model fits the available data well, i.e. such that the resulting line is as close as possible to the 8 data points. 
+
+There are a number of ways of measuring _closeness_. By far the most common approach involves minimizing the _least squares_ criterion. 
+
+Let $\hat{y_i}=\hat{\beta_0 + \hat{\beta_1}x}$ be the prediction $Y$ based on the $i$th value of $X$. Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$th *residual*, i.e. the difference between the $i$th observed response value and the $i$th response value that is predicted by the linear model.
+
+RSS, the *residual sum of squares* is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + ... \epsilon_n^2$$ or
+equivalently as: $$RSS=(y_1-\hat{\beta_0}-\hat{\beta_1}x_1)^2+(y_2-\hat{\beta_0}-\hat{\beta_1}x_2)^2+...+(y_n-\hat{\beta_0}-\hat{\beta_1}x_n)^2$$
+
+The least squares approach chooses $\hat{\beta_0}$ and $\hat{\beta_1}$ to minimize the RSS. With some calculus one gets: 
+
+$$\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_1-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}$$
+$$\hat{\beta_0}=\overline{y}-\hat{\beta_1}\overline{x}$$
+
+where $\overline{y}=\frac{1}{n}\sum_{i=1}^{n}y_i$ and $\overline{x}=\frac{1}{n}\sum_{i=1}^{n}x_i$ are the sample means. 
+
+
+
+# Hypothesis testing
+- intro to s.e(beta0) and s.e.(beta1) incl. sampling
+- intro to H0 and H1
+- group work to calculate s.e.
+- live demo in R to run lm
+
+# Prediction example
+- by hand and live demo
+
+# Asesssing the Accuracy of the Model & Correlation
+
+# Assumptions 
+
+
+
+
+
