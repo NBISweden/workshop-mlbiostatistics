@@ -7,9 +7,6 @@ Course location: SciLifeLab, Uppsala University, BMC, Husargatan 3
 
 Room: E10:1308, BMC
 
-**09.00 - 10.00** [example session](session-example/session-example.md)
-
-
 ----
 
 ### Tuesday 2019-05-21

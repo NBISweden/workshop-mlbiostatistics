@@ -51,7 +51,7 @@ e.g. session-example
  - The subject and body should be separated by a blank line, start with a capital letter, and the subject line should not end with a period.
  - More about [good commit messages][git-commits]
 
-### Add link(s) to the session to `index.md`
+### Add link(s) to the session to `session-links.md`
 _see example under Session Links_
 
 ### Add to Github
@@ -64,7 +64,7 @@ _see example under Session Links_
   ```
 
 #### Make a pull request to master branch when ready
-Go to course repository [https://github.com/NBISweden/workshop-biostatistics.git](https://github.com/NBISweden/workshop-biostatistics.git) and create a pull request 
+Go to course repository [https://github.com/NBISweden/workshop-biostatistics.git](https://github.com/NBISweden/workshop-biostatistics.git) and create a pull request
 
 ### Questions or feedback?
 Create an issue or contact Olga Dethlefsen <<olga.dethlefsen@nbis.se>>

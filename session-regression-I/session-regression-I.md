@@ -41,7 +41,7 @@ red)
 
 The equation of the regression line is:
 
-\[y=beta_0 + beta_1x\]
+$$y=beta_0 + beta_1x$$
 
 ### Estimating the Coefficients
 
