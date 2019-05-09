@@ -139,13 +139,13 @@
   understand simple linear regression model incl.~terminology and
   mathematical notations
 \item
-  estimate model parameters and their standar error
+  estimate model parameters and their standard error
 \item
   use model for checking the association between \emph{x} and \emph{y}
 \item
   use model for prediction
 \item
-  assees model accuracy with RSE and R\(^2\)
+  asses model accuracy with RSE and R\(^2\)
 \item
   check model assumptions
 \item
@@ -219,8 +219,8 @@ as:}\label{used-for-to-answer-questions-such-as}}
 \hypertarget{example-data}{%
 \subsubsection{Example data}\label{example-data}}
 
-Example data contain the body weight (kg) and plasma volume (literes)
-for eight healthy men.
+Example data contain the body weight (kg) and plasma volume (liters) for
+eight healthy men.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -269,9 +269,9 @@ parameters}{Quiz: regression model parameters}}\label{quiz-regression-model-para
 
 \newpage
 
-\hypertarget{estimating-the-coefficients}{%
-\section{Estimating the
-Coefficients}\label{estimating-the-coefficients}}
+\hypertarget{estimating-model-coefficients}{%
+\section{Estimating model
+coefficients}\label{estimating-model-coefficients}}
 
 In practice, \(\beta_0\) and \(\beta_1\) are usually unknown. The
 best-fitting line is derived using the method of \textbf{least squares},
@@ -282,7 +282,7 @@ from the line.
 \begin{center}\includegraphics{session-regression-I-files/figures/coeff-residuals-1} \end{center}
 
 Let \((x_1, y_1), (x_2, y_2), ..., (x_n, y_n)\) represent \(n\)
-observation pairs, each of which consists of a maeasurment of \(X\) and
+observation pairs, each of which consists of a measurement of \(X\) and
 \(Y\), e.g.~in our example we have 8 pairs of observations, e.g.~(58,
 2.75), (70, 2.86) etc.
 
@@ -293,7 +293,7 @@ observation pairs, each of which consists of a maeasurment of \(X\) and
 \end{Highlighting}
 \end{Shaded}
 
-We seek to find coefficients esitmates \(\hat{\beta_0}\) and
+We seek to find coefficients estimates \(\hat{\beta_0}\) and
 \(\hat{\beta_1}\) such that liner model fits the available data well,
 i.e.~such that the resulting line is as close as possible to the 8 data
 points.
@@ -302,8 +302,8 @@ There are a number of ways of measuring \emph{closeness}. By far the
 most common approach involves minimizing the \emph{least squares}
 criterion.
 
-Let \(\hat{y_i}=\hat{\beta_0 + \hat{\beta_1}x}\) be the prediction \(Y\)
-based on the \(i\)th value of \(X\). Then
+Let \(\hat{y_i}=\hat{\beta_0} + \hat{\beta_1}x_i\) be the prediction
+\(Y\) based on the \(i\)th value of \(X\). Then
 \(\epsilon_i = y_i - \hat{y_i}\) represents the \(i\)th \emph{residual},
 i.e.~the difference between the \(i\)th observed response value and the
 \(i\)th response value that is predicted by the linear model.
@@ -316,26 +316,153 @@ as:
 The least squares approach chooses \(\hat{\beta_0}\) and
 \(\hat{\beta_1}\) to minimize the RSS. With some calculus one gets:
 
-\[\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_1-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}\]
+\[\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}\]
 \[\hat{\beta_0}=\overline{y}-\hat{\beta_1}\overline{x}\]
 
 where \(\overline{y}=\frac{1}{n}\sum_{i=1}^{n}y_i\) and
 \(\overline{x}=\frac{1}{n}\sum_{i=1}^{n}x_i\) are the sample means.
 
+\href{pen-and-paper-plasma-volume.pdf}{Pen and Paper exercise}:
+Estimating model coefficients
+
 \hypertarget{hypothesis-testing}{%
 \section{Hypothesis testing}\label{hypothesis-testing}}
+
+\hypertarget{accuracy-of-the-coefficient-estimates}{%
+\subsection{Accuracy of the coefficient
+estimates}\label{accuracy-of-the-coefficient-estimates}}
 
 \begin{itemize}
 \tightlist
 \item
-  intro to s.e(beta0) and s.e.(beta1) incl.~sampling
+  The calculated \(\hat{\beta_0}\) and \(\hat{\beta_1}\) are estimates
+  of the population values of the intercept and slope and are,
+  therefore, subject to sampling variation
 \item
-  intro to H0 and H1
-\item
-  group work to calculate s.e.
-\item
-  live demo in R to run lm
+  Their precision is measure by their standard errors
+  \[s.e(\hat{\beta_0})=s*\sqrt{[\frac{1}{n}+\frac{x_i^2}{\sum_{i=1}^{n}(x_i-\overline{x})^2}]}\]
+  \[s.e(\hat{\beta_1})=\frac{s}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}}\]
+  where, \(s\) is the \emph{standard deviation of the points about the
+  line}. It has \((n-2)\) degrees of freedom, i.e.~the sample size minus
+  the number of regression coefficients
+  \[s=\sqrt{[\frac{\sum_{i=1}^{n}(y_i-\overline{y})^2-\overline{\beta_1}\sum_{i=1}^{n}(x_i-\overline{x})^2}{n-2}]}\]
 \end{itemize}
+
+\href{pen-and-paper-plasma-volume.pdf}{Pen and Paper exercise}: Accuracy
+of the coefficient estimates
+
+\hypertarget{confidence-interval}{%
+\subsection{Confidence interval}\label{confidence-interval}}
+
+\begin{itemize}
+\tightlist
+\item
+  Standard errors can be used to compute \texttt{confidence\ interval}.
+\item
+  A 95\% confidence interval is defined as a range of values such that
+  with 95\% probability, the range will contain the true unknown value
+  of the parameter.
+\item
+  The range is defined in terms of lower and upper limits computed from
+  the data. For linear regression, the 95\% confidence intervals takes
+  form:
+  \[[\hat{\beta_1}-2*s.e.(\hat{\beta_1}), \hat{\beta_1}+2*s.e.(\hat{\beta_1})]\]
+  and
+  \[[\hat{\beta_1}-2*s.e.(\hat{\beta_0}), \hat{\beta_1}+2*s.e.(\hat{\beta_0})]\]
+\end{itemize}
+
+\hypertarget{hypothesis-testing-1}{%
+\subsection{Hypothesis testing}\label{hypothesis-testing-1}}
+
+\begin{itemize}
+\tightlist
+\item
+  Standard errors can also be used to perform
+  \texttt{hypothesis\ testing} on the coefficients.
+\item
+  The most common hypothesis test involves testing the
+  \texttt{null\ hypothesis} of: \newline
+\end{itemize}
+
+\(H_0:\) There is no relationship between \(X\) and \(Y\) \newline
+
+versus the \texttt{alternative\ hypothesis} \newline
+
+\(H_0:\) There is some relationship between \(X\) and \(Y\)
+
+Mathematically, this corresponds to testing \[H_0: \beta_1=0\] versus
+\[H_0: \beta_1\neq0\] since if \[\beta_1=0\] then the model
+\[Y=\beta_0+\beta_1X + \epsilon\] reduces to \[Y=\beta_0 + \epsilon\]
+
+To test the null hypothesis we need to determine whether
+\(\hat{\beta_1}\), our estimate of \(\beta_1\), is sufficiently far from
+zero that we can be confident that \(\beta_1\) is non-zero.
+
+How far is far enough? This depends on the accuracy of
+\(\hat{\beta_1}\), that is standard error \(s.e.(\hat{\beta_1})\). If
+\(s.e.(\hat{\beta_1})\) is small, then small values of \(\hat{\beta_1}\)
+may provide strong evidence that \(\hat{\beta_1}\neq0\) and \emph{vice
+verca}. In practice, we compute a \texttt{t-statistics} given by
+\[t=\frac{\hat{\beta_1}-0}{s.e.(\hat{\beta_1})}\] which measures the
+standard deviations that \(\hat{\beta_1}\) is away from 0.
+
+If there really is no relationship between \(X\) and \(Y\), then we this
+will have a \(t\)-distribution with \(n-2\) degrees of freedom. From
+previous sessions, we now know how to compute probability of observing
+any value equal to \(|t|\). We call this probability the \(p-value\).
+
+We can interpret the \(p-value\) as follows: a small p-value indicates
+that it is unlikely to observe such a substantial association between
+\(X\) and \(Y\) due to chance, i.e.~in the absence of any real
+association. We therefore can \texttt{reject\ the\ null\ hypothesis}.
+
+Typical p-value cutoffs for rejecting the null hypothesis are 5 or 1\%.
+\href{pen-and-paper-plasma-volume.pdf}{Pen and Paper exercise}:
+Hypothesis testing
+
+\hypertarget{live-coding-demo}{%
+\subsection{Live coding demo}\label{live-coding-demo}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{weight <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{58}\NormalTok{, }\DecValTok{70}\NormalTok{, }\DecValTok{74}\NormalTok{, }\FloatTok{63.5}\NormalTok{, }\FloatTok{62.0}\NormalTok{, }\FloatTok{70.5}\NormalTok{, }\FloatTok{71.0}\NormalTok{, }\FloatTok{66.0}\NormalTok{) }
+\NormalTok{plasma <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{2.75}\NormalTok{, }\FloatTok{2.86}\NormalTok{, }\FloatTok{3.37}\NormalTok{, }\FloatTok{2.76}\NormalTok{, }\FloatTok{2.62}\NormalTok{, }\FloatTok{3.49}\NormalTok{, }\FloatTok{3.05}\NormalTok{, }\FloatTok{3.12}\NormalTok{) }
+
+\KeywordTok{plot}\NormalTok{(weight, plasma)}
+\NormalTok{reg <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(plasma}\OperatorTok{~}\NormalTok{weight)}
+
+\KeywordTok{summary}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = plasma ~ weight)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.27880 -0.14178 -0.01928  0.13986  0.32939 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)  0.08572    1.02400   0.084   0.9360  
+## weight       0.04362    0.01527   2.857   0.0289 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.2188 on 6 degrees of freedom
+## Multiple R-squared:  0.5763, Adjusted R-squared:  0.5057 
+## F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{abline}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics{session-regression-I-files/figures/unnamed-chunk-3-1} \end{center}
 
 \hypertarget{prediction-example}{%
 \section{Prediction example}\label{prediction-example}}

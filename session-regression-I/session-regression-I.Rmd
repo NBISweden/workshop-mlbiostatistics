@@ -6,6 +6,7 @@ output:
     keep_tex: yes
 header-includes: \usepackage{float}
 urlcolor: blue
+
 ---
 
 
@@ -20,10 +21,10 @@ knitr::opts_chunk$set(cache = TRUE)
 
 ## Learning outcomes
 - understand simple linear regression model incl. terminology and mathematical notations
-- estimate model parameters and their standar error
+- estimate model parameters and their standard error
 - use model for checking the association between _x_ and _y_
 - use model for prediction
-- assees model accuracy with RSE and R$^2$
+- asses model accuracy with RSE and R$^2$
 - check model assumptions
 - to be able to use `lm` function in R for model fitting, obtaining confidence interval and predictions
 
@@ -76,7 +77,7 @@ plot(x, y_random, pch=19, xlab="x", ylab="y", main="d)", cex.main=0.8)
 
 ### Example data
 
-Example data contain the body weight (kg) and plasma volume (literes) for eight healthy men. 
+Example data contain the body weight (kg) and plasma volume (liters) for eight healthy men. 
 ```{r}
 
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
@@ -146,7 +147,7 @@ text(0, 0.5, expression(beta[0]), cex=1.2, col="blue")
 \newpage
 
 
-# Estimating the Coefficients
+# Estimating model coefficients
 
 In practice, $\beta_0$ and $\beta_1$ are usually unknown. The best-fitting line is derived using the method of **least squares**, i.e. by finding the values of the parameters $\beta_0$ and $\beta_1$ tht minimize the sum of the squared vertical distances of the points from the line. 
 
@@ -168,36 +169,92 @@ ggplot(data.reg, aes(x=data.reg$weight, data.reg$plasma)) + geom_point() +
 
 ```
 
-Let $(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)$ represent $n$ observation pairs, each of which consists of a maeasurment of $X$ and $Y$, e.g. in our example we have 8 pairs of observations, e.g. (58, 2.75), (70, 2.86) etc. 
+Let $(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)$ represent $n$ observation pairs, each of which consists of a measurement of $X$ and $Y$, e.g. in our example we have 8 pairs of observations, e.g. (58, 2.75), (70, 2.86) etc. 
 
 ```{r}
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
 ```
 
-We seek to find coefficients esitmates $\hat{\beta_0}$ and $\hat{\beta_1}$ such that liner model fits the available data well, i.e. such that the resulting line is as close as possible to the 8 data points. 
+We seek to find coefficients estimates $\hat{\beta_0}$ and $\hat{\beta_1}$ such that liner model fits the available data well, i.e. such that the resulting line is as close as possible to the 8 data points. 
 
 There are a number of ways of measuring _closeness_. By far the most common approach involves minimizing the _least squares_ criterion. 
 
-Let $\hat{y_i}=\hat{\beta_0 + \hat{\beta_1}x}$ be the prediction $Y$ based on the $i$th value of $X$. Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$th *residual*, i.e. the difference between the $i$th observed response value and the $i$th response value that is predicted by the linear model.
+Let $\hat{y_i}=\hat{\beta_0} + \hat{\beta_1}x_i$ be the prediction $Y$ based on the $i$th value of $X$. Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$th *residual*, i.e. the difference between the $i$th observed response value and the $i$th response value that is predicted by the linear model.
 
 RSS, the *residual sum of squares* is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + ... \epsilon_n^2$$ or
 equivalently as: $$RSS=(y_1-\hat{\beta_0}-\hat{\beta_1}x_1)^2+(y_2-\hat{\beta_0}-\hat{\beta_1}x_2)^2+...+(y_n-\hat{\beta_0}-\hat{\beta_1}x_n)^2$$
 
 The least squares approach chooses $\hat{\beta_0}$ and $\hat{\beta_1}$ to minimize the RSS. With some calculus one gets: 
 
-$$\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_1-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}$$
+$$\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}$$
 $$\hat{\beta_0}=\overline{y}-\hat{\beta_1}\overline{x}$$
 
 where $\overline{y}=\frac{1}{n}\sum_{i=1}^{n}y_i$ and $\overline{x}=\frac{1}{n}\sum_{i=1}^{n}x_i$ are the sample means. 
 
-
+[Pen and Paper exercise](pen-and-paper-plasma-volume.pdf): Estimating model coefficients
 
 # Hypothesis testing
-- intro to s.e(beta0) and s.e.(beta1) incl. sampling
-- intro to H0 and H1
-- group work to calculate s.e.
-- live demo in R to run lm
+## Accuracy of the coefficient estimates
+- The calculated $\hat{\beta_0}$ and $\hat{\beta_1}$ are estimates of the population values of the intercept and slope and are, therefore, subject to sampling variation
+- Their precision is measure by their standard errors
+$$s.e(\hat{\beta_0})=s*\sqrt{[\frac{1}{n}+\frac{x_i^2}{\sum_{i=1}^{n}(x_i-\overline{x})^2}]}$$
+$$s.e(\hat{\beta_1})=\frac{s}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}}$$
+where, $s$ is the *standard deviation of the points about the line*. It has $(n-2)$ degrees of freedom, i.e. the sample size minus the number of regression coefficients
+$$s=\sqrt{[\frac{\sum_{i=1}^{n}(y_i-\overline{y})^2-\overline{\beta_1}\sum_{i=1}^{n}(x_i-\overline{x})^2}{n-2}]}$$
+
+[Pen and Paper exercise](pen-and-paper-plasma-volume.pdf): Accuracy of the coefficient estimates
+
+## Confidence interval
+- Standard errors can be used to compute ``confidence interval``.
+- A 95% confidence interval is defined as a range of values such that with 95% probability, the range will contain the true unknown value of the parameter. 
+- The range is defined in terms of lower and upper limits computed from the data. For linear regression, the 95% confidence intervals takes form:
+$$[\hat{\beta_1}-2*s.e.(\hat{\beta_1}), \hat{\beta_1}+2*s.e.(\hat{\beta_1})]$$ and 
+$$[\hat{\beta_1}-2*s.e.(\hat{\beta_0}), \hat{\beta_1}+2*s.e.(\hat{\beta_0})]$$
+
+## Hypothesis testing
+- Standard errors can also be used to perform ``hypothesis testing`` on the coefficients. 
+- The most common hypothesis test involves testing the ``null hypothesis`` of: \newline
+
+$H_0:$ There is no relationship between $X$ and $Y$ \newline
+
+versus the ``alternative hypothesis`` \newline
+
+$H_0:$ There is some relationship between $X$ and $Y$
+
+Mathematically, this corresponds to testing
+$$H_0: \beta_1=0$$
+versus
+$$H_0: \beta_1\neq0$$
+since if 
+$$\beta_1=0$$ then the model $$Y=\beta_0+\beta_1X + \epsilon$$ reduces to $$Y=\beta_0 + \epsilon$$
+
+To test the null hypothesis we need to determine whether $\hat{\beta_1}$, our estimate of $\beta_1$, is sufficiently far from zero that we can be confident that $\beta_1$ is non-zero. 
+
+How far is far enough? This depends on the accuracy of $\hat{\beta_1}$, that is standard error $s.e.(\hat{\beta_1})$. If $s.e.(\hat{\beta_1})$ is small, then small values of $\hat{\beta_1}$ may provide strong evidence that $\hat{\beta_1}\neq0$ and _vice verca_. In practice, we compute a ``t-statistics`` given by $$t=\frac{\hat{\beta_1}-0}{s.e.(\hat{\beta_1})}$$ which measures the standard deviations that $\hat{\beta_1}$ is away from 0. 
+
+If there really is no relationship between $X$ and $Y$, then we this will have a $t$-distribution with $n-2$ degrees of freedom. From previous sessions, we now know how to compute probability of observing any value equal to $|t|$. We call this probability the $p-value$. 
+
+We can interpret the $p-value$ as follows: a small p-value indicates that it is unlikely to observe such a substantial association between $X$ and $Y$ due to chance, i.e. in the absence of any real association. We therefore can ``reject the null hypothesis``. 
+
+Typical p-value cutoffs for rejecting the null hypothesis are 5 or 1%. 
+[Pen and Paper exercise](pen-and-paper-plasma-volume.pdf): Hypothesis testing
+
+## Live coding demo
+```{r, fig.width=4, fig.height=4, fig.align="center"}
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) 
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) 
+
+plot(weight, plasma)
+reg <- lm(plasma~weight)
+
+summary(reg)
+
+abline(reg)
+
+```
+
+
 
 # Prediction example
 - by hand and live demo
