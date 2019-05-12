@@ -13,6 +13,7 @@ title:  'Session links'
 ##### Regression I
 - [Linear regression and correlation](session-regression-I/session-regression-I.md)
 ##### Regression II
+- [Multiple linear regression](session-regression-II/session-regression-II.md)
 ##### Unsupervised learning: PCA, K-means, KNN
 ##### What comes next & introduction to machine learning
 ##### Wrap-up session & feedback
