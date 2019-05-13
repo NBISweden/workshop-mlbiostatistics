@@ -47,7 +47,7 @@ If the installation above went without any problem you should be able to fire up
 ----------
 ### R libraries and datasets <a name="Rlib"></a>
 
-By default, R instals a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install.
+By default, R installs a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install.
 
 ##### Install R packages
 To install R packages, open R-Studio and in the console, type
@@ -85,6 +85,7 @@ Example screen shoot with install.packages(ggplot2) command
 </figcaption>
 </figure>
 
+
 ##### Test installation
 1. Download R markdown file that we have prepared for you from here [Rtest.Rmd](precourse/Rtest.Rmd).
 2. Open R-Studio
@@ -93,6 +94,8 @@ Example screen shoot with install.packages(ggplot2) command
 5. Press `Knit` button
 6. **Email us** <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR. The file should be saved in the same directory as the `Rtest.Rmd`.
 7. Otherwise, you will get error messages in the console. You can try to trouble shoot by reading error messages and re-installing packages. If you are new to R and R-Studio try also reading Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. An empty email with a title "Will need help with R/RStudio setup" will do.
+
+NOTE: If you do not already have the package devtools installed or for other reasons run into problems installing the package googlesheets4, please skip this package! Use this file [Rtestreduced.Rmd](precourse/Rtestreduced.Rmd) to test your installation instead and send us the resulting `Rtestreduced.html` file.
 
 ------
 

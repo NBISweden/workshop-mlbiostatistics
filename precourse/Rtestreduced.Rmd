@@ -1,0 +1,65 @@
+---
+title: "Test document"
+output: html_document
+---
+
+## Test that required R packages are installed
+
+```{r setup, warning=F, message=FALSE}
+knitr::opts_chunk$set()
+
+library(dplyr)
+library(UsingR)
+library(reshape2)
+library(glmnet)
+library(pvclust)
+
+library(ggplot2)
+library(pheatmap)
+library(rafalib)
+
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(keras)
+
+```
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+## Babies data
+
+The UsingR package contains a data set called babies that we will use for a few examples during the course.
+
+```{r babies, fig.show="hold", fig.cap="Distribution of baby weights."}
+
+summary(babies)
+ounce <- 0.0283495231
+plot(ggplot(babies, aes(x=wt*ounce)) + geom_histogram(color="white", binwidth=0.1) + xlab("Baby weight (kg)"))
+plot(ggplot(babies, aes(x=wt*ounce)) + geom_density() + xlab("Baby weight (kg)"))
+```
+
+## Mice data
+
+Another example data set that we will be using during the course contain bodyweights of 846 mice, both males and females, some receiving normal diet and some a high-fat diet. This is an example that is discussed in ["Data Analysis for the Life Sciences" by Rafael A. Irizarry and Michael I. Love](http://www.rwdc2.com/files/rafa.pdf).
+
+```{r mice, fig.cap="Female mouse population colored according to diet."}
+mousepop <- read.csv("https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/mice_pheno.csv")
+pop.F <- mousepop %>% filter(Sex=="F")
+pop.F.hf <- (pop.F %>% filter(Diet=="hf"))[, "Bodyweight"]
+pop.F.n <- (pop.F %>% filter(Diet=="chow"))[, "Bodyweight"]
+ggplot(pop.F, aes(x=Bodyweight, color=Diet)) + geom_density()
+```
+
+## Dice data
+
+We will also construct our own data and input the results together in a [googe sheet](https://docs.google.com/spreadsheets/d/1t3jOucU48MVoCQGTbGyWe9SntFbHlHqGSCiqMptHhhs/edit?usp=sharing) and plot the results.
+
+-------
+```{r}
+sessionInfo()
+```
+
+
