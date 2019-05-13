@@ -3,6 +3,13 @@ Session regression I
 
 ### Learning outcomes
 
+  - understand simple linear regression model incl. terminology and
+    mathematical notations
+  - estimate model parameters and their standar error
+  - use model for checking the association between *x* and *y*
+  - use model for prediction
+  - assees model accuracy with RSE and R\[^2\]
+  - check model assumptions
   - to be able to fit regression line and interpret regression model
   - to be able to use `lm` function in R for model fitting, obtaining
     confidence interval and predictions
@@ -41,7 +48,7 @@ red)
 
 The equation of the regression line is:
 
-$$y=beta_0 + beta_1x$$
+\[y=beta_0 + beta_1x\]
 
 ### Estimating the Coefficients
 

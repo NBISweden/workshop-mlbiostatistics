@@ -1,28 +1,80 @@
 ---
-title: "Session regression I"
-output: github_document
-editor_options: 
-  chunk_output_type: console
+title: 'Session regression I: simple linear regression'
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+header-includes: \usepackage{float}
+urlcolor: blue
 ---
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.path="session-regression-I-files/figures/")
+knitr::opts_chunk$set(fig.pos = 'H')
 ```
 
 
-### Learning outcomes
-- to be able to fit regression line and interpret regression model
+## Learning outcomes
+- understand simple linear regression model incl. terminology and mathematical notations
+- estimate model parameters and their standar error
+- use model for checking the association between _x_ and _y_
+- use model for prediction
+- assees model accuracy with RSE and R$^2$
+- check model assumptions
 - to be able to use `lm` function in R for model fitting, obtaining confidence interval and predictions
 
-## Linear Regression 
-Linear regression is a very simple approach for supervised learning, when numerical outcome and numerical exposure are concerned. The method of linear regression is used to estimate the best-fitting straight line to describe the association. With linear regression we can answer questions incl.:
+-------
 
-- is there a relationship between exposure (e.g. body weigth) and outcome (e.g. plasma volume)?
-- how strong is the relationship between the two variables
-- what will be a predicted value of the outcome given a new set of exposure values
-- how accurately can we predict outcome
+## Introduction
+- [Quiz](https://forms.gle/bHZr1MP454npysAFA): What do we already know about `simple linear regression`? 
+
+
+
+#### Description
+- Simple linear regression is a statistical method that allows us to summarize and study relationships between two continuous (quantitative, numerical) variables
+  - one variable, denoted `x` is regarded as the *predictor*, *explanatory*, or *indepedent variable*, e.g. body weight (kg)
+  - the other variable, denoted `y`, is regarded as the *response*, *outcome*, or *dependent variable*, e.g. plasma volume (l)
+- It is used to estimate the best-fitting straight line to describe the association
+
+#### Used for to answer questions such as: 
+- is there a relationship between `x` exposure (e.g. body weight) and `y` outcome (e.g. plasma volume)?
+- how strong is the relationship between the two variables?
+- what will be a predicted value of the `y` outcome given a new set of exposure values?
+- how accurately can we predict the outcome?
+
+\newpage
+
+
+```{r, det-vs-stat, echo=F, fig.height=5, fig.cap="**Determinisitc vs. statistical relationship**: a) deterministic: equation exactly describes the relationship between the two variables e.g. $Fahrenheit=9/5*Celcius+32$; b) statistical relationship between x and y is not perfect (increasing), c)  statistical relationship between x and y is not perfect (decreasing), d) random signal", fig.align="center"}
+
+par(mfrow=c(2,2), mar=c(3,4,3,3))
+
+# Deterministic relationship example
+x_celcius <- seq(from=0, to=50, by=5)
+y_fahr <- 9/5*x_celcius+32
+plot(x_celcius, y_fahr, type="b", pch=19, xlab="Celcius", ylab="Fahrenheit", main="a)", cex.main=0.8)
+
+# Statistical relationship (increasing)
+x <- seq(from=0, to=100, by=5)
+y_increasing <- 2*x + rnorm(length(x), mean=100, sd=25)
+plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="b)", cex.main=0.8)
+
+# Statistical relationship (decreasing)
+y_decreasing <- -2*x + rnorm(length(x), mean=100, sd=25)
+plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="c)", cex.main=0.8)
+
+# Statistical relationshp (random)
+y_random <- - rnorm(length(x), mean=100, sd=25)
+plot(x, y_random, pch=19, xlab="x", ylab="y", main="d)", cex.main=0.8)
+
+
+```
+
+
 
 ### Example data
 
