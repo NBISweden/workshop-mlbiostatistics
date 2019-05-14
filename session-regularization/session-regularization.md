@@ -14,7 +14,7 @@ editor_options:
 
 * Likelihood
     + Relation to OLS for linear model
-    + Overfitting
+* Overfitting
 * Regularization
     + Model comparison 
         - AIC
@@ -25,7 +25,7 @@ editor_options:
 
 # Likelihood
 
-Likelihood is concerned with estimating how likely it is that a certain model or certain model parameters are the *true*.
+Likelihood is concerned with estimating how likely it is that a certain model or certain model parameter values are *true* ones.
 
 Consider a generative model, with parameters $\theta$, for how $X\rightarrow Y$. We would like to test if $\theta$ are good parameters. Given the model, we can compute
 $Pr[Y| X, \theta]$,
@@ -42,7 +42,9 @@ Notice that this means that $L[\theta|Y,X]$ is not a proper probability, hence t
 <details>
 <summary> Extra Reading </summary>
 
-(Notice that this notation is not uncommonly mixed up, so you might also see the notation $L[Y|X,\theta]$)
+Notice that this notation is not uncommonly mixed up, so you might also see the notation $L[Y|X,\theta]$ for the likelihood.
+
+Similarly $\propto Pr[Y|X, \theta]$ is often referred to as the *likelihood function*.
 
 ***
 </details>
@@ -53,7 +55,7 @@ $$L[\theta|Y,X] = Pr[Y|X, \theta]$$
 
 <details>
 <summary> Extra Reading </summary>
-The proportionality (indicated by $\propto$) means there are some unknown constant factor, $k$, such that $L[\theta|Y,X] = k Pr[Y|X, \theta]$. However, the factor $k$ is assumed to be constant over $\theta$s and over models. 
+The proportionality (indicated by '$\propto$') means there are some unknown constant factor, $k$, such that $L[\theta|Y,X] = k Pr[Y|X, \theta]$. However, the factor $k$ is assumed to be constant over $\theta$s and over models. 
 
 When the likelihood of two $\theta$s (or models) are compared this is almost always done as a _likelihood ratio_, 
 
@@ -124,11 +126,11 @@ where $C=\frac{N}{2}\left(\log \frac{2\pi}{N} -1\right)$ is a constant that is u
 ***
 </details>
 
-This means that the maximum likelihood estimates of $beta$ is exactly the same as those of the minimum RSS.
+This means that the maximum likelihood estimates of $\beta$ is exactly the same as those of the minimum RSS.
 
-_**NB!** This is a special case for linear models and are not generally true for other models. For example, logistic regression is fitted by maximizing the likelihood _
+_**NB!** This is a special case for linear models and are not generally true for other models. For example, logistic regression is typically fitted using maximizing the likelihood _
 
-In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., OLS
+In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., OLS.
 
 
 
@@ -139,13 +141,13 @@ We will now look at a general problem in statistical modeling that can be visual
 
 ## Overfitting | `Example data`
 
-First, we need some test data to play around with. For simplicity, you will simulate a toy data from a linear model and use this in the exercises. The advantage for us using simulated data is that we know the 'truth', i.e., how the data was simulated and we therefore have *oracle knowledge* about the true parameter values, e.g., for $\beta$.
+First, you need some test data to play around with. For simplicity and convenience, you will simulate a toy data from a linear model and use this in the exercises. The advantage for us using simulated data is that we know the 'truth', i.e., how the data was simulated and we therefore have *oracle knowledge* about the true parameter values, e.g., for $\beta$.
 
 ### Task | `generate example data`
 * The data should comprise 100 samples. 
 * First generate 10 variables $(x_1,x_2,\ldots, x_{0})$ from a uniform distribution and store them in a Matrix $X$. 
 * Use an intercept $\beta_0=3$ 
-* Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`),
+* Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`); print the 'true' effect sizes for reference.
 * Finally generate outcome variable $Y$ using a linear model $Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon$, with $\epsilon\sim N(0,\sigma^2=1)$ (i.e., the residuals are drawn from a Normal distribution with mean=0 and standard deviation=1, *Tip:* use the R function `rnorm`).
 
 
@@ -160,20 +162,23 @@ N=100 # no samples
 P=10 # no variables
 
 # Draw variables, x_1,...,x_10, from a uniform distribution in interval (0,1)
-X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+#X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P) 
 
 # generate a y variable from a multivarite lm of 3 first X variables only
 # intercept
 b0=3
 # effect sizes for first three variables
 b=c(runif(3, min=0.5, max=1.0))
-#b=c(runif(3, min=1.5, max=3.5))
+
 # generate y
-Y <- b0 + X[,1] * b [1] + X[,2] * b [2] + X[,3] * b [3] + rnorm(N) 
-# This can also be done using matrix multiplication
-#y1 <- b0 + X[,seq(1,3)] %*% b + rnorm(N) 
-# Store in the Y matrix (really just a vector here)
-#Y = as.matrix(y)  
+Y <- b0 + X[,1] * b[1] + X[,2] * b[2] + X[,3] * b[3] + rnorm(N)
+
+print(paste("b0 = ", b0, ", b1 = ", signif(b[1],3), ", b2 = ", signif(b[2],3), ", b3 = ", signif(b[3],3)))
+```
+
+```
+## [1] "b0 =  3 , b1 =  0.813 , b2 =  0.601 , b3 =  0.723"
 ```
 
 ## Overfitting | `Model comparison`
@@ -276,7 +281,7 @@ _Overfitting_
 <summary> Extra Reading </summary>
 <h2> Model comparison | `Likelihood ratio test`</h1>
 
-For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with d=the difference in free params in the two models.
+For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with $d=$ the difference in free params in the two models.
 
 <table class="table table-striped" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
@@ -292,78 +297,80 @@ For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with d=the differenc
 <tbody>
   <tr>
    <td style="text-align:left;"> 1 vs 2 variables </td>
-   <td style="text-align:right;"> -139.86 </td>
-   <td style="text-align:right;"> -137.37 </td>
-   <td style="text-align:left;"> -2.492 </td>
-   <td style="text-align:left;"> 0.0256 </td>
+   <td style="text-align:right;"> -155.80 </td>
+   <td style="text-align:right;"> -146.90 </td>
+   <td style="text-align:left;"> -8.9 </td>
+   <td style="text-align:left;"> 2.45e-05 </td>
    <td style="text-align:left;"> yes </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 2 vs 3 variables </td>
-   <td style="text-align:right;"> -137.37 </td>
-   <td style="text-align:right;"> -136.00 </td>
-   <td style="text-align:left;"> -1.366 </td>
-   <td style="text-align:left;"> 0.0983 </td>
-   <td style="text-align:left;"> no </td>
+   <td style="text-align:right;"> -146.90 </td>
+   <td style="text-align:right;"> -136.73 </td>
+   <td style="text-align:left;"> -10.17 </td>
+   <td style="text-align:left;"> 6.48e-06 </td>
+   <td style="text-align:left;"> yes </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 3 vs 4 variables </td>
-   <td style="text-align:right;"> -136.00 </td>
-   <td style="text-align:right;"> -135.85 </td>
-   <td style="text-align:left;"> -0.1471 </td>
-   <td style="text-align:left;"> 0.588 </td>
+   <td style="text-align:right;"> -136.73 </td>
+   <td style="text-align:right;"> -136.69 </td>
+   <td style="text-align:left;"> -0.04215 </td>
+   <td style="text-align:left;"> 0.772 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 4 vs 5 variables </td>
-   <td style="text-align:right;"> -135.85 </td>
-   <td style="text-align:right;"> -135.73 </td>
-   <td style="text-align:left;"> -0.1271 </td>
-   <td style="text-align:left;"> 0.614 </td>
+   <td style="text-align:right;"> -136.69 </td>
+   <td style="text-align:right;"> -136.23 </td>
+   <td style="text-align:left;"> -0.4601 </td>
+   <td style="text-align:left;"> 0.337 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5 vs 6 variables </td>
-   <td style="text-align:right;"> -135.73 </td>
-   <td style="text-align:right;"> -135.27 </td>
-   <td style="text-align:left;"> -0.4527 </td>
-   <td style="text-align:left;"> 0.341 </td>
+   <td style="text-align:right;"> -136.23 </td>
+   <td style="text-align:right;"> -135.83 </td>
+   <td style="text-align:left;"> -0.4016 </td>
+   <td style="text-align:left;"> 0.37 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 6 vs 7 variables </td>
-   <td style="text-align:right;"> -135.27 </td>
-   <td style="text-align:right;"> -135.25 </td>
-   <td style="text-align:left;"> -0.0238 </td>
-   <td style="text-align:left;"> 0.827 </td>
+   <td style="text-align:right;"> -135.83 </td>
+   <td style="text-align:right;"> -135.35 </td>
+   <td style="text-align:left;"> -0.4803 </td>
+   <td style="text-align:left;"> 0.327 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 7 vs 8 variables </td>
-   <td style="text-align:right;"> -135.25 </td>
-   <td style="text-align:right;"> -135.22 </td>
-   <td style="text-align:left;"> -0.02914 </td>
-   <td style="text-align:left;"> 0.809 </td>
+   <td style="text-align:right;"> -135.35 </td>
+   <td style="text-align:right;"> -135.31 </td>
+   <td style="text-align:left;"> -0.04266 </td>
+   <td style="text-align:left;"> 0.77 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 8 vs 9 variables </td>
-   <td style="text-align:right;"> -135.22 </td>
-   <td style="text-align:right;"> -135.19 </td>
-   <td style="text-align:left;"> -0.02746 </td>
-   <td style="text-align:left;"> 0.815 </td>
+   <td style="text-align:right;"> -135.31 </td>
+   <td style="text-align:right;"> -135.30 </td>
+   <td style="text-align:left;"> -0.0002981 </td>
+   <td style="text-align:left;"> 0.981 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 9 vs 10 variables </td>
-   <td style="text-align:right;"> -135.19 </td>
-   <td style="text-align:right;"> -134.79 </td>
-   <td style="text-align:left;"> -0.4047 </td>
-   <td style="text-align:left;"> 0.368 </td>
+   <td style="text-align:right;"> -135.30 </td>
+   <td style="text-align:right;"> -134.55 </td>
+   <td style="text-align:left;"> -0.7536 </td>
+   <td style="text-align:left;"> 0.22 </td>
    <td style="text-align:left;"> no </td>
   </tr>
 </tbody>
 </table>
+In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as *lnkage disequiibriium*, may cause problems for LRT (*the example is not optimized to show this*).
+
 
 ***
 </details>
@@ -379,7 +386,7 @@ A very simple regularized likelihood model uses $f(\beta) = \#\beta = \#X$, that
 $$\log rL[{\beta} | X, Y]  = \log Pr[Y | X, {\beta}] - \#X, $$
 where, in the regularization term, $\#X$ denote the _cardinality_ $X$, i.e., the number of variables in the model.
 
-Applying this rL to our example, solves the overfitting problem.
+Applying this rL to our example data, solves the overfitting problem.
 
 
 ```r
@@ -439,32 +446,32 @@ $$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[{\beta}_{m}|X_m,Y]}{\max 
 </details>
 
 
-### Task
+### Task | `AIC analysis`
 
 * A typical strategy is to select the model, $m$ with $AIC_m=AIC_{min}$ and then evaluate how much better it is than the other candidate models.
 
-* Apply this AIC strategy applied to our example data.
-* create a table with th AIC and the $relL$ for the set of models comprising $\{X_1, .\ldots, X_i\} \textrm{ for } i \in [1, \ldots, 10]$; indicate also if a model is the minim AIC model.
+* Apply this AIC strategy applied to our example data using the R funcion `AIC`
+* create a table with the AIC and the $relL$ for the set of models comprising $\{X_1, .\ldots, X_i\} \textrm{ for } i \in [1, \ldots, 10]$; indicate also if a model is the minim AIC model.
 
 
 ```r
-require(stats)
-require(dplyr)
-require(kableExtra)
+require(stats) 
+require(dplyr)      # used for nice table formatting
+require(kableExtra) # used for nice table formatting
 mprev <- lm(Y ~ X[,1])
-aic=data.frame(models=0, aic=0, lowest="-")
+aic=data.frame(models=0, aic=0, isAICmin="-")
 for(i in seq(1,P)){
   m <- lm(Y ~ X[,seq(1,i)])
-  fit=AIC(mprev,m)
-  mprev=m
-  if(i==2){
+  fit = AIC(mprev,m)
+  mprev = m
+  if(i==2){ #include also the first model
     aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
   }
   aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
 }
 minaic=min(aic$aic)
 aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
-aic$lowest = ifelse(aic$aic==minaic,"Yes","-")
+aic$isAICmin = ifelse(aic$aic==minaic,"Yes","-")
 
 kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
 ```
@@ -483,63 +490,63 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 <tbody>
   <tr>
    <td style="text-align:left;"> 1 variable </td>
-   <td style="text-align:right;"> 285.71 </td>
+   <td style="text-align:right;"> 317.61 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.156453 </td>
+   <td style="text-align:left;"> 3.841e-08 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 2 variables </td>
-   <td style="text-align:right;"> 282.73 </td>
+   <td style="text-align:right;"> 301.80 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.694197 </td>
+   <td style="text-align:left;"> 1.041e-04 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 3 variables </td>
-   <td style="text-align:right;"> 282.00 </td>
+   <td style="text-align:right;"> 283.46 </td>
    <td style="text-align:left;"> Yes </td>
-   <td style="text-align:left;"> 1.000000 </td>
+   <td style="text-align:left;"> 1.000e+00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 4 variables </td>
-   <td style="text-align:right;"> 283.70 </td>
+   <td style="text-align:right;"> 285.38 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.427415 </td>
+   <td style="text-align:left;"> 3.829e-01 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5 variables </td>
-   <td style="text-align:right;"> 285.45 </td>
+   <td style="text-align:right;"> 286.46 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.178173 </td>
+   <td style="text-align:left;"> 2.231e-01 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 6 variables </td>
-   <td style="text-align:right;"> 286.55 </td>
+   <td style="text-align:right;"> 287.66 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.102797 </td>
+   <td style="text-align:left;"> 1.225e-01 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 7 variables </td>
-   <td style="text-align:right;"> 288.50 </td>
+   <td style="text-align:right;"> 288.70 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.038774 </td>
+   <td style="text-align:left;"> 7.280e-02 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 8 variables </td>
-   <td style="text-align:right;"> 290.44 </td>
+   <td style="text-align:right;"> 290.61 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.014699 </td>
+   <td style="text-align:left;"> 2.802e-02 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 9 variables </td>
-   <td style="text-align:right;"> 292.38 </td>
+   <td style="text-align:right;"> 292.61 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.005572 </td>
+   <td style="text-align:left;"> 1.031e-02 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10 variables </td>
-   <td style="text-align:right;"> 293.58 </td>
+   <td style="text-align:right;"> 293.10 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.003058 </td>
+   <td style="text-align:left;"> 8.067e-03 </td>
   </tr>
 </tbody>
 </table>
@@ -555,16 +562,13 @@ require(stats)
 pl= vector() 
 for(i in seq(1,P)){
   xi=X[,seq(1,i)]
-  xi=cbind(rep(1,N), xi)
   fit = lm(Y~xi)
-  # To make the code simple, we forestall next slides and use the AIC function here
-  # AIC= -2(pl) so convert back
   pl[i] = AIC(fit)
 }
-# plot ll of all models
+# plot AIC of all models
 plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
 
-# plot ll of all models
+# plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 ```
 
@@ -661,11 +665,11 @@ The optimal values of $\beta$ are then estimated, using some algorithm (lars or 
 The *Coordinate descent* algorithm is used in the R package `glmnet`:
 
 1. Over a grid of $\lambda\in [0, \infty]$, do
-  1. Start with all $\beta=0$
-  2. until convergence repeat for each $\beta_i$
-    1. while keeping all other $\beta$ fixed and $\beta_i=0$, compute partial residuals
-    2. estimate $\beta_i$ by RSS on the partial residuals
-    3. update $\beta_i using the RSS estimate and $\lambda$.
+    1. Start with all $\beta=0$
+    2. until convergence repeat for each $\beta_i$
+        1. while keeping all other $\beta$ fixed and $\beta_i=0$, compute partial residuals
+        2. estimate $\beta_i$ by RSS on the partial residuals
+        3. update $\beta_i using the RSS estimate and $\lambda$.
     
 ***
 </details>
@@ -675,7 +679,7 @@ The *Coordinate descent* algorithm is used in the R package `glmnet`:
 
 Alternatives to LASSO, differing mainly in the auxiliary criterion
 
-  - *Ridge regression* which uses a $L_2$ norm
+  - *Ridge regression* which uses a $\ell_2$ norm
   - *Elastic-net*, which uses a mixed model combination of the  $\ell_1$ norm and the $\ell_2$ norm.
 
 *** 
@@ -683,9 +687,9 @@ Alternatives to LASSO, differing mainly in the auxiliary criterion
 
 ### Task | `Lasso using the glmnet R-package`
 
-* Use function `glmnet` to perform LASSO analysis on our toy data.
-    + linear regression (`family='gaussian'`, default)
-    + LASSO (`alpha=1`, default)
+* Use function `glmnet` to perform LASSO analysis on our example data; relevant arguments of the function:
+    + linear regression (`family='gaussian'` = default)
+    + LASSO (`alpha=1` = default)
     + standardization
         + The variables Y and X must be centered and standardized to ensure that all variables are given equal weight in the model selection.
         + standardization of $X$ to unit variance in `glmnet` is obtained  by setting the argument `standardize=TRUE` which is the default
@@ -743,33 +747,32 @@ plot(fit, xvar="lambda",label=T)
 </details>
 
 ## Cross-validation
-* A problem is to decide $\lambda$ to use as the cutoff. 
-  + glmnet uses cross-validation to obtain an estimate of the minimum $\lambda$ attainable,
+The LASSO model will be different depending on how we set $\lambda$. A problem is to decide the optimal $\lambda$ to use. 
+`glmnet` uses cross-validation to obtain an estimate of the minimum $\lambda$ attainable.
 
-### Task| `Determine `$\lambda$` using cross-validation`
-* Use the function `cv.glmnet to perform cross validation
+### Task | `Determine `$\lambda$` using cross-validation`
+* Use the function `cv.glmnet` to perform cross validation
 * `plot` the cross-validation results 
 * Compare with the plot of estimated $\beta_i$ under different $\lambda$.
-* Determine the optimal $\lambda$
+* Determine the optimal $\lambda$ (the one with minimal error)
 
 
 ```r
-par(mfrow=c(1,2))
 require(glmnet)
 require(dplyr)
 require(kableExtra)
-par(mfrow=c(1,2))
+par(mfrow=c(1,1))
 # run lasso (alpha=1) for linear model (family=gaussian)
 cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
 
-plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 plot(cvglm)
+plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
 ```
 
 <details>
 <summary> *Show result*</summary>
-<img src="session-regularization_files/figure-html/unnamed-chunk-15-1.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-15-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-15-2.png" width="100%" />
 
 ***
 </details>
@@ -782,7 +785,7 @@ minlambda=cvglm$lambda.min
 <summary> Some possible answers </summary>
 
 <h4>Some possible answers</h4>
-* Cross-validation-selected optimal lambda is 0.0875179
+* Cross-validation-selected optimal lambda is 0.1064891
 * Yes, this includes only the *oracle knowledge* correct variables $X_1, X_2, X_3$
 
 ***
@@ -798,7 +801,7 @@ require(kableExtra)
 
 coefglm=as.data.frame(as.matrix(coef(cvglm, s="lambda.min")))
 coefglm=cbind(seq(0,10),coefglm)
-names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,2),")"))
+names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,3),")"))
 kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 ```
 
@@ -808,53 +811,65 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 <table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
  <thead>
   <tr>
-   <th style="text-align:right;"> Variable </th>
-   <th style="text-align:right;"> beta(lambda=0.088) </th>
+   <th style="text-align:right;"> beta </th>
+   <th style="text-align:right;"> value (oracle) </th>
+   <th style="text-align:right;"> estimate(lambda=0.106) </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 3.7018933 </td>
+   <td style="text-align:right;"> 3.0000000 </td>
+   <td style="text-align:right;"> 3.6046135 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.1485417 </td>
+   <td style="text-align:right;"> 0.8125118 </td>
+   <td style="text-align:right;"> 0.5905522 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 0.4612657 </td>
+   <td style="text-align:right;"> 0.6009469 </td>
+   <td style="text-align:right;"> 0.4631531 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 0.2341136 </td>
+   <td style="text-align:right;"> 0.7232911 </td>
+   <td style="text-align:right;"> 0.5204561 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 5 </td>
    <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 7 </td>
    <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 9 </td>
    <td style="text-align:right;"> 0.0000000 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
 </tbody>
@@ -864,13 +879,17 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 </details>
 
 #### Think about
-* Does the effect sizes make sense
+* Does the effect sizes make sense -- if not can you think of why?
 
 <details>
 <summary> Some possible answers </summary>
 <h4>Some possible answers</h4>
 
-* Yes, $\beta_i$ is non-zero only for _oracle_-known variables $X_1, X_2, X_3$
+* Well...yes!
+  + $\beta_i$ is non-zero only for _oracle_-known variables $X_1, X_2, X_3$
+  + they don't exactly equate our *oracle knowledge* parameter values -- they appear to be scaled.
+  + but their relative order of amplitude is right.
+* Perhaps the normalization affected scaling.
 
 ***
 </details>
@@ -895,4 +914,4 @@ _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 _pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
 
 **loaded via a namespace (and not attached):** 
-_Rcpp(v.1.0.1)_, _later(v.0.8.0)_, _compiler(v.3.5.3)_, _pillar(v.1.3.1)_, _highr(v.0.8)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _packrat(v.0.5.0)_, _jsonlite(v.1.6)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.4)_, _rstudioapi(v.0.10)_, _yaml(v.2.2.0)_, _xfun(v.0.6)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _xaringan(v.0.9)_, _servr(v.0.13)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _promises(v.1.0.1)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _rsconnect(v.0.8.13)_, _assertthat(v.0.2.1)_, _rvest(v.0.3.3)_, _mime(v.0.6)_, _colorspace(v.1.4-1)_, _httpuv(v.1.5.1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
+_tidyselect(v.0.2.5)_, _xfun(v.0.6)_, _purrr(v.0.3.2)_, _lattice(v.0.20-38)_, _colorspace(v.1.4-1)_, _htmltools(v.0.3.6)_, _viridisLite(v.0.3.0)_, _yaml(v.2.2.0)_, _rlang(v.0.3.4)_, _pillar(v.1.3.1)_, _later(v.0.8.0)_, _glue(v.1.3.1)_, _stringr(v.1.4.0)_, _munsell(v.0.5.0)_, _rvest(v.0.3.3)_, _codetools(v.0.2-16)_, _evaluate(v.0.13)_, _httpuv(v.1.5.1)_, _highr(v.0.8)_, _Rcpp(v.1.0.1)_, _readr(v.1.3.1)_, _scales(v.1.0.0)_, _promises(v.1.0.1)_, _webshot(v.0.5.1)_, _jsonlite(v.1.6)_, _mime(v.0.6)_, _servr(v.0.13)_, _hms(v.0.4.2)_, _packrat(v.0.5.0)_, _digest(v.0.6.18)_, _stringi(v.1.4.3)_, _xaringan(v.0.9)_, _grid(v.3.5.3)_, _tools(v.3.5.3)_, _magrittr(v.1.5)_, _tibble(v.2.1.1)_, _crayon(v.1.3.4)_, _pkgconfig(v.2.0.2)_, _rsconnect(v.0.8.13)_, _xml2(v.1.2.0)_, _assertthat(v.0.2.1)_, _rmarkdown(v.1.12)_, _httr(v.1.4.0)_, _rstudioapi(v.0.10)_, _iterators(v.1.0.10)_, _R6(v.2.4.0)_ and _compiler(v.3.5.3)_

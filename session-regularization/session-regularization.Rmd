@@ -17,7 +17,7 @@ opts_chunk$set(echo=FALSE, eval=TRUE,message=FALSE, warning=FALSE, error=FALSE, 
 
 * Likelihood
     + Relation to OLS for linear model
-    + Overfitting
+* Overfitting
 * Regularization
     + Model comparison 
         - AIC
@@ -28,7 +28,7 @@ opts_chunk$set(echo=FALSE, eval=TRUE,message=FALSE, warning=FALSE, error=FALSE, 
 
 # Likelihood
 
-Likelihood is concerned with estimating how likely it is that a certain model or certain model parameters are the *true*.
+Likelihood is concerned with estimating how likely it is that a certain model or certain model parameter values are *true* ones.
 
 Consider a generative model, with parameters $\theta$, for how $X\rightarrow Y$. We would like to test if $\theta$ are good parameters. Given the model, we can compute
 $Pr[Y| X, \theta]$,
@@ -45,7 +45,9 @@ Notice that this means that $L[\theta|Y,X]$ is not a proper probability, hence t
 <details>
 <summary> Extra Reading </summary>
 
-(Notice that this notation is not uncommonly mixed up, so you might also see the notation $L[Y|X,\theta]$)
+Notice that this notation is not uncommonly mixed up, so you might also see the notation $L[Y|X,\theta]$ for the likelihood.
+
+Similarly $\propto Pr[Y|X, \theta]$ is often referred to as the *likelihood function*.
 
 ***
 </details>
@@ -56,7 +58,7 @@ $$L[\theta|Y,X] = Pr[Y|X, \theta]$$
 
 <details>
 <summary> Extra Reading </summary>
-The proportionality (indicated by $\propto$) means there are some unknown constant factor, $k$, such that $L[\theta|Y,X] = k Pr[Y|X, \theta]$. However, the factor $k$ is assumed to be constant over $\theta$s and over models. 
+The proportionality (indicated by '$\propto$') means there are some unknown constant factor, $k$, such that $L[\theta|Y,X] = k Pr[Y|X, \theta]$. However, the factor $k$ is assumed to be constant over $\theta$s and over models. 
 
 When the likelihood of two $\theta$s (or models) are compared this is almost always done as a _likelihood ratio_, 
 
@@ -127,11 +129,11 @@ where $C=\frac{N}{2}\left(\log \frac{2\pi}{N} -1\right)$ is a constant that is u
 ***
 </details>
 
-This means that the maximum likelihood estimates of $beta$ is exactly the same as those of the minimum RSS.
+This means that the maximum likelihood estimates of $\beta$ is exactly the same as those of the minimum RSS.
 
-_**NB!** This is a special case for linear models and are not generally true for other models. For example, logistic regression is fitted by maximizing the likelihood _
+_**NB!** This is a special case for linear models and are not generally true for other models. For example, logistic regression is typically fitted using maximizing the likelihood _
 
-In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., OLS
+In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., OLS.
 
 
 
@@ -142,13 +144,13 @@ We will now look at a general problem in statistical modeling that can be visual
 
 ## Overfitting | `Example data`
 
-First, we need some test data to play around with. For simplicity, you will simulate a toy data from a linear model and use this in the exercises. The advantage for us using simulated data is that we know the 'truth', i.e., how the data was simulated and we therefore have *oracle knowledge* about the true parameter values, e.g., for $\beta$.
+First, you need some test data to play around with. For simplicity and convenience, you will simulate a toy data from a linear model and use this in the exercises. The advantage for us using simulated data is that we know the 'truth', i.e., how the data was simulated and we therefore have *oracle knowledge* about the true parameter values, e.g., for $\beta$.
 
 ### Task | `generate example data`
 * The data should comprise 100 samples. 
 * First generate 10 variables $(x_1,x_2,\ldots, x_{0})$ from a uniform distribution and store them in a Matrix $X$. 
 * Use an intercept $\beta_0=3$ 
-* Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`),
+* Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`); print the 'true' effect sizes for reference.
 * Finally generate outcome variable $Y$ using a linear model $Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon$, with $\epsilon\sim N(0,\sigma^2=1)$ (i.e., the residuals are drawn from a Normal distribution with mean=0 and standard deviation=1, *Tip:* use the R function `rnorm`).
 
 ```{r, echo=TRUE}
@@ -161,20 +163,19 @@ N=100 # no samples
 P=10 # no variables
 
 # Draw variables, x_1,...,x_10, from a uniform distribution in interval (0,1)
-X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+#X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P) 
 
 # generate a y variable from a multivarite lm of 3 first X variables only
 # intercept
 b0=3
 # effect sizes for first three variables
 b=c(runif(3, min=0.5, max=1.0))
-#b=c(runif(3, min=1.5, max=3.5))
+
 # generate y
-Y <- b0 + X[,1] * b [1] + X[,2] * b [2] + X[,3] * b [3] + rnorm(N) 
-# This can also be done using matrix multiplication
-#y1 <- b0 + X[,seq(1,3)] %*% b + rnorm(N) 
-# Store in the Y matrix (really just a vector here)
-#Y = as.matrix(y)  
+Y <- b0 + X[,1] * b[1] + X[,2] * b[2] + X[,3] * b[3] + rnorm(N)
+
+print(paste("b0 = ", b0, ", b1 = ", signif(b[1],3), ", b2 = ", signif(b[2],3), ", b3 = ", signif(b[3],3)))
 ```
 
 ## Overfitting | `Model comparison`
@@ -284,7 +285,7 @@ _Overfitting_
 <summary> Extra Reading </summary>
 <h2> Model comparison | `Likelihood ratio test`</h1>
 
-For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with d=the difference in free params in the two models.
+For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with $d=$ the difference in free params in the two models.
 
 ```{r, lrt, echo=F}
 library(lmtest)
@@ -302,6 +303,8 @@ library(kableExtra)
 kable(lrt,"html",row.names=F, col.names=c("Compared models","logL 1st model","logL 2nd model","logLR", "P-value", "Sign at 0.05"),digits=30, format.args=list(snsmall=0)) %>% kable_styling(bootstrap="striped", font_size = 14, full_width=F)
 
 ```
+In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as *lnkage disequiibriium*, may cause problems for LRT (*the example is not optimized to show this*).
+
 
 ***
 </details>
@@ -317,7 +320,7 @@ A very simple regularized likelihood model uses $f(\beta) = \#\beta = \#X$, that
 $$\log rL[{\beta} | X, Y]  = \log Pr[Y | X, {\beta}] - \#X, $$
 where, in the regularization term, $\#X$ denote the _cardinality_ $X$, i.e., the number of variables in the model.
 
-Applying this rL to our example, solves the overfitting problem.
+Applying this rL to our example data, solves the overfitting problem.
 
 ```{r,echo=F, fig.height=4, echo=TRUE}
 # compute loglikelihood (ll) for all models including 1-P variables
@@ -374,31 +377,31 @@ $$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[{\beta}_{m}|X_m,Y]}{\max 
 </details>
 
 
-### Task
+### Task | `AIC analysis`
 
 * A typical strategy is to select the model, $m$ with $AIC_m=AIC_{min}$ and then evaluate how much better it is than the other candidate models.
 
-* Apply this AIC strategy applied to our example data.
-* create a table with th AIC and the $relL$ for the set of models comprising $\{X_1, .\ldots, X_i\} \textrm{ for } i \in [1, \ldots, 10]$; indicate also if a model is the minim AIC model.
+* Apply this AIC strategy applied to our example data using the R funcion `AIC`
+* create a table with the AIC and the $relL$ for the set of models comprising $\{X_1, .\ldots, X_i\} \textrm{ for } i \in [1, \ldots, 10]$; indicate also if a model is the minim AIC model.
 
 ```{r, echo=T, eval=FALSE}
-require(stats)
-require(dplyr)
-require(kableExtra)
+require(stats) 
+require(dplyr)      # used for nice table formatting
+require(kableExtra) # used for nice table formatting
 mprev <- lm(Y ~ X[,1])
-aic=data.frame(models=0, aic=0, lowest="-")
+aic=data.frame(models=0, aic=0, isAICmin="-")
 for(i in seq(1,P)){
   m <- lm(Y ~ X[,seq(1,i)])
-  fit=AIC(mprev,m)
-  mprev=m
-  if(i==2){
+  fit = AIC(mprev,m)
+  mprev = m
+  if(i==2){ #include also the first model
     aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
   }
   aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
 }
 minaic=min(aic$aic)
 aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
-aic$lowest = ifelse(aic$aic==minaic,"Yes","-")
+aic$isAICmin = ifelse(aic$aic==minaic,"Yes","-")
 
 kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
 ```
@@ -437,16 +440,13 @@ require(stats)
 pl= vector() 
 for(i in seq(1,P)){
   xi=X[,seq(1,i)]
-  xi=cbind(rep(1,N), xi)
   fit = lm(Y~xi)
-  # To make the code simple, we forestall next slides and use the AIC function here
-  # AIC= -2(pl) so convert back
   pl[i] = AIC(fit)
 }
-# plot ll of all models
+# plot AIC of all models
 plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
 
-# plot ll of all models
+# plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 ```  
 
@@ -457,16 +457,13 @@ require(stats)
 pl= vector() 
 for(i in seq(1,P)){
   xi=X[,seq(1,i)]
-  xi=cbind(rep(1,N), xi)
   fit = lm(Y~xi)
-  # To make the code simple, we forestall next slides and use the AIC function here
-  # AIC= -2(pl) so convert back
   pl[i] = AIC(fit)
 }
-# plot ll of all models
+# plot AIC of all models
 plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
 
-# plot ll of all models
+# plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 ```  
 
@@ -559,11 +556,11 @@ The optimal values of $\beta$ are then estimated, using some algorithm (lars or 
 The *Coordinate descent* algorithm is used in the R package `glmnet`:
 
 1. Over a grid of $\lambda\in [0, \infty]$, do
-  1. Start with all $\beta=0$
-  2. until convergence repeat for each $\beta_i$
-    1. while keeping all other $\beta$ fixed and $\beta_i=0$, compute partial residuals
-    2. estimate $\beta_i$ by RSS on the partial residuals
-    3. update $\beta_i using the RSS estimate and $\lambda$.
+    1. Start with all $\beta=0$
+    2. until convergence repeat for each $\beta_i$
+        1. while keeping all other $\beta$ fixed and $\beta_i=0$, compute partial residuals
+        2. estimate $\beta_i$ by RSS on the partial residuals
+        3. update $\beta_i using the RSS estimate and $\lambda$.
     
 ***
 </details>
@@ -573,7 +570,7 @@ The *Coordinate descent* algorithm is used in the R package `glmnet`:
 
 Alternatives to LASSO, differing mainly in the auxiliary criterion
 
-  - *Ridge regression* which uses a $L_2$ norm
+  - *Ridge regression* which uses a $\ell_2$ norm
   - *Elastic-net*, which uses a mixed model combination of the  $\ell_1$ norm and the $\ell_2$ norm.
 
 *** 
@@ -581,9 +578,9 @@ Alternatives to LASSO, differing mainly in the auxiliary criterion
 
 ### Task | `Lasso using the glmnet R-package`
 
-* Use function `glmnet` to perform LASSO analysis on our toy data.
-    + linear regression (`family='gaussian'`, default)
-    + LASSO (`alpha=1`, default)
+* Use function `glmnet` to perform LASSO analysis on our example data; relevant arguments of the function:
+    + linear regression (`family='gaussian'` = default)
+    + LASSO (`alpha=1` = default)
     + standardization
         + The variables Y and X must be centered and standardized to ensure that all variables are given equal weight in the model selection.
         + standardization of $X$ to unit variance in `glmnet` is obtained  by setting the argument `standardize=TRUE` which is the default
@@ -642,42 +639,40 @@ plot(fit, xvar="lambda",label=T)
 </details>
 
 ## Cross-validation
-* A problem is to decide $\lambda$ to use as the cutoff. 
-  + glmnet uses cross-validation to obtain an estimate of the minimum $\lambda$ attainable,
+The LASSO model will be different depending on how we set $\lambda$. A problem is to decide the optimal $\lambda$ to use. 
+`glmnet` uses cross-validation to obtain an estimate of the minimum $\lambda$ attainable.
 
-### Task| `Determine `$\lambda$` using cross-validation`
-* Use the function `cv.glmnet to perform cross validation
+### Task | `Determine `$\lambda$` using cross-validation`
+* Use the function `cv.glmnet` to perform cross validation
 * `plot` the cross-validation results 
 * Compare with the plot of estimated $\beta_i$ under different $\lambda$.
-* Determine the optimal $\lambda$
+* Determine the optimal $\lambda$ (the one with minimal error)
 
 ```{r, echo=T,fig.height=5, eval=FALSE}
-par(mfrow=c(1,2))
 require(glmnet)
 require(dplyr)
 require(kableExtra)
-par(mfrow=c(1,2))
+par(mfrow=c(1,1))
 # run lasso (alpha=1) for linear model (family=gaussian)
 cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
 
-plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 plot(cvglm)
+plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
 ```
 
 <details>
 <summary> *Show result*</summary>
 ```{r, echo=FALSE,fig.height=5}
-par(mfrow=c(1,2))
 require(glmnet)
 require(dplyr)
 require(kableExtra)
-par(mfrow=c(1,2))
+par(mfrow=c(1,1))
 # run lasso (alpha=1) for linear model (family=gaussian)
 cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
 
-plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 plot(cvglm)
+plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
 ```
 
@@ -707,7 +702,7 @@ require(kableExtra)
 
 coefglm=as.data.frame(as.matrix(coef(cvglm, s="lambda.min")))
 coefglm=cbind(seq(0,10),coefglm)
-names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,2),")"))
+names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,3),")"))
 kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 ```
 
@@ -719,8 +714,8 @@ require(dplyr)
 require(kableExtra)
 
 coefglm=as.data.frame(as.matrix(coef(cvglm, s="lambda.min")))
-coefglm=cbind(seq(0,10),coefglm)
-names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,2),")"))
+coefglm=cbind(seq(0,10),c(b0, b, rep(0, 7)),coefglm)
+names(coefglm)=c("beta","value (oracle)", paste0("estimate(lambda=",signif(minlambda,3),")"))
 kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 ```
 
@@ -728,13 +723,17 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 </details>
 
 #### Think about
-* Does the effect sizes make sense
+* Does the effect sizes make sense -- if not can you think of why?
 
 <details>
 <summary> Some possible answers </summary>
 <h4>Some possible answers</h4>
 
-* Yes, $\beta_i$ is non-zero only for _oracle_-known variables $X_1, X_2, X_3$
+* Well...yes!
+  + $\beta_i$ is non-zero only for _oracle_-known variables $X_1, X_2, X_3$
+  + they don't exactly equate our *oracle knowledge* parameter values -- they appear to be scaled.
+  + but their relative order of amplitude is right.
+* Perhaps the normalization affected scaling.
 
 ***
 </details>
