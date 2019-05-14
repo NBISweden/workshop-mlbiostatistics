@@ -425,15 +425,36 @@ Hypothesis testing
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{# Data}
 \NormalTok{weight <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{58}\NormalTok{, }\DecValTok{70}\NormalTok{, }\DecValTok{74}\NormalTok{, }\FloatTok{63.5}\NormalTok{, }\FloatTok{62.0}\NormalTok{, }\FloatTok{70.5}\NormalTok{, }\FloatTok{71.0}\NormalTok{, }\FloatTok{66.0}\NormalTok{) }
 \NormalTok{plasma <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{2.75}\NormalTok{, }\FloatTok{2.86}\NormalTok{, }\FloatTok{3.37}\NormalTok{, }\FloatTok{2.76}\NormalTok{, }\FloatTok{2.62}\NormalTok{, }\FloatTok{3.49}\NormalTok{, }\FloatTok{3.05}\NormalTok{, }\FloatTok{3.12}\NormalTok{) }
 
+\CommentTok{# Plot}
 \KeywordTok{plot}\NormalTok{(weight, plasma)}
-\NormalTok{reg <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(plasma}\OperatorTok{~}\NormalTok{weight)}
 
+\CommentTok{# Regression}
+\NormalTok{reg <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(plasma}\OperatorTok{~}\NormalTok{weight)}
 \KeywordTok{summary}\NormalTok{(reg)}
+
+\CommentTok{# Coefficients}
+\KeywordTok{coef}\NormalTok{(reg)}
+
+\CommentTok{# Confidence intervals}
+\KeywordTok{confint}\NormalTok{(reg)}
+
+\CommentTok{# Add regression line to the plot}
+\KeywordTok{abline}\NormalTok{(reg)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{session-regression-I-files/figures/unnamed-chunk-3-1} 
+
+}
+
+\caption{Body weight vs. plasma volume}\label{fig:unnamed-chunk-3}
+\end{figure}
 
 \begin{verbatim}
 ## 
@@ -454,24 +475,96 @@ Hypothesis testing
 ## Residual standard error: 0.2188 on 6 degrees of freedom
 ## Multiple R-squared:  0.5763, Adjusted R-squared:  0.5057 
 ## F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893
+## 
+## (Intercept)      weight 
+##  0.08572428  0.04361534 
+##                    2.5 %     97.5 %
+## (Intercept) -2.419908594 2.59135716
+## weight       0.006255005 0.08097567
 \end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{abline}\NormalTok{(reg)}
-\end{Highlighting}
-\end{Shaded}
+\hypertarget{prediction}{%
+\section{Prediction}\label{prediction}}
 
-\begin{center}\includegraphics{session-regression-I-files/figures/unnamed-chunk-3-1} \end{center}
+Sometimes it may be useful to use the regression equation to predict the
+value of \(y_i\) for a particular value of \(x_i\), say \(x_i´\). The
+\texttt{predicted\ value} is: \[y_i'=\hat{\beta_0}+\hat{\beta_1}x_i'\]
+and its standard error is:
+\[s.e.(y_i')=s\sqrt{[1+\frac{1}{n}+\frac{(x_i-\overline{x_i})^2}{\sum_{i=1}^{n}(x_i-\overline{x_i})^2}]}\]
 
-\hypertarget{prediction-example}{%
-\section{Prediction example}\label{prediction-example}}
+The standard error is least when \(x_i´\) is close to the mean,
+\(\overline{x}\)
+
+In general, one should be recluctant to use the regression line for
+predicting values outside the range of \(x\) in the original data, as
+the linear relationship will not necessarily hold true beyond the range
+over which it has been fitted.
+
+\hypertarget{prediction-interval}{%
+\subsection{Prediction interval}\label{prediction-interval}}
+
+There is also a concept called \texttt{prediction\ interval}. Here, we
+look at any specific value of \(x_i\), and find an interval around the
+predicted value \(y_i'\) for \(x_i\) such that there is a 95\%
+probability that the real value of y (in the population) corresponding
+to \(x_i\) is within this interval.
+
+Prediction interval regression vs.~confidence interval
 
 \begin{itemize}
 \tightlist
 \item
-  by hand and live demo
+  95\% condifence interval: there is 95\% probability that the true best
+  fit-line for the population lies within the confidence interval
+\item
+  95\% prediction interval: 95\% of the \(y\) values found for a certain
+  \(x\) value will be within the interval range around the linear
+  regression line
+\item
+  prediction interval \(>\) than a confidence interval, as it must
+  account for both the uncertainty in knowing the value of the
+  population mean, plus data scatter.
 \end{itemize}
+
+The 95\% prediction interval of the forecasted value \(y_i'\):
+
+\hypertarget{live-coding-demo-1}{%
+\subsection{Live coding demo}\label{live-coding-demo-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Prediction}
+\KeywordTok{predict}\NormalTok{(reg, }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{weight=}\DecValTok{60}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1 
+## 2.702645
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{predict}\NormalTok{(reg, }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{weight=}\KeywordTok{c}\NormalTok{(}\DecValTok{60}\NormalTok{, }\DecValTok{70}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1        2 
+## 2.702645 3.138798
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Prediction with confidence intervals}
+\KeywordTok{predict}\NormalTok{(reg, }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{weight=}\DecValTok{66}\NormalTok{), }\DataTypeTok{interval=}\StringTok{"prediction"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        fit      lwr      upr
+## 1 2.964337 2.395511 3.533162
+\end{verbatim}
 
 \hypertarget{asesssing-the-accuracy-of-the-model-correlation}{%
 \section{Asesssing the Accuracy of the Model \&

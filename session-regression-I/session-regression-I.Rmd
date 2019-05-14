@@ -9,7 +9,6 @@ urlcolor: blue
 
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.path="session-regression-I-files/figures/")
@@ -17,7 +16,6 @@ knitr::opts_chunk$set(fig.pos = 'H')
 knitr::opts_chunk$set(cache.path = "tmp")
 knitr::opts_chunk$set(cache = TRUE)
 ```
-
 
 ## Learning outcomes
 - understand simple linear regression model incl. terminology and mathematical notations
@@ -48,7 +46,6 @@ knitr::opts_chunk$set(cache = TRUE)
 
 \newpage
 
-
 ```{r, fig-intro-det-vs-stat, echo=F, fig.height=5, fig.cap="Determinisitc vs. statistical relationship: a) deterministic: equation exactly describes the relationship between the two variables e.g. $Fahrenheit=9/5*Celcius+32$; b) statistical relationship between x and y is not perfect (increasing), c)  statistical relationship between x and y is not perfect (decreasing), d) random signal", fig.align="center"}
 
 par(mfrow=c(2,2), mar=c(3,4,3,3))
@@ -71,7 +68,6 @@ plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="c)", cex.main=0.8)
 y_random <- - rnorm(length(x), mean=100, sd=25)
 plot(x, y_random, pch=19, xlab="x", ylab="y", main="d)", cex.main=0.8)
 
-
 ```
 
 
@@ -82,6 +78,7 @@ Example data contain the body weight (kg) and plasma volume (liters) for eight h
 
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
 ```
 
 
@@ -241,23 +238,59 @@ Typical p-value cutoffs for rejecting the null hypothesis are 5 or 1%.
 [Pen and Paper exercise](pen-and-paper-plasma-volume.pdf): Hypothesis testing
 
 ## Live coding demo
-```{r, fig.width=4, fig.height=4, fig.align="center"}
+```{r, fig.width=4, fig.height=4, fig.align="center", fig.cap="Body weight vs. plasma volume", results="hold"}
+
+# Data
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) 
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) 
 
+# Plot
 plot(weight, plasma)
-reg <- lm(plasma~weight)
 
+# Regression
+reg <- lm(plasma~weight)
 summary(reg)
 
+# Coefficients
+coef(reg)
+
+# Confidence intervals
+confint(reg)
+
+# Add regression line to the plot
 abline(reg)
 
 ```
 
+# Prediction
+Sometimes it may be useful to use the regression equation to predict the value of $y_i$ for a particular value of $x_i$, say $x_i´$. The `predicted value` is: $$y_i'=\hat{\beta_0}+\hat{\beta_1}x_i'$$ and its standard error is: $$s.e.(y_i')=s\sqrt{[1+\frac{1}{n}+\frac{(x_i-\overline{x_i})^2}{\sum_{i=1}^{n}(x_i-\overline{x_i})^2}]}$$
 
+The standard error is least when $x_i´$ is close to the mean, $\overline{x}$
 
-# Prediction example
-- by hand and live demo
+In general, one should be recluctant to use the regression line for predicting values outside the range of $x$ in the original data, as the linear relationship will not necessarily hold true beyond the range over which it has been fitted. 
+
+## Prediction interval
+There is also a concept called `prediction interval`. Here, we look at any specific value of $x_i$, and find an interval around the predicted value $y_i'$ for $x_i$ such that there is a 95% probability that the real value of y (in the population) corresponding to $x_i$ is within this interval.
+
+Prediction interval regression vs. confidence interval
+
+- 95% condifence interval: there is 95% probability that the true best fit-line for the population lies within the confidence interval
+- 95% prediction interval: 95% of the $y$ values found for a certain $x$ value will be within the interval range around the linear regression line
+- prediction interval $>$ than a confidence interval, as it must account for both the uncertainty in knowing the value of the population mean, plus data scatter.
+
+The 95% prediction interval of the forecasted value $y_i'$: 
+
+## Live coding demo
+```{r}
+# Prediction
+predict(reg, data.frame(weight=60))
+predict(reg, data.frame(weight=c(60, 70)))
+
+# Prediction with confidence intervals
+predict(reg, data.frame(weight=66), interval="prediction")
+
+```
+
 
 # Asesssing the Accuracy of the Model & Correlation
 
