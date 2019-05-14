@@ -13,7 +13,7 @@ editor_options:
 ### Learning outcomes
 
 * Likelihood
-    + Relation to RSS for linear model
+    + Relation to OLS for linear model
     + Overfitting
 * Regularization
     + Model comparison 
@@ -886,13 +886,13 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 **Platform:** x86_64-apple-darwin15.6.0 (64-bit) 
 
 **locale:**
-en_US.UTF-8||en_US.UTF-8||en_US.UTF-8||C||en_US.UTF-8||en_US.UTF-8
+sv_SE.UTF-8||sv_SE.UTF-8||sv_SE.UTF-8||C||sv_SE.UTF-8||sv_SE.UTF-8
 
 **attached base packages:** 
 _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 
 **other attached packages:** 
-_pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-16)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-36)_, _zoo(v.1.8-4)_ and _knitr(v.1.22)_
+_pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
 
 **loaded via a namespace (and not attached):** 
-_Rcpp(v.1.0.1)_, _pillar(v.1.3.1)_, _compiler(v.3.5.3)_, _highr(v.0.7)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.1)_, _rstudioapi(v.0.9.0)_, _yaml(v.2.2.0)_, _xfun(v.0.5)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _assertthat(v.0.2.0)_, _rvest(v.0.3.2)_, _colorspace(v.1.4-1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
+_Rcpp(v.1.0.1)_, _pillar(v.1.3.1)_, _compiler(v.3.5.3)_, _highr(v.0.8)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.4)_, _rstudioapi(v.0.10)_, _yaml(v.2.2.0)_, _xfun(v.0.6)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _assertthat(v.0.2.1)_, _rvest(v.0.3.3)_, _colorspace(v.1.4-1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
