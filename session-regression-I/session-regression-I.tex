@@ -388,7 +388,7 @@ of the coefficient estimates
 
 versus the \texttt{alternative\ hypothesis} \newline
 
-\(H_0:\) There is some relationship between \(X\) and \(Y\)
+\(H_a:\) There is some relationship between \(X\) and \(Y\)
 
 Mathematically, this corresponds to testing \[H_0: \beta_1=0\] versus
 \[H_0: \beta_1\neq0\] since if \[\beta_1=0\] then the model
@@ -417,6 +417,7 @@ that it is unlikely to observe such a substantial association between
 association. We therefore can \texttt{reject\ the\ null\ hypothesis}.
 
 Typical p-value cutoffs for rejecting the null hypothesis are 5 or 1\%.
+
 \href{pen-and-paper-plasma-volume.pdf}{Pen and Paper exercise}:
 Hypothesis testing
 
@@ -426,7 +427,7 @@ Hypothesis testing
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{# Data}
-\NormalTok{weight <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{58}\NormalTok{, }\DecValTok{70}\NormalTok{, }\DecValTok{74}\NormalTok{, }\FloatTok{63.5}\NormalTok{, }\FloatTok{62.0}\NormalTok{, }\FloatTok{70.5}\NormalTok{, }\FloatTok{71.0}\NormalTok{, }\FloatTok{66.0}\NormalTok{) }
+\NormalTok{weight <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{58}\NormalTok{, }\DecValTok{70}\NormalTok{, }\DecValTok{74}\NormalTok{, }\FloatTok{63.5}\NormalTok{, }\FloatTok{62.0}\NormalTok{, }\FloatTok{70.5}\NormalTok{, }\FloatTok{71.0}\NormalTok{, }\FloatTok{66.0}\NormalTok{)}
 \NormalTok{plasma <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{2.75}\NormalTok{, }\FloatTok{2.86}\NormalTok{, }\FloatTok{3.37}\NormalTok{, }\FloatTok{2.76}\NormalTok{, }\FloatTok{2.62}\NormalTok{, }\FloatTok{3.49}\NormalTok{, }\FloatTok{3.05}\NormalTok{, }\FloatTok{3.12}\NormalTok{) }
 
 \CommentTok{# Plot}
@@ -569,6 +570,225 @@ The 95\% prediction interval of the forecasted value \(y_i'\):
 \hypertarget{asesssing-the-accuracy-of-the-model-correlation}{%
 \section{Asesssing the Accuracy of the Model \&
 Correlation}\label{asesssing-the-accuracy-of-the-model-correlation}}
+
+Once we have rejected the null hypothesis (\(H_0:\)there is no
+relationship between X and Y) in favor of the alternative hypothesis
+(\(H_a\)there is some relationship between X and Y) we may want to
+quantify \texttt{the\ extent\ to\ which\ the\ model\ fits\ the\ data}.
+
+The quality of a linear regression fit is typically assessed using two
+related quantities: - RSE, the residual standard error - \(R^2\)
+statistics
+
+\hypertarget{rse-residual-standard-error}{%
+\subsection{RSE, Residual standard
+error}\label{rse-residual-standard-error}}
+
+\begin{itemize}
+\tightlist
+\item
+  RSE is a measure of \texttt{lack\ of\ fit} of the model to the data
+\item
+  It is measured in units of \(Y\).
+\end{itemize}
+
+Going back to linear regression model, and writing it in the formal
+complete way: \[Y=\beta_0+\beta_1X+\epsilon\] we can see that each
+observation is associated with an error term \(\epsilon\). This means
+that even knowing \(\beta_0\) and \(\beta_1\) one cannot perfectly
+predict \(Y\) from \(X\).
+
+\texttt{RSE} is an estimate of the standard deviation of \(\epsilon\),
+that can be viewed as the average amount that the response will deviate
+from the true regression line. It is calculated
+\[RSE=\sqrt{\frac{1}{n-2}RSS} = \sqrt{\frac{1}{n-2}\sum_{i=1}{n}(y_i-\hat{y_i})^2}\]
+where \[RSE=\sum_{i=1}^{n}(y_i-\hat{y_i})^2\]
+
+\begin{figure}[H]
+
+{\centering \includegraphics{session-regression-I-files/figures/rse-1} 
+
+}
+
+\end{figure}
+
+\hypertarget{live-coding-demo-2}{%
+\subsubsection{Live coding demo}\label{live-coding-demo-2}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)}
+\CommentTok{#plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)}
+
+\NormalTok{plasma}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.75 2.86 3.37 2.76 2.62 3.49 3.05 3.12
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{weight }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 58.0 70.0 74.0 63.5 62.0 70.5 71.0 66.0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(data.reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   plasma weight predicted   residuals
+## 1   2.75   58.0  2.615414  0.13458612
+## 2   2.86   70.0  3.138798 -0.27879793
+## 3   3.37   74.0  3.313259  0.05674072
+## 4   2.76   63.5  2.855298 -0.09529823
+## 5   2.62   62.0  2.789875 -0.16987523
+## 6   3.49   70.5  3.160606  0.32939440
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(data.reg}\OperatorTok{$}\NormalTok{plasma}\OperatorTok{~}\NormalTok{data.reg}\OperatorTok{$}\NormalTok{weight)}
+
+\CommentTok{# predict Y given the values of X and regression model reg}
+\NormalTok{y.pred <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(reg, }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{weight=}\NormalTok{data.reg}\OperatorTok{$}\NormalTok{weight))}
+\NormalTok{y.pred}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1        2        3        4        5        6        7        8 
+## 2.615414 3.138798 3.313259 2.855298 2.789875 3.160606 3.182413 2.964337
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# calculate residuals}
+\NormalTok{e.terms <-}\StringTok{ }\NormalTok{data.reg}\OperatorTok{$}\NormalTok{plasma}\OperatorTok{-}\NormalTok{y.pred}
+\NormalTok{e.terms}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           1           2           3           4           5           6 
+##  0.13458612 -0.27879793  0.05674072 -0.09529823 -0.16987523  0.32939440 
+##           7           8 
+## -0.13241327  0.15566342
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# calculate RSS}
+\NormalTok{RSS=}\KeywordTok{sum}\NormalTok{(e.terms}\OperatorTok{^}\DecValTok{2}\NormalTok{)}
+
+\CommentTok{# calculate RSE}
+\NormalTok{n=}\KeywordTok{nrow}\NormalTok{(data.reg)}
+\NormalTok{RSE <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{((}\DecValTok{1}\OperatorTok{/}\NormalTok{(n}\DecValTok{-2}\NormalTok{))}\OperatorTok{*}\NormalTok{RSS)}
+
+\CommentTok{# R reg objects contains it all}
+\KeywordTok{names}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "coefficients"  "residuals"     "effects"       "rank"         
+##  [5] "fitted.values" "assign"        "qr"            "df.residual"  
+##  [9] "xlevels"       "call"          "terms"         "model"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg}\OperatorTok{$}\NormalTok{fitted.values}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        1        2        3        4        5        6        7        8 
+## 2.615414 3.138798 3.313259 2.855298 2.789875 3.160606 3.182413 2.964337
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg}\OperatorTok{$}\NormalTok{residuals}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           1           2           3           4           5           6 
+##  0.13458612 -0.27879793  0.05674072 -0.09529823 -0.16987523  0.32939440 
+##           7           8 
+## -0.13241327  0.15566342
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# RSE}
+\KeywordTok{summary}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = data.reg$plasma ~ data.reg$weight)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.27880 -0.14178 -0.01928  0.13986  0.32939 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(>|t|)  
+## (Intercept)      0.08572    1.02400   0.084   0.9360  
+## data.reg$weight  0.04362    0.01527   2.857   0.0289 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.2188 on 6 degrees of freedom
+## Multiple R-squared:  0.5763, Adjusted R-squared:  0.5057 
+## F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893
+\end{verbatim}
+
+\hypertarget{r2-statistics}{%
+\subsection{\texorpdfstring{\(R^2\)
+statistics}{R\^{}2 statistics}}\label{r2-statistics}}
+
+\begin{itemize}
+\tightlist
+\item
+  \(R^2\) statistics is an alternative measure of fit and measure of
+  linear relationshp between \(X\) and \(Y\)
+\item
+  It takes the form of a propotion, the proportion of variance
+  explained, hence is independent of the scale of \(Y\)
+\item
+  \(0 \leq R^2 \leq 1\)
+\end{itemize}
+
+\[R^2=\frac{TSS-RSS}{TSS}=1-\frac{RSS}{TSS}\] where
+\[TSS=\sum_{i=1}^{n}(y_i-\overline{y})\]
+
+\hypertarget{correlation}{%
+\subsection{Correlation}\label{correlation}}
+
+\begin{itemize}
+\tightlist
+\item
+  is also a measure of linear regression between \(X\) and \(Y\)
+  \[Cor(X,Y)=\frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline{y})^2}}\]
+\end{itemize}
+
+This suggests that we should be able to use \(r=Cor(X,Y)\) to assess the
+fit of the linear model
+
+In fact, For simple linear regression, it can be shown that \[R^2=r^2\]
 
 \hypertarget{assumptions}{%
 \section{Assumptions}\label{assumptions}}

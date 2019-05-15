@@ -217,7 +217,7 @@ $H_0:$ There is no relationship between $X$ and $Y$ \newline
 
 versus the ``alternative hypothesis`` \newline
 
-$H_0:$ There is some relationship between $X$ and $Y$
+$H_a:$ There is some relationship between $X$ and $Y$
 
 Mathematically, this corresponds to testing
 $$H_0: \beta_1=0$$
@@ -235,13 +235,14 @@ If there really is no relationship between $X$ and $Y$, then we this will have a
 We can interpret the $p-value$ as follows: a small p-value indicates that it is unlikely to observe such a substantial association between $X$ and $Y$ due to chance, i.e. in the absence of any real association. We therefore can ``reject the null hypothesis``. 
 
 Typical p-value cutoffs for rejecting the null hypothesis are 5 or 1%. 
+
 [Pen and Paper exercise](pen-and-paper-plasma-volume.pdf): Hypothesis testing
 
 ## Live coding demo
 ```{r, fig.width=4, fig.height=4, fig.align="center", fig.cap="Body weight vs. plasma volume", results="hold"}
 
 # Data
-weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) 
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) 
 
 # Plot
@@ -291,8 +292,110 @@ predict(reg, data.frame(weight=66), interval="prediction")
 
 ```
 
-
 # Asesssing the Accuracy of the Model & Correlation
+Once we have rejected the null hypothesis ($H_0:$there is no relationship between X and Y) in favor of the alternative hypothesis ($H_a$there is some relationship between X and Y) we may want to quantify `the extent to which the model fits the data`. 
+
+The quality of a linear regression fit is typically assessed using two related quantities:
+- RSE, the residual standard error
+- $R^2$ statistics
+
+## RSE, Residual standard error
+
+- RSE is a measure of `lack of fit` of the model to the data
+- It is measured in units of $Y$. 
+
+Going back to linear regression model, and writing it in the formal complete way:
+$$Y=\beta_0+\beta_1X+\epsilon$$ we can see that each observation is associated with an error term $\epsilon$. This means that even knowing $\beta_0$ and $\beta_1$ one cannot perfectly predict $Y$ from $X$. 
+
+`RSE` is an estimate of the standard deviation of $\epsilon$, that can be viewed as the average amount that the response will deviate from the true regression line. It is calculated $$RSE=\sqrt{\frac{1}{n-2}RSS} = \sqrt{\frac{1}{n-2}\sum_{i=1}{n}(y_i-\hat{y_i})^2}$$ where $$RSE=\sum_{i=1}^{n}(y_i-\hat{y_i})^2$$
+
+```{r, rse, echo=F, fig.align="center", fig.cap="", fig.width=4, fig.height=3}
+
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+data.reg <- data.frame(plasma=plasma, weight=weight)
+fit.reg <- lm(plasma~weight, data=data.reg)
+data.reg$predicted <- predict(fit.reg)
+data.reg$residuals <- residuals((fit.reg))
+
+library(ggplot2)
+ggplot(data.reg, aes(x=data.reg$weight, data.reg$plasma)) + geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey") + 
+  geom_segment(aes(xend = weight, yend = predicted)) + 
+  geom_point(aes(y = predicted), shape = 1) +
+  geom_point(aes(y = predicted), shape = 1) + 
+  theme_bw() + xlab("body weight [kg]") + ylab("plasma volume [liters]")
+
+```
+
+
+### Live coding demo
+```{r}
+
+#weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+#plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+plasma
+weight 
+head(data.reg)
+
+reg <- lm(data.reg$plasma~data.reg$weight)
+
+# predict Y given the values of X and regression model reg
+y.pred <- predict(reg, data.frame(weight=data.reg$weight))
+y.pred
+
+# calculate residuals
+e.terms <- data.reg$plasma-y.pred
+e.terms
+
+# calculate RSS
+RSS=sum(e.terms^2)
+
+# calculate RSE
+n=nrow(data.reg)
+RSE <- sqrt((1/(n-2))*RSS)
+
+# R reg objects contains it all
+names(reg)
+reg$fitted.values
+reg$residuals
+
+# RSE
+summary(reg)
+
+```
+
+## $R^2$ statistics
+- $R^2$ statistics is an alternative measure of fit and measure of linear relationshp between $X$ and $Y$
+- It takes the form of a propotion, the proportion of variance explained, hence is independent of the scale of $Y$
+- $0 \leq R^2 \leq 1$
+
+$$R^2=\frac{TSS-RSS}{TSS}=1-\frac{RSS}{TSS}$$ where $$TSS=\sum_{i=1}^{n}(y_i-\overline{y})$$
+
+## Correlation
+- is also a measure of linear regression between $X$ and $Y$
+$$Cor(X,Y)=\frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline{y})^2}}$$
+
+This suggests that we should be able to use $r=Cor(X,Y)$ to assess the fit of the linear model
+
+In fact, For simple linear regression, it can be shown that $$R^2=r^2$$
+
+### Live coding demo
+```{r}
+
+#summary(reg)
+names(reg)
+
+r2 <- cor(data.reg$plasma, data.reg$weight)^2
+
+
+```
+
+
+
+
 
 # Assumptions 
 
