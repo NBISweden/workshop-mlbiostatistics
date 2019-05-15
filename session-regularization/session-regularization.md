@@ -20,6 +20,7 @@ editor_options:
         - AIC
     + Feature selection
         - LASSO, ridge regression
+* Cross validation
 
 
 
@@ -748,9 +749,37 @@ plot(fit, xvar="lambda",label=T)
 
 ## Cross-validation
 The LASSO model will be different depending on how we set $\lambda$. A problem is to decide the optimal $\lambda$ to use. 
-`glmnet` uses cross-validation to obtain an estimate of the minimum $\lambda$ attainable.
 
-### Task | `Determine `$\lambda$` using cross-validation`
+* $\lambda$ too *low*: risk of missing relevant variables
+* $\lambda$ too *high*: risk of overfitting 
+
+`glmnet` addresses this using *$k$-fold cross-validation* -- what is that?
+
+### Cross-validation | `How to test for overfitting`
+The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error, MSE* ($=RSS/N$).
+Naturally, we want to minimize $MSE$, i.e., the error of the model. In our LASSO application, this means that we want to select the $\lambda$ that minimizes the $MSE$
+
+In cross validation, this approach is emaulated by partiotioning the data at hand into a *training* and  *test* (or *validation*) data set. The model parameters are estimated ('trained') on the the training data and the validated on the test data.
+
+By chance, this may fail if the partitioning is 'non-representative'. A solution is to repeat the cross-validation procedure with another partioning.
+
+In $k$-fold cross validation, the original data is split into $k$ sub-datasets $\{D_1,D_2,\ldots, D_k\}$.
+For $i \in \{1,2,\ldots, k\}$, set $D_i$ as the test data set and the union of the other datasets be the training data. Perform cross validation as above.
+
+This gives a distribution of $MSE$ from which we can estimate, e.g., mean and standard deviation.
+
+<details>
+<summary>Additional reading</summary>
+
+This distribution allows us to use more elaborate means to select $\lambda$. One common suggestion is to use the largest $\lambda$ whose $MSE$ is within 1 standard error from the minimum value (called `lambda.1se` in `glmnet`). The motivation argued for this choice is *parsimony*, in the sense that larger $\lambda$ will include fewer variables (hence it is parsimonious in terms of number of included variables). 
+
+Here we will limit ourselves to finding the minimum $\lambda$, called `lambda.min` in `glmnet`, but anyone is free to test if `lambda.1se` gives a different result.
+
+***
+</details>
+
+
+### Task | `Determine optimal LASSO `$\lambda$` using cross-validation`
 * Use the function `cv.glmnet` to perform cross validation
 * `plot` the cross-validation results 
 * Compare with the plot of estimated $\beta_i$ under different $\lambda$.
@@ -759,8 +788,6 @@ The LASSO model will be different depending on how we set $\lambda$. A problem i
 
 ```r
 require(glmnet)
-require(dplyr)
-require(kableExtra)
 par(mfrow=c(1,1))
 # run lasso (alpha=1) for linear model (family=gaussian)
 cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
@@ -791,17 +818,17 @@ minlambda=cvglm$lambda.min
 ***
 </details>
 
-### Task| `Final effect sizes`
-* Finally print a table with the $\beta$ coefficients for the optimal model (i.e.,  at minimum $\lambda$).
+### Task| `Final LASSO effect sizes`
+* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$).
 
 
 ```r
-require(dplyr)
-require(kableExtra)
+require(dplyr)      # for nice table
+require(kableExtra) #for nice table
 
 coefglm=as.data.frame(as.matrix(coef(cvglm, s="lambda.min")))
-coefglm=cbind(seq(0,10),coefglm)
-names(coefglm)=c("Variable",paste0("beta(lambda=",signif(minlambda,3),")"))
+coefglm=cbind(seq(0,10),c(b0, b, rep(0, 7)),coefglm)
+names(coefglm)=c("beta","value (oracle)", paste0("estimate(lambda=",signif(minlambda,3),")"))
 kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 ```
 
@@ -911,7 +938,7 @@ sv_SE.UTF-8||sv_SE.UTF-8||sv_SE.UTF-8||C||sv_SE.UTF-8||sv_SE.UTF-8
 _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 
 **other attached packages:** 
-_pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
+_igraph(v.1.2.4.1)_, _bookdown(v.0.9)_, _pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
 
 **loaded via a namespace (and not attached):** 
-_tidyselect(v.0.2.5)_, _xfun(v.0.6)_, _purrr(v.0.3.2)_, _lattice(v.0.20-38)_, _colorspace(v.1.4-1)_, _htmltools(v.0.3.6)_, _viridisLite(v.0.3.0)_, _yaml(v.2.2.0)_, _rlang(v.0.3.4)_, _pillar(v.1.3.1)_, _later(v.0.8.0)_, _glue(v.1.3.1)_, _stringr(v.1.4.0)_, _munsell(v.0.5.0)_, _rvest(v.0.3.3)_, _codetools(v.0.2-16)_, _evaluate(v.0.13)_, _httpuv(v.1.5.1)_, _highr(v.0.8)_, _Rcpp(v.1.0.1)_, _readr(v.1.3.1)_, _scales(v.1.0.0)_, _promises(v.1.0.1)_, _webshot(v.0.5.1)_, _jsonlite(v.1.6)_, _mime(v.0.6)_, _servr(v.0.13)_, _hms(v.0.4.2)_, _packrat(v.0.5.0)_, _digest(v.0.6.18)_, _stringi(v.1.4.3)_, _xaringan(v.0.9)_, _grid(v.3.5.3)_, _tools(v.3.5.3)_, _magrittr(v.1.5)_, _tibble(v.2.1.1)_, _crayon(v.1.3.4)_, _pkgconfig(v.2.0.2)_, _rsconnect(v.0.8.13)_, _xml2(v.1.2.0)_, _assertthat(v.0.2.1)_, _rmarkdown(v.1.12)_, _httr(v.1.4.0)_, _rstudioapi(v.0.10)_, _iterators(v.1.0.10)_, _R6(v.2.4.0)_ and _compiler(v.3.5.3)_
+_tidyselect(v.0.2.5)_, _xfun(v.0.6)_, _purrr(v.0.3.2)_, _lattice(v.0.20-38)_, _colorspace(v.1.4-1)_, _htmltools(v.0.3.6)_, _viridisLite(v.0.3.0)_, _yaml(v.2.2.0)_, _rlang(v.0.3.4)_, _pillar(v.1.3.1)_, _later(v.0.8.0)_, _glue(v.1.3.1)_, _stringr(v.1.4.0)_, _munsell(v.0.5.0)_, _rvest(v.0.3.3)_, _codetools(v.0.2-16)_, _evaluate(v.0.13)_, _httpuv(v.1.5.1)_, _highr(v.0.8)_, _Rcpp(v.1.0.1)_, _readr(v.1.3.1)_, _scales(v.1.0.0)_, _promises(v.1.0.1)_, _webshot(v.0.5.1)_, _jsonlite(v.1.6)_, _mime(v.0.6)_, _servr(v.0.13)_, _hms(v.0.4.2)_, _packrat(v.0.5.0)_, _digest(v.0.6.18)_, _stringi(v.1.4.3)_, _xaringan(v.0.9)_, _grid(v.3.5.3)_, _tools(v.3.5.3)_, _magrittr(v.1.5)_, _tibble(v.2.1.1)_, _crayon(v.1.3.4)_, _pkgconfig(v.2.0.2)_, _xml2(v.1.2.0)_, _assertthat(v.0.2.1)_, _rmarkdown(v.1.12)_, _httr(v.1.4.0)_, _rstudioapi(v.0.10)_, _iterators(v.1.0.10)_, _R6(v.2.4.0)_ and _compiler(v.3.5.3)_
