@@ -3,25 +3,25 @@ layout: default
 title:  'Session links'
 ---
 
-## Session Links
+##### Session Links
 
-##### Statistical theory and concepts I and II
+###### Statistical theory and concepts I and II
 
-##### Introduction to experimental design
+###### Introduction to experimental design
 
-##### Regression I
+###### Regression I
 - [Simple linear regression](session-regression-I/session-regression-I.pdf)
 - [Simple linear regression: pen and paper exercises](session-regression-I/pen-and-paper-plasma-volume.pdf)
 
-##### Regression II
+###### Regression II
 - [Multiple linear regression](session-regression-II/session-regression-II.pdf)
 
-##### Unsupervised learning: PCA, K-means, KNN
+###### Unsupervised learning: PCA, K-means, KNN
 
-##### What comes next & introduction to machine learning
+###### What comes next & introduction to machine learning
 - [Regularization](session-regularization/session-regularization.md)
 
-##### Wrap-up session & feedback
+###### Wrap-up session & feedback
 
 
 ----
