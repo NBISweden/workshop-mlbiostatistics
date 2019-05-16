@@ -48,7 +48,6 @@ In this course we focus on active learning approach. The course participants are
 - [Eva Freyhult][eva], PhD, NBIS, SciLifeLab, Uppsala University
 - [Olga Dethlefsen][olga], PhD, NBIS, SciLifeLab, University of Stockholm
 - [Payam Emami][payam], PhD, NBIS, SciLifeLab, University of Stockholm
-- [Ashfaq Ali][ashfaq], PhD, NBIS, Lund University
 - [Paulo Czarnewski][paulo], PhD, NBIS, SciLifeLab, University of Stockholm
 - [Marcin Kierczak][marcin], PhD, NBIS, SciLifeLab, Uppsala University
 - [Bengt Sennblad][bengt], PhD, NBIS, SciLifeLab, Uppsala University
@@ -61,6 +60,7 @@ In this course we focus on active learning approach. The course participants are
 
 ##### Application status
 - closed
+- [Sign up](https://forms.gle/9gATt9jkXKRJojPw7) and we will notify you when we open application for the next course
 
 ##### Entry requirements
 - No prior knowledge is assumed
@@ -81,7 +81,6 @@ In this course we focus on active learning approach. The course participants are
 [eva]: https://nbis.se/about/staff/eva-freyhult/
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
 [payam]: https://nbis.se/about/staff/payam-emami/
-[ashfaq]: https://nbis.se/about/staff/ashfaq-ali/
 [paulo]: https://nbis.se/about/staff/paulo-czarnewski/
 [marcin]: https://nbis.se/about/staff/marcin-kierczak/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
