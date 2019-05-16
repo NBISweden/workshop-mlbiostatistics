@@ -5,7 +5,7 @@ title:  'To Do'
 
 # Now
 
-## Other sessions:
+## Other sessions
 - intro: logistics, course philosophy
 - group discussions
 
@@ -64,5 +64,5 @@ title:  'To Do'
 ###  Simple regression
 - cross validation
 - outliers
-- answers to quizzes and pen-and-paper exercises 
+- answers to quizzes and pen-and-paper exercises
 - add confidence interval to regression line; improve confidence vs. prediction intervals
