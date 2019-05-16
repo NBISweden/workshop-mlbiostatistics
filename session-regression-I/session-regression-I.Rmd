@@ -22,7 +22,7 @@ knitr::opts_chunk$set(cache = TRUE)
 - estimate model parameters and their standard error
 - use model for checking the association between _x_ and _y_
 - use model for prediction
-- asses model accuracy with RSE and R$^2$
+- assess model accuracy with RSE and R$^2$
 - check model assumptions
 - to be able to use `lm` function in R for model fitting, obtaining confidence interval and predictions
 
@@ -64,7 +64,7 @@ plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="b)", cex.main=0.8)
 y_decreasing <- -2*x + rnorm(length(x), mean=100, sd=25)
 plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="c)", cex.main=0.8)
 
-# Statistical relationshp (random)
+# Statistical relationship (random)
 y_random <- - rnorm(length(x), mean=100, sd=25)
 plot(x, y_random, pch=19, xlab="x", ylab="y", main="d)", cex.main=0.8)
 
@@ -84,7 +84,7 @@ plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (lit
 
 ```{r, fig-intro-example, echo=F, fig.align="center", fig.height=4, fig.width=4, fig.cap="Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*."}
 
-plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]")
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
 #abline(lm(plasma~weight), col="red") # regression line
 
 ```
@@ -92,7 +92,7 @@ plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volu
 
 ```{r, fig-intro-example-reg, echo=F, fig.align="center", fig.height=4, fig.width=4, fig.cap="Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*. Linear regrssion gives the equation of the straight line that best describes how the outcome changes (increase or decreases) with a change of exposure variable (in red)"}
 
-plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]")
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
 abline(lm(plasma~weight), col="red") # regression line
 
 ```
@@ -268,14 +268,14 @@ Sometimes it may be useful to use the regression equation to predict the value o
 
 The standard error is least when $x_i´$ is close to the mean, $\overline{x}$
 
-In general, one should be recluctant to use the regression line for predicting values outside the range of $x$ in the original data, as the linear relationship will not necessarily hold true beyond the range over which it has been fitted. 
+In general, one should be reluctant to use the regression line for predicting values outside the range of $x$ in the original data, as the linear relationship will not necessarily hold true beyond the range over which it has been fitted. 
 
 ## Prediction interval
 There is also a concept called `prediction interval`. Here, we look at any specific value of $x_i$, and find an interval around the predicted value $y_i'$ for $x_i$ such that there is a 95% probability that the real value of y (in the population) corresponding to $x_i$ is within this interval.
 
 Prediction interval regression vs. confidence interval
 
-- 95% condifence interval: there is 95% probability that the true best fit-line for the population lies within the confidence interval
+- 95% confidence interval: there is 95% probability that the true best fit-line for the population lies within the confidence interval
 - 95% prediction interval: 95% of the $y$ values found for a certain $x$ value will be within the interval range around the linear regression line
 - prediction interval $>$ than a confidence interval, as it must account for both the uncertainty in knowing the value of the population mean, plus data scatter.
 
@@ -368,8 +368,8 @@ summary(reg)
 ```
 
 ## $R^2$ statistics
-- $R^2$ statistics is an alternative measure of fit and measure of linear relationshp between $X$ and $Y$
-- It takes the form of a propotion, the proportion of variance explained, hence is independent of the scale of $Y$
+- $R^2$ statistics is an alternative measure of fit and measure of linear relationship between $X$ and $Y$
+- It takes the form of a proportion, the proportion of variance explained, hence is independent of the scale of $Y$
 - $0 \leq R^2 \leq 1$
 
 $$R^2=\frac{TSS-RSS}{TSS}=1-\frac{RSS}{TSS}$$ where $$TSS=\sum_{i=1}^{n}(y_i-\overline{y})$$
@@ -390,14 +390,42 @@ names(reg)
 
 r2 <- cor(data.reg$plasma, data.reg$weight)^2
 
+```
+
+# Assumptions 
+- The regression model is linear in parameters, i.e. the true relationship is linear
+- Errors, $\epsilon_i$, are independent 
+- Errors, $\epsilon_i$, at each value of predictor, $x_i$, are normally distributed
+- Errors, $\epsilon_i$, at each value of predictor, $x_i$, have equal variances, $\sigma^2$ (homoscedasticity of errors)
+
+
+The residuals provide information about the noise term in the model, and allow limited checks on model assumptions. 
+Note that in small data set, departures from assumptions may be hard to detect. 
+
+- A plot of residuals versus fitted values allows a visual check for any pattern in the residuals that might suggest a curve rather than a line
+- A normal probability plot of residuals: if residuals are from a normal distribution points should like, to within statistical error, close to a
+
+## Live coding demo
+```{r, fig.width=10, fig.height=5, fig.align="center", fig.cap="Diagnostic plots for the regression"}
+
+par(mfrow=c(1,2))
+plot(reg, which=1:2)
+
 
 ```
 
+# Beyond
+- [Linear regression, ANOVA and t-test relationship](https://newonlinecourses.science.psu.edu/stat501/node/286/)
+- [Outliers and influential observations](https://newonlinecourses.science.psu.edu/stat501/node/286/) (best to read after multiple regression session)
+- [Data transformations](https://newonlinecourses.science.psu.edu/stat501/node/318/)
+- [Linear models chapter to dig more into mathematics behind lm](http://www.rwdc2.com/files/rafa.pdf)
 
 
 
 
-# Assumptions 
+
+
+
 
 
 
