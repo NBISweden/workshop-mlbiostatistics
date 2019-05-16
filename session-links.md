@@ -10,7 +10,8 @@ title:  'Session links'
 ##### Introduction to experimental design
 
 ##### Regression I
-- [Linear regression and correlation](session-regression-I/session-regression-I.pdf)
+- [Simple linear regression](session-regression-I/session-regression-I.pdf)
+- [Simple linear regression: pen and paper exercises](session-regression-I/pen-and-paper-plasma-volume.pdf)
 
 ##### Regression II
 - [Multiple linear regression](session-regression-II/session-regression-II.pdf)
