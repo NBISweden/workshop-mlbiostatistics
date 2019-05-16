@@ -208,7 +208,8 @@ se.beta1 <- se.s/sqrt(sum(c.6))
 1. Fill in the remainig columns in the table above
 \vspace{1cm} 
 
-2. Calculate $s$
+2. Calculate $s$ \newline
+
 $s=\sqrt{[\frac{\sum_{i=1}^{n}(y_i-\overline{y})^2-\overline{\beta_1}\sum_{i=1}^{n}(x_i-\overline{x})^2}{n-2}]}=$
 \vspace{1cm} 
 
@@ -283,5 +284,58 @@ $R^2=\frac{TSS-RSS}{TSS}=1-\frac{RSS}{TSS}=$ \vspace{0.2cm}
 
 $Cor(X,Y)=\frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline{y})^2}}=s$
 
+\newpage
+\section{Extra dataset to practise more}
+
+<<echo=F>>=
+
+men.height <- round(c(73, 68, 74, 71, 69, 67, 68, 68, 67, 63)*2.5)
+men.weight <- round(c(241, 162, 212, 220, 206, 152, 183, 167, 175, 156)/2.2)
+
+#plot(men.weight, men.height)
+#abline(lm(men.height~men.weight))
+
+@
+
+<<table-extra, echo=F, results='asis'>>=
+
+data.inp <- data.frame(weight=men.weight, height=men.height)
+data.empty <- matrix(data=NA, nrow=nrow(data.inp), ncol=6)
+data.table <- cbind(data.inp, data.empty)
+
+colnames(data.table) <- c("weight [kg]", "height [cm]",
+                        "$x_i-\\overline{x}$", "$y_i-\\overline{y}$", 
+                        "$(x_i-\\overline{x})(y_i-\\overline{y})$", 
+                        "$(x_i-\\overline{x})^2$", "$(y_i-\\overline{y})^2$", "$x^2$")
+
+column.width <- c(rep("|C{2.5cm}", ncol(data.table)+1))
+column.width[2:3] <- "|C{2.5cm}"
+#column.width[4:5] <- "|L{1.5cm}"
+column.width[6] <- "|C{3cm}"
+
+rws <- seq(1, (nrow(data.table)), by = 2)
+col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+print(xtable(data.table, align=column.width),
+  booktabs = TRUE,
+  add.to.row = list(pos = as.list(rws), command = col),
+  include.rownames=FALSE,
+  sanitize.text.function=function(x){x},
+  size="large"
+  )
+
+
+@
+
+
+<<exmpty-plot, echo=F, fig.align="center", fig.height=6, fig.width=6>>=
+
+plot(men.weight, men.height, type="n", panel.first = grid(), xlab="weight [kg]", ylab="height [cm]")
+
+@
+
+
 \end{document}  
+
+
+
 
