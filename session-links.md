@@ -17,6 +17,10 @@ title:  'Session links'
 - [Multiple linear regression](session-regression-II/session-regression-II.pdf)
 
 ###### Unsupervised learning: PCA, K-means, KNN
+- Presentation: [PCA.pdf](session-pca_clustering/PCA.pdf)
+- Presentation: [Linear_Clustering.pdf](session-pca_clustering/Linear_Clustering.pdf)
+- Lab: [lab_PCA_Clustering.html](session-pca_clustering/lab_PCA_Clustering.html)
+- Lab: [Exploratory_questions.pdf](session-pca_clustering/Exploratory_questions.pdf)
 
 ###### What comes next & introduction to machine learning
 - [Regularization](session-regularization/session-regularization.md)
