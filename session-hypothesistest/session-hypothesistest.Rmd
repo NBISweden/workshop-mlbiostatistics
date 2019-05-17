@@ -15,9 +15,9 @@ knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, e
 
 ### Learning outcome
 
-- to define null and alternative hypothesis
-- to perform a hypothesis test using resampling
-- to perform a t-test
+- define null and alternative hypothesis
+- perform a hypothesis tests using resampling (e.g. permutation test)
+- perform a t-test
 
 # Hypothesis test
  
@@ -47,7 +47,6 @@ Remember out pollen example. Let's assume we know that the proportion of pollen 
 
 Observe 100 people, 42 of these were allergic to pollen. Is there a reason to belive that the proportion $\pi >0.3$?
 
-# Example: pollen allergy
 
 $$H_0:\, \pi=\pi_0$$
 
@@ -55,46 +54,45 @@ $$H_1:\, \pi>\pi_0$$
 
 In our example $\pi_0=0.3$.
 
-# Example: Pollen allergy
 
 Remember the sample distribution
 
 ```{r, out.width="50%", fig.align="center"}
 set.seed(13)
-p <- replicate(10000, mean(sample(0:1, 100, p=c(.7,.3), replace=TRUE)))
-ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + theme_bw()
-```   
+p <- replicate(100000, mean(sample(0:1, 100, p=c(.7,.3), replace=TRUE)))
+ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + geom_vline(xintercept=0.42, color="red") + theme_bw()
+```
+## The p-value
 
-# Example: Pollen allergy
+The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
 
-If $H_0$ is true $\pi=\pi_0=0.3$ and 
+Use the sampling distribution to calculate the p-value
+
+$$P(P \geq 0.42|H_0)$$
+
+$P(P \geq 0.42|H_0) = `r mean(p>=0.42)`$
+
+## Parametric test
+
+If $H_0$ is true $\pi=\pi_0=0.3$ and approximately
 
 $$P \sim N\left(\pi_0, \sqrt{\frac{\pi_0(1-\pi_0)}{n}}\right)$$
 Test statistic $$Z = \frac{P-\pi_0}{\sqrt{\frac{\pi_0(1-\pi_0)}{n}}}$$
 
-Replace $P$ with our observed value 4p=0.42$ and compute our observed
+Replace $P$ with our observed value $p=0.42$ and compute our observed
 $$Z_{obs} = \frac{0.42-0.3}{\sqrt{\frac{0.3(1-0.3)}{100}}} = `r zobs <- (.42-.3)/sqrt(.3*.7/100);format(zobs, digits=3)`$$
 
 # The p-value
 
 The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
 
-$$p = P(P>\pi_0) = P(Z>>_{obs}) = P(Z>`r format(zobs, digits=3)`) = [table]$$
+$$p = P(P\geq\pi_0) = P(P \geq 0.42) = P(Z>z_{obs}) = P(Z>`r format(zobs, digits=3)`) = [table] =  `r sprintf("%.4f", pnorm(zobs, lower.tail=FALSE))`$$
 
 Conclusion?
 
-Significance level?
+Significance level
 
 Direction of the test
-
-# One sample, mean
-
-$$
-\begin{aligned}
-H_0: \mu = \mu_0 \\
-H_1: \mu \neq \mu_0
-\end{aligned}
-$$
 
 # Two samples, mean difference
 ## Example: Do high fat diet lead to increased body weight?
@@ -175,14 +173,16 @@ Mean weight of 12 (randomly selected) mice on high-fat diet, $\bar X_2$. $E[\bar
 The mean difference is also a random variable: $D = \bar X_2 - \bar X_1$
   
 If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the ordinary diet. What can we expect if all mice are fed with the ordinary food? The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ.
+
+Assume $H_0$ is true, i.e. assume all mice are equivalent and
   
-1. Randomly assign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control' (ordinary diet).
+1. Randomly reassign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control'.
 2. Compute difference in mean weights
 
 If we repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
 
 
-```{r permtest}
+```{r permtest, echo=TRUE}
 ## All 24 body weights in a vector
 x <- c(xHF, xN)
 ## Mean difference
@@ -208,8 +208,9 @@ mean(dnull.perm>dobs)
 What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
 
 $$P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) = `r sprintf("%.3g",mean(dnull.perm>=dobs))`$$
-
+´
 ## Parametric tests
+
 
 ### Two samples, known $\sigma_1$ and $\sigma_2$
 
@@ -253,4 +254,29 @@ pnorm((dobs-0)/sqrt(5.1^2/12 + 3.4^2/12), lower.tail=FALSE)
 ### Two samples, unknown standard deviations
 
 What if the population standard deviations are not known?
+
+If the sample sizes are large, we can replace the known standard deviations with out sample standard deviations and according to the central limit theorem assume that 
+
+$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{s_2^2/\sqrt{n_2} + s_1^2/\sqrt{n_1}}} \ sim N(0,1)$$
+and procede as before.
+
+Here $n_1=n_2=12$ which is not very large.
+
+For small sample sizes we can use Student's t-test, which requires us to assume that $X_1$ and $X_2$ are both normally distributed and have equal variances. With these assumptions we can compute the pooled variance
+
+$$s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}$$
+and the test statistic
+
+$$t = \frac{\bar X_1 - \bar X_2 - 0}{\sqrt{s_p^2(\frac{1}{n_1} + \frac{1}{n_2})}}$$
+
+$t$ is t-distributed with $n_1+n_2-1$ degrees of freedom.
+
+The t-test is implemented in R.
+
+```{r ttest, echo=TRUE}
+# Student's t-test with pooled variances
+t.test(xHF, xN, var.equal=TRUE, alternative="greater")
+# Unequal variances with Welch approximation to the degrees of freedom (the default)
+t.test(xHF, xN, var.equal=FALSE, alternative="greater")
+```
 
