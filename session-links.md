@@ -18,7 +18,7 @@ title:  'Session links'
 
 ###### Unsupervised learning: PCA, K-means, KNN
 - Presentation: [PCA.pdf](session-pca_clustering/PCA.pdf)
-- Presentation: [Linear_Clustering.pdf](session-pca_clustering/Linear Clustering.pdf)
+- Presentation: [Linear_Clustering.pdf](session-pca_clustering/Linear\ Clustering.pdf)
 - Lab: [lab_PCA_Clustering.html](session-pca_clustering/lab_PCA_Clustering.html)
 - Lab: [Exploratory_questions.pdf](session-pca_clustering/Exploratory_questions.pdf)
 
