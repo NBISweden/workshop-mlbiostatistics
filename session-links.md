@@ -7,6 +7,7 @@ title:  'Session links'
 
 ###### Welcome
 - [Welcome](session-intro/session-intro.html)
+- [Continous feedback form](https://forms.gle/6drumQ2W6BmNydAY8)
 
 ###### Statistical theory and concepts I and II
 
@@ -30,9 +31,5 @@ title:  'Session links'
 
 ###### Wrap-up session & feedback
 
-
 ----
 
-Example
-- [example.pdf](session-example/session-example.pdf)
-- [example.md](session-example/session-example.md)
