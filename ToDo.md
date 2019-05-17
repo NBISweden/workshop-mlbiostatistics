@@ -17,12 +17,14 @@ title:  'To Do'
 - B plan
 
 ## Admin
-- Prepare groups & let teachers know about the groups
+- Other sessions...Introduction and 2 discussion sessions
 - Attendance sheet
 - Certificates
 - Short-term survey and summary
+
 - Wrap-up meeting with the teaching team
 - Equations rendering
+- Github website (move links to schedule, use icons system)
 
 ## Take with
 
@@ -37,17 +39,16 @@ title:  'To Do'
 ### Teaching materials
 - print outs (pen and paper labs)
 - t-table critical values
-- rulers (buy)
-- posted notes (two colours)
+- rulers
+- posted notes
 - extra paper, pens and paper
-
 
 ------
 
 # For next time
 
 ## Website
-- Github overview: sign up option to be notified when the next course application starts
+- Website rendering, use Roy's solution?
 
 ## Admin
 - add department to the application form
@@ -55,6 +56,7 @@ title:  'To Do'
 - add invoice information to the application form
 - add apply by date to the announcement poster
 - add confirm or let us know you’re not attending the course to the ”confirmation email”
+- add naitive language to the form and team roles preferences...
 
 ## Content ideas
 - data wrangling
