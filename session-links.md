@@ -5,6 +5,9 @@ title:  'Session links'
 
 ##### Session Links
 
+###### Welcome
+- [Welcome](session-intro/session-intro.html)
+
 ###### Statistical theory and concepts I and II
 
 ###### Introduction to experimental design
