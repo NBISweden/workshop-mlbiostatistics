@@ -13,7 +13,7 @@ title:  'Biostatistics Essentials: a blackboard approach'
 
 ##### [Pre-course materials](precourse.md)
 ##### [Travelling information](travel.md)
-<br/><br/>
+<br/>
 ##### [Schedule](schedule.md)
 ##### [Links to the Sessions](session-links.md)
 
