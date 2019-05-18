@@ -1664,10 +1664,11 @@ $(document).ready(function () {
 </div>
 <div id="warmup" class="section level1">
 <h1>Warmup</h1>
-<p><a href="https://forms.gle/z4qKdrcQj1wqUxBV7">Quiz: revisiting linear model specifications</a></p>
+<div id="quiz-revisiting-linear-model-specifications" class="section level2">
+<h2><a href="https://forms.gle/z4qKdrcQj1wqUxBV7">Quiz: revisiting linear model specifications</a></h2>
 </div>
-<div id="visualizing-the-advertising-dataset" class="section level1">
-<h1>Visualizing the Advertising dataset</h1>
+<div id="visualizing-the-advertising-dataset" class="section level2">
+<h2>Visualizing the Advertising dataset</h2>
 <p>In this session we will use the <a href="http://www-bcf.usc.edu/~gareth/ISL/data.html">Advertising dataset</a>. This simple dataset consists of sales data for 200 products along with the amount of money spent on TV, radio, and newspaper ads. We would like to know how best to spend advertizing money to maximize sales.</p>
 <p>To begin with, let us familiarize ourselves with the dataset. The data are stored in the <code>data</code> subdirectory of this session directory.</p>
 <pre class="r"><code># load the data
@@ -1692,17 +1693,101 @@ pairs(ads)</code></pre>
 <p>Ah, that’s better.</p>
 <p>From the pairs plot we can see that:</p>
 <ol style="list-style-type: decimal">
-<li>TV expenditure appears to be correlated with sales, although as TV expenditure goes up the variance associated with sales increases as well</li>
+<li>TV expenditure appears to be correlated with sales</li>
+<li>As TV expenditure goes up, the variance associated with sales increases as well</li>
 <li>radio expenditure appears to be correlated with sales</li>
 <li>newspaper sales do not look very correlated to sales</li>
 </ol>
-<p>It looks like more than one variable could be used to explain sales. This is where multiple linear regression comes in. It allows us to create a single model for predicting sales from multiple explanatory variables, and it allows us to create a model that takes correlation between explanatory variables into account.</p>
+<p>It looks like more than one variable could be used to explain sales. How would we handle this in the simple regression?</p>
+</div>
+<div id="excercise-fitting-linear-regressions-on-multivariate-data" class="section level2">
+<h2>Excercise: fitting linear regressions on multivariate data</h2>
+<p>We can fit a linear regression for TV vs Sales this way:</p>
+<pre class="r"><code>lm(Sales ~ TV, data=ads)</code></pre>
+<pre><code>## Error in eval(predvars, data, env): object 'Sales' not found</code></pre>
+<p>Oops that did not work! Let’s see what’s up:</p>
+<pre class="r"><code>names(ads)</code></pre>
+<pre><code>## [1] &quot;TV&quot;        &quot;radio&quot;     &quot;newspaper&quot; &quot;sales&quot;</code></pre>
+<p>Ah! sales is lower case:</p>
+<pre class="r"><code>lm(sales ~ TV, data=ads)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sales ~ TV, data = ads)
+## 
+## Coefficients:
+## (Intercept)           TV  
+##     7.03259      0.04754</code></pre>
+<p>For every five cents spent on advertising our average sales went up by a dollar. Pretty sweet! What about radio?</p>
+<pre class="r"><code>lm(sales ~ radio, data=ads)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sales ~ radio, data = ads)
+## 
+## Coefficients:
+## (Intercept)        radio  
+##      9.3116       0.2025</code></pre>
+<p>radio appears to help as well, although not as much. newspaper?</p>
+<pre class="r"><code>lm(sales ~ newspaper, data=ads)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sales ~ newspaper, data = ads)
+## 
+## Coefficients:
+## (Intercept)    newspaper  
+##    12.35141      0.05469</code></pre>
+<p>newspaper appears to have a similar effect to TV. But there seemed to be less correlation in the previous pairs plot. What’s going on?</p>
+<pre class="r"><code>summary(lm(sales ~ TV, data=ads))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sales ~ TV, data = ads)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.3860 -1.9545 -0.1913  2.0671  7.2124 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 7.032594   0.457843   15.36   &lt;2e-16 ***
+## TV          0.047537   0.002691   17.67   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.259 on 198 degrees of freedom
+## Multiple R-squared:  0.6119, Adjusted R-squared:  0.6099 
+## F-statistic: 312.1 on 1 and 198 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>summary(lm(sales ~ newspaper, data=ads))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sales ~ newspaper, data = ads)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -11.2272  -3.3873  -0.8392   3.5059  12.7751 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 12.35141    0.62142   19.88  &lt; 2e-16 ***
+## newspaper    0.05469    0.01658    3.30  0.00115 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.092 on 198 degrees of freedom
+## Multiple R-squared:  0.05212,    Adjusted R-squared:  0.04733 
+## F-statistic: 10.89 on 1 and 198 DF,  p-value: 0.001148</code></pre>
+<p>The answer is in the <span class="math inline">\(R^2\)</span> values: TV has a much higher <span class="math inline">\(R^2\)</span> than newspaper.</p>
+<p>We can fit a linear model for each explanatory variable separately, but we are left with two problems:</p>
+<ol style="list-style-type: decimal">
+<li>How would be combine the three models into a single model to create a single prediction for Sales?</li>
+<li>The pairs plot shows us that the explanatory variables are correlated. The linear regression fits ignore all other explanatory variables, and this can lead to incorrect predictions.</li>
+</ol>
+<p>This is where multiple linear regression comes in. It allows us to create a single model for predicting sales from multiple explanatory variables, and it allows us to create a model that takes correlation between explanatory variables into account.</p>
+</div>
 </div>
 <div id="multiple-linear-regression-model-specifications" class="section level1">
 <h1>Multiple linear regression model specifications</h1>
 <p>A multiple linear regression model that incorporates <span class="math inline">\(p\)</span> explanatory variables can be expressed as:</p>
 <p><span class="math display">\[Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_p + \epsilon\]</span></p>
-<p>where <span class="math inline">\(Y\)</span> is the response variable, <span class="math inline">\(X_j\)</span> is the <span class="math inline">\(j^{th}\)</span> explanatory variable, and <span class="math inline">\(\beta_j\)</span> is the <span class="math inline">\(j^{th}\)</span> model coefficient. <span class="math inline">\(\beta_j\)</span> can be interpreted as the average increase in <span class="math inline">\(Y\)</span> for one unit increase in <span class="math inline">\(X_j\)</span> while holding all other response variables fixed.</p>
+<p>where <span class="math inline">\(Y\)</span> is the response variable, <span class="math inline">\(X_j\)</span> is the <span class="math inline">\(j^{th}\)</span> explanatory variable, and <span class="math inline">\(\beta_j\)</span> is the <span class="math inline">\(j^{th}\)</span> model coefficient. <span class="math inline">\(\beta_j\)</span> can be interpreted as the average increase in <span class="math inline">\(Y\)</span> for one unit increase in <span class="math inline">\(X_j\)</span> while holding all other explanatory variables fixed.</p>
 <p>For the <code>Advertising</code> dataset we can express a regression model as:</p>
 <p><span class="math display">\[Sales = \beta_0 + \beta_1 newspaper + \beta_2 radio + \beta_3 TV + \epsilon\]</span></p>
 </div>
@@ -1712,7 +1797,9 @@ pairs(ads)</code></pre>
 <p><span class="math display">\[\hat{y} = \hat\beta_0 + \hat\beta_1x_1 + ... + \hat\beta_px_p\]</span></p>
 <p>As in linear regression, we choose <span class="math inline">\(\beta_j\)</span> such that we minimize the residual sum of squares:</p>
 <p><span class="math display">\[\text{RSS} = \sum_{i=1}^n (y_i - \hat{y}_i)^2\]</span> , which is equivalent to <span class="math display">\[\text{RSS} = \sum_{i=1}^n (y_i - \hat\beta_0 - \hat\beta_1x_{i1} - ... - \hat\beta_px_{ip})^2\]</span></p>
-<p>Quiz: <a href="https://forms.gle/XUxpgxJbkTp1QfDG8">What was <span class="math inline">\(y_i\)</span> again?</a></p>
+<div id="quiz-what-was-y_i-again" class="section level2">
+<h2>Quiz: <a href="https://forms.gle/XUxpgxJbkTp1QfDG8">What was <span class="math inline">\(y_i\)</span> again?</a></h2>
+</div>
 </div>
 <div id="relationship-between-the-response-and-predictors" class="section level1">
 <h1>Relationship between the response and predictors</h1>
