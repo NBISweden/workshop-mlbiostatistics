@@ -1,11 +1,11 @@
 ---
 title: 'Session regression II: multiple linear regression'
 output:
-  pdf_document: default
-  md_document:
-    variant: markdown_github
   html_document:
     df_print: paged
+  md_document:
+    variant: markdown_github
+  pdf_document: default
 header-includes: \usepackage{float}
 urlcolor: blue
 ---
@@ -32,6 +32,10 @@ After this session, a student should be able to:
 
 -------
 
+# Warmup
+
+[Quiz: revisiting linear model specifications](https://forms.gle/z4qKdrcQj1wqUxBV7)
+
 # Visualizing the Advertising dataset
 
 In this session we will use the [Advertising dataset](http://www-bcf.usc.edu/~gareth/ISL/data.html).
@@ -40,7 +44,7 @@ on TV, radio, and newspaper ads. We would like to know how best to spend adverti
 maximize sales.
 
 To begin with, let us familiarize ourselves with the dataset. 
-The data are stored in the `data` subdirectory of this session.
+The data are stored in the `data` subdirectory of this session directory.
 
 ```{r}
 # load the data
@@ -53,18 +57,70 @@ First, we check to see what columns were imported
 head(ads)
 ```
 
-It looks like a redundant column, `X`, has made it into the table. However, the other columns look like numbers.
-That's good.
+It looks like a redundant column of row numbers, `X`, has made it into the table.
+
+The other columns look like numbers. That's good.
 
 Now, let us use the `pairs` function to get a quick overview of linear relationships within the dataset. 
 
-```
+```{r}
 # visualize all pairwise relationships
 pairs(ads)
 ```
 
-# Estimating the Regression Coefficients
-# Estimating coefficients
+The pairs plot creates a scatter plot of every pair of variables in a data frame.
+First, to clear things up, the variable `X` is uncorrelated with the other columns and does not 
+add anything to the dataset. We should probably remove it and replot:
+
+```{r}
+ads = ads[-1]
+pairs(ads)
+```
+
+Ah, that's better.
+
+From the pairs plot we can see that:
+
+1. TV expenditure appears to be correlated with sales, although as TV expenditure goes up the
+   variance associated with sales increases as well
+2. radio expenditure appears to be correlated with sales
+3. newspaper sales do not look very correlated to sales
+
+It looks like more than one variable could be used to explain sales. This is where multiple linear regression comes in.
+It allows us to create a single model for predicting sales from multiple explanatory variables, and it allows us to
+create a model that takes correlation between explanatory variables into account.
+
+# Multiple linear regression model specifications
+
+A multiple linear regression model that incorporates $p$ explanatory variables can be expressed as:
+
+$$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_p + \epsilon$$
+
+where $Y$ is the response variable, $X_j$ is the $j^{th}$ explanatory variable, and 
+$\beta_j$ is the $j^{th}$ model coefficient. $\beta_j$ can be interpreted as the average
+increase in $Y$ for one unit increase in $X_j$ while holding all other response 
+variables fixed.
+
+For the `Advertising` dataset we can express a regression model as:
+
+$$Sales = \beta_0 + \beta_1 newspaper + \beta_2 radio + \beta_3 TV + \epsilon$$
+
+# Estimating regression coefficients
+
+We can estimate the regression coefficients $\hat\beta_j$ from the data in the same
+manner as for linear regression. We can then use $\hat\beta_j$ to make predictions $\hat{y}$ 
+using the formula:
+
+$$\hat{y} = \hat\beta_0 + \hat\beta_1x_1 + ... + \hat\beta_px_p$$
+
+As in linear regression, we choose $\beta_j$ such that we minimize the residual sum of squares:
+
+$$\text{RSS} = \sum_{i=1}^n (y_i - \hat{y}_i)^2$$
+, which is equivalent to
+$$\text{RSS} = \sum_{i=1}^n (y_i - \hat\beta_0 - \hat\beta_1x_{i1} - ... - \hat\beta_px_{ip})^2$$
+
+Quiz: [What was $y_i$ again?](https://forms.gle/XUxpgxJbkTp1QfDG8)
+
 # Relationship between the response and predictors 
 # Model fit 
 # Predictions 
