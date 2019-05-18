@@ -47,22 +47,32 @@ If the installation above went without any problem you should be able to fire up
 ----------
 ### R libraries and datasets <a name="Rlib"></a>
 
-By default, R instals a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install.
+By default, R installs a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install.
 
 ##### Install R packages
 To install R packages, open R-Studio and in the console, type
 
 ``` r
 # For CRAN packages
-install.packages(ggplot2)
-install.packages(reshape2)
-install.packages(dplyr)
-install.packages(UsingR)
-install.packages(googledrive)
-install.packages(devtools)
-install.packages(pvclust)
-install.packages(pheatmap)
-install.packages(rafalib)
+
+install.packages("dplyr")
+install.packages("UsingR")
+install.packages("reshape2")
+install.packages("glmnet")
+install.packages("pvclust")
+
+install.packages("googledrive")
+install.packages("devtools")
+
+install.packages("ggplot2")
+install.packages("pheatmap")
+install.packages("rafalib")
+
+install.packages("tidyverse")
+install.packages("kableExtra")
+install.packages("knitr")
+install.packages("keras")
+
 
 # For developmental packages, not on CRAN
 devtools::install_github("tidyverse/googlesheets4")
@@ -75,6 +85,7 @@ Example screen shoot with install.packages(ggplot2) command
 </figcaption>
 </figure>
 
+
 ##### Test installation
 1. Download R markdown file that we have prepared for you from here [Rtest.Rmd](precourse/Rtest.Rmd).
 2. Open R-Studio
@@ -84,11 +95,13 @@ Example screen shoot with install.packages(ggplot2) command
 6. **Email us** <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR. The file should be saved in the same directory as the `Rtest.Rmd`.
 7. Otherwise, you will get error messages in the console. You can try to trouble shoot by reading error messages and re-installing packages. If you are new to R and R-Studio try also reading Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. An empty email with a title "Will need help with R/RStudio setup" will do.
 
+NOTE: If you do not already have the package devtools installed or for other reasons run into problems installing the package googlesheets4, please skip this package! Use this file [Rtestreduced.Rmd](precourse/Rtestreduced.Rmd) to test your installation instead and send us the resulting `Rtestreduced.html` file.
+
 ------
 
 ### Reading <a name="reading"></a>
 - 2-pager [math refresher](precourse/Maths-Refresher.pdf) (Polak, 2015)
--  Chapter **Matrix algebra**, pages 110 - 117 (from 4.3 Matrix Notation) from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
+- Chapter **Matrix algebra**, pages 147 - 157 (subsections: Matrix Notation; Solving System of Equations; Vectors, Matrices and Scalars; Matrix Operations) from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
 - Chapter 3, session **3.1 Simple Linear Regression**, pages 61 - 70, from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani
 
 ------
@@ -108,20 +121,22 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 ### What to bring <a name="whattobring"></a>
 - bring your own laptop with the above R and R-Studio installations
 - bring pen and paper to write on
-- a positive open attitude :)
+- a positive attitude
 
 -------
 ### Additional resources <a name="extra"></a>
 
-#### Other potentially useful resources
+#### Extra reading
+-  Chapter: Inference from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
+
+#### Extra R labs
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
   A very short introduction to using R.
 
 
-#### Extra reading
--  Chapter: Inference from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
+
 
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
