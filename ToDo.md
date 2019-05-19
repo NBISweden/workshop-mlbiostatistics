@@ -6,7 +6,6 @@ title:  'To Do'
 # Now
 
 ## Other sessions
-- intro: logistics, course philosophy
 - group discussions
 
 ## Simple regression
@@ -14,14 +13,13 @@ title:  'To Do'
 - prepare answers to have them handy
 
 ## Multiple regression
-- B plan
+- B plan / exercises to practice
 
 ## Admin
 - Other sessions...Introduction and 2 discussion sessions
 - Attendance sheet
 - Certificates
 - Short-term survey and summary
-
 - Wrap-up meeting with the teaching team
 - Equations rendering
 - Github website (move links to schedule, use icons system)
