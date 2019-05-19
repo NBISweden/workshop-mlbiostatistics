@@ -3,11 +3,16 @@ title: 'Session regression II: multiple linear regression'
 output:
   html_document:
     df_print: paged
+    toc: true
+    number_sections: true
   md_document:
+    toc: true
+    number_sections: true
     variant: markdown_github
   pdf_document: default
 header-includes: \usepackage{float}
 urlcolor: blue
+
 ---
 
 
@@ -26,8 +31,8 @@ After this session, a student should be able to:
 - visualize bivariate relationships in small datasets
 - fit a linear regression model containing main and interaction effects
 - assess the quality of the model fit
-- determine if at least one predictor can explain the response
-- determine which predictors explain the response
+- determine if at least one predictor can predict the response
+- determine which predictors predict the response
 - asses the accuracy of predictions from the model
 
 -------
@@ -86,12 +91,12 @@ From the pairs plot we can see that:
 3. radio expenditure appears to be correlated with sales
 4. newspaper sales do not look very correlated to sales
 
-It looks like more than one variable could be used to explain sales. 
+It looks like more than one variable could be used to predict sales. 
 How would we handle this in the simple regression? 
 
-## Excercise: fitting linear regressions on multivariate data
+## Excercise: fitting simple linear regressions on multivariate data
 
-We can fit a linear regression for TV vs Sales this way:
+We can fit a simple linear regression for TV vs Sales this way:
 ```{r error=TRUE}
 lm(Sales ~ TV, data=ads)
 ```
@@ -127,27 +132,26 @@ summary(lm(sales ~ newspaper, data=ads))
 ```
 The answer is in the $R^2$ values: TV has a much higher $R^2$ than newspaper.
 
-We can fit a linear model for each explanatory variable separately, but we are left
+We can fit a linear model for each predictor separately, but we are left
 with two problems:
 
 1. How would be combine the three models into a single model to create a single prediction for Sales?
-2. The pairs plot shows us that the explanatory variables are correlated. The linear regression
-   fits ignore all other explanatory variables, and this can lead to incorrect predictions.
+2. The pairs plot shows us that the predictors are correlated. The simple linear regression
+   fits ignore all other predictors, and this can lead to incorrect predictions.
 
 This is where multiple linear regression comes in.
-It allows us to create a single model for predicting sales from multiple explanatory variables, and it allows us to
-create a model that takes correlation between explanatory variables into account.
+It allows us to create a single model for predicting sales from multiple predictors, and it allows us to
+create a model that takes correlation between predictors into account.
 
 # Multiple linear regression model specifications
 
-A multiple linear regression model that incorporates $p$ explanatory variables can be expressed as:
+A multiple linear regression model that incorporates $p$ predictors can be expressed as:
 
 $$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_p + \epsilon$$
 
-where $Y$ is the response variable, $X_j$ is the $j^{th}$ explanatory variable, and 
+where $Y$ is the response variable, $X_j$ is the $j^{th}$ predictor, and 
 $\beta_j$ is the $j^{th}$ model coefficient. $\beta_j$ can be interpreted as the average
-increase in $Y$ for one unit increase in $X_j$ while holding all other explanatory 
-variables fixed.
+increase in $Y$ for one unit increase in $X_j$ while holding all other predictors fixed.
 
 For the `Advertising` dataset we can express a regression model as:
 
@@ -156,26 +160,191 @@ $$Sales = \beta_0 + \beta_1 newspaper + \beta_2 radio + \beta_3 TV + \epsilon$$
 # Estimating regression coefficients
 
 We can estimate the regression coefficients $\hat\beta_j$ from the data in the same
-manner as for linear regression. We can then use $\hat\beta_j$ to make predictions $\hat{y}$ 
+manner as for simple linear regression. We can then use $\hat\beta_j$ to make predictions $\hat{y}$ 
 using the formula:
 
 $$\hat{y} = \hat\beta_0 + \hat\beta_1x_1 + ... + \hat\beta_px_p$$
 
-As in linear regression, we choose $\beta_j$ such that we minimize the residual sum of squares:
+As in simple linear regression, we choose $\beta_j$ such that we minimize the residual sum of squares:
 
 $$\text{RSS} = \sum_{i=1}^n (y_i - \hat{y}_i)^2$$
 , which is equivalent to
 $$\text{RSS} = \sum_{i=1}^n (y_i - \hat\beta_0 - \hat\beta_1x_{i1} - ... - \hat\beta_px_{ip})^2$$
 
 The mathematical formulas for estimating the model coefficients in multiple linear regression
-work similarly to the formulas for linear regression. However, they are more complex and 
+work similarly to the formulas for simple linear regression. However, they are more complex and 
 require some linear algebra to understand, so we will skip those formulas here. 
 
 ## Quiz: [What was $y_i$ again?](https://forms.gle/XUxpgxJbkTp1QfDG8)
 
-# Relationship between the response and predictors 
-# Model fit 
-# Predictions 
+## Exercise: Fitting a multiple linear regression model
+
+Above, we fit a simple linear regression model to the Advertising dataset.
+We had to fit each predictor separately. Here we will fit a joint
+model:
+
+```{r}
+summary(lm(sales ~ TV + newspaper + radio, data=ads))
+```
+
+We note that the coefficient estimates have changed! TV looks similar 
+to what we saw in simple linear regression, but newspaper and radio have
+both decreased. This is expected when predictors are correlated.
+The multiple linear regression fit takes the correlation between predictors 
+into account. This fit states that once we take TV and radio into account, newspaper 
+ads do not increase sales.
+
+# Questions we can answer with a multiple linear regression
+
+Now that we have a better sense of what a multiple linear regression is, let us
+focus on the questions we might want to answer with with the help of such
+a regression:
+
+1. Can any of the predictors predict response?
+2. If so, to what degree are the predictors important?
+3. How well does the model explain the data?
+4. What is the model's prediction accuracy?
+
+## Can any of the predictors predict response?
+
+The hypothesis that no predictor predicts response can be coded as the null hypothesis
+
+$$H_0: \beta_0 = \beta_1 = ... = \beta_p = 0$$
+
+The alternate hypothesis is then 
+
+$$H_A: \text{at least one } \beta_j \text{ is not 0}$$
+
+We can use the $F$ statistic to test the null hypothesis.
+The $F$-test (named in honor of [R. A. Fisher](https://en.wikipedia.org/wiki/Ronald_Fisher))
+uses the ratio:
+
+$$F = \frac{\text{explained variance}}{\text{unexplained variance}}$$
+
+In a model in which our assumptions hold, and for which our null hypothesis is true, 
+we expect the explained and unexplained variances to be equal. Therefore, under the 
+null hypothesis, the $F$-statistic should be around 1.
+
+We can estimate the variance explained by our model as
+
+$$\frac{TSS-RSS}{p}$$
+
+For any model, as we increase the number of predictors the
+amount of variance that we explain with our model increases. 
+The denominator, $p$, corrects for this.
+
+We can estimate the unexplained variance as
+
+$$\frac{RSS}{(n-p-1)}$$
+
+As with the explained variance above, $p$ in this denominator corrects for 
+how unexplained variance decreases as we add more predictors. We can also see
+that as our sample size, $n$, increases, our RSS increases as well.
+
+This leads to the following equation for calculating the $F$-statistic for a linear model:
+
+$$F = \left. {\frac{(TSS - RSS)}{p}} \middle/ {\frac{RSS}{(n-p-1)}} \right.$$
+
+If our null hypothesis is not true, then, assuming that the $TSS$ remains constant,
+we can expect the $RSS$ to become smaller compared to the $TSS$, and
+for the ratio to increase. Therefore, the larger the $F$-statistic, the more evidence there is for
+rejecting the null hypothesis.
+
+`R` will happily calculate the $F$-statistic of a linear model fit for us. One way to get the
+$F$ statistic is using the `summary()` function:
+
+```{r}
+summary(lm(sales ~ TV + newspaper + radio, data=ads))
+```
+
+In this case, the $F$-statistic is 570. That looks like a lot, and the low
+$p$-value confirms that it is.
+
+### Excercise: playing around with $n$
+
+We can get an idea of how sample size changes the $F$-statistic and the 
+$p$-value associated with the statistic. 
+
+We can use `sample()` to reduce the sample size:
+
+```{r, results=FALSE}
+?sample
+```
+
+We want to be sure to sample without replacement, and the help page tells us that this is the default
+
+```{r}
+summary(lm(sales ~ TV + newspaper + radio, data=ads[sample(nrow(ads), 200),]))
+summary(lm(sales ~ TV + newspaper + radio, data=ads[sample(nrow(ads), 50),]))
+summary(lm(sales ~ TV + newspaper + radio, data=ads[sample(nrow(ads), 10),]))
+```
+
+It looks like the signal is very strong, and we can still reject our null hypothesis 
+with 10 data points.
+
+The model summaries have p-values next to each model coefficient. 
+These p-values are based on the $t$-statistic and are calculated in the same way as 
+for simple linear regression (see previous section). 
+Why can't we just use these p-values instead of the $F$-statistic to determine
+if any coefficients are non-zero? 
+Without correction for multiple testing we will get false positives at the probability of
+$\alpha$ per test.
+If we do correct for multiple testing, then the $F$-test is more powerful and/or
+requires fewer assumptions about the correlation structure of the $t$-statistics.
+
+## Which predictors predict response?
+
+Usually, we will not want to include all possible predictors in our model. 
+But how can we choose the predictors? We could use the $t$-test, but then 
+we will have to deal with false positives. The process of choosing predictors
+in this way is called *variable selection*. There is a substantial body of 
+literature on variable selection in linear models.
+
+Out of all possible models, we would like to choose the one that is closest
+to the true model. We face two problems in this endeavor:
+
+1. Determining which model fits best while correcting for multiple testing and overfitting
+2. The number of models that can be created from a subset of $p$ predictors is
+   $2^p$, and this number can get large very quickly.
+
+For point one there are several statistics that can be used. These statistics
+include *Mallow's C*, *Akaike's Information Criterion* (AIC), 
+and the *Bayesian Information Criterion* (BIC). These statistics balance the number 
+of predictors used against the amount of variance explained by a model.
+
+For point two we can use a step-wise selection process in which we add, remove,
+or add and remove
+predictors in order to minimize an information criterion. This approach does not
+explore the full model space, but in practice it can be quite useful.
+
+### Exercise: Let's select predictors in a model
+
+The `stepAIC()` function can be used to perform step-wise model selection in `R`.
+By default it uses AIC, but other statistics are also supported.
+
+We can start with the full model:
+```{r}
+library(MASS)
+full = lm(sales ~ TV + newspaper + radio, data=ads)
+summary(stepAIC(full))
+```
+
+This returns a model in which newspaper (unsurprisingly) has been removed.
+
+Or we can start with an empty model:
+
+```{r}
+empty = lm(sales ~ 1, data=ads)
+summary(stepAIC(empty, scope=sales ~ TV + newspaper + radio))
+```
+
+And in this case we get the same model as above.
+
+## How well does the model explain the data?
+
+## What is the model's prediction accuracy?
+
+
 # Qualitative predictors 
 # Interaction terms
 # Non-linear transformation of the predictors 
