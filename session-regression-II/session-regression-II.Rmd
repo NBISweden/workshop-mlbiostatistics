@@ -1,18 +1,19 @@
 ---
 title: 'Session regression II: multiple linear regression'
 output:
-  html_document:
-    df_print: paged
+  pdf_document: 
     toc: true
     number_sections: true
   md_document:
     toc: true
     number_sections: true
     variant: markdown_github
-  pdf_document: default
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: true
 header-includes: \usepackage{float}
 urlcolor: blue
-
 ---
 
 
@@ -427,15 +428,90 @@ ggplot(aes(x=TV, y=radio, color=residual), data=plot_dat) + geom_point() +
 - The model underestimates sales generated from investment in both add platforms
   (top right and bottom left)
   
-We will learn how to model this synergy as an "interaction effect" later on.
+We can model this synergy as an "interaction term". Unfortunately, interaction terms
+are beyond the scope of this session. 
+See [further reading](#further-reading) for more on interaction terms.
 
 ## What is the model's prediction accuracy?
 
-As we saw earlier, we can make predictions from our 
+- Previously: we can make predictions from our model using the `predict()` function.
 
+```{r}
+# making a prediction on a new data point
+predict(fit, newdata=data.frame(TV=100, radio=30))
+```
 
-# Qualitative predictors 
-# Interaction terms
-# Non-linear transformation of the predictors 
-# Potential problems: non-linearity, collinearity 
-# Logistic regression
+There are three sources of error when making predictions from a linear model
+
+1. *reducible error*: A result of the difference between the estimates 
+   $$\hat{Y} = \hat\beta_0 + \hat\beta_1 X_1 + ... + \hat\beta_p X_p$$
+   and the *true population regression plane*
+   $$f(x) = \beta_0 + \beta_1 X_1 + ... + \beta_p X_p$$
+   We use *confidence intervals* to estimate this error.
+2. *model bias*: When our model differs from the true model 
+   (see for example the previous section)
+3. *irreducible error*: The random noise that is part of our system, $\epsilon$. We can
+   use *prediction intervals* to estimate this error.
+
+If we assume that we have the correct model, then we can ask two kinds of questions:
+
+1. How far is $\hat{Y}$ from $f(x)$? 
+   - We use *confidence intervals* to talk about how 
+     our estimate of average sales will differ from the true average of sales
+2. How far is any one prediction from its true value?
+   - For this, we use *prediction intervals*
+
+Prediction intervals are always larger than confidence intervals because prediction
+intervals quantify both the reducible and irreducible error.
+
+Let's try and calculate the confidence and prediction intervals around $\hat{Y}$ of our
+(dubious) model fit:
+
+```{r}
+preds = as.data.frame(predict(fit, interval="confidence"))
+head(preds)
+preds2 = as.data.frame(predict(fit, interval="prediction"))
+head(preds2)
+preds$lwr_pred = preds2$lwr
+preds$upr_pred = preds2$upr
+
+preds = preds[order(preds$fit),]
+preds$index = 1:nrow(preds)
+head(preds)
+```
+
+```{r, collapse=TRUE}
+plot(preds$fit, type='l')
+lines(preds$index, preds$upr, col='red')
+lines(preds$index, preds$lwr, col='red')
+lines(preds$index, preds$upr_pred, col='blue')
+lines(preds$index, preds$lwr_pred, col='blue')
+```
+
+We can see that the prediction intervals are larger than the confidence intervals. 
+However, neither the confidence intervals nor the prediction intervals are valid here.
+
+**Caveats**:
+
+  - Our model does not fit the data well, and so we are also dealing with model bias.
+    The confidence interval calculations assume a good model fit, which is clearly not 
+    the case here.
+  - Calculating prediction intervals on the data we used to create the model underestimates
+    the prediction error on new data. Generally, we are interested in prediction intervals
+    for new data. For that we need to calculate prediction intervals on a separate 
+    (or held out) data set.
+
+# Further reading
+
+There is much more to linear regression. Section 3.3 of [An Introduction to Statistical Learning](http://www-bcf.usc.edu/~gareth/ISL/data.html) is worth a read before you start 
+fitting linear models to your data. That section discusses the following topics:
+
+  - Qualitative predictors 
+  - Interaction terms
+  - Non-linear transformation of the predictors 
+  - Potential problems: non-linearity, collinearity, outliers, heteroskedasticity
+  - Logistic regression
+  
+The R builtin functions for visualization are sometimes not as helpful for quickly 
+looking at data in many different ways. I find the `R` library
+[`ggplot2`](https://ggplot2.tidyverse.org/) very useful in such cases.
