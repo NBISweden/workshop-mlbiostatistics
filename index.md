@@ -61,6 +61,7 @@ In this course we focus on active learning approach. The course participants are
 - [Paulo Czarnewski][paulo], PhD, NBIS, SciLifeLab, University of Stockholm
 - [Marcin Kierczak][marcin], PhD, NBIS, SciLifeLab, Uppsala University
 - [Bengt Sennblad][bengt], PhD, NBIS, SciLifeLab, Uppsala University
+- [Warren Kretzschmar][warren], PhD, Department of Medicine, Karolinska Institutet
 
 <br/><br/>
 
@@ -105,6 +106,8 @@ In this course we focus on active learning approach. The course participants are
 [paulo]: https://nbis.se/about/staff/paulo-czarnewski/
 [marcin]: https://nbis.se/about/staff/marcin-kierczak/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
+[warren]: https://ki.se/en/people/warkre
+
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
 [book-rai]: http://www.rwdc2.com/files/rafa.pdf
