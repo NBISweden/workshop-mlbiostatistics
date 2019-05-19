@@ -24,6 +24,11 @@ knitr::opts_chunk$set(cache.path = "tmp")
 knitr::opts_chunk$set(cache = TRUE)
 ```
 
+These lecture notes are based on and closely follow section 3.2 in 
+*An Introduction to Statistical Learning, with applications in R* 
+by Gareth James, Daniela Witten, Trevor Hastie, and Robert Tibshirani
+(2013, DOI: 10.1007/978-1-4614-7138-7).
+
 # Learning outcomes
 
 After this session, a student should be able to:
@@ -34,6 +39,7 @@ After this session, a student should be able to:
 - determine if at least one predictor can predict the response
 - determine which predictors predict the response
 - asses the accuracy of predictions from the model
+
 
 -------
 
@@ -342,7 +348,90 @@ And in this case we get the same model as above.
 
 ## How well does the model explain the data?
 
+As in simple linear regression, two important statistics for assessing the
+quality of the model fit are $R^2$ and RSE. 
+
+### $R^2$
+
+- In simple linear linear regression: $R^2 = \text{Cor}(X, Y)^2$
+- In multiple linear regression: $R^2 = \text{Cor}(Y, \hat{Y})$
+
+Let's see what the $R^2$ of our models look like:
+
+```{r}
+summary(lm(sales ~ TV , data=ads))$r.squared
+summary(lm(sales ~ TV + radio, data=ads))$r.squared
+summary(lm(sales ~ TV + radio + newspaper, data=ads))$r.squared
+```
+
+As we add predictors $R^2$ always increases. When the predictors explain no variance,
+then $R^2 = 0$. When they explain all variance, then $R^2 = 1$.
+
+### RSE
+
+- In simple linear regression we learned: $\text{RSE} = \sqrt{RSS/(n-2)}$
+- In multiple linear regression: $\text{RSE} = \sqrt{RSS/(n-p-1)}$
+
+Let's see what the RSE of our models look like:
+
+```{r}
+summary(lm(sales ~ TV , data=ads))$sigma
+summary(lm(sales ~ TV + radio, data=ads))$sigma
+summary(lm(sales ~ TV + radio + newspaper, data=ads))$sigma
+```
+
+- The model that includes `newspaper` has a higher RSE than the model with only
+`TV` and `radio`
+- This is because RSE depends on $p$
+
+### Visual inspection
+
+- Plotting the data can reveal problems that are not evident from metrics
+
+The model that includes `TV` and `radio` has some issues. Let's see if we can discover
+them by visualization. 
+
+Let's start with my favorite quality assessment plot: the quantiles plot:
+
+```{r, collapse=TRUE}
+fit = lm(sales ~ TV + radio, data=ads)
+plot(fit, which=2)
+```
+
+This is not what I would expect normally distributed residuals to look like!
+
+Let's see if we can get a better idea of where things are going wrong. 
+Let's try and plot $\hat{Y}$ (fitted values) versus the residuals:
+
+```{r}
+# NB: predict()  
+plot(fit, which=1)
+```
+
+We see a dip in residuals and an increase in variance towards the middle of the range
+of fitted values. It looks like our model is not adequate. 
+
+In fact, this model fails to capture a synergy between TV and radio advertizing:
+
+```{r}
+# Here we rely on resid() returning the residuals in the same order as the ads data.frame
+plot_dat = data.frame(TV=ads$TV, radio=ads$radio, residual=resid(fit))
+
+library(ggplot2)
+ggplot(aes(x=TV, y=radio, color=residual), data=plot_dat) + geom_point() +
+  scale_color_gradient2()
+```
+
+- The model overestimates sales generated from investment in a single ads platform 
+  (top left and bottom right)
+- The model underestimates sales generated from investment in both add platforms
+  (top right and bottom left)
+  
+We will learn how to model this synergy as an "interaction effect" later on.
+
 ## What is the model's prediction accuracy?
+
+As we saw earlier, we can make predictions from our 
 
 
 # Qualitative predictors 
