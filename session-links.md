@@ -9,7 +9,11 @@ title:  'Session links'
 - [Welcome](session-intro/session-intro.html)
 - [Continous feedback form](https://forms.gle/6drumQ2W6BmNydAY8)
 
-###### Statistical theory and concepts I and II
+###### Statistical theory and concepts
+- [Statistical theory and concepts](session-foundations/session-foundations.html)
+- [Confidence intervals](session-confidenceinterval/session-confidenceinterval.html)
+- [Hypothesis tests](session-hypothesistest/session-hypothesistest.html)
+- Statistical theory and concepts: exercises [Rmd](session-foundations/biostatisticsexercises.Rmd) [html](session-foundations/biostatisticsexercises.html)
 
 ###### Regression I
 - [Simple linear regression](session-regression-I/session-regression-I.pdf)
