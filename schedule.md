@@ -56,7 +56,7 @@ Room: E10:1308, BMC
 
 **09.00 - 10.00** Group discussions: reflection on day 2 (Eva, Olga)
 
-**10.00 - 12.00** Unsupervised learning: PCA, K-means, KNN (Paulo)
+**10.00 - 12.00** Unsupervised learning: PCA and clustering (Paulo)
 
 *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
