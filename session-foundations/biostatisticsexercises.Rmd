@@ -1,0 +1,333 @@
+---
+title: "Biostatistics exercises"
+date: 2019-05-21
+output: 
+  html_document:
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(reshape2)
+library(tidyverse)
+library(kableExtra)
+library(UsingR)
+```
+
+# Statistical theory and concepts
+
+## Exercise: Dice experiment
+   
+When throwing 10 dice, how many dice show 6 dots?
+  
+- Define the random variable of interest
+- What are the possible outcomes?
+
+Perform the experiment and fill in your observations in [Dice experiment](https://docs.google.com/spreadsheets/d/1t3jOucU48MVoCQGTbGyWe9SntFbHlHqGSCiqMptHhhs/edit?usp=sharing)
+
+- Which is the most likely number of sixes?
+- What is the probability to get exactly 2 sixes when throwing ten dice?
+- On average how many sixes do you get when throwing ten dice?
+<!-- The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. -->
+- What is the probability to get 4 or more sixes when throwing ten dice?
+- Estimate the probability mass function
+  
+```{r dice, message=FALSE, warning=FALSE, eval=FALSE}
+library(googledrive)
+library(googlesheets4)
+
+## Read google sheet
+httr::set_config(httr::config(http_version = 0))
+drive_deauth()
+sheets_deauth()
+dice <- read_sheet(as_id("https://docs.google.com/spreadsheets/d/1t3jOucU48MVoCQGTbGyWe9SntFbHlHqGSCiqMptHhhs/edit?usp=sharing"), col_types="i")
+
+#### If you don't have googlesheets4 installed, save the the google sheet 
+#### to a csv file and read it as follows;
+## dice <- read.csv("Dice experiment - Blad1.csv")
+
+#### For plotting the histrogram
+## data <- melt(dice) %>% filter(value %in% 0:10)
+## ggplot(data, aes(x=value, fill=variable)) + geom_histogram(binwidth=1, center=0, color="white") + theme_bw() + theme(legend.position=c(1,1), legend.justification=c(1,1))
+
+x <- unlist(dice)
+x <- x[x %in% 0:10]
+```  
+
+## Baby weights: probability
+
+When the entire population is known, probabilities can be computed by summing the number of observations that fulfill the criteria and divide by the total number.
+
+Use the `babies` data set (in the `UsingR` package) to compute the following probabilities (let $W$ denote the baby weight (a random variable)):
+
+- $P(W>4.0)$
+
+```{r echo=TRUE, warning=FALSE}
+library(UsingR)
+##The weights are originally in ounces, transform to kg
+ounce <- 0.0283495231
+babies$wtkg <- babies$wt*ounce
+## P(W > 4.0)
+## Count the number of babies with a weight > 4.0 kg
+sum(babies$wtkg>4)
+## How many babies in total
+length(babies$wtkg)
+## Fraction of babies with weight > 4.0 kg, this is P(W>4.0)
+sum(babies$wtkg>4)/length(babies$wtkg)
+## Another way to compute P(W>4.0)
+mean(babies$wtkg>4)
+```
+ - $P(W<2.6)$
+ - $P(2.3<W<4.2)$
+ 
+The mothers' smoking status is available in `babies$smoke`
+
+```{r echo=FALSE}
+babies %>% group_by(smoke) %>% summarise(n=n()) %>% mutate("p"=n/sum(n), code=c('never','smokes now', 'until current pregnancy','once did, not now','unknown')) %>% kable() %>% kable_styling("striped")
+```
+
+Compute the following conditional probabilities:
+ 
+ - $P(W<2.6|s=0)$
+ - $P(W<2.6|S=1)$
+
+
+## Diagnostic tests
+
+The performance of a diagnostic test for cancer type is summarized in the below table. In total 1000 persons are tested, 20 of these did actually have cancer. The test was positive (+) in 114 cases and negative (-) in 886 cases.
+
+```{r, echo=FALSE}
+kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("not cancer", "cancer", "total"), c("pos", "neg", "tot")))) %>% kable_styling("striped", full_width = FALSE)
+```
+
+- What is the probability of a positive test result from a person with cancer?
+- What is the probability of a negative test result from a person without cancer?
+- If the test is positive, what is the probability of having cancer?
+- If the test is negative, what is the probability of not having cancer?
+- Connect the four computed probabilities with the following four tems;
+  - Sensitivity
+  - Specificity
+  - Positive predictive value (PPV)
+  - Negative predictive value (NPV)
+  
+  Discuss in your group!
+
+
+## Data summary
+
+Consider the below data and summarize each of the variables, separately for smokers and non-smokers.
+
+```{r echo=FALSE}
+set.seed(1)
+baby <- data.frame(id=1:10, 
+                   smoker=rep(c("yes", "no"), each=5), 
+                   "baby weight (kg)"=c(2.8,3.2,3.5,2.7,3.3, 3.7,3.3,4.3,3.2,3.0),
+                   gender = sample(c("F", "M"), 10, replace=TRUE),
+                   "mother weight (kg)" = c(64, 65, 64, 73, 59, 61, 52, 59, 65, 73), 
+                   "mother age" = c(21, 27, 31, 32, 39, 26, 27, 21, 28, 33),
+                   parity = c(2,1,2,0,3,0,2,0,1,4),
+                   married = sample(c("yes", "no"), 10, replace=TRUE),
+                   check.names=FALSE)
+baby %>% kable() %>% kable_styling("striped", full_width = FALSE, font_size = 14)
+``` 
+
+## Get familiar with the normal distribution
+
+1. Let $Z \sim N(0,1)$ be a standard normal random variable, and compute;
+- a. $P(Z<1.64)$
+- b. $P(Z>-1.64)$
+- c. $P(-1.96<Z)$
+- d. $P(Z<2.36)$
+- e. An $a$ such that $P(Z<a) = 0.95$
+- f. An $b$ such that $P(Z>b) = 0.975$
+
+2. If $X \sim N(3,2)$, compute the probabilities
+- a. $P(X<5)$
+- b. $P(3<X<5)$
+- c. $P(X \geq 7)$
+  
+
+## Central limit theorem
+
+Make up your own distribution. Sample 40 observations from this and compute the sum or mean. Is the sum/mean approximately normally distributed?
+
+
+## Simulation examples
+
+1. Fourty percent of a large population of men is overweight. If you randomly select 10 people to participate in your study, what is the probability that at least 7 will be overweight?
+
+2. 20 of the 50 people working in your lab are overweight. If you randomly select 10 people to participate in your study, what is the probability that at least 7 will be overweight?
+
+------
+
+# Confidence intervals
+
+## Pollen allergy
+### Sampling distribution
+
+Assume that the population frequency of pollen allergy is $\pi = 0.30$. Simulate the sampling distribution.
+
+```{r pollensample}
+sample(0:1)
+sample(0:1, 100, replace=TRUE)
+```
+
+### Bootstrap interval
+
+You have observed 100 persons, 33 were allergic to pollen. Estimate the proportion of allergic in the population and compute a 95% bootstrap interval.
+
+```{r pollenbootstrap}
+## The observations, 1=allergy, 0=no allergy
+x <- rep(0:1, c(67,33))
+```
+
+### Confidence interval
+
+We compute the 95% confidence interval to be 
+
+```{r pollenCI, echo=TRUE}
+p <- 0.33
+SE <- sqrt(p*(1-p)/100)
+c(p-1.96*SE, p+1.96*SE)
+```
+- How can we get a narrower confidence interval?
+- Here we computed a 95% interval, what if we want a 90% confidence interval?
+- or a 99% confidence interval?
+
+## 
+
+Compute a 95% confidence interval for the proportion of smokers in a large population, based on answers from 500 persons of which 79 answered that they were smokers.
+
+##
+
+A producer of an electronic scale states that their scale has a normally distributed measurement error with mean 0 mg and standard deviation 2 mg. You measure the weight of a sample 7 times, your measured average weight is 45 mg. Compute a 95 % confidence interval of the sample's weight.
+
+##
+
+You have studied 4 mice on high-fat diet. Their weights are 22, 28, 26 and 32 g. Compute the
+
+a. sample mean
+b. sample variance
+c. sample standard deviation
+d. 95% confidence interval of the mean weight
+
+------
+
+# Hypothesis tests
+
+## Pollen allergy
+
+If 30% of a large population is allergic to pollen, what is the probability to observe 42 or more persons allergic to pollen in  a sample of 100?
+
+```{r pollen42}
+##Sample 100 and compute proportion
+
+## P(P>=0.42)
+```
+
+## Do high fat diet lead to increased body weight in mice?
+
+Study setup:
+
+1. Order 24 female mice from a lab.
+2. Randomly assign 12 of the 24 mice to receive high-fat diet, the
+  remaining 12 are controls (ordinary diet).
+3. Measure body weight after one week.
+
+- Define the null and alternative hypothesis
+
+The studied population is all female mice that can be ordered from a specific lab.
+
+```{r mice, echo=FALSE}
+## Download the mouse population
+mp <- read.csv("https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/mice_pheno.csv")
+## Select all female mice
+pop.F <- mp %>% filter(Sex=="F")
+## Select all the female mice on high fat diet
+pop.F.hf <- (pop.F %>% filter(Diet=="hf"))[, "Bodyweight"]
+## Select all the female mice on ordinary diet
+pop.F.n <- (pop.F %>% filter(Diet=="chow"))[, "Bodyweight"]
+```
+
+We order 24 mice, 12 get high-fat diet, 12 get normal mouse food.
+
+```{r miceobs, echo=FALSE}
+## Select the seed so that we all get the same random mice!
+set.seed(1)
+## Select 12 HF mice
+xHF <- sample(pop.F.hf, 12)
+## Select 12 O mice
+xN <- sample(pop.F.n, 12)
+```
+
+Our observations: 
+
+```{r echo=FALSE}
+kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_size=10)
+```
+
+```{r echo=FALSE}
+##Compute mean body weights of the two groups
+## mean for high-fat group
+mHF <- mean(xHF)
+## mean for control group
+mN <- mean(xN)
+## The mean difference
+dobs <- mHF - mN
+```
+
+Mean weight of control mice (ordinary diet): $\bar x_1 = `r sprintf("%.2f", mN)`$
+
+Mean weight of mice on high-fat diet: $\bar x_2 = `r sprintf("%.2f", mHF)`$
+
+Difference in mean weights: $d = \bar x_2 - \bar x_1 = `r dobs`$
+
+### Permutation test
+
+We need to compute the sampling distribution under $H_0$.
+
+If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the ordinary diet. What can we expect if all mice are fed with the ordinary food? The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ.
+
+Assume $H_0$ is true, i.e. assume all mice are equivalent and
+  
+1. Randomly reassign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control'.
+2. Compute difference in mean weights
+
+Repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
+
+```{r permtest, echo=FALSE}
+## All 24 body weights in a vector
+x <- c(xHF, xN)
+## Mean difference
+  
+```
+
+Compute the p-value, i.e. the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
+
+$$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0)$$
+```{r permp, echo=FALSE}
+## Permutation p-value
+
+```
+
+## Active substance
+
+A pharmaceutical company produce a pill that should have 100 mg active substance. The company claim that the amount varies abit and follows a normal distribution with $\mu$=100mg and $\sigma$=2mg. You test 10 random pills from one batch and observe that they on average have 97mg active substance. Is there a reason to believe that the amount of active substance in the pills in the batch is less than 100mg on average?
+
+## Morning melatonin
+
+You study the morning melatonin level in saliva in two patient groups and want to know if there is a difference in mean melatonin levels in the two groups. Based on the observations; group 1: 12.0, 5.0, 3.4, 2.1, 4.3 pg/ml and group 2: 3.1, 4.2, 1.2, 6.3, 4.1, 3.6 pg/ml perform a hypothesis test to investigate the if there is a difference in mean.
+
+Define null and alternative hypotheis, set the significance level, perform an appropriate hypotheis test and draw a conclusion.
+
+## Melatonin during the day
+
+Melatonin in saliva is measured in 5 patients during the day, morning and before lunch values are presented in the table. Is there a reason to believe that the melatonin level is increased in the morning compared to before lunch in this patient group?
+
+Note: paired samples!
+
+```{r, echo=FALSE}
+kable(data.frame(id=1:5, morning=c(12, 3.2,28,5.8,13), "before lunch"=c(2.1,2.6,2.4,11.0,2.7)), caption="Melatonin levels (pg/ml) for five patients in the morning and before lunch.") %>% kable_styling("striped", full_width = F)
+```
+

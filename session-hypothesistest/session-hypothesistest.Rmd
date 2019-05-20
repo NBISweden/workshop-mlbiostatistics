@@ -37,7 +37,7 @@ The alternative hypothesis expresses what the researcher is interested in "the t
 
 1. Define $H_0$ and $H_1$
 2. Assume that the $H_0$ is true and compute the sampling distribution.
-3. Compare the observed value with the computed sample distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+3. Compare the observed value with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
 4. Based on the p-value either accept $H_0$ or reject $H_0$.
 
 # One sample, proportions
@@ -45,7 +45,7 @@ The alternative hypothesis expresses what the researcher is interested in "the t
 
 Remember out pollen example. Let's assume we know that the proportion of pollen allergy in the Sweden population is $0.3$. We suspect that the number of pollen allergic has increased in Uppsala in the last couple of year adn want to investigate this.
 
-Observe 100 people, 42 of these were allergic to pollen. Is there a reason to belive that the proportion $\pi >0.3$?
+Observe 100 people, 42 of these were allergic to pollen. Is there a reason to believe that the proportion $\pi >0.3$?
 
 
 $$H_0:\, \pi=\pi_0$$
@@ -55,7 +55,7 @@ $$H_1:\, \pi>\pi_0$$
 In our example $\pi_0=0.3$.
 
 
-Remember the sample distribution
+Remember the sampling distribution
 
 ```{r, out.width="50%", fig.align="center"}
 set.seed(13)
@@ -95,6 +95,19 @@ Significance level
 
 Direction of the test
 
+# One sample, mean
+
+If $$X \sim N(\mu, \sigma)$$ then $$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right)$$
+
+If $\sigma$ is known
+
+$$Z = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \sim N(0,1)$$
+
+For small $n$ and unknown $\sigma$
+
+$$t = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}},$$
+where $t$ is t-distributed with $df=n-1$ degrees of freedom.
+
 # Two samples, mean difference
 ## Example: Do high fat diet lead to increased body weight?
 
@@ -124,7 +137,7 @@ $H_1$: high-fat diet result in heavier mice compared to ordinary diet
 
 Studied population: Female mice that can be ordered from a lab.
 
-```{r mice, echo=TRUE}
+```{r mice, echo=FALSE}
 ## Download the mouse population
 mp <- read.csv("https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/mice_pheno.csv")
 ## Select all female mice
@@ -137,7 +150,7 @@ pop.F.n <- (pop.F %>% filter(Diet=="chow"))[, "Bodyweight"]
 
 ### Observation
 
-```{r miceobs, echo=TRUE}
+```{r miceobs, echo=FALSE}
 ## Select the seed so that we all get the same random mice!
 set.seed(1)
 ## Select 12 HF mice
@@ -183,16 +196,16 @@ Assume $H_0$ is true, i.e. assume all mice are equivalent and
 If we repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
 
 
-```{r permtest, echo=TRUE}
+```{r permtest, echo=FALSE}
 ## All 24 body weights in a vector
 x <- c(xHF, xN)
 ## Mean difference
 dobs <- mean(x[1:12]) - mean(x[13:24])
-dobs
+#dobs
 ## Permute
-y <- sample(x)
+#y <- sample(x)
 ##Mean difference
-mean(y[1:12]) - mean(y[13:24])
+#mean(y[1:12]) - mean(y[13:24])
 dnull.perm <- replicate(n = 100000, {
   y <- sample(x)
   ##Mean difference
@@ -200,7 +213,7 @@ dnull.perm <- replicate(n = 100000, {
 })
 ggplot(data.frame(d=dnull.perm), aes(x=d)) + geom_histogram(bins=25, color="white") + theme_bw() + geom_vline(xintercept=dobs, color="red")
 ## Compute the p-value
-mean(dnull.perm>dobs)
+#mean(dnull.perm>dobs)
 ```
 
 
@@ -208,17 +221,16 @@ mean(dnull.perm>dobs)
 
 What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
 
-$$P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) = `r sprintf("%.3g",mean(dnull.perm>=dobs))`$$
+$$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = `r sprintf("%.3g",mean(dnull.perm>=dobs))`$$
 
-## Parametric tests
-
+## Parametric test
 
 ### Two samples, known $\sigma_1$ and $\sigma_2$
 
 $$H_0: \mu_2 = \mu_1\\
 H_1: \mu_2>\mu_1$$
 
-Lets assume that both the control and treatment populations are normally distributed, with unknown mean, but known standard deviations, $\sigma_1=3.4$ and $\sigma_2=5.1$.
+Lets assume that both mouse body weights in control and treatment groups are independent and normally distributed, with unknown mean, but known standard deviations, $\sigma_1=3.4$ and $\sigma_2=5.1$.
 
 $$X_1 \sim N(\mu_1, \sigma_1) \\
 X_2 \sim N(\mu_2, \sigma_2)$$
@@ -230,14 +242,14 @@ $$\bar X_1 \sim N(\mu_1, \sigma_1/\sqrt{n_1}) \\
 
 The mean difference $D = \bar X_2 - \bar X_1$ is thus also normally distributed:
 
-$$D = \bar X_2 - \bar X_1 = N(\mu_2-\mu_1, \sqrt{\sigma_2^2/\sqrt{n_2} + \sigma_1^2/\sqrt{n_1}})$$
+$$D = \bar X_2 - \bar X_1 = N(\mu_2-\mu_1, \sqrt{\sigma_2^2/n_2 + \sigma_1^2/n_1})$$
 
-If $H_0$ is true: $\bar X_2 - \bar X_1 = N(0, \sqrt{\sigma_2^2/\sqrt{n_2} + \sigma_1^2/\sqrt{n_1}})$
+If $H_0$ is true: $\bar X_2 - \bar X_1 = N(0, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}})$
 
-The test statistic: $$Z = \frac{\bar X_2 - \bar X_1 - 0}{\sqrt{\sigma_2^2/\sqrt{n_2} + \sigma_1^2/\sqrt{n_1}}}$$ is standard normal, i.e. $Z \sim N(0,1)$.
+The test statistic: $$Z = \frac{\bar X_2 - \bar X_1 - 0}{\sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}}$$ is standard normal, i.e. $Z \sim N(0,1)$.
 
 The observed value of the test statistic:
-$$Z_{obs} = \frac{m_2-m_1}{\sqrt{\sigma_2^2/\sqrt{n_2} + \sigma_1^2/\sqrt{n_1}}}$$
+$$Z_{obs} = \frac{m_2-m_1}{\sqrt{\sigma_2^2/n_2 + \sigma_1^2/n_1}}$$
 $$Z_{obs} = \frac{`r mHF` - `r mN`}{\sqrt{5.1^2/12 + 3.4^2/12}} = `r zobs=(mHF-mN)/sqrt(5.1^2/12+3.4^2/12); zobs`$$
 
 $$P(\bar X_2 - \bar X_1 > d_{obs}) = P(Z>Z_{obs}) = 1 - P(Z<Z_{obs}) = 1 - P(Z<`r zobs`) = [table] = `r format(1-pnorm(zobs))`$$
@@ -256,9 +268,9 @@ pnorm((dobs-0)/sqrt(5.1^2/12 + 3.4^2/12), lower.tail=FALSE)
 
 What if the population standard deviations are not known?
 
-If the sample sizes are large, we can replace the known standard deviations with out sample standard deviations and according to the central limit theorem assume that 
+If the sample sizes are large, we can replace the known standard deviations with our sample standard deviations and according to the central limit theorem assume that 
 
-$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{s_2^2/\sqrt{n_2} + s_1^2/\sqrt{n_1}}} \ sim N(0,1)$$
+$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{s_2^2/\sqrt{n_2} + s_1^2/\sqrt{n_1}}} \sim N(0,1)$$
 and procede as before.
 
 Here $n_1=n_2=12$ which is not very large.
@@ -270,7 +282,7 @@ and the test statistic
 
 $$t = \frac{\bar X_1 - \bar X_2 - 0}{\sqrt{s_p^2(\frac{1}{n_1} + \frac{1}{n_2})}}$$
 
-$t$ is t-distributed with $n_1+n_2-1$ degrees of freedom.
+$t$ is t-distributed with $n_1+n_2-2$ degrees of freedom.
 
 The t-test is implemented in R.
 

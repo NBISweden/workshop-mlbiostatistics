@@ -19,11 +19,11 @@ options(digits=2)
 ### Learning outcomes
 
 - understand the concept of random variables and probability
-- use probability density functions and cumulative distribution functions
+- learn about probability density functions and cumulative distribution functions
 - compute population mean and variance
 - compute sample mean and variance
 - use normal distribution
-- undertstand the central limit theorem
+- understand the central limit theorem
 
 
 # What is statistics?
@@ -136,7 +136,7 @@ A Bernoulli trial is a random experiment with two outcomes; success and failure.
   The outcome of a Bernoulli trial is a discrete random variable, $X$.
   
 ```{r}
-kable(matrix(c('x','0','1','p(x)','p','1-p'), byrow=TRUE, ncol=3))
+kable(matrix(c('x','0','1','p(x)','p','1-p'), byrow=TRUE, ncol=3)) %>% kable_styling("striped", full_width = FALSE)
 ```
 
 ### Binomial distribution
@@ -283,7 +283,7 @@ $$P(W<2.6|S=0)$$
 ## Diagnostic tests
 
 ```{r}
-kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("cancer", "not cancer", "total"), c("+", "-", "tot"))))
+kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("not cancer", "cancer", "total"), c("pos", "neg", "tot")))) %>% kable_styling("striped", full_width = FALSE)
 ```
 
 - What is the probability of a positive test result from a person with cancer?
@@ -316,8 +316,8 @@ Reported as frequencies, proportions, summarized using mode
 
 Often not necessary to distinguish between interval and ratio scale, can be more useful to divide the quantitative scales into
 
-  - Discrete: finite or countable infinite values
-  - Continuous: infinitely many uncountable values
+- Discrete: finite or countable infinite values
+- Continuous: infinitely many uncountable values
 
 Useful summary statistics include mean, median, variance, standard deviation.
 
@@ -349,7 +349,7 @@ where the sum is taken over all possible outcomes.
 
 For a continuous random variable:
 
-$$\displaystyle\int_{-\infty}^\infty x f(x) dx$$
+$$\mu = E[X] = \int_{-\infty}^\infty x f(x) dx$$
 
 ## Linear transformations and combinations
 
@@ -399,7 +399,6 @@ ggplot(df, aes(y=x)) + geom_boxplot() + theme_bw()
 
 # Variance and standard deviation
 
----
 The variance of a random variable, the population variance, is defined as
     
 $$\sigma^2 = var(X) = E[(X-\mu)^2]$$
@@ -416,8 +415,6 @@ $$\sigma^2 = var(X) = E[(X-\mu)^2] = \left\{\begin{array}{ll}
 Standard deviation
 
 $$\sigma = \sqrt{var(X)}$$
-
----
 
 ## Linear transformations and combinations
 
@@ -481,7 +478,7 @@ When we only have a sample of size $n$, the sample mean $m$ is our best estimate
 
 The sample variance is computed as
 
-$$s^2 = \frac{1}{n-1} \sum_{i=1}^n (x-\mu)^2$$
+$$s^2 = \frac{1}{n-1} \sum_{i=1}^n (x-m)^2$$
 The sample variance is an unbiased estimate of the population variance.
 
 $$E[s^2] = \sigma^2$$
@@ -542,21 +539,7 @@ P(-1.96 < Z < 1.96) = 0.95
 <!-- dnorm -->
 
 <!-- pnorm -->
-## Exercise: Get familiar with the normal distribution
 
-1. If $Z \sim N(0,1)$ is a standard normal random variable, compute the probabilities
-
-- $P(Z<1.64)$
-- $P(Z>-1.64)$
-- $P(-1.96<Z)$
-- $P(Z<2.36)$
-
-2. If $X \sim N(3,2)$, compute the probabilities
-
-- $P(X<5)$
-- $P(3<X<5)$
-- $P(X \geq 7)$
-  
 # Sum of two normal random variables
 
 If $X \sim N(\mu_1, \sigma_1^2)$ and $Y \sim N(\mu_2, \sigma_2^2)$ are two independent normal random variables, then their sum is also a random variable:
@@ -590,7 +573,10 @@ plot(pl)
 mu <- mean(fat$BMI)
 mu
 ## Population variance
-sigma <- var(fat$BMI)/nrow(fat)*(nrow(fat)-1)
+sigma2 <- var(fat$BMI)/nrow(fat)*(nrow(fat)-1)
+sigma2
+## Population standard variance
+sigma <- sqrt(sigma2)
 sigma
 ```
 
@@ -606,6 +592,3 @@ plot(ggplot(melt(rs, varnames=c("rep", "n")), aes(x=value, color=factor(n))) + g
 ```
 
 Note, mean is just the sum divided by the number of samples $n$.
-
-## Exercise
-Make up your own distribution. Sample 40 observations from this and compute the sum or mean. Is the sum/mean approximately normally distributed?
