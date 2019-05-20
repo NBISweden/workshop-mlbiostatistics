@@ -3,18 +3,17 @@ title: 'Regression session II: multiple linear regression'
 author: 'Warren W. Kretzschmar'
 date: "`r Sys.Date()`"
 output:
+  xaringan::moon_reader:
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
   pdf_document: 
     toc: true
     number_sections: true
-  html_document:
-    df_print: paged
-    toc: true
-    number_sections: true
-  md_document:
-    toc: true
-    number_sections: true
-    variant: markdown_github
-header-includes: \usepackage{float}
+header-includes:
+  \usepackage{float}
+  \usepackage{xcolor}
 urlcolor: blue
 ---
 
@@ -25,35 +24,33 @@ knitr::opts_chunk$set(fig.path="session-regression-II-files/figures/")
 knitr::opts_chunk$set(fig.pos = 'H')
 knitr::opts_chunk$set(cache.path = "tmp")
 knitr::opts_chunk$set(cache = TRUE)
+library(ggplot2)
 ```
 
-These lecture notes are based on and closely follow section 3.2 in 
-*An Introduction to Statistical Learning, with applications in R* 
-by Gareth James, Daniela Witten, Trevor Hastie, and Robert Tibshirani
-(2013, DOI: 10.1007/978-1-4614-7138-7).
+class: middle, center
 
-# Learning outcomes
+# Warmup quiz: revisiting linear model specifications
 
-After this session, a student should be able to:
+https://forms.gle/z4qKdrcQj1wqUxBV7
 
-- visualize bivariate relationships
-- fit a linear regression model containing main effects
-- assess the quality of the model fit
-- determine if at least one predictor can predict the response
-- detaermine which predictors predict the response
-- asses the accuracy of predictions from the model
+![Revisiting linear model specefications form](./assets/qrcode.quiz-revisiting.png)
 
-# Warmup: [Quiz: revisiting linear model specifications](https://forms.gle/z4qKdrcQj1wqUxBV7)
+---
 
 # Visualizing the Advertising dataset
 
-In this session we will use the [Advertising dataset](http://www-bcf.usc.edu/~gareth/ISL/data.html).
-This simple dataset consists of sales data for 200 products along with the amount of money spent 
-on TV, radio, and newspaper ads. We would like to know how best to spend advertizing money to
-maximize sales.
+Get it from the workshop directory on github: `./session-regression-II/data/Advertising.csv`
 
-To begin with, let us familiarize ourselves with the dataset. 
-The data are stored in the `data` subdirectory of this session directory.
+- Sales for 200 products
+- Advertizing money spent on TV, radio, and newspaper ads
+
+.center[How can we best spend advertizing money to maximize sales?]
+
+--
+
+## Live coding demo: Visualize the Advertising dataset and fit simple linear regressions
+
+???
 
 ```{r}
 # load the data
@@ -136,52 +133,80 @@ summary(lm(sales ~ newspaper, data=ads))
 ```
 The answer is in the $R^2$ values: TV has a much higher $R^2$ than newspaper.
 
-We can fit a linear model for each predictor separately, but we are left
-with two problems:
+---
 
-1. How would be combine the three models into a single model to create a single prediction for Sales?
-2. The pairs plot shows us that the predictors are correlated. The simple linear regression
-   fits ignore all other predictors, and this can lead to incorrect predictions.
+# Fitting simple linear regressions wrapup
 
-This is where multiple linear regression comes in.
-It allows us to create a single model for predicting sales from multiple predictors, and it allows us to
-create a model that takes correlation between predictors into account.
+Two problems remain:
+
+1. Process for combining three models for prediction? 
+2. Inferrential problems when predictors are correlated.
+
+Multiple linear regression solves these problems.
+
+---
 
 # Multiple linear regression model specifications
 
-A multiple linear regression model that incorporates $p$ predictors can be expressed as:
-
 $$Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_p + \epsilon$$
 
-where $Y$ is the response variable, $X_j$ is the $j^{th}$ predictor, and 
-$\beta_j$ is the $j^{th}$ model coefficient. $\beta_j$ can be interpreted as the average
+- $Y$: response variable
+- $X_j$: predictor variables
+- $\beta_j$: model coefficients
+- $\epsilon$: noise term
+
+--
+
+$\beta_j$ can be interpreted as the average
 increase in $Y$ for one unit increase in $X_j$ while holding all other predictors fixed.
 
-For the `Advertising` dataset we can express a regression model as:
+--
+
+An example regression model for the `Advertising` dataset:
 
 $$Sales = \beta_0 + \beta_1 newspaper + \beta_2 radio + \beta_3 TV + \epsilon$$
 
-# Estimating regression coefficients
+---
 
-We can estimate the regression coefficients $\hat\beta_j$ from the data in the same
-manner as for simple linear regression. We can then use $\hat\beta_j$ to make predictions $\hat{y}$ 
-using the formula:
+# Estimating regression coefficients
 
 $$\hat{y} = \hat\beta_0 + \hat\beta_1x_1 + ... + \hat\beta_px_p$$
 
-As in simple linear regression, we choose $\beta_j$ such that we minimize the residual sum of squares:
+- $\hat{y}$: estimated value
+- $\hat{\beta_j}$: estimated regression coefficient
+
+--
+
+We choose $\beta_j$ to minimize the residual sum of squares:
 
 $$\text{RSS} = \sum_{i=1}^n (y_i - \hat{y}_i)^2$$
-, which is equivalent to
+
+--
+
 $$\text{RSS} = \sum_{i=1}^n (y_i - \hat\beta_0 - \hat\beta_1x_{i1} - ... - \hat\beta_px_{ip})^2$$
 
+???
 The mathematical formulas for estimating the model coefficients in multiple linear regression
 work similarly to the formulas for simple linear regression. However, they are more complex and 
 require some linear algebra to understand, so we will skip those formulas here. 
 
-## Quiz: [What was $y_i$ again?](https://forms.gle/XUxpgxJbkTp1QfDG8)
+---
 
-## Exercise: Fitting a multiple linear regression model
+class: middle, center
+
+# Quiz: What was $y_i$ again?
+
+https://forms.gle/XUxpgxJbkTp1QfDG8
+
+![What was y_i again?](./assets/qrcode.what_was_yi.png)
+
+---
+
+class: center, middle
+
+# Live coding demo: Fitting a multiple linear regression model
+
+???
 
 Above, we fit a simple linear regression model to the Advertising dataset.
 We had to fit each predictor separately. Here we will fit a joint
@@ -198,56 +223,79 @@ The multiple linear regression fit takes the correlation between predictors
 into account. This fit states that once we take TV and radio into account, newspaper 
 ads do not increase sales.
 
-# Questions we can answer with a multiple linear regression
+---
 
-Now that we have a better sense of what a multiple linear regression is, let us
-focus on the questions we might want to answer with with the help of such
-a regression:
+# Questions we can answer with a multiple linear regression
 
 1. Can any of the predictors predict response?
 2. If so, to what degree are the predictors important?
 3. How well does the model explain the data?
 4. What is the model's prediction accuracy?
 
-## Can any of the predictors predict response?
+---
 
-The hypothesis that no predictor predicts response can be coded as the null hypothesis
+# Can any of the predictors predict response?
+
+## Null hypothesis
 
 $$H_0: \beta_0 = \beta_1 = ... = \beta_p = 0$$
 
-The alternate hypothesis is then 
+--
+
+## Alternate hypothesis
 
 $$H_A: \text{at least one } \beta_j \text{ is not 0}$$
 
-We can use the $F$ statistic to test the null hypothesis.
-The $F$-test (named in honor of [R. A. Fisher](https://en.wikipedia.org/wiki/Ronald_Fisher))
-uses the ratio:
+---
+
+# The $F$-test
+
+- named in honor of R. A. Fisher
+- uses the $F$-statistic:
 
 $$F = \frac{\text{explained variance}}{\text{unexplained variance}}$$
+
+???
 
 In a model in which our assumptions hold, and for which our null hypothesis is true, 
 we expect the explained and unexplained variances to be equal. Therefore, under the 
 null hypothesis, the $F$-statistic should be around 1.
 
-We can estimate the variance explained by our model as
+---
+
+# Estimating explained variance
 
 $$\frac{TSS-RSS}{p}$$
+
+- TSS: total sum of squares
+- RSS: residual sum of squares
+
+# Estimating unexplained variance
+
+$$\frac{RSS}{(n-p-1)}$$
+
+???
 
 For any model, as we increase the number of predictors the
 amount of variance that we explain with our model increases. 
 The denominator, $p$, corrects for this.
 
-We can estimate the unexplained variance as
-
-$$\frac{RSS}{(n-p-1)}$$
-
 As with the explained variance above, $p$ in this denominator corrects for 
 how unexplained variance decreases as we add more predictors. We can also see
 that as our sample size, $n$, increases, our RSS increases as well.
 
-This leads to the following equation for calculating the $F$-statistic for a linear model:
+---
 
-$$F = \left. {\frac{(TSS - RSS)}{p}} \middle/ {\frac{RSS}{(n-p-1)}} \right.$$
+class: middle
+
+# The $F$-statistic for a linear model
+
+$$F = \left. {\color{cyan}{\frac{(TSS - RSS)}{p}}} \middle/ {\color{magenta}{\frac{RSS}{(n-p-1)}}} \right.$$
+
+- $\color{cyan}{\text{explained variance}}$
+- $\color{magenta}{\text{unexplained variance}}$
+
+???
 
 If our null hypothesis is not true, then, assuming that the $TSS$ remains constant,
 we can expect the $RSS$ to become smaller compared to the $TSS$, and
@@ -498,9 +546,18 @@ However, neither the confidence intervals nor the prediction intervals are valid
     for new data. For that we need to calculate prediction intervals on a separate 
     (or held out) data set.
 
+--- 
+
 # Further reading
 
-There is much more to linear regression. Section 3.3 of [An Introduction to Statistical Learning](http://www-bcf.usc.edu/~gareth/ISL/data.html) is worth a read before you start 
+.pull-left[This lecture closely followed section 3.2 in 
+*An Introduction to Statistical Learning, with applications in R*]
+
+.pull-right[![An Introduction to Statistical Learning](./assets/qrcode.int_stat_learn.png)]
+
+## But there's more!
+
+- Section 3.3 is worth a read before you start 
 fitting linear models to your data. That section discusses the following topics:
 
   - Qualitative predictors 
@@ -508,7 +565,8 @@ fitting linear models to your data. That section discusses the following topics:
   - Non-linear transformation of the predictors 
   - Potential problems: non-linearity, collinearity, outliers, heteroskedasticity
   - Logistic regression
-  
-The R builtin functions for visualization are sometimes not as helpful for quickly 
-looking at data in many different ways. I find the `R` library
-[`ggplot2`](https://ggplot2.tidyverse.org/) very useful in such cases.
+
+## Libraries
+
+- ggplot2
+
