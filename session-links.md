@@ -11,8 +11,6 @@ title:  'Session links'
 
 ###### Statistical theory and concepts I and II
 
-###### Introduction to experimental design
-
 ###### Regression I
 - [Simple linear regression](session-regression-I/session-regression-I.pdf)
 - [Simple linear regression: pen and paper exercises](session-regression-I/pen-and-paper-plasma-volume.pdf)
@@ -20,7 +18,7 @@ title:  'Session links'
 ###### Regression II
 - [Multiple linear regression](session-regression-II/session-regression-II.pdf)
 
-###### Unsupervised learning: PCA, K-means, KNN
+###### Unsupervised learning: PCA and clustering
 - Presentation: [PCA.pdf](session-pca_clustering/PCA.pdf)
 - Presentation: [Linear_Clustering.pdf](session-pca_clustering/Linear_Clustering.pdf)
 - Lab: [lab_PCA_Clustering.html](session-pca_clustering/lab_PCA_Clustering.html)
