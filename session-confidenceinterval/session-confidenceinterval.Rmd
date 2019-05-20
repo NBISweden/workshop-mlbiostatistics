@@ -10,7 +10,7 @@ library(reshape2)
 library(ggplot2)
 require(knitr)
 require(UsingR)
-knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, fig.path="session-confidenceinterval-files/figures/")
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600, fig.path="session-confidenceinterval-files/figures/")
 options(digits=2)
 ```
 
@@ -44,7 +44,7 @@ If the experiment is repeated, i.e. we randomly select 100 people again and stud
 
 Let's assume that $\pi=0.3$ and simulate taking a sample of 100 many times. If we sample 10000 times we get 10000 estimates of p and can plot the sampling distribution.
 
-```{r }
+```{r out.width="70%"}
 set.seed(13)
 p <- replicate(10000, mean(sample(0:1, 100, p=c(.7,.3), replace=TRUE)))
 ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + theme_bw()
@@ -139,7 +139,7 @@ Back to our example. $p=0.33$ and $SE=\sqrt{\frac{p(1-p)}{n}} = `r sqrt(0.33*(1-
 Hence, the 95% confidence interval is $\pi = 0.33 \pm 1.96 * 0.05 = 0.33 \pm 0.092$ or $(0.33-0.092, 0.33+0.092) = (0.24, 0.42)$
 
 
-# Expected value and variance of mean
+# Expected value and variance of sample mean
   
   The mean of $n$ independent identically distributed random variables with $E[X_i] = E[X] = \mu$ and $var(X_i) = var(X) = \sigma^2$
   
@@ -170,7 +170,7 @@ For a sample of size $n$ with sample mean $m=\bar x$ the 95% confidence interval
 
 $$\mu = m \pm 1.96 \frac{\sigma}{\sqrt{n}}$$
 
-Note that according to the central limit theorem, if $n$ is large the above holds even if $X_i$ are not normally distributed, as long as all $X_i$ are idependent and identically distributed. 
+Note that according to the central limit theorem, if $n$ is large the above holds even if $X_i$ are not normally distributed, as long as all $X_i$ are independent and identically distributed. 
 
 Furthermore, if $n$ is large enough, the population standard deviation $\sigma$ can be replaced by the sample standard deviation $s$ and the 95% confidence interval can be computed as
 
@@ -193,7 +193,7 @@ $P(\mu-1.96\frac{\sigma}{\sqrt{n}} \leq \bar X \leq \mu+1.96\frac{\sigma}{\sqrt{
 
 but if we replace $\sigma$ with $s$ the uncertainty increases and we have
 
-$P(\mu-1.96\frac{\sigma}{\sqrt{n}} \leq \bar X \leq \mu+1.96\frac{\sigma}{\sqrt{n}}) < 0.95$
+$P(\mu-1.96\frac{s}{\sqrt{n}} \leq \bar X \leq \mu+1.96\frac{s}{\sqrt{n}}) < 0.95$
 
 The statistic
 
@@ -212,3 +212,9 @@ ggplot(melt(dT, id.vars='x'), aes(x=x, y=value, color=variable)) + geom_line(dat
 #+ scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("f(x)") + theme_bw()
 ```
 
+# Confidence interval
+
+Using the t distribution we can compute the 95% confidence interval
+
+$$\mu = m \pm t \frac{s}{\sqrt{n}}$$
+where $t$ is a critical value that you get from a table.
