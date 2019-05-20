@@ -83,7 +83,7 @@ ____
 - [Paulo Czarnewski][paulo], PhD, NBIS, SciLifeLab, University of Stockholm
 - [Marcin Kierczak][marcin], PhD, NBIS, SciLifeLab, Uppsala University
 - [Bengt Sennblad][bengt], PhD, NBIS, SciLifeLab, Uppsala University
-- [Warren Kretzschmar][warren], PhD, Department of Medicine Huddinge, Karolinska Institute
+- [Warren Kretzschmar][warren], PhD, Department of Medicine, Huddinge, Karolinska Institute
 
 
 [eva]: https://nbis.se/about/staff/eva-freyhult/
