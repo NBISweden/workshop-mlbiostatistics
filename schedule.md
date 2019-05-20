@@ -43,7 +43,7 @@ Room: E10:1308, BMC
 
 **12.00 - 13.00** *lunch*
 
-**13.00 - 15.00** Regression II (Olga, Eva)
+**13.00 - 15.00** Regression II (Warren, Olga)
 
   *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
@@ -56,7 +56,7 @@ Room: E10:1308, BMC
 
 **09.00 - 10.00** Group discussions: reflection on day 2 (Eva, Olga)
 
-**10.00 - 12.00** Unsupervised learning: PCA, K-means, KNN (Paulo)
+**10.00 - 12.00** Unsupervised learning: PCA and clustering (Paulo)
 
 *(mix of lectures, group discussions, paper exercises, live-coding, leg stretches)*
 
@@ -83,6 +83,8 @@ ____
 - [Paulo Czarnewski][paulo], PhD, NBIS, SciLifeLab, University of Stockholm
 - [Marcin Kierczak][marcin], PhD, NBIS, SciLifeLab, Uppsala University
 - [Bengt Sennblad][bengt], PhD, NBIS, SciLifeLab, Uppsala University
+- [Warren Kretzschmar][warren], PhD, Department of Medicine Huddinge, Karolinska Institute
+
 
 [eva]: https://nbis.se/about/staff/eva-freyhult/
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
@@ -90,3 +92,4 @@ ____
 [paulo]: https://nbis.se/about/staff/paulo-czarnewski/
 [marcin]: https://nbis.se/about/staff/marcin-kierczak/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
+[warren]: http://www.warrenwk.com

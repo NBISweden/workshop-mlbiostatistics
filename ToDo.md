@@ -6,7 +6,6 @@ title:  'To Do'
 # Now
 
 ## Other sessions
-- intro: logistics, course philosophy
 - group discussions
 
 ## Simple regression
@@ -14,16 +13,18 @@ title:  'To Do'
 - prepare answers to have them handy
 
 ## Multiple regression
-- B plan
+- B plan / exercises to practice
 
 ## Admin
-- Prepare groups & let teachers know about the groups
+- Other sessions...Introduction and 2 discussion sessions
 - Attendance sheet
 - Certificates
 - Short-term survey and summary
 - Wrap-up meeting with the teaching team
 - Equations rendering
+- Github website (move links to schedule, use icons system)
 
+---------
 ## Take with
 
 ### Generic
@@ -31,23 +32,22 @@ title:  'To Do'
 
 ### Admin
 - grouping sheets
-- attendance sheets
+- attendance sheet
 - certificates
 
 ### Teaching materials
 - print outs (pen and paper labs)
-- t-table critical values
-- rulers (buy)
+- statistical tables / t-table critical values
+- rulers
 - posted notes (two colours)
 - extra paper, pens and paper
-
 
 ------
 
 # For next time
 
 ## Website
-- Github overview: sign up option to be notified when the next course application starts
+- Website rendering, use Roy's solution?
 
 ## Admin
 - add department to the application form
@@ -55,6 +55,7 @@ title:  'To Do'
 - add invoice information to the application form
 - add apply by date to the announcement poster
 - add confirm or let us know you’re not attending the course to the ”confirmation email”
+- add naitive language to the form and team roles preferences...
 
 ## Content ideas
 - data wrangling
@@ -66,3 +67,7 @@ title:  'To Do'
 - outliers
 - answers to quizzes and pen-and-paper exercises
 - add confidence interval to regression line; improve confidence vs. prediction intervals
+
+###  Multiple regression
+- biostatistical dataset
+- more examples
