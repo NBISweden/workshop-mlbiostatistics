@@ -24,6 +24,7 @@ title:  'To Do'
 - Equations rendering
 - Github website (move links to schedule, use icons system)
 
+---------
 ## Take with
 
 ### Generic
@@ -31,14 +32,14 @@ title:  'To Do'
 
 ### Admin
 - grouping sheets
-- attendance sheets
+- attendance sheet
 - certificates
 
 ### Teaching materials
 - print outs (pen and paper labs)
-- t-table critical values
+- statistical tables / t-table critical values
 - rulers
-- posted notes
+- posted notes (two colours)
 - extra paper, pens and paper
 
 ------
@@ -66,3 +67,7 @@ title:  'To Do'
 - outliers
 - answers to quizzes and pen-and-paper exercises
 - add confidence interval to regression line; improve confidence vs. prediction intervals
+
+###  Multiple regression
+- biostatistical dataset
+- more examples
