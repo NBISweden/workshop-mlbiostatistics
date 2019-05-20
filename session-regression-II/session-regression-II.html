@@ -9,7 +9,9 @@
 <meta name="generator" content="pandoc" />
 
 
+<meta name="author" content="Warren W. Kretzschmar" />
 
+<meta name="date" content="2019-05-19" />
 
 <title>Session regression II: multiple linear regression</title>
 
@@ -1645,6 +1647,8 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Session regression II: multiple linear regression</h1>
+<h4 class="author">Warren W. Kretzschmar</h4>
+<h4 class="date">2019-05-19</h4>
 
 </div>
 
@@ -1679,18 +1683,18 @@ $(document).ready(function () {
 </ul>
 </div>
 
-<p>These lecture notes are based on and closely follow section 3.2 in <em>An Introduction to Statistical Learning, with applications in R</em> by Gareth James, Daniela Witten, Trevor Hastie, and Robert Tibshirani (2013, DOI: 10.1007/978-1-4614-7138-7).</p>
 <div id="learning-outcomes" class="section level1">
 <h1><span class="header-section-number">1</span> Learning outcomes</h1>
 <p>After this session, a student should be able to:</p>
 <ul>
-<li>visualize bivariate relationships in small datasets</li>
-<li>fit a linear regression model containing main and interaction effects</li>
+<li>visualize bivariate relationships</li>
+<li>fit a linear regression model containing main effects</li>
 <li>assess the quality of the model fit</li>
 <li>determine if at least one predictor can predict the response</li>
-<li>determine which predictors predict the response</li>
+<li>detaermine which predictors predict the response</li>
 <li>asses the accuracy of predictions from the model</li>
 </ul>
+<p>These lecture notes are based on and closely follow section 3.2 in <em>An Introduction to Statistical Learning, with applications in R</em> by Gareth James, Daniela Witten, Trevor Hastie, and Robert Tibshirani (2013, DOI: 10.1007/978-1-4614-7138-7).</p>
 <hr />
 </div>
 <div id="warmup" class="section level1">
@@ -1700,8 +1704,10 @@ $(document).ready(function () {
 </div>
 <div id="visualizing-the-advertising-dataset" class="section level2">
 <h2><span class="header-section-number">2.2</span> Visualizing the Advertising dataset</h2>
+<p>???</p>
 <p>In this session we will use the <a href="http://www-bcf.usc.edu/~gareth/ISL/data.html">Advertising dataset</a>. This simple dataset consists of sales data for 200 products along with the amount of money spent on TV, radio, and newspaper ads. We would like to know how best to spend advertizing money to maximize sales.</p>
 <p>To begin with, let us familiarize ourselves with the dataset. The data are stored in the <code>data</code> subdirectory of this session directory.</p>
+<hr />
 <pre class="r"><code># load the data
 ads = read.csv('./data/Advertising.csv')</code></pre>
 <p>First, we check to see what columns were imported</p>
@@ -1945,20 +1951,20 @@ pairs(ads)</code></pre>
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -4.3108 -0.9042  0.2518  0.8419  2.1263 
+## -4.4486 -0.8454  0.2210  1.0429  1.9683 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 3.111165   0.594471   5.234    4e-06 ***
-## TV          0.044066   0.002731  16.135   &lt;2e-16 ***
-## newspaper   0.003086   0.011699   0.264    0.793    
-## radio       0.187655   0.014927  12.572   &lt;2e-16 ***
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  4.048358   0.534019   7.581 1.23e-09 ***
+## TV           0.039763   0.002692  14.773  &lt; 2e-16 ***
+## newspaper   -0.015688   0.014769  -1.062    0.294    
+## radio        0.220120   0.016390  13.430  &lt; 2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 1.392 on 46 degrees of freedom
-## Multiple R-squared:  0.9039, Adjusted R-squared:  0.8977 
-## F-statistic: 144.3 on 3 and 46 DF,  p-value: &lt; 2.2e-16</code></pre>
+## Residual standard error: 1.476 on 46 degrees of freedom
+## Multiple R-squared:  0.9363, Adjusted R-squared:  0.9322 
+## F-statistic: 225.4 on 3 and 46 DF,  p-value: &lt; 2.2e-16</code></pre>
 <pre class="r"><code>summary(lm(sales ~ TV + newspaper + radio, data=ads[sample(nrow(ads), 10),]))</code></pre>
 <pre><code>## 
 ## Call:
@@ -1967,20 +1973,20 @@ pairs(ads)</code></pre>
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -1.6529 -0.2622  0.2551  0.4447  0.8253 
+## -2.2466 -0.5860  0.3721  0.5415  2.3141 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 4.414550   0.714886   6.175 0.000829 ***
-## TV          0.042097   0.004834   8.709 0.000127 ***
-## newspaper   0.057945   0.031611   1.833 0.116489    
-## radio       0.095230   0.036801   2.588 0.041340 *  
+##             Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept) 1.787862   2.104300   0.850  0.42813   
+## TV          0.044144   0.008828   5.000  0.00245 **
+## newspaper   0.002254   0.026119   0.086  0.93403   
+## radio       0.231190   0.048680   4.749  0.00316 **
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.8756 on 6 degrees of freedom
-## Multiple R-squared:  0.9756, Adjusted R-squared:  0.9633 
-## F-statistic: 79.85 on 3 and 6 DF,  p-value: 3.162e-05</code></pre>
+## Residual standard error: 1.756 on 6 degrees of freedom
+## Multiple R-squared:  0.8827, Adjusted R-squared:  0.8241 
+## F-statistic: 15.05 on 3 and 6 DF,  p-value: 0.00337</code></pre>
 <p>It looks like the signal is very strong, and we can still reject our null hypothesis with 10 data points.</p>
 <p>The model summaries have p-values next to each model coefficient. These p-values are based on the <span class="math inline">\(t\)</span>-statistic and are calculated in the same way as for simple linear regression (see previous section). Why can’t we just use these p-values instead of the <span class="math inline">\(F\)</span>-statistic to determine if any coefficients are non-zero? Without correction for multiple testing we will get false positives at the probability of <span class="math inline">\(\alpha\)</span> per test. If we do correct for multiple testing, then the <span class="math inline">\(F\)</span>-test is more powerful and/or requires fewer assumptions about the correlation structure of the <span class="math inline">\(t\)</span>-statistics.</p>
 </div>
