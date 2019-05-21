@@ -1,13 +1,14 @@
 ---
 title: 'Regression session II: multiple linear regression'
 author: 'Warren W. Kretzschmar'
-date: "`r Sys.Date()`"
+date: "2019-05-22"
 output:
   xaringan::moon_reader:
     nature:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+      slideNumberFormat: ""
   pdf_document: 
     toc: true
     number_sections: true
@@ -270,6 +271,8 @@ $$\frac{TSS-RSS}{p}$$
 - TSS: total sum of squares
 - RSS: residual sum of squares
 
+--
+
 # Estimating unexplained variance
 
 $$\frac{RSS}{(n-p-1)}$$
@@ -286,8 +289,6 @@ that as our sample size, $n$, increases, our RSS increases as well.
 
 ---
 
-class: middle
-
 # The $F$-statistic for a linear model
 
 $$F = \left. {\color{cyan}{\frac{(TSS - RSS)}{p}}} \middle/ {\color{magenta}{\frac{RSS}{(n-p-1)}}} \right.$$
@@ -301,6 +302,14 @@ If our null hypothesis is not true, then, assuming that the $TSS$ remains consta
 we can expect the $RSS$ to become smaller compared to the $TSS$, and
 for the ratio to increase. Therefore, the larger the $F$-statistic, the more evidence there is for
 rejecting the null hypothesis.
+
+---
+
+class: middle, center
+
+# Live coding demo: Understanding the $F$-statistic 
+
+???
 
 `R` will happily calculate the $F$-statistic of a linear model fit for us. One way to get the
 $F$ statistic is using the `summary()` function:
@@ -344,35 +353,66 @@ $\alpha$ per test.
 If we do correct for multiple testing, then the $F$-test is more powerful and/or
 requires fewer assumptions about the correlation structure of the $t$-statistics.
 
-## Which predictors predict response?
+---
 
-Usually, we will not want to include all possible predictors in our model. 
-But how can we choose the predictors? We could use the $t$-test, but then 
-we will have to deal with false positives. The process of choosing predictors
-in this way is called *variable selection*. There is a substantial body of 
-literature on variable selection in linear models.
+# Variable selection: Which predictors predict response?
 
-Out of all possible models, we would like to choose the one that is closest
-to the true model. We face two problems in this endeavor:
+--
+
+- test all models? Not so fast.
+
+1. Avoid multiple testing 
+2. Number of possible models is $2^p$
+
+
+???
+
+- reduced set of predictors
+
+Ideas?
+
+- $t$-test? -> false positives
+
+Test all models!
+
+Problems
 
 1. Determining which model fits best while correcting for multiple testing and overfitting
 2. The number of models that can be created from a subset of $p$ predictors is
    $2^p$, and this number can get large very quickly.
 
-For point one there are several statistics that can be used. These statistics
-include *Mallow's C*, *Akaike's Information Criterion* (AIC), 
-and the *Bayesian Information Criterion* (BIC). These statistics balance the number 
-of predictors used against the amount of variance explained by a model.
+---
 
-For point two we can use a step-wise selection process in which we add, remove,
-or add and remove
-predictors in order to minimize an information criterion. This approach does not
-explore the full model space, but in practice it can be quite useful.
+# Avoiding multiple-testing with information criteria
 
-### Exercise: Let's select predictors in a model
+- *Mallow's C*
+- *Akaike's Information Criterion* (AIC) 
+- *Bayesian Information Criterion* (BIC)
 
-The `stepAIC()` function can be used to perform step-wise model selection in `R`.
-By default it uses AIC, but other statistics are also supported.
+$$AIC= 2p - 2 \ln(\hat{L})$$
+
+---
+
+# Model search space reduction
+
+- Stepwise selection through `stepAIC()`
+
+???
+
+- add
+- remove
+- add/remove
+
+Not perfect but useful!
+
+--
+
+## Exercise: Let's select predictors in a model!
+
+
+???
+
+- `stepAIC()` default: AIC
 
 We can start with the full model:
 ```{r}
@@ -392,74 +432,94 @@ summary(stepAIC(empty, scope=sales ~ TV + newspaper + radio))
 
 And in this case we get the same model as above.
 
-## How well does the model explain the data?
+---
 
-As in simple linear regression, two important statistics for assessing the
-quality of the model fit are $R^2$ and RSE. 
+# How well does the model explain the data?
 
-### $R^2$
+Similarly to simple linear regression:
+
+- $R^2$
+- RSE
+
+---
+
+# $R^2$
 
 - In simple linear linear regression: $R^2 = \text{Cor}(X, Y)^2$
 - In multiple linear regression: $R^2 = \text{Cor}(Y, \hat{Y})$
 
-Let's see what the $R^2$ of our models look like:
+## Live coding: Let's see what the $R^2$ of our models look like
 
-```{r}
+```{r echo=TRUE, results='hide'}
 summary(lm(sales ~ TV , data=ads))$r.squared
 summary(lm(sales ~ TV + radio, data=ads))$r.squared
 summary(lm(sales ~ TV + radio + newspaper, data=ads))$r.squared
 ```
 
-As we add predictors $R^2$ always increases. When the predictors explain no variance,
-then $R^2 = 0$. When they explain all variance, then $R^2 = 1$.
+???
 
-### RSE
+- As we add predictors $R^2$ always increases
+- When the predictors explain no variance: $R^2 = 0$
+- When they explain all variance: $R^2 = 1$.
+
+---
+
+# RSE
 
 - In simple linear regression we learned: $\text{RSE} = \sqrt{RSS/(n-2)}$
 - In multiple linear regression: $\text{RSE} = \sqrt{RSS/(n-p-1)}$
 
-Let's see what the RSE of our models look like:
+## Live coding: Let's see what the RSE of our models look like:
 
-```{r}
+```{r, results='hide'}
 summary(lm(sales ~ TV , data=ads))$sigma
 summary(lm(sales ~ TV + radio, data=ads))$sigma
 summary(lm(sales ~ TV + radio + newspaper, data=ads))$sigma
 ```
 
+???
+
 - The model that includes `newspaper` has a higher RSE than the model with only
 `TV` and `radio`
 - This is because RSE depends on $p$
 
-### Visual inspection
+---
+
+# Visual inspection
 
 - Plotting the data can reveal problems that are not evident from metrics
+
+## Live coding: checking model fit
 
 The model that includes `TV` and `radio` has some issues. Let's see if we can discover
 them by visualization. 
 
-Let's start with my favorite quality assessment plot: the quantiles plot:
+???
+
+- favorite: the quantiles plot:
 
 ```{r, collapse=TRUE}
 fit = lm(sales ~ TV + radio, data=ads)
 plot(fit, which=2)
 ```
 
-This is not what I would expect normally distributed residuals to look like!
+- looks bad!
 
-Let's see if we can get a better idea of where things are going wrong. 
-Let's try and plot $\hat{Y}$ (fitted values) versus the residuals:
+- Let's get a better idea
+- $\hat{Y}$ (fitted values) vs residuals
+- why?
 
 ```{r}
-# NB: predict()  
 plot(fit, which=1)
 ```
 
-We see a dip in residuals and an increase in variance towards the middle of the range
-of fitted values. It looks like our model is not adequate. 
+- dip in residuals
+- heteroskedasticity
+- model fit not adequate
 
-In fact, this model fails to capture a synergy between TV and radio advertizing:
+- In fact, there's synergy
 
-```{r}
+```{r, results='hide'}
 # Here we rely on resid() returning the residuals in the same order as the ads data.frame
 plot_dat = data.frame(TV=ads$TV, radio=ads$radio, residual=resid(fit))
 
@@ -472,47 +532,51 @@ ggplot(aes(x=TV, y=radio, color=residual), data=plot_dat) + geom_point() +
   (top left and bottom right)
 - The model underestimates sales generated from investment in both add platforms
   (top right and bottom left)
-  
-We can model this synergy as an "interaction term". Unfortunately, interaction terms
-are beyond the scope of this session. 
-See [further reading](#further-reading) for more on interaction terms.
 
-## What is the model's prediction accuracy?
+- can be modeled using "interaction term" -> maybe time for later?  
 
-- Previously: we can make predictions from our model using the `predict()` function.
+---
 
-```{r}
-# making a prediction on a new data point
-predict(fit, newdata=data.frame(TV=100, radio=30))
-```
-
-There are three sources of error when making predictions from a linear model
+# Prediction accuracy -- sources of error
 
 1. *reducible error*: A result of the difference between the estimates 
    $$\hat{Y} = \hat\beta_0 + \hat\beta_1 X_1 + ... + \hat\beta_p X_p$$
    and the *true population regression plane*
    $$f(x) = \beta_0 + \beta_1 X_1 + ... + \beta_p X_p$$
    We use *confidence intervals* to estimate this error.
+
+???
+
+There are three sources of error when making predictions from a linear model
+
+--
+
 2. *model bias*: When our model differs from the true model 
-   (see for example the previous section)
-3. *irreducible error*: The random noise that is part of our system, $\epsilon$. We can
-   use *prediction intervals* to estimate this error.
+   - for example, the missing interaction effect we just saw
+   
+--
 
-If we assume that we have the correct model, then we can ask two kinds of questions:
+3. *irreducible error*: $\epsilon$
+   - the random noise that is part of our system
+   - We can use *prediction intervals* to estimate this error.
 
-1. How far is $\hat{Y}$ from $f(x)$? 
-   - We use *confidence intervals* to talk about how 
-     our estimate of average sales will differ from the true average of sales
-2. How far is any one prediction from its true value?
-   - For this, we use *prediction intervals*
+---
 
-Prediction intervals are always larger than confidence intervals because prediction
-intervals quantify both the reducible and irreducible error.
+## Live coding: confidence and prediction intervals around $\hat{Y}$ of our (dubious) model fit
 
-Let's try and calculate the confidence and prediction intervals around $\hat{Y}$ of our
-(dubious) model fit:
+???
 
-```{r}
+- Prediction intervals are always larger than confidence intervals
+- because prediction intervals quantify both the **reducible** and **irreducible error**.
+
+- Previously: we can make predictions from our model using the `predict()` function.
+
+```{r, results='hide'}
+# making a prediction on a new data point
+predict(fit, newdata=data.frame(TV=100, radio=30))
+```
+
+```{r, results='hide'}
 preds = as.data.frame(predict(fit, interval="confidence"))
 head(preds)
 preds2 = as.data.frame(predict(fit, interval="prediction"))
@@ -525,7 +589,7 @@ preds$index = 1:nrow(preds)
 head(preds)
 ```
 
-```{r, collapse=TRUE}
+```{r, collapse=TRUE, results='hide'}
 plot(preds$fit, type='l')
 lines(preds$index, preds$upr, col='red')
 lines(preds$index, preds$lwr, col='red')
@@ -533,20 +597,22 @@ lines(preds$index, preds$upr_pred, col='blue')
 lines(preds$index, preds$lwr_pred, col='blue')
 ```
 
-We can see that the prediction intervals are larger than the confidence intervals. 
-However, neither the confidence intervals nor the prediction intervals are valid here.
+- prediction intervals are larger than the confidence intervals. 
+- However, neither the confidence intervals nor the prediction intervals are valid here.
 
-**Caveats**:
+--
 
-  - Our model does not fit the data well, and so we are also dealing with model bias.
-    The confidence interval calculations assume a good model fit, which is clearly not 
-    the case here.
-  - Calculating prediction intervals on the data we used to create the model underestimates
-    the prediction error on new data. Generally, we are interested in prediction intervals
-    for new data. For that we need to calculate prediction intervals on a separate 
-    (or held out) data set.
+## Caveats
 
---- 
+- Bad model fit -> substantial model bias
+- Calculating prediction intervals from training data usually a bad idea!
+  
+???
+
+- Generally, we are interested in prediction intervals for **new data**
+- For that we need to calculate prediction intervals on a separate (or held out) data set.
+
+---
 
 # Further reading
 
@@ -554,6 +620,8 @@ However, neither the confidence intervals nor the prediction intervals are valid
 *An Introduction to Statistical Learning, with applications in R*]
 
 .pull-right[![An Introduction to Statistical Learning](./assets/qrcode.int_stat_learn.png)]
+
+--
 
 ## But there's more!
 
@@ -566,7 +634,7 @@ fitting linear models to your data. That section discusses the following topics:
   - Potential problems: non-linearity, collinearity, outliers, heteroskedasticity
   - Logistic regression
 
-## Libraries
+--
 
-- ggplot2
+- Check out `ggplot2`!
 
