@@ -37,7 +37,7 @@ title:  'Session links'
 - Lab: [Exploratory_questions.pdf](session-pca_clustering/Exploratory_questions.pdf)
 
 ###### What comes next & introduction to machine learning
-- [Regularization](session-regularization/session-regularization.md)
+- [Regularization](session-regularization/session-regularization.html)
 
 ###### Wrap-up session & feedback
 - [Feedback form](https://forms.gle/txovofRkFksHewP6A)
