@@ -26,6 +26,9 @@ editor_options:
 
 # Likelihood
 
+<details>
+<summary> Lecture notes </summary>
+
 Likelihood is concerned with estimating how likely it is that a certain model or certain model parameter values are *true* ones.
 
 Consider a generative model, with parameters $\theta$, for how $X\rightarrow Y$. We would like to test if $\theta$ are good parameters. Given the model, we can compute
@@ -83,7 +86,12 @@ Likelihood and maximum likelihood estimation are central concepts in statistics.
 
 (In the following, I will simplify notation and not differentiate between etimates and random variables, e.g., $\theta$ will be used also for $\widehat\theta$.)
 
+</details>
+
 ## Likelihood | `Likelihood and OLS for linear models`
+
+<details>
+<summary> Lecture notes </summary>
 
 So, why have we used ordinary least squares (OLS) of  RSS when estimating linear model parameters $\beta$ rather than maximum likelihood estimation?
 
@@ -110,17 +118,17 @@ $$\begin{eqnarray*}
 \log L[\beta, \sigma^2|Y,X] 
 &=& \sum_{i=1}^N \log\left(\frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(y_i-\beta x_i)^2}{2\sigma^2}}\right)\\
 &=&   \sum_{i=1}^N \log \left(\frac{1}{\sqrt{2\pi \sigma^2}}\right) -\frac{(y_i-\beta x_i)^2}{2\sigma^2} \\
-&=&   N\log \left(2\pi \sigma^2\right)^{1/2} -\frac{\sum_{i=1}^N (y_i-\beta x_i)^2}{2\sigma^2} \\
-&=&   \frac{N}{2}\log \left(2\pi \sigma^2\right)  -\frac{RSS}{2\sigma^2}
+&=&   N\log \left(2\pi \sigma^2\right)^{-1/2} -\frac{\sum_{i=1}^N (y_i-\beta x_i)^2}{2\sigma^2} \\
+&=&   -\frac{N}{2}\log \left(2\pi \sigma^2\right)  -\frac{RSS}{2\sigma^2}
 \end{eqnarray*}$$
 
 We see here that minimizing $RSS$ (as in OLS) will maximize the logLikelihood, regardless of the value of $\sigma^2$. Moreover, it turns out that also $\sigma^2$ can be estimated fairly well by $RSS/N$. Hence, we get 
 
 $$\begin{eqnarray*}
 \log L[\beta, \sigma^2|Y,X]
-&=&   \frac{N}{2}\log \left(\frac{2\pi RSS}{N}\right)  -\frac{N}{2}\frac{RSS}{RSS}\\
-&=&   \frac{N}{2}\log RSS + \frac{N}{2}\log \frac{2\pi}{N} -\frac{N}{2}\\
-&=&   \frac{N}{2}\log RSS + C
+&=&   -\frac{N}{2}\log \left(\frac{2\pi RSS}{N}\right)  -\frac{N}{2}\frac{RSS}{RSS}\\
+&=&   -\frac{N}{2}\log RSS + \frac{N}{2}\log \frac{2\pi}{N} -\frac{N}{2}\\
+&=&   -\frac{N}{2}\log RSS + C
 \end{eqnarray*}$$
 where $C=\frac{N}{2}\left(\log \frac{2\pi}{N} -1\right)$ is a constant that is usually ignored (in likelihood ratios, which is equivalent to log likelihoods differences, it will disappear).
 
@@ -133,7 +141,7 @@ _**NB!** This is a special case for linear models and are not generally true for
 
 In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., OLS.
 
-
+</details>
 
 
 #  Overfitting
@@ -148,7 +156,7 @@ First, you need some test data to play around with. For simplicity and convenien
 * The data should comprise 100 samples. 
 * First generate 10 variables $(x_1,x_2,\ldots, x_{0})$ from a uniform distribution and store them in a Matrix $X$. 
 * Use an intercept $\beta_0=3$ 
-* Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`); print the 'true' effect sizes for reference.
+* Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`); record the 'true' effect sizes for reference.
 * Finally generate outcome variable $Y$ using a linear model $Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon$, with $\epsilon\sim N(0,\sigma^2=1)$ (i.e., the residuals are drawn from a Normal distribution with mean=0 and standard deviation=1, *Tip:* use the R function `rnorm`).
 
 
@@ -175,20 +183,17 @@ b=c(runif(3, min=0.5, max=1.0))
 # generate y
 Y <- b0 + X[,1] * b[1] + X[,2] * b[2] + X[,3] * b[3] + rnorm(N)
 
-print(paste("b0 = ", b0, ", b1 = ", signif(b[1],3), ", b2 = ", signif(b[2],3), ", b3 = ", signif(b[3],3)))
-```
-
-```
-## [1] "b0 =  3 , b1 =  0.813 , b2 =  0.601 , b3 =  0.723"
+#print(paste("b0 = ", b0, ", b1 = ", signif(b[1],3), ", b2 = ", signif(b[2],3), ", b3 = ", signif(b[3],3)))
 ```
 
 ## Overfitting | `Model comparison`
 
 Now consider the following two models for our data
-\begin{aligned}
-y & \sim  \beta_0 + \beta_1 x_1 & (1) \\
-y & \sim  \beta_0 + \beta_1 x_1 + \beta_2 x_2 & (2)
-\end{aligned}
+
+\begin{eqnarray}
+y & \sim & \beta_0 + \beta_1 x_1 & (1) \\
+y & \sim &  \beta_0 + \beta_1 x_1 + \beta_2 x_2 & (2)
+\end{eqnarray}
 
 What are the max Likelihood estimates of the two models? (we can use the R function `logLik` in the `stats` package)
 
@@ -378,6 +383,9 @@ In our simple test case, the LRT also succeed in picking the correct model. It s
 
 #  Regularization
 
+<details>
+<summary> Lecture notes </summary>
+
 Regularization is a concept that adds auxiliary criteria, so-called *regularization terms*,  to probabilistic models.  This is called regularized likelihood models or penalized likelihood models. Typically, the regularization term is a function of parameters $\beta$:
 
 $$\log rL[\beta | X, Y]  = \log Pr[Y | X, \beta] - f(\beta),$$
@@ -407,8 +415,12 @@ plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="lo
 
 <img src="session-regularization_files/figure-html/unnamed-chunk-6-1.png" width="100%" />
 
+</details>
 
 ##  Regularization | `AIC and model testing`
+
+<details>
+<summary> Lecture notes </summary>
 
 Coming from a _information theory_ base, Hirotugu Akaike came up with a very similar approach for the overfitting problem.
 
@@ -446,6 +458,7 @@ $$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[{\beta}_{m}|X_m,Y]}{\max 
 ***
 </details>
 
+</details>
 
 ### Task | `AIC analysis`
 
@@ -610,6 +623,9 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 
 ##  Regularization | `LASSO and Feature selection`
 
+<details>
+<summary> Lecture notes </summary>
+
 LASSO  stands for Least absolute shrinkage and selection operator ("shrinkage" is another common term for regularization) and is a method for selecting variables to include in a multivariate model.
 
 Classical LASSO builds on RSS of a linear regression model $Y \sim X{\beta}$ with regularization
@@ -634,7 +650,7 @@ There is also a $\ell_2-norm$:
 $$ ||\beta||_2 = \sqrt{\sum_{\beta_i\in{\beta}} \beta_i^2}$$
 which is used, e.g., in ridge regression.
 
-We note, BTW, that you already have been working with an $\ell_2-norm$: since $RSS = ||Y-X\beta||_2$ is simply the $\ell_2$ norm of the residuals.
+We note, BTW, that you already have been working with an $\ell_2-norm$: since $RSS = ||Y-X\beta||_2^2$ is simply the square of the $\ell_2$ norm of the residuals.
 
 ***
 </details>  
@@ -644,7 +660,7 @@ The $\lambda$ parameter sets a limit on the estimation of $\beta$.
 
 Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
 
-$$min_{{\beta}}\left\{RSS\right\} - \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
+$$min_{{\beta}}\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
 
 <details>
 <summary> Extra Reading </summary>
@@ -684,6 +700,8 @@ Alternatives to LASSO, differing mainly in the auxiliary criterion
   - *Elastic-net*, which uses a mixed model combination of the  $\ell_1$ norm and the $\ell_2$ norm.
 
 *** 
+</details>
+
 </details>
 
 ### Task | `Lasso using the glmnet R-package`
@@ -748,6 +766,10 @@ plot(fit, xvar="lambda",label=T)
 </details>
 
 ## Cross-validation
+
+<details>
+<summary> Lecture notes </summary>
+
 The LASSO model will be different depending on how we set $\lambda$. A problem is to decide the optimal $\lambda$ to use. 
 
 * $\lambda$ too *low*: risk of missing relevant variables
@@ -778,6 +800,7 @@ Here we will limit ourselves to finding the minimum $\lambda$, called `lambda.mi
 ***
 </details>
 
+</details>
 
 ### Task | `Determine optimal LASSO `$\lambda$` using cross-validation`
 * Use the function `cv.glmnet` to perform cross validation
@@ -932,13 +955,13 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 **Platform:** x86_64-apple-darwin15.6.0 (64-bit) 
 
 **locale:**
-sv_SE.UTF-8||sv_SE.UTF-8||sv_SE.UTF-8||C||sv_SE.UTF-8||sv_SE.UTF-8
+en_US.UTF-8||en_US.UTF-8||en_US.UTF-8||C||en_US.UTF-8||en_US.UTF-8
 
 **attached base packages:** 
 _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 
 **other attached packages:** 
-_igraph(v.1.2.4.1)_, _bookdown(v.0.9)_, _pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
+_pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
 
 **loaded via a namespace (and not attached):** 
-_tidyselect(v.0.2.5)_, _xfun(v.0.6)_, _purrr(v.0.3.2)_, _lattice(v.0.20-38)_, _colorspace(v.1.4-1)_, _htmltools(v.0.3.6)_, _viridisLite(v.0.3.0)_, _yaml(v.2.2.0)_, _rlang(v.0.3.4)_, _pillar(v.1.3.1)_, _later(v.0.8.0)_, _glue(v.1.3.1)_, _stringr(v.1.4.0)_, _munsell(v.0.5.0)_, _rvest(v.0.3.3)_, _codetools(v.0.2-16)_, _evaluate(v.0.13)_, _httpuv(v.1.5.1)_, _highr(v.0.8)_, _Rcpp(v.1.0.1)_, _readr(v.1.3.1)_, _scales(v.1.0.0)_, _promises(v.1.0.1)_, _webshot(v.0.5.1)_, _jsonlite(v.1.6)_, _mime(v.0.6)_, _servr(v.0.13)_, _hms(v.0.4.2)_, _packrat(v.0.5.0)_, _digest(v.0.6.18)_, _stringi(v.1.4.3)_, _xaringan(v.0.9)_, _grid(v.3.5.3)_, _tools(v.3.5.3)_, _magrittr(v.1.5)_, _tibble(v.2.1.1)_, _crayon(v.1.3.4)_, _pkgconfig(v.2.0.2)_, _xml2(v.1.2.0)_, _assertthat(v.0.2.1)_, _rmarkdown(v.1.12)_, _httr(v.1.4.0)_, _rstudioapi(v.0.10)_, _iterators(v.1.0.10)_, _R6(v.2.4.0)_ and _compiler(v.3.5.3)_
+_Rcpp(v.1.0.1)_, _pillar(v.1.3.1)_, _compiler(v.3.5.3)_, _highr(v.0.8)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.4)_, _rstudioapi(v.0.10)_, _yaml(v.2.2.0)_, _xfun(v.0.6)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _assertthat(v.0.2.1)_, _rvest(v.0.3.3)_, _colorspace(v.1.4-1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
