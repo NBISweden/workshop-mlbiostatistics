@@ -23,6 +23,7 @@ title:  'Session links'
 
 ###### Regression II
 - [Multiple linear regression](session-regression-II/session-regression-II.pdf)
+- [Multiple linear regression slides](session-regression-II/session-regression-II-slides.Rmd)
 - [Multiple linear regression: extra exercises](session-regression-II-extra/pen-and-paper-multple-regression.pdf)
 - [Advertising Data](session-regression-II/data/Advertising.csv)
 
