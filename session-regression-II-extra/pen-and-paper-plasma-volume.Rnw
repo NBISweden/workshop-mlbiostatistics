@@ -1,0 +1,341 @@
+\documentclass[12pt]{article}
+
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ right=20mm,
+ top=20mm,
+ bottom=40mm}                   % ... or a4paper or a5paper or ...
+\geometry{landscape}                % Activate for for rotated page geometry
+\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{colortbl, xcolor}
+\usepackage{array}
+\usepackage{lastpage}
+
+
+\setlength{\columnsep}{1cm}
+\usepackage[backend=bibtex, sorting=none, style=chicago-authordate]{biblatex}
+\setlength\bibitemsep{\baselineskip}
+\usepackage[british]{babel}
+\usepackage[export]{adjustbox}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\
+    \arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\
+    \arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\
+    \arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{P}[1]{>{\raggedright\tabularxbackslash}p{#1}}
+
+%\usepackage{pdflscape}
+ \usepackage{rotating}
+  
+\usepackage{textcomp}
+\lstset{style=mystyle}
+
+
+\hypersetup{%
+  colorlinks=true,% hyperlinks will be coloured
+  linkcolor=blue,% hyperlink text will be green
+}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+%% LOGOS
+\usepackage{fancyhdr}
+%\setlength{\headheight}{1.5cm}
+\addtolength{\headheight}{2cm} % make more space for the header
+\pagestyle{fancyplain} % use fancy for all pages except chapter start
+\lhead{\includegraphics[height=1.3cm, width=2cm]{../logos/NBIS-logo.png}} % left logo
+\rhead{\includegraphics[height=1.3cm, width=4cm]{../logos/SciLifeLab-logo.jpg}} % right logo
+\cfoot{\thepage\ (\pageref{LastPage})}
+%\lfoot{Biostatistics Essentials: a blackboard approach}
+\renewcommand{\headrulewidth}{0pt} % remove rule below header
+
+
+%% BEGIN DOCUMENT
+\begin{document}
+
+<<include=FALSE, echo=F>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE
+)
+@
+
+
+%% SUPPORT REQUEST
+%\newpage
+<<Rsetup, echo=F, include=FALSE>>=
+rm(list=ls())
+library(xtable)
+@
+
+Exercise: simple linear regression:  body weight and plasma volume. 
+Example data contain the body weight (kg) and plasma volume (literes) for eight healthy men. 
+
+\section{Estimating model coefficients}
+<<table, echo=F, results='asis'>>=
+
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+data.inp <- data.frame(weight=weight, plasma=plasma)
+data.empty <- matrix(data=NA, nrow=nrow(data.inp), ncol=6)
+data.table <- cbind(data.inp, data.empty)
+
+colnames(data.table) <- c("weight [kg]", "plasma [l]",
+                        "$x_i-\\overline{x}$", "$y_i-\\overline{y}$", 
+                        "$(x_i-\\overline{x})(y_i-\\overline{y})$", 
+                        "$(x_i-\\overline{x})^2$", "$(y_i-\\overline{y})^2$", "$x^2$")
+
+column.width <- c(rep("|C{2.5cm}", ncol(data.table)+1))
+column.width[2:3] <- "|C{2.5cm}"
+#column.width[4:5] <- "|L{1.5cm}"
+column.width[6] <- "|C{3cm}"
+
+rws <- seq(1, (nrow(data.table)), by = 2)
+col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+print(xtable(data.table, align=column.width),
+  booktabs = TRUE,
+  add.to.row = list(pos = as.list(rws), command = col),
+  include.rownames=FALSE,
+  sanitize.text.function=function(x){x},
+  size="large"
+  )
+
+@
+
+1. Calculate: 
+
+$\overline{y}=\frac{1}{n}\sum_{i=1}^{n}y_i = $ \newline
+\vspace{0.2cm} 
+
+$\overline{x}=\frac{1}{n}\sum_{i=1}^{n}x_i = $ \newline
+%\vspace{0.5cm}
+
+2. Fill in columns 3rd to 6th (leave the last 2 columns for now)
+
+3. Calculate $\hat{\beta_1}$: \newline
+\vspace{0.1cm} 
+
+$\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}=$ \newline
+\vspace{0.5cm}
+
+4. Calculate $\hat{\beta_0}$: \newline
+\vspace{0.1cm} 
+$\hat{\beta_0}=\overline{y}-\hat{\beta_1}\overline{x}=$ \newline
+
+5. Write equation for the best-fitting straight line:
+
+<<table-solution, echo=F, results='asis'>>=
+
+data.solution <- data.inp
+data.solution$x <- data.inp$weight
+data.solution$y <- data.inp$plasma
+
+x.mean <- mean(data.solution$x)
+y.mean <- mean(data.solution$y)
+
+#$x_i-\\overline{x}$
+c.3 <- data.solution$x-x.mean
+
+#$y_i-\\overline{y}$
+c.4 <- data.solution$y-y.mean
+
+#$(x_i-\\overline{x})(y_i-\\overline{y})$
+c.5 <- c.3*c.4
+
+#$(x_i-\\overline{x})^2$
+c.6 <- c.3^2
+
+#$(y_i-\\overline{y})^2$
+
+#$\hat{\beta_1}= \frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^{n}(x_i-\overline{x})^2}=$
+beta.1 <- sum(c.5)/sum(c.6)
+
+#$\hat{\beta_0}=\overline{y}-\hat{\beta_1}\overline{x}=$ \newline
+beta.0 <- y.mean-beta.1*x.mean
+
+# s.e(b0), s.e(b1)
+# $(y_i-\\overline{y})^2$
+c.7 <- (data.solution$y-y.mean)^2
+
+# $x^2$
+c.8 <- (data.solution$x)^2
+
+n <- nrow(data.solution)-2
+se.s <- sqrt((sum(c.7)-beta.1^2*sum(c.6))/(nrow(data.solution)-2))
+
+se.beta0 <- se.s*sqrt(1/n+(x.mean^2)/(sum(c.6)))
+se.beta1 <- se.s/sqrt(sum(c.6))
+
+@
+
+\section{Accuracy of the coefficient estimates}
+
+1. Fill in the remainig columns in the table above
+\vspace{1cm} 
+
+2. Calculate $s$ \newline
+
+$s=\sqrt{[\frac{\sum_{i=1}^{n}(y_i-\overline{y})^2-\overline{\beta_1}\sum_{i=1}^{n}(x_i-\overline{x})^2}{n-2}]}=$
+\vspace{1cm} 
+
+3. Calculate 
+$s.e(\hat{\beta_0})=s*\sqrt{[\frac{1}{n}+\frac{x_i^2}{\sum_{i=1}^{n}(x_i-\overline{x})^2}]}=$
+\vspace{1cm} 
+
+4. Calculate
+$s.e(\hat{\beta_1})=\frac{s}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}}=$
+\vspace{0.2cm} 
+
+5. Have a look at Figure 3.3 in \textit{An Introduction to Statistical Learning} and answer questions
+\begin{itemize}
+  \item What do 10 light blue lines represent on the plot (right)?
+  \item What is an \texttt{unbiased estimator}?
+  \item Have we underestimated or overestimated ${\beta_1}$?
+\end{itemize}
+
+\section{Hypothesis testing}
+Is there an association between body weight and plasma volume? 
+
+1. Write down the null hypothesis and alternative hypothesis
+
+2. Calculate t-statistics for $\hat{\beta_1}$ \newline
+
+$t=\frac{\hat{\beta_1}-0}{s.e.(\hat{\beta_1})} = $
+\vspace{0.2cm}
+
+3. Use t distribution table containing critical values of the t distribution, to check if whether the p-value for our calculated t-statistics is lower than 5\% threshold? Is it lower than 1\% threshold?
+
+4. Can we reject the null hypothesis? Is there an association between body weight and plasma volume. 
+
+\newpage
+\section{Prediction}
+
+<<fig-prediction, echo=F, fig.height=5, fig.width=5, fig.pos="H", fig.align="center", fig.cap="Body weight vs. plasma volume">>=
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) 
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) 
+
+# Plot
+plot(weight, plasma, panel.first = grid(), pch=19, xlab="weight [kg]", ylab="plasma volume [l]")
+
+# Regression
+abline(lm(plasma~weight), col="red")
+
+@
+
+1. Given Figure \ref{fig:fig-prediction} predict `plasma volume` for weight values of 60, 65, and 70 kg
+
+2. Calculate predicted values of `plasma volume` for weight values of 60, 65 and 70 kg using the equation  $y_i'=\hat{\beta_0}+\hat{\beta_1}x_i'$
+
+$y_{60}'=$ \vspace{0.2cm}
+
+$y_{65}'=$ \vspace{0.2cm}
+
+$y_{70}'=$ \vspace{0.2cm}
+
+
+3. Calculate standard error for the predicted `plasma volume` for weight value of 60 kg \newline \vspace{0.4cm}
+
+$s.e.(y_i')=s\sqrt{[1+\frac{1}{n}+\frac{(x_i´-\overline{x_i})^2}{\sum_{i=1}^{n}(x_i-\overline{x_i})^2}]}=$ \vspace{0.2cm}
+
+\newpage
+\section{Asesssing the Accuracy of the Model \& Correlation}
+1. Using Given Figure \ref{fig:fig-prediction} try to calculate (estimate) the RSE. We will check which group gets results closeset to the computed ones. 
+
+2. Using lecture and this pen-and-paper docs, calculate $R^2$, i.e. do not use computer to calculated. Hint: most of the values have been reported / calculated before. It is ok to use mobiles for adding and dividing things up. \newline \vspace{0.2cm}
+
+$R^2=\frac{TSS-RSS}{TSS}=1-\frac{RSS}{TSS}=$ \vspace{0.2cm}
+
+3. Calculate correlation \newline \vspace{0.2cm}
+
+$Cor(X,Y)=\frac{\sum_{i=1}^{n}(x_i-\overline{x})(y_i-\overline{y})}{\sqrt{\sum_{i=1}^{n}(x_i-\overline{x})^2}\sqrt{\sum_{i=1}^{n}(y_i-\overline{y})^2}}=s$
+
+\newpage
+\section{Extra dataset to practise more}
+
+<<echo=F>>=
+
+men.height <- round(c(73, 68, 74, 71, 69, 67, 68, 68, 67, 63)*2.5)
+men.weight <- round(c(241, 162, 212, 220, 206, 152, 183, 167, 175, 156)/2.2)
+
+#plot(men.weight, men.height)
+#abline(lm(men.height~men.weight))
+
+@
+
+<<table-extra, echo=F, results='asis'>>=
+
+data.inp <- data.frame(weight=men.weight, height=men.height)
+data.empty <- matrix(data=NA, nrow=nrow(data.inp), ncol=6)
+data.table <- cbind(data.inp, data.empty)
+
+colnames(data.table) <- c("weight [kg]", "height [cm]",
+                        "$x_i-\\overline{x}$", "$y_i-\\overline{y}$", 
+                        "$(x_i-\\overline{x})(y_i-\\overline{y})$", 
+                        "$(x_i-\\overline{x})^2$", "$(y_i-\\overline{y})^2$", "$x^2$")
+
+column.width <- c(rep("|C{2.5cm}", ncol(data.table)+1))
+column.width[2:3] <- "|C{2.5cm}"
+#column.width[4:5] <- "|L{1.5cm}"
+column.width[6] <- "|C{3cm}"
+
+rws <- seq(1, (nrow(data.table)), by = 2)
+col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+print(xtable(data.table, align=column.width),
+  booktabs = TRUE,
+  add.to.row = list(pos = as.list(rws), command = col),
+  include.rownames=FALSE,
+  sanitize.text.function=function(x){x},
+  size="large"
+  )
+
+
+@
+
+
+<<exmpty-plot, echo=F, fig.align="center", fig.height=6, fig.width=6>>=
+
+plot(men.weight, men.height, type="n", panel.first = grid(), xlab="weight [kg]", ylab="height [cm]")
+
+@
+
+
+\end{document}  
+
+
+
+
