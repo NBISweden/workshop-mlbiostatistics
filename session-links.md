@@ -31,7 +31,12 @@ title:  'Session links'
 - Presentation: [PCA.pdf](session-pca_clustering/PCA.pdf)
 - Presentation: [Linear_Clustering.pdf](session-pca_clustering/Linear_Clustering.pdf)
 - Lab: [lab_PCA_Clustering.html](session-pca_clustering/lab_PCA_Clustering.html)
+- Rmd: [lab_PCA_Clustering.Rmd](session-pca_clustering/lab_PCA_Clustering.Rmd)
+- Data: [cpm.csv](session-pca_clustering/data/cpm.csv)
+- Metadata: [metadata.csv](session-pca_clustering/data/metadata.csv)
 - Lab: [Exploratory_questions.pdf](session-pca_clustering/Exploratory_questions.pdf)
+
+
 
 ###### What comes next & introduction to machine learning
 - [Regularization](session-regularization/session-regularization.md)
