@@ -15,6 +15,7 @@ title:  'Session links'
 - [Hypothesis tests](session-hypothesistest/session-hypothesistest.html)
 - Statistical theory and concepts: exercises [Rmd](session-foundations/biostatisticsexercises.Rmd) [html](session-foundations/biostatisticsexercises.html)
 - [Dice experiment](https://docs.google.com/spreadsheets/d/1t3jOucU48MVoCQGTbGyWe9SntFbHlHqGSCiqMptHhhs/edit?usp=sharing)
+- Presentation: [Multiple testing](session-hypothesistest/lecture-multipletesting.html)
 
 ###### Regression I
 - [Simple linear regression](session-regression-I/session-regression-I.pdf)
