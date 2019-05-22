@@ -660,7 +660,7 @@ The $\lambda$ parameter sets a limit on the estimation of $\beta$.
 
 Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
 
-$$min_{{\beta}}\left\{RSS\right\} - \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
+$$min_{{\beta}}\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
 
 <details>
 <summary> Extra Reading </summary>
