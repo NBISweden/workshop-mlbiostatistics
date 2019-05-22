@@ -24,6 +24,7 @@ title:  'Session links'
 ###### Regression II
 - [Multiple linear regression](session-regression-II/session-regression-II.pdf)
 - [Multiple linear regression: extra exercises](session-regression-II-extra/pen-and-paper-multple-regression.pdf)
+- [Advertising Data](session-regression-II-extra/data/Advertising.csv)
 
 ###### Unsupervised learning: PCA and clustering
 - Presentation: [PCA.pdf](session-pca_clustering/PCA.pdf)
