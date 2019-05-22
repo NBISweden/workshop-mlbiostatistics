@@ -36,12 +36,11 @@ title:  'Session links'
 - Metadata: [metadata.csv](session-pca_clustering/data/metadata.csv)
 - Lab: [Exploratory_questions.pdf](session-pca_clustering/Exploratory_questions.pdf)
 
-
-
 ###### What comes next & introduction to machine learning
 - [Regularization](session-regularization/session-regularization.md)
 
 ###### Wrap-up session & feedback
+- [Feedback form](https://forms.gle/txovofRkFksHewP6A)
 
 ----
 
