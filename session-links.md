@@ -38,6 +38,7 @@ title:  'Session links'
 
 ###### What comes next & introduction to machine learning
 - [Regularization](session-regularization/session-regularization.html)
+- [Intro to machine learning](session-ml/session-ml.html)
 
 ###### Wrap-up session & feedback
 - [Feedback form](https://forms.gle/txovofRkFksHewP6A)
