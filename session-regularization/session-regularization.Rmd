@@ -38,7 +38,7 @@ Consider a generative model, with parameters $\theta$, for how $X\rightarrow Y$.
 $Pr[Y| X, \theta]$,
 that is, the probability that the model with parameters $\theta$ and given $X$ generates $Y$. 
 
-Likelihood builds on the intuition that if $\theta$ (or the model) is close to the 'truth', then $Pr[Y| X, \theta]$ will be higher than for wrong $\theta$ (model). We should therefore select the $\theta$ that maximizes $Pr[Y| X, \theta]$; this is called maximum likelihood estimation of $\theta$.
+Likelihood builds on the intuition that if $\theta$ (or the model) is close to the 'truth', then $Pr[Y| X, \theta]$ will be higher than for wrong $\theta$ (model). We should therefore select the $\theta$ that maximizes $Pr[Y| X, \theta]$; this is called maximum likelihood estimation (MLE) of $\theta$.
 
 Since statistical model contain an element of randomness, the reasoning above might not always be correct for any single obeservation. However, if we sum over a large number of observations it will be true on average. Hence the need for datasets that are large enough.
 
@@ -96,7 +96,7 @@ Likelihood and maximum likelihood estimation are central concepts in statistics.
 <details>
 <summary> Lecture notes </summary>
 
-So, why have we used ordinary least squares (OLS) of  RSS when estimating linear model parameters $\beta$ rather than maximum likelihood estimation?
+So, why have we used ordinary least squares (OLS), i.e., minimization of  RSS when estimating linear model parameters $\beta$ rather than maximum likelihood estimation?
 
 Linear models is a special case with some nice properties when it comes to  likelihood. Consider a simple linear regression model,
 
@@ -106,7 +106,7 @@ where the residuals $\epsilon\sim N(0,\sigma^2)$.
 
 It turns out that the  likelihood estimates of both $\beta$ and $\sigma^2$ are functions of the  RSS of the residuals, so that the likelihood can be approximated by
 
-$$  \log L[\beta, \sigma^2|Y,X] \approx \frac{N}{2} \log RSS$$
+$$  \log L[\beta, \sigma^2|Y,X] \approx -\frac{N}{2} \log RSS$$
 
 <details>
 <summary> Extra Reading </summary>
@@ -157,7 +157,7 @@ First, you need some test data to play around with. For simplicity and convenien
 
 ### Task | `simulation of example data`
 * The data should comprise 100 samples. 
-* First generate 10 variables $(x_1,x_2,\ldots, x_{0})$ from a uniform distribution and store them in a Matrix $X$. 
+* First generate 10 variables $(x_1,x_2,\ldots, x_{0})$ from a uniform distribution (use the function `runif`) and store them in a Matrix $X$. 
 * Use an intercept $\beta_0=3$ 
 * Generate effect sizes $\beta_1, \beta_2, \beta_3$ from a Uniform distribution in the interval $(0.5, 1.0)$ for the 3 first $X$ variable (use the function `runif`); record the 'true' effect sizes for reference.
 * Finally generate outcome variable $Y$ using a linear model $Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon$, with $\epsilon\sim N(0,\sigma^2=1)$ (i.e., the residuals are drawn from a Normal distribution with mean=0 and standard deviation=1, *Tip:* use the R function `rnorm`).
@@ -168,12 +168,11 @@ set.seed(85)
 ```
 
 ```{r, echo=TRUE}
-N=100 # no samples
-P=10 # no variables
+N=100 # number of samples
+P=10 # number of variables
 
-# Draw variables, x_1,...,x_10, from a uniform distribution in interval (0,1)
-#X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
-X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P) 
+# Draw variables, x_{i,1},...,x_{i,P} for all N individuals, from a uniform distribution in interval (0,1) (this is the default interval for runif)
+X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
 
 # generate a y variable from a multivarite lm of 3 first X variables only
 # intercept
@@ -213,7 +212,7 @@ What are the max Likelihood estimates of the two models? (we can use the R funct
 
 ### Task | `plot two likelihoods`
 * Create `lm` models for the two models, and
-* store the likelihood
+* store the likelihood (use `logLik`) in a vector
 * plot the likelihoods
 
 ```{r,echo=T, fig.height=4, echo=TRUE, eval=FALSE}
@@ -251,9 +250,23 @@ plot(ll[seq(1,2)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c
 
 * Now repeat this for the sequence of models obtained by creating the next model by simply adding the next $X$ variable in order.
 
+```{r,echo=T, fig.height=4, echo=TRUE, eval=FALSE}
+# compute loglikelihood (ll) for all models including variables
+# 1-i, for i <= P; store results in vector ll
+ll= vector()
+for(i in seq(1,P)){
+  Xi=X[,seq(1,i)]
+  ll[i] <- logLik(lm(Y~Xi))
+}
+
+# plot ll for all models
+plot(ll[seq(1,P)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+
+```
+
 <details>
 <summary> *Show result*</summary>
-```{r,echo=T, fig.height=4}
+```{r,echo=T, fig.height=4, echo =FALSE}
 # compute loglikelihood (ll) for all models including variables
 # 1-i, for i <= P; store results in vector ll
 ll= vector()
@@ -344,7 +357,7 @@ $$\log rL[\beta | X, Y]  = \log Pr[Y | X, \beta] - f(\beta),$$
 
 A very simple regularized likelihood model uses $f(\beta) = \#\beta = \#X$, that is the number of $X$ variables.  
 $$\log rL[{\beta} | X, Y]  = \log Pr[Y | X, {\beta}] - \#X, $$
-where, in the regularization term, $\#X$ denote the _cardinality_ $X$, i.e., the number of variables in the model.
+
 
 Applying this rL to our example data, solves the overfitting problem.
 
@@ -410,17 +423,20 @@ $$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[{\beta}_{m}|X_m,Y]}{\max 
 
 ### Task | `AIC analysis`
 
-* A typical strategy is to select the model, $m$ with $AIC_m=AIC_{min}$ and then evaluate how much better it is than the other candidate models.
+* A typical strategy is to select the model, $m$ with $AIC_m=AIC_{min}$ and then evaluate how much better it is than the other candidate models, e.g., using the $relL$.
 
 * Apply this AIC strategy applied to our example data using the R funcion `AIC`
-* create a table with the AIC and the $relL$ for the set of models comprising $\{X_1, .\ldots, X_i\} \textrm{ for } i \in [1, \ldots, 10]$; indicate also if a model is the minim AIC model.
+* create a table with the AIC and the $relL$ for the set of models comprising $\{X_1, .\ldots, X_i\} \textrm{ for } i \in [1, \ldots, 10]$; indicate also if a model is the minimum AIC model.
 
 ```{r, echo=T, eval=FALSE}
 require(stats) 
 require(dplyr)      # used for nice table formatting
 require(kableExtra) # used for nice table formatting
-mprev <- lm(Y ~ X[,1])
-aic=data.frame(models=0, aic=0, isAICmin="-")
+
+mprev <- lm(Y ~ X[,1]) # current miminimum AIC model
+# dummyentry to be replaced
+aic=data.frame(models=0, aic=0, isAICmin="-") 
+
 for(i in seq(1,P)){
   m <- lm(Y ~ X[,seq(1,i)])
   fit = AIC(mprev,m)
@@ -467,15 +483,9 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 * Try to plot the $AIC$ and the $reL$ with the different models on the $X$-axis
 
 ```{r,echo=F, fig.height=4, echo=TRUE, eval=FALSE}
-require(stats)
-pl= vector() 
-for(i in seq(1,P)){
-  xi=X[,seq(1,i)]
-  fit = lm(Y~xi)
-  pl[i] = AIC(fit)
-}
+
 # plot AIC of all models
-plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
@@ -484,15 +494,9 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 <details>
 <summary> *Show result*</summary>
 ```{r,echo=F, fig.height=4, echo=FALSE}
-require(stats)
-pl= vector() 
-for(i in seq(1,P)){
-  xi=X[,seq(1,i)]
-  fit = lm(Y~xi)
-  pl[i] = AIC(fit)
-}
+
 # plot AIC of all models
-plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
@@ -522,7 +526,7 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 ***
 </details>
 
-* Now, I this case we happened to know that the first 3 variables was the right one, so the order we choose to include them was correct. However, in the general case, we do not know this. HOwsolve
+* Now, I this case we happened to know that the first 3 variables was the right one, so the order we choose to include them was correct. However, in the general case, we do not know this. How solve this?
   - Best subset method; involves testing all possible subsets, which is computationally time-consuming and dometimes unfeasible
   - Lasso
 
@@ -686,11 +690,17 @@ The LASSO model will be different depending on how we set $\lambda$. A problem i
 
 `glmnet` addresses this using *$k$-fold cross-validation* -- what is that?
 
+</details>
+
 ### Cross-validation | `How to test for overfitting`
+
+<details>
+<summary> Lecture notes </summary>
+
 The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error, MSE* ($=RSS/N$).
 Naturally, we want to minimize $MSE$, i.e., the error of the model. In our LASSO application, this means that we want to select the $\lambda$ that minimizes the $MSE$
 
-In cross validation, this approach is emaulated by partiotioning the data at hand into a *training* and  *test* (or *validation*) data set. The model parameters are estimated ('trained') on the the training data and the validated on the test data.
+In cross validation, this approach is emaulated by partioning the data at hand into a *training* and  *test* (or *validation*) data set. The model parameters are estimated ('trained') on the the training data and the validated on the test data.
 
 By chance, this may fail if the partitioning is 'non-representative'. A solution is to repeat the cross-validation procedure with another partioning.
 
@@ -712,7 +722,7 @@ Here we will limit ourselves to finding the minimum $\lambda$, called `lambda.mi
 </details>
 
 ### Task | `Determine optimal LASSO `$\lambda$` using cross-validation`
-* Use the function `cv.glmnet` to perform cross validation
+* Use the function `cv.glmnet` to perform cross validation (same options as for `glmnet`)
 * `plot` the cross-validation results 
 * Compare with the plot of estimated $\beta_i$ under different $\lambda$.
 * Determine the optimal $\lambda$ (the one with minimal error)
@@ -759,7 +769,7 @@ minlambda=cvglm$lambda.min
 </details>
 
 ### Task| `Final LASSO effect sizes`
-* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$).
+* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$). (Use function`coef`).
 
 ```{r, echo =T, eval=FALSE}
 require(dplyr)      # for nice table
