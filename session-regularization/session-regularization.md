@@ -171,7 +171,7 @@ N=100 # number of samples
 P=10 # number of variables
 
 # Draw variables, x_{i,1},...,x_{i,P} for all N individuals, from a uniform distribution in interval (0,1) (this is the default interval for runif)
-X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P)
 
 # generate a y variable from a multivarite lm of 3 first X variables only
 # intercept
@@ -222,7 +222,7 @@ for(i in seq(1,2)){
   ll[i] <- logLik(lm(Y~Xi))
 }
 # plot likelihoods for models with 1 and 2 vaiables
-plot(ll[seq(1,2)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 # xlim and ylim not really necessary here, but I can reuse the plot statement below, so the plots look similar
 ```
 
@@ -250,7 +250,7 @@ for(i in seq(1,P)){
 }
 
 # plot ll for all models
-plot(ll[seq(1,P)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 ```
 
 <details>
@@ -314,74 +314,74 @@ For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with $d=$ the differ
 <tbody>
   <tr>
    <td style="text-align:left;"> 1 vs 2 variables </td>
-   <td style="text-align:right;"> -139.86 </td>
-   <td style="text-align:right;"> -137.37 </td>
-   <td style="text-align:left;"> -2.492 </td>
-   <td style="text-align:left;"> 0.0256 </td>
+   <td style="text-align:right;"> -155.80 </td>
+   <td style="text-align:right;"> -146.90 </td>
+   <td style="text-align:left;"> -8.9 </td>
+   <td style="text-align:left;"> 2.45e-05 </td>
    <td style="text-align:left;"> yes </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 2 vs 3 variables </td>
-   <td style="text-align:right;"> -137.37 </td>
-   <td style="text-align:right;"> -136.00 </td>
-   <td style="text-align:left;"> -1.366 </td>
-   <td style="text-align:left;"> 0.0983 </td>
-   <td style="text-align:left;"> no </td>
+   <td style="text-align:right;"> -146.90 </td>
+   <td style="text-align:right;"> -136.73 </td>
+   <td style="text-align:left;"> -10.17 </td>
+   <td style="text-align:left;"> 6.48e-06 </td>
+   <td style="text-align:left;"> yes </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 3 vs 4 variables </td>
-   <td style="text-align:right;"> -136.00 </td>
-   <td style="text-align:right;"> -135.85 </td>
-   <td style="text-align:left;"> -0.1471 </td>
-   <td style="text-align:left;"> 0.588 </td>
+   <td style="text-align:right;"> -136.73 </td>
+   <td style="text-align:right;"> -136.69 </td>
+   <td style="text-align:left;"> -0.04215 </td>
+   <td style="text-align:left;"> 0.772 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 4 vs 5 variables </td>
-   <td style="text-align:right;"> -135.85 </td>
-   <td style="text-align:right;"> -135.73 </td>
-   <td style="text-align:left;"> -0.1271 </td>
-   <td style="text-align:left;"> 0.614 </td>
+   <td style="text-align:right;"> -136.69 </td>
+   <td style="text-align:right;"> -136.23 </td>
+   <td style="text-align:left;"> -0.4601 </td>
+   <td style="text-align:left;"> 0.337 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5 vs 6 variables </td>
-   <td style="text-align:right;"> -135.73 </td>
-   <td style="text-align:right;"> -135.27 </td>
-   <td style="text-align:left;"> -0.4527 </td>
-   <td style="text-align:left;"> 0.341 </td>
+   <td style="text-align:right;"> -136.23 </td>
+   <td style="text-align:right;"> -135.83 </td>
+   <td style="text-align:left;"> -0.4016 </td>
+   <td style="text-align:left;"> 0.37 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 6 vs 7 variables </td>
-   <td style="text-align:right;"> -135.27 </td>
-   <td style="text-align:right;"> -135.25 </td>
-   <td style="text-align:left;"> -0.0238 </td>
-   <td style="text-align:left;"> 0.827 </td>
+   <td style="text-align:right;"> -135.83 </td>
+   <td style="text-align:right;"> -135.35 </td>
+   <td style="text-align:left;"> -0.4803 </td>
+   <td style="text-align:left;"> 0.327 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 7 vs 8 variables </td>
-   <td style="text-align:right;"> -135.25 </td>
-   <td style="text-align:right;"> -135.22 </td>
-   <td style="text-align:left;"> -0.02914 </td>
-   <td style="text-align:left;"> 0.809 </td>
+   <td style="text-align:right;"> -135.35 </td>
+   <td style="text-align:right;"> -135.31 </td>
+   <td style="text-align:left;"> -0.04266 </td>
+   <td style="text-align:left;"> 0.77 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 8 vs 9 variables </td>
-   <td style="text-align:right;"> -135.22 </td>
-   <td style="text-align:right;"> -135.19 </td>
-   <td style="text-align:left;"> -0.02746 </td>
-   <td style="text-align:left;"> 0.815 </td>
+   <td style="text-align:right;"> -135.31 </td>
+   <td style="text-align:right;"> -135.30 </td>
+   <td style="text-align:left;"> -0.0002981 </td>
+   <td style="text-align:left;"> 0.981 </td>
    <td style="text-align:left;"> no </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 9 vs 10 variables </td>
-   <td style="text-align:right;"> -135.19 </td>
-   <td style="text-align:right;"> -134.79 </td>
-   <td style="text-align:left;"> -0.4047 </td>
-   <td style="text-align:left;"> 0.368 </td>
+   <td style="text-align:right;"> -135.30 </td>
+   <td style="text-align:right;"> -134.55 </td>
+   <td style="text-align:left;"> -0.7536 </td>
+   <td style="text-align:left;"> 0.22 </td>
    <td style="text-align:left;"> no </td>
   </tr>
 </tbody>
@@ -421,7 +421,7 @@ for(i in seq(1,P)){
   pl[i] = -AIC(fit)/2
 }
 # plot ll of all models
-plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
+plot(pl, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
 ```
 
 <img src="session-regularization_files/figure-html/unnamed-chunk-7-1.png" width="100%" />
@@ -518,63 +518,63 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 <tbody>
   <tr>
    <td style="text-align:left;"> 1 variable </td>
-   <td style="text-align:right;"> 285.71 </td>
+   <td style="text-align:right;"> 317.61 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.156453 </td>
+   <td style="text-align:left;"> 3.841e-08 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 2 variables </td>
-   <td style="text-align:right;"> 282.73 </td>
+   <td style="text-align:right;"> 301.80 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.694197 </td>
+   <td style="text-align:left;"> 1.041e-04 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 3 variables </td>
-   <td style="text-align:right;"> 282.00 </td>
+   <td style="text-align:right;"> 283.46 </td>
    <td style="text-align:left;"> Yes </td>
-   <td style="text-align:left;"> 1.000000 </td>
+   <td style="text-align:left;"> 1.000e+00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 4 variables </td>
-   <td style="text-align:right;"> 283.70 </td>
+   <td style="text-align:right;"> 285.38 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.427415 </td>
+   <td style="text-align:left;"> 3.829e-01 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5 variables </td>
-   <td style="text-align:right;"> 285.45 </td>
+   <td style="text-align:right;"> 286.46 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.178173 </td>
+   <td style="text-align:left;"> 2.231e-01 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 6 variables </td>
-   <td style="text-align:right;"> 286.55 </td>
+   <td style="text-align:right;"> 287.66 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.102797 </td>
+   <td style="text-align:left;"> 1.225e-01 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 7 variables </td>
-   <td style="text-align:right;"> 288.50 </td>
+   <td style="text-align:right;"> 288.70 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.038774 </td>
+   <td style="text-align:left;"> 7.280e-02 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 8 variables </td>
-   <td style="text-align:right;"> 290.44 </td>
+   <td style="text-align:right;"> 290.61 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.014699 </td>
+   <td style="text-align:left;"> 2.802e-02 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 9 variables </td>
-   <td style="text-align:right;"> 292.38 </td>
+   <td style="text-align:right;"> 292.61 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.005572 </td>
+   <td style="text-align:left;"> 1.031e-02 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10 variables </td>
-   <td style="text-align:right;"> 293.58 </td>
+   <td style="text-align:right;"> 293.10 </td>
    <td style="text-align:left;"> - </td>
-   <td style="text-align:left;"> 0.003058 </td>
+   <td style="text-align:left;"> 8.067e-03 </td>
   </tr>
 </tbody>
 </table>
@@ -586,8 +586,10 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 
 
 ```r
+require(stats)
+
 # plot AIC of all models
-plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(aic$aic)),ceiling(max(aic$aic))),ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
@@ -764,8 +766,8 @@ plot(fit, xvar="lambda",label=T)
 <summary> Some possible answers </summary>
 
 <h4>Some possible answers</h4>
-* The order appears to be $(3,2,1,6,4,10,5,8,7,9)$
-* $\beta_i > 0, i\in \{1,2,3,4,7,8\}$, while $\beta_i<0, i\in \{5,6,9,19\}$
+* The order appears to be $(1,2,3,7,6,5,10,9,4,8)$
+* $\beta_i > 0, i\in \{1,2,3,4,7,9\}$, while $\beta_i<0, i\in \{5,6,8,10\}$
 * Given *oracle knowledge*, the correct $\lambda$ appears lie somewhere in the interval $[\approx \exp(-2.1), \approx\exp(-2.5)]$
 * In the normal case, we do not have *oracle knowledge*.
 
@@ -779,8 +781,8 @@ plot(fit, xvar="lambda",label=T)
 
 The LASSO model will be different depending on how we set $\lambda$. A problem is to decide the optimal $\lambda$ to use. 
 
-* $\lambda$ too *low*: risk of missing relevant variables
-* $\lambda$ too *high*: risk of overfitting 
+* $\lambda$ too *high*: risk of missing relevant variables
+* $\lambda$ too *low*: risk of overfitting 
 
 `glmnet` addresses this using *$k$-fold cross-validation* -- what is that?
 
@@ -791,7 +793,7 @@ The LASSO model will be different depending on how we set $\lambda$. A problem i
 <details>
 <summary> Lecture notes </summary>
 
-The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error, MSE* ($=RSS/N$).
+The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error*, $MSE$ ($=RSS/N$).
 Naturally, we want to minimize $MSE$, i.e., the error of the model. In our LASSO application, this means that we want to select the $\lambda$ that minimizes the $MSE$
 
 In cross validation, this approach is emaulated by partioning the data at hand into a *training* and  *test* (or *validation*) data set. The model parameters are estimated ('trained') on the the training data and the validated on the test data.
@@ -848,7 +850,7 @@ minlambda=cvglm$lambda.min
 <summary> Some possible answers </summary>
 
 <h4>Some possible answers</h4>
-* Cross-validation-selected optimal lambda is 0.0875179
+* Cross-validation-selected optimal lambda is 0.1064891
 * Yes, this includes only the *oracle knowledge* correct variables $X_1, X_2, X_3$
 
 ***
@@ -859,6 +861,10 @@ minlambda=cvglm$lambda.min
 
 
 ```r
+# Actually the following suffice for output on console
+#coef(cvglm, s="lambda.min")
+
+# But to get a nice table:
 require(dplyr)      # for nice table
 require(kableExtra) #for nice table
 
@@ -876,29 +882,29 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
   <tr>
    <th style="text-align:right;"> beta </th>
    <th style="text-align:right;"> value (oracle) </th>
-   <th style="text-align:right;"> estimate(lambda=0.0875) </th>
+   <th style="text-align:right;"> estimate(lambda=0.106) </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 3.0000000 </td>
-   <td style="text-align:right;"> 3.7018933 </td>
+   <td style="text-align:right;"> 3.6046135 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 0.8125118 </td>
-   <td style="text-align:right;"> 0.1485417 </td>
+   <td style="text-align:right;"> 0.5905522 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 0.6009469 </td>
-   <td style="text-align:right;"> 0.4612657 </td>
+   <td style="text-align:right;"> 0.4631531 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 0.7232911 </td>
-   <td style="text-align:right;"> 0.2341136 </td>
+   <td style="text-align:right;"> 0.5204561 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 4 </td>
@@ -977,4 +983,4 @@ _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 _pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
 
 **loaded via a namespace (and not attached):** 
-_Rcpp(v.1.0.1)_, _pillar(v.1.3.1)_, _compiler(v.3.5.3)_, _highr(v.0.8)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.4)_, _rstudioapi(v.0.10)_, _yaml(v.2.2.0)_, _xfun(v.0.6)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _assertthat(v.0.2.1)_, _rvest(v.0.3.3)_, _colorspace(v.1.4-1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
+_Rcpp(v.1.0.1)_, _later(v.0.8.0)_, _compiler(v.3.5.3)_, _pillar(v.1.3.1)_, _highr(v.0.8)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _packrat(v.0.5.0)_, _jsonlite(v.1.6)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.4)_, _rstudioapi(v.0.10)_, _yaml(v.2.2.0)_, _xfun(v.0.6)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _xaringan(v.0.9)_, _servr(v.0.13)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _promises(v.1.0.1)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _rsconnect(v.0.8.13)_, _assertthat(v.0.2.1)_, _rvest(v.0.3.3)_, _mime(v.0.6)_, _colorspace(v.1.4-1)_, _httpuv(v.1.5.1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
