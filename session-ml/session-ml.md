@@ -1,4 +1,4 @@
-Session example
+Session Machine Learning
 ================
 
 ### Learning outcomes
