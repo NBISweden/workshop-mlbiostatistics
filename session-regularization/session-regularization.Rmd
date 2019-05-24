@@ -172,7 +172,7 @@ N=100 # number of samples
 P=10 # number of variables
 
 # Draw variables, x_{i,1},...,x_{i,P} for all N individuals, from a uniform distribution in interval (0,1) (this is the default interval for runif)
-X=matrix(runif(N*(P+1)), nrow=N, ncol=P) 
+X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P)
 
 # generate a y variable from a multivarite lm of 3 first X variables only
 # intercept
@@ -223,7 +223,7 @@ for(i in seq(1,2)){
   ll[i] <- logLik(lm(Y~Xi))
 }
 # plot likelihoods for models with 1 and 2 vaiables
-plot(ll[seq(1,2)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 # xlim and ylim not really necessary here, but I can reuse the plot statement below, so the plots look similar
 ```
 
@@ -232,12 +232,12 @@ plot(ll[seq(1,2)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c
 ```{r,echo=T, fig.height=4, echo=FALSE}
 require(stats)
 ll= vector()
-for(i in seq(1,2)){
+for(i in seq(1,P)){
   Xi=X[,seq(1,i)]
   ll[i] <- logLik(lm(Y~Xi))
 }
 # plot likelihoods for models with 1 and 2 vaiables
-plot(ll[seq(1,2)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+plot(ll[1:2], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 # xlim and ylim not really necessary here, but I can reuse the plot statement below, so the plots look similar
 ```
 
@@ -260,7 +260,7 @@ for(i in seq(1,P)){
 }
 
 # plot ll for all models
-plot(ll[seq(1,P)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 
 ```
 
@@ -276,7 +276,7 @@ for(i in seq(1,P)){
 }
 
 # plot ll for all models
-plot(ll[seq(1,P)], ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
+plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 
 ```
 
@@ -373,7 +373,7 @@ for(i in seq(1,P)){
   pl[i] = -AIC(fit)/2
 }
 # plot ll of all models
-plot(pl[seq(1,P)], xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
+plot(pl, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
 ```  
 
 </details>
@@ -483,9 +483,10 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 * Try to plot the $AIC$ and the $reL$ with the different models on the $X$-axis
 
 ```{r,echo=F, fig.height=4, echo=TRUE, eval=FALSE}
+require(stats)
 
 # plot AIC of all models
-plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(aic$aic)),ceiling(max(aic$aic))),ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
@@ -494,9 +495,10 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 <details>
 <summary> *Show result*</summary>
 ```{r,echo=F, fig.height=4, echo=FALSE}
+require(stats)
 
 # plot AIC of all models
-plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(aic$aic)),ceiling(max(aic$aic))),ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
 plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
@@ -670,8 +672,8 @@ plot(fit, xvar="lambda",label=T)
 <summary> Some possible answers </summary>
 
 <h4>Some possible answers</h4>
-* The order appears to be $(3,2,1,6,4,10,5,8,7,9)$
-* $\beta_i > 0, i\in \{1,2,3,4,7,8\}$, while $\beta_i<0, i\in \{5,6,9,19\}$
+* The order appears to be $(1,2,3,7,6,5,10,9,4,8)$
+* $\beta_i > 0, i\in \{1,2,3,4,7,9\}$, while $\beta_i<0, i\in \{5,6,8,10\}$
 * Given *oracle knowledge*, the correct $\lambda$ appears lie somewhere in the interval $[\approx \exp(-2.1), \approx\exp(-2.5)]$
 * In the normal case, we do not have *oracle knowledge*.
 
@@ -685,8 +687,8 @@ plot(fit, xvar="lambda",label=T)
 
 The LASSO model will be different depending on how we set $\lambda$. A problem is to decide the optimal $\lambda$ to use. 
 
-* $\lambda$ too *low*: risk of missing relevant variables
-* $\lambda$ too *high*: risk of overfitting 
+* $\lambda$ too *high*: risk of missing relevant variables
+* $\lambda$ too *low*: risk of overfitting 
 
 `glmnet` addresses this using *$k$-fold cross-validation* -- what is that?
 
@@ -697,7 +699,7 @@ The LASSO model will be different depending on how we set $\lambda$. A problem i
 <details>
 <summary> Lecture notes </summary>
 
-The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error, MSE* ($=RSS/N$).
+The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error*, $MSE$ ($=RSS/N$).
 Naturally, we want to minimize $MSE$, i.e., the error of the model. In our LASSO application, this means that we want to select the $\lambda$ that minimizes the $MSE$
 
 In cross validation, this approach is emaulated by partioning the data at hand into a *training* and  *test* (or *validation*) data set. The model parameters are estimated ('trained') on the the training data and the validated on the test data.
@@ -772,6 +774,10 @@ minlambda=cvglm$lambda.min
 * Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$). (Use function`coef`).
 
 ```{r, echo =T, eval=FALSE}
+# Actually the following suffice for output on console
+#coef(cvglm, s="lambda.min")
+
+# But to get a nice table:
 require(dplyr)      # for nice table
 require(kableExtra) #for nice table
 
