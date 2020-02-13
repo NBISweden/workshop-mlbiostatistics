@@ -3,7 +3,7 @@ layout: default
 title:  'Introduction to biostatistics and machine learning'
 ---
 
-##### <img border="0" src="icons/info.svg" width="40" height="40"> Info
+##### <img border="0" src="icons/info.svg" width="40" height="40"> Introduction to biostatistics and machine learning
 
 - 11th - 15th, May, 2020
 - SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308
