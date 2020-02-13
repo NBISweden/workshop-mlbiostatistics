@@ -30,7 +30,7 @@ National course open for PhD students, postdocs, researchers and other employees
 <br/>
 
 ##### <img border="0" src="icons/content.svg" width="40" height="40"> Course content
-- Introduction to R with R-Studio
+- Short introduction to R with R-Studio
 - Probability theory
 - Hypothesis testing and confidence intervals
 - Resampling
