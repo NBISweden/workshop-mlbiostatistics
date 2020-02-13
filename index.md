@@ -24,7 +24,7 @@ National course open for PhD students, postdocs, researchers and other employees
 - Application open: February, 14th, 2020
 - Application deadline:  March, 27th, 2020
 - Confirmation to accepted students: April, 5th, 2020
-- Course 11th - 15th, May, 2020
+- Course days: 11th - 15th, May, 2020
 
 
 <br/>
