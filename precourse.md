@@ -3,7 +3,11 @@ layout: default
 title:  'Pre-course material'
 ---
 
-# Pre-course
+<br/>
+##### <img border="0" src="icons/precourse.svg" width="40" height="40"> Pre-course information
+To be decided
+
+<!-- # Pre-course
 There are few things **to do** before the course starts. These include both setting up computers as well as pre-course studying. Please read carefully and follow the instructions so we can have a good start. Contact us in case anything in unclear.
 
 ## Content
@@ -140,4 +144,4 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
-[book-rai]: http://www.rwdc2.com/files/rafa.pdf
+[book-rai]: http://www.rwdc2.com/files/rafa.pdf -->
