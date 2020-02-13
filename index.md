@@ -38,7 +38,7 @@ National course open for PhD students, postdocs, researchers and other employees
 - Model selection
 - Unsupervised learning incl. clustering and dimension reduction methods
 - Supervised learning incl. classification
-- Primer on decision trees and Artificial Neural Network
+- Primer on decision trees and Artificial Neural Networks
 
 
 <br/>
