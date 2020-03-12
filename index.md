@@ -17,6 +17,8 @@ National course open for PhD students, postdocs, researchers and other employees
 - Application is open. Apply [here](https://forms.gle/wsjYYuujFMhUc2FV7)
 - or sign up [here](https://forms.gle/HFupumprMDaQfjRQA) and we will notify you when the application for the next course opens
 
+*COVID-19 and our event: we are following [Stockholm](https://www.su.se/english/about/news-and-events/information-for-students-and-staff-about-the-coronavirus-1.483182) and [Uppsala University recommendations](https://www.uu.se/en/students/recommendations-on-coronavirus/), incl. on organising events. We are hoping that the course can run as scheduled in May. In case of cancellations due to COVID-19 no fees will be charged, i.e. we warmly encourage your application at this stage and we will be in touch if any changes were to occur.*
+
 
 <br/>
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Important dates
