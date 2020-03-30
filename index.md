@@ -5,7 +5,7 @@ title:  'Introduction to biostatistics and machine learning'
 
 ##### <img border="0" src="icons/info.svg" width="40" height="40"> Introduction to biostatistics and machine learning
 
-- 11th - 15th, May, 2020
+- 16th - 20th, November, 2020
 - SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308
 
 National course open for PhD students, postdocs, researchers and other employees in need of biostatistical skills within all Swedish universities.  The course is geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods. It would also suit those already applying biostatistical methods but have never got a chance to reflect on and truly grasp the basic statistical concepts, such as the commonly misinterpreted p-value.
@@ -18,16 +18,16 @@ National course open for PhD students, postdocs, researchers and other employees
 - or sign up [here](https://forms.gle/HFupumprMDaQfjRQA) and we will notify you when the application for the next course opens
 
 
->*COVID-19 and our event: we are following [Stockholm](https://www.su.se/english/about/news-and-events/information-for-students-and-staff-about-the-coronavirus-1.483182) and [Uppsala University recommendations](https://www.uu.se/en/students/recommendations-on-coronavirus/), incl. on organising events. We are hoping that the course can run as scheduled in May. In case of cancellations due to COVID-19 no fees will be charged, i.e. we warmly encourage your application at this stage and we will be in touch if any changes were to occur.*
+<!-- >*COVID-19 and our event: we are following [Stockholm](https://www.su.se/english/about/news-and-events/information-for-students-and-staff-about-the-coronavirus-1.483182) and [Uppsala University recommendations](https://www.uu.se/en/students/recommendations-on-coronavirus/), incl. on organising events. We are hoping that the course can run as scheduled in May. In case of cancellations due to COVID-19 no fees will be charged, i.e. we warmly encourage your application at this stage and we will be in touch if any changes were to occur.* -->
 
 
 <br/>
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Important dates
 
 - Application open: February, 14th, 2020
-- Application deadline:  March, 27th, 2020
-- Confirmation to accepted students: April, 5th, 2020
-- Course days: 11th - 15th, May, 2020
+- Application deadline: September, 18th, 2020
+- Confirmation to accepted students: October, 2nd, 2020
+- Course days: 16th - 20th, November, 2020
 
 
 <br/>
