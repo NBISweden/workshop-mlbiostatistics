@@ -25,7 +25,7 @@ National course open for PhD students, postdocs, researchers and other employees
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Important dates
 
 - Application open: February, 14th, 2020
-- Application deadline: September, 18th, 2020
+- Application deadline: September, 14th, 2020
 - Confirmation to accepted students: October, 2nd, 2020
 - Course days: 16th - 20th, November, 2020
 
@@ -87,3 +87,8 @@ Unfortunately we do not have resources to financially or logistically support tr
 
 [eva]: https://nbis.se/about/staff/eva-freyhult/
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
+
+##### Contact us:
+- edu.ml-biostats@nbis.se
+- olga.dethlefsen@nbis.se
+- eva.freyhult@nbis.se
