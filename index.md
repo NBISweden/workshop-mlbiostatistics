@@ -97,8 +97,6 @@ Unfortunately we do not have resources to financially or logistically support tr
 [julie]: https://nbis.se/about/staff/julie-lorent/
 
 ##### <img border="0" src="icons/email.svg" width="40" height="40"> Contact us
-- edu.ml-biostats@nbis.se
-
-or
+- **edu.ml-biostats@nbis.se**
 - olga.dethlefsen@nbis.se
 - eva.freyhult@nbis.se
