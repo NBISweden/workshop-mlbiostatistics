@@ -8,6 +8,11 @@
 - prepare and test Zulip / Slack channel
 - prepare feedback survey
 - internet access (guest accounts)
+- door sign
+- pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses
+Statistical methods feelings
+
+
 
 #### participants
 ##### finalise participant list

@@ -75,8 +75,9 @@ Unfortunately we do not have resources to financially or logistically support tr
 
 <br/>
 ##### <img border="0" src="icons/diploma.svg" width="40" height="40"> Course credits
-- We cannot provide any formal university credits. Formal credits may be obtained by conferring with the home department given course duration and content.
-- Upon successful course completion we will issue NBIS course certificate.
+- Upon successful course completion, assessed based on active participation in all course session, we will issue a course certificate.
+
+- Please note that we are **not** able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40 h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.
 
 
 <br/>
@@ -85,6 +86,7 @@ Unfortunately we do not have resources to financially or logistically support tr
 - [Eva Freyhult][eva] <<eva.freyhult@nbis.se>>
 - [Bengt Sennblad][bengt] <<bengt.sennblad@scilifelab.se>>
 - [Payam Emami][payam] <<payam.emami@nbis.se>>  
+- [Julie Lorent][julie] <<julie.lorent@nbis.se>>
 
 <br/>
 
@@ -92,8 +94,11 @@ Unfortunately we do not have resources to financially or logistically support tr
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
 [payam]: https://nbis.se/about/staff/payam-emami/
+[julie]: https://nbis.se/about/staff/julie-lorent/
 
-##### Contact us:
+##### <img border="0" src="icons/email.svg" width="40" height="40"> Contact us
 - edu.ml-biostats@nbis.se
+
+or
 - olga.dethlefsen@nbis.se
 - eva.freyhult@nbis.se
