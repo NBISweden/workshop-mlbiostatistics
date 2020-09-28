@@ -48,7 +48,7 @@ National course open for PhD students, postdocs, researchers and other employees
 <br/>
 
 ##### <img border="0" src="icons/education.svg" width="40" height="40"> Education
-In this course we focus on an active learning approach. The course participants are expected to do some pre-course reading and exercises, corresponding up to 40h studying. The education consists of teaching blocks alternating between mini-lectures, group discussions, live coding sessions etc. A special focus is put on understanding basic concepts by solving problems with pen and paper.
+In this course we focus on an active learning approach. The course participants are expected to do some pre-course reading and exercises, corresponding up to 40h studying. The education consists of teaching blocks alternating between mini-lectures, group discussions, live coding sessions etc.
 
 <br/>
 
