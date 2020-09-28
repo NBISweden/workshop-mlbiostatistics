@@ -81,6 +81,13 @@ Unfortunately we do not have resources to financially or logistically support tr
 
 
 <br/>
+##### <img border="0" src="icons/virus.svg" width="40" height="40"> COVID-19
+- We are following responsible authorities' and university's recommendations when organising the course. Especially, to enable keeping the recommend social distance, the course is limited to 20 students and held in a large room, sitting up to 48 people. We will also set-up help desks do be able to help out with coding issues while keeping the recommended distance.
+- If we cannot run the course on site, due to change in authorities' recommendations, we will run the course online, free of charge.  
+
+
+
+<br/>
 ##### <img border="0" src="icons/team.svg" width="40" height="40"> Teaching team
 - [Olga Dethlefsen][olga] <<olga.dethlefsen@nbis.se>>
 - [Eva Freyhult][eva] <<eva.freyhult@nbis.se>>
