@@ -7,10 +7,9 @@
 - prepare .doc for SciLifeLab announcement and email education@scilifelab.uu.se
 - prepare and test Zulip / Slack channel
 - prepare feedback survey
-- internet access (guest accounts)
+- arrange internet access (guest accounts)
 - door sign
-- pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses
-Statistical methods feelings
+- pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses, statistical methods experience
 
 
 
@@ -18,8 +17,9 @@ Statistical methods feelings
 ##### finalise participant list
 - finalise students lists incl. up to 10 people on the waiting lists
 - notify students (accepted, on the waiting list, without the spot)
-- ask students to verify spots (and dietary requirements), if spots left email people on the waiting lists
-- add a note about COVID-19
+  - ask students to verify spots (and dietary requirements), if spots left email people on the waiting lists
+  - add a note about COVID-19
+- finalise and email out pre-course information (e.g. R and R-Studio installations, internet access)  
 
 #### finalise bookings and admin
 - prepare attendance list (2 per day)
