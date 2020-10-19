@@ -12,7 +12,6 @@
 - pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses, statistical methods experience
 
 
-
 #### participants
 ##### finalise participant list
 - finalise students lists incl. up to 10 people on the waiting lists
