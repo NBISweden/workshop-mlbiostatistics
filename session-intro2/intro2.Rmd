@@ -1,0 +1,1528 @@
+---
+title: "statsintro"
+author: "Bengt Sennblad"
+date: "9/30/2020"
+output: 
+  xaringan::moon_reader:
+    encoding: 'UTF-8'
+    self_contained: false
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: 'libs'
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+---
+class: inverse, middle, center
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=800px></html> 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
+
+
+library(ggplot2)
+library(qqman)
+```
+
+
+# Why Statistics?
+
+---
+
+# Content/aim
+
+
+
+.pull-left[
+## What do we want you to gain from this course?
+- Learn a selection statistical methods
+
+
+]
+---
+
+# Content/aim
+
+
+
+.pull-left[
+## What do we want you to gain from this course?
+- Learn a selection statistical methods
+
+### ...but, more importantly,
+- be able to, by yourselves, explore additional methods
+  - finding
+  - get a intuitive understanding
+  - evaluate assumptions
+    - know when to apply
+    - know when not to apply
+]
+--
+.pull-right[
+### How?
+- Go from black-box to understanding
+    -several levels
+      - models = assumptions
+      - tests -- test statistics
+      - overparmeterizations
+- Appreciate theory as a friend
+    - needed for understanding assumptions
+    - help when evaluating methods
+- basis/framework for learning more
+    - reading about statistical methods
+    - Basic math language
+      - not afraid of equations
+      - know some basic terminology
+
+]
+---
+class: inverse, middle, center
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=800px></html> 
+
+# Examples
+
+---
+
+# Example: Mouse knockout experiment
+
+### Setup
+Hypothesis: The low density lipoprotein (LDL) receptor gene *LDLR* affects the prevalence of hypercholsterolaemia.
+
+- 10 wildtype (wt) mice
+- 10 *LDLR* knockout (KO) mice
+
+Measure plasma concentration of total cholesterol at one time point after feeeding on high fat diet.
+
+???
+
+low-density lipoprotein
+---
+layout: true
+# Example: Mouse knockout experiment
+.pull-left[
+```{r mice1}
+set.seed(85)
+
+mean = c(0.55, 0.45)
+stddev = c(0.025, 0.025)
+mice = data.frame(
+  prevalence = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
+  model = c(rep("KO", 10), rep("wt", 10))
+)
+row.names(mice)=c(paste0("KO", 1:10), paste0("wt", 1:10))
+
+ggplot(mice, aes(y=prevalence, x=sample(row.names(mice))))+
+  xlab("mice") +
+  geom_point() +
+  theme_bw()
+
+```
+]
+---
+.pull-right[
+### Visualize results in a plot
+
+]
+---
+.pull-right[
+### Visualize results in a plot
+- Not so informative!
+- Let's improve
+]
+---
+layout: false
+layout: true
+# Example: Mouse knockout experiment
+
+.pull-left[
+```{r mice1a}
+ggplot(mice, aes(y=prevalence, x=model, fill=model))+
+  geom_boxplot() +
+  geom_point() +
+  theme_bw()
+
+```
+]
+
+---
+.pull-right[
+
+### Improved visualization
+  - Collect KO and wt separately as columns in a **boxplot**
+]
+
+---
+.pull-right[
+
+### Improved visualization
+  - Collect KO and wt separately as columns in a boxplot
+  ![black box warning](assets/blackbox.jpg)
+]
+
+---
+.pull-right[
+
+### Improved visualization
+  - Collect KO and wt separately as columns in a boxplot
+  - Visualize **distribution** of sample values using **descriptive statistics**
+      - *mean* 
+      - *quartiles*
+]
+---
+.pull-right[
+
+### Interpretation
+
+Intuitively, there is a clear difference between KO and wt in this plot...
+]
+???
+- 
+
+-- 
+.pull-right[
+What if the resuklt had looked different?
+
+]
+---
+layout: false
+# Example: Mouse knockout experiment
+
+.pull-left[
+```{r mice3}
+set.seed(85)
+mean = c(0.5, 0.5)
+stddev = c(0.025, 0.025)
+mice = data.frame(
+  prevalence = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
+  model = c(rep("KO", 10), rep("wt", 10))
+)
+
+ggplot(mice, aes(y=prevalence, x=model, fill=model))+
+  geom_boxplot() +
+  geom_point() +
+  theme_bw()
+
+```
+]
+.pull-right[
+
+### Interpretation
+
+...equally clearly, here is no difference between KO and wt...
+
+]
+---
+layout: true
+# Example: Mouse knockout experiment
+
+.pull-left[
+```{r mice4}
+set.seed(85)
+mean = c(0.525, 0.475)
+stddev = c(0.05, 0.05)
+mice = data.frame(
+  prevalence = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
+  model = c(rep("KO", 10), rep("wt", 10))
+)
+
+ggplot(mice, aes(y=prevalence, x=model, fill=model))+
+  geom_boxplot() +
+  geom_point() +
+  theme_bw()
+
+```
+]
+
+---
+.pull-right[
+
+### Interpretation
+
+... Now, the difference is less clear
+
+]
+---
+.pull-right[
+
+### Interpretation
+
+... Now, the difference is less clear
+
+... we get uncertain
+
+]
+---
+.pull-right[
+
+### Interpretation
+
+... Now, the difference is less clear
+
+... we get uncertain
+
+... Uncertainty best measured as probabilities!
+
+... with probabilities we can perform a **statistical test**
+]
+---
+.pull-right[
+
+### Interpretation
+
+... Now, the difference is less clear
+
+... we get uncertain
+
+... Uncertainty best measured as probabilities!
+
+... with probabilities we can perform a **statistical test**
+
+  ![black box warning](assets/blackbox.jpg)
+]
+
+---
+.pull-right[
+### Statistical tests
+
+#### Model
+- Abstractions of reality  probabilities
+- Simplifying assumptions
+  - Variation approximately $N(\mu,\sigma)$
+    
+#### Hypotheses
+- H0: $\mu$ and $\sigma$ same for KO and wt 
+- H1: $\mu$ might be different 
+
+#### Test
+- **P-value** $(p)$ =  probability of observation under H0
+- **significance level** $p\leq \alpha$
+]
+
+---
+layout: false 
+layout: true
+# Example: Mouse knockout experiment
+
+.pull-left[
+```{r mice5}
+set.seed(22)
+mean = c(0.5, 0.5)
+stddev = c(0.05, 0.5)
+mult = 0.5
+mice = data.frame(
+  prevalence = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2],  stddev[2])),
+  model = c(rep("KO", 10), rep("wt", 10))
+)
+
+ggplot(mice, aes(y=prevalence, x = model, fill=model))+
+  geom_boxplot() +
+  geom_point() +
+  theme_bw()
+
+```
+]
+---
+.pull-right[
+
+### Interpretation
+
+... what about here?.
+
+]
+
+
+---
+.pull-right[
+
+### Interpretation
+
+...what about here?.
+
+#### Tentative answer
+This might require testing hypotheses that also look at the *variance*
+
+]
+
+
+---
+layout: false
+layout: true
+# Example: regression
+```{r, regression1}
+alpha = 1.5
+beta = 1.5
+beta2 = 0.5
+stddev = 1
+rlin<-function(x, n=1, a=alpha, b=beta, s=stddev){
+  m = a+b*x
+  return(rnorm(n, m, s))
+}
+
+rlog<-function(x, n=1, a=alpha, b=beta, p){
+  p = exp(-(a+b*x))
+  return(rbinom(n, 1, 1/(1+p)))
+}
+
+log<-function(x, n=1, a=alpha, b=beta, p){
+  p = exp(-(a+b*x))
+  return(1/(1+p))
+}
+
+x = rnorm(10000, 0, 2)
+ylin1 = unlist(lapply(x, rlin))
+ylin2 = unlist(lapply(x, function(x) rlin(x, s=10)))
+ylog = unlist(lapply(x, rlog))
+ylin3 = unlist(lapply(x, function(x) rlin(x, b=beta2)))
+
+df = data.frame(x=x, ylin1  = ylin1, ylin2=ylin2,  ylog=ylog, ylin3=ylin3)
+p1=ggplot(df, aes(x=x, y=ylin1)) +
+  xlab("x") +
+  ylab("y") + 
+  geom_point()
+
+p2 = p1 + geom_abline(intercept=alpha, slope=beta, col="red")
+
+p3 = ggplot(df, aes(x=x, y=ylin2)) +
+  xlab("x") +
+  ylab("y") + 
+  geom_point() + 
+  geom_abline(intercept=alpha, slope=beta, col="red")
+
+p4=ggplot(df, aes(x=x, y=ylog)) +
+  xlab("x") +
+  ylab("y") + 
+  geom_point() + 
+  stat_function(fun=log, col="red")
+
+p5 = ggplot(df) +
+  xlab("x") +
+  ylab("y") + 
+  geom_point(aes(x=x, y=ylin1)) + 
+  geom_point(aes(x=x, y=ylin3)) 
+
+
+p6 = g= ggplot(df) +
+  xlab("x") +
+  ylab("y") + 
+  geom_point(aes(x=x, y=ylin1), col="red") + 
+  geom_point(aes(x=x, y=ylin3), col="blue")
+
+p7 = p6 +
+  geom_abline(intercept=alpha, slope=beta,  col="red") +
+  geom_abline(intercept=alpha, slope=beta2, col="blue") 
+
+p8 = p6 
+for(b in seq(-0.75, 0.75, 0.25)){
+  p8 = p8 +
+    geom_abline(intercept=alpha, slope=beta+b,  col="red")+
+    geom_abline(intercept=alpha, slope=beta2+b, col="blue") 
+}
+
+p9 = p6 
+for(b in seq(-0.05, 0.05, 0.05)){
+  p9 = p9 +
+    geom_abline(intercept=alpha, slope=beta+b,  col="red")+
+    geom_abline(intercept=alpha, slope=beta2+b, col="blue") 
+}
+```
+
+.pull-left[
+```{r, regression2}
+
+p1
+```
+]
+---
+.pull-right[
+Dependencies between variables
+
+- Relation between two variables -- **correlation**
+]
+
+???
+
+Hmnm try to find some biological example for this
+---
+.pull-right[
+Dependencies between variables
+
+- Relation between two variables -- **correlation**
+  ![black box warning](assets/blackbox.jpg)
+
+]
+ 
+???
+
+Actually, not going to throgh this here .. have to wait until the session on this
+---
+.pull-right[
+Dependencies between variables
+
+- Relation between two variables -- **correlation**
+
+- One variable depends on the other -- **regression**
+  - **fit** a **linear model** 
+]
+
+???
+
+Need some good biological example
+
+---
+.pull-right[
+Dependencies between variables
+
+- Relation between two variables -- **correlation**
+
+- One variable depends on the other -- **regression**
+  - **fit** a **linear model** 
+  ![black box warning](assets/blackbox.jpg)
+]
+---
+layout: false
+layout: true
+# Example: regression
+
+.pull-left[
+```{r, regression3}
+p2
+```
+]
+---
+.pull-right[
+## Linear model
+
+- Extend our previous model
+  - Variation approximately $N(\mu,\sigma)$  
+  *and*
+  - $\mu = \alpha +\beta x$ 
+       
+
+]
+
+???
+Maybe this can suffice as hierarchical model example instead...?
+---
+.pull-right[
+## Linear model
+
+- Extend our previous model
+  - Variation approximately $N(\mu,\sigma)$  
+  *and*
+  - $\mu = \alpha +\beta x$ 
+
+- Uses
+  1. Simulation
+      - validating methods
+
+]
+---
+.pull-right[
+## Linear model
+
+- Extend our previous model
+  - Variation approximately $N(\mu,\sigma)$  
+  *and*
+  - $\mu = \alpha +\beta x$ 
+
+- Uses
+  1. Simulation
+      - validating methods
+  2. Inference 
+      - **regression**
+          - optimal $\alpha$ and $\beta$ values
+
+
+]
+???
+- $\beta$ tells how strongly y depend on x
+- not always this simple
+---
+layout: false
+layout: true
+# Example: regression
+
+.pull-left[
+```{r, regression4}
+p3
+```
+]
+
+---
+.pull-right[
+## Linear model
+
+- Extend our previous model
+  - Variation approximately $N(\mu,\sigma)$  
+  *and*
+  - $\mu = \alpha +\beta x$ 
+
+- Uses
+  1. Simulation
+      - validating methods
+  2. Inference 
+      - **regression**
+          - optimal $\alpha$ and $\beta$ values
+
+
+]
+
+???
+
+- much higher $\sigma=10$ (before $\sigma=1$)
+---
+layout: false
+layout: true
+# Example: regression
+
+.pull-left[
+```{r, regression5}
+p4
+```
+]
+---
+.pull-right[
+... What about here
+
+
+]
+---
+.pull-right[
+... What about here
+
+## Non-linear dependencies
+
+]
+---
+.pull-right[
+... What about here
+
+## Non-linear dependencies
+
+- **Generalized linear models (GLMs)**
+  ![black box warning](assets/blackbox.jpg)
+
+]
+---
+layout: false
+# Hierarchical models
+
+.pull-left[
+```{r, hierarchical1}
+
+p1
+```
+]
+.pull-right[
+
+Linear model can be viewed as a hierarchical model
+
+- $y \sim N(\mu, \sigma)$
+    - $\mu = \beta x$
+
+]
+
+#### [I should try to find  better example for overparmeterization!? -- and skip his example
+  - fits beeter with multivariate?
+  - Although this is neat in some ways (but not all)]
+---
+# Hierarchical models
+
+.pull-left[
+```{r, hierarchical2}
+p5
+
+```
+]
+.pull-right[
+
+What is this?
+
+... could it be related to gender
+
+
+]
+---
+# Hierarchical models
+
+.pull-left[
+```{r, hierarchical3}
+p6
+
+```
+]
+.pull-right[
+
+What is this?
+
+... could it be related to gender
+
+(This is not the most common solution, but let's play with hierarchical models)
+]
+---
+layout: true
+# Hierarchical models
+
+.pull-left[
+```{r, hierarchical4}
+p7
+
+```
+]
+---
+.pull-right[
+
+- Extended hierarchical model
+  - $y \sim N(\mu, \sigma)$
+  - $\mu = \beta x$
+  - $\beta = \begin{cases} \beta_f & \textrm{for females}\\ \beta_m & \textrm{for males}\end{cases}$
+
+... Let's play some more...  
+
+]
+
+???
+
+- Note! To simplify, I've used normalized valies so $\alpha=0$
+---
+.pull-right[
+
+- Extended hierarchical model
+  - $y \sim N(\mu, \sigma)$
+  - $\mu = \beta x$
+  - $\beta = \begin{cases} \beta_f & \textrm{for females}\\ \beta_m & \textrm{for males}\end{cases}$
+  - $\sigma = \begin{cases} \sigma_f & \textrm{for females}\\ \sigma_m & \textrm{for males}\end{cases}$
+
+
+]
+---
+layout: false
+layout: true
+# Over-parameterization
+
+.pull-left[
+```{r, hierarchical5}
+p8
+```
+]
+
+---
+
+.pull-right[
+
+- Extended hierarchical model
+  - $y \sim N(\mu, \sigma)$
+  - $\mu = \beta x$
+  - $\beta = \begin{cases} \beta_f & \textrm{for females}\\ \beta_m & \textrm{for males}\end{cases}$
+  - $\sigma = \begin{cases} \sigma_f & \textrm{for females}\\ \sigma_m & \textrm{for males}\end{cases}$
+
+]
+
+---
+
+.pull-right[
+
+- Extended hierarchical model
+  - $y \sim N(\mu, \sigma)$
+  - $\mu = \beta x$
+  - $\beta = \begin{cases} \beta_f & \textrm{for females}\\ \beta_m & \textrm{for males}\end{cases}$
+  - $\sigma = \begin{cases} \sigma_f & \textrm{for females}\\ \sigma_m & \textrm{for males}\end{cases}$
+- Several solution become equally probable! Too many parameters to estimate! **over-parameterization**
+- Solution is to limit the parameter space by **regularization**, **feature selection** or  *Bayesian statistics*
+
+]
+---
+
+.pull-right[
+- Extended hierarchical model
+  - $y \sim N(\mu, \sigma)$
+  - $\mu = \beta x$
+  - $\beta = \begin{cases} \beta_f & \textrm{for females}\\ \beta_m & \textrm{for males}\end{cases}$
+  - $\sigma = \begin{cases} \sigma_f & \textrm{for females}\\ \sigma_m & \textrm{for males}\end{cases}$
+- Several solution become equally probable! Too many parameters to estimate! **over-parameterization**
+- Solution is to limit the parameter space by **regularization**, **feature selection** or  *Bayesian statistics*
+
+  ![black box warning](assets/blackbox.jpg)
+]
+
+???
+
+- Leave this black box unexplained for the time being, see course:)
+
+---
+layout: false
+layout: true
+# Example: GWAS
+.pull-left[
+```{r, gwas, cache=TRUE}
+chromlengths=c(
+  247249719,
+  242951149,
+  199501827,
+  191273063,
+  180857866,
+  170899992,
+  158821424,
+  146274826,
+  140273252,
+  135374737,
+  134452384,
+  132349534,
+  114142980,
+  106368585,
+  100338915,
+  88827254,
+  78774742,
+  76117153,
+  63811651,
+  62435964,
+  46944323,
+  49691432,
+  154913754,
+  57772954
+)
+
+m = length(chromlengths)
+n=5000
+gwas = data.frame(
+  P=unlist(lapply(1:(n*m), function(x) runif(1,0,1))),
+  BP=unlist(lapply(chromlengths, function(x) sample(1:x, n, replace =FALSE))),
+  CHR = unlist(lapply(seq(1,m), function(x) rep(x, 5000)))
+  )
+
+manhattan(gwas, suggestiveline=FALSE, genomewideline=FALSE)
+
+```
+
+]
+---
+.pull-right[
+
+### Manhattan plot
+
+- Individual association test for each SNP and disease
+- $-log_{10}$ P-value against genomic position
+
+]
+
+???
+-log(0.05) = 1.30103
+- thousands of associations
+---
+
+.pull-right[
+
+### Manhattan plot
+
+- Individual association test for each SNP and disease
+- $-log_{10}$ P-value against genomic position
+
+#### *Multiple tests*
+- Repeated experiments are more likely to succeed under H0
+
+
+]
+
+???
+
+- Discuss repeated dice throws
+- This manhattan plot is actually generated under the null model
+---
+.pull-right[
+
+### Manhattan plot
+
+- Individual association test for each SNP and disease
+- $-log_{10}$ P-value against genomic position
+
+#### *Multiple tests*
+- Repeated experiments are more likely to succeed under H0
+
+#### Multiple test correction
+- **Bonferroni, False Discovery Rate (FDR)**
+
+]
+
+---
+.pull-right[
+
+### Manhattan plot
+
+- Individual association test for each SNP and disease
+- $-log_{10}$ P-value against genomic position
+
+#### *Multiple tests*
+- Repeated experiments are more likely to succeed under H0
+
+#### Multiple test correction
+- **Bonferroni, False Discovery Rate (FDR)**
+  ![black box warning](assets/blackbox.jpg)
+
+]
+
+
+---
+layout: false
+layout: true
+# Multivariate analysis
+
+.pull-left[
+```{r, multivariate}
+library(plot3D)
+
+df = data.frame(x=c(x,x),y=c(rep(1, length(x)), rep(2, length(x))), z=c(ylin1, ylin3))
+#df = data.frame(x=c(x,x),y=c(rnorm(length(x), mean=1, sd=0.00001), rnorm(length(x), 2, 0.00001)), z=c(ylin1, ylin3))
+
+scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="gender", zlab="y", phi=20, theta=-50, ylim=c(0,3))
+#scatter3D(x=df$x, z=df$z, y=df$y)
+
+
+
+# gamma=0.5
+# rmlin<-function(x, z, n=1, a=alpha, b=beta, c=gamma, s=2){
+#   m = a+b*x+c*x
+#   return(rnorm(n, m, s))
+# }
+# 
+# z= rnorm(10000, 1,1)
+# ylin4 = unlist(lapply(1:length(z), function(n) rmlin(x[n], z[n])))
+# df = data.frame(x=x,z=z, y=ylin4)
+# 
+# scatter3D(x=x,y=z, z=ylin4,xlab="x", ylab="z", zlab="y", phi=10, theta=40)
+```
+]
+---
+.pull-right[
+## Multivariate regression
+- We can visualize models with 3 variables
+- and write an equation for this:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender\end{cases}$
+
+ 
+]
+
+---
+.pull-right[
+## Multivariate regression
+
+ 
+]
+
+---
+.pull-right[
+## Multivariate regression
+
+ ![black box warning](assets/blackbox.jpg) 
+]
+
+---
+.pull-right[
+## Multivariate regression
+
+- We can visualize models with 3 variables
+- and write an equation for this:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender\end{cases}$
+- For >3 variables, visualization breaks...
+- but we can still write it as an equation:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender + \delta age\end{cases}$
+
+
+]
+---
+.pull-right[
+## Multivariate regression
+
+- We can visualize models with 3 variables
+- and write an equation for this:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender\end{cases}$
+- For >3 variables, visualization breaks...
+- but we can still write it as an equation:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender + \delta age\end{cases}$
+]
+---
+.pull-right[
+## Multivariate regression
+
+- We can visualize models with 3 variables
+- and write an equation for this:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender\end{cases}$
+
+ 
+- For >3 variables, visualization breaks...
+- but we can still write it as an equation:  
+$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma gender + \delta age\end{cases}$
+
+- Big Data $\Rightarrow$ risk for over-parameterization $\Rightarrow$ feature selection [Better here?]
+
+]
+
+---
+layout: false
+layout: true
+# Big data - Machine learning
+
+## PCA and clustering
+
+.pull-left[
+```{r, pca}
+
+pca = prcomp(iris[,1:4], scale=T)
+pca_plot <- data.frame(x = pca$x[,"PC1"], y = pca$x[,"PC2"], Groups = factor(x=(iris$Species=="setosa"), labels=c("cluster 1","cluster 2")))
+p=ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  #scale_color_manual(values=mycolors) +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+print(p)
+
+
+```
+]
+---
+.pull-right[
+
+### Feature selection with PCA
+
+- **linear transformation** of original variables into new *hidden variables*, components/factors
+
+### Clustering
+- identify groups based on hidden variables
+]
+---
+.pull-right[
+
+### Feature selection with PCA
+
+- **linear transformation** of original variables into new *hidden variables*, components/factors
+
+### Clustering
+- identify groups based on hidden variables
+  ![black box warning](assets/blackbox.jpg)
+
+]
+---
+layout: true
+
+# Big data - Machine learning
+```{r, plotfunctions, echo=F, message=F,eval=T}
+
+require(igraph)
+
+plotNeuron<-function(label='p',inv=3, cex=2, wsigma=T, main="", znotb=F){
+  #nodes
+  nodes = c(paste0('a',1:inv), label, 'aout')
+  vertices = vector()
+  for(v in 1:inv){
+    vertices = c(vertices, eval(bquote(expression("a'"[.(v)]))))
+  }
+  if(znotb){
+    vertices = c(vertices,expression('b'*symbol('\336')*'z'))
+  }else{
+    vertices = c(vertices, 'b')
+  } 
+  vertices = c(vertices, expression("a"))
+  # vertex shape
+  shapes = c(rep('none',inv),'circle', 'none')
+  # coordinates
+  x = c(rep(-1,inv), 0, 1)
+  mid = inv-1 # inv/400000
+  y = c((1:inv-1)/mid-0.5, 0,0)
+  #edges
+  edges = vector()
+  for(e in c(1:inv)){
+    edges= c(edges, eval(bquote(expression('w'[.(e)]))))
+  }
+  if(wsigma){
+    edges = c(edges, expression(sigma))
+  }else{
+    edges = c(edges, expression(''))
+  }
+  fromv = c(paste0('a',1:inv), label)
+  tov = c(rep(label,inv), 'aout')
+  # getting it all together
+  NodeList <- data.frame(nodes, x ,y)
+  EdgeList <- data.frame(fromv, tov)
+  # the graph
+  ret<- graph_from_data_frame(vertices = NodeList, d=EdgeList, directed = TRUE)
+  # DEcorate wih names and shapes
+  E(ret)$label = edges
+  V(ret)$shape = shapes
+  #V(ret)$color = colors
+  #V(ret)$frame.color = frame.colors
+  V(ret)$label = vertices
+  #plot
+  par(mar=c(0,0,0,0)+1)
+  plot(ret, scale=F,frame=F,asp=0.5, main=main, #margin=c(-1,-.2,-1,-.2),
+       vertex.size=cex*20,
+       vertex.label.dist=0, 
+       vertex.label.cex=cex,
+#       vertex.color="yellow", 
+       edge.width=3,
+       edge.label.cex =cex,
+       edge.label.dist=-20,
+       edge.arrow.size=cex,
+       edge.color="green"
+  )
+}
+
+
+plotAnn<-function(layers, cex = 2, main="", withY=FALSE, ylab =NULL, highlight=vector()){
+  nodes = vector()
+  x=vector()
+  y=vector()
+  fromv=vector()
+  tov=vector()
+  edges=vector()
+  vertices=vector()
+  prev = vector()
+  shapes = vector()
+  colors = vector()
+  frame.colors = vector()
+  
+  xmid = length(layers) - 1
+  if(withY)
+  {
+    xmid = length(layers)
+  }
+  ymaxmid = max(unlist(layers))-1
+  for(i in 1:length(layers)){
+    l = names(layers)[i]
+    n = layers[[i]]
+    # colors
+    thiscol="green"
+    if(l %in% highlight){
+      thiscol="red"
+    }
+    # all vertices in layer plus layer label
+    curr = paste0(l,seq(1,n))
+    if(withY && i==length(layers)){
+      if(! is.null(ylab) && length(ylab) != n){
+        stop("length of ylab must match length of output layer!")
+      }
+      currY = c(outer(c(l,"y"),seq(1,n), "paste0"))
+      nodes = c(nodes,paste0(l,0), currY)
+    }else{
+      nodes = c(nodes,paste0(l,0), curr)
+    }
+    # layer label and position
+    vertices = c(vertices,  eval(bquote(expression(.(l)))))
+    shapes = c(shapes,'square')
+    colors = c(colors ,NA)
+    frame.colors = c(frame.colors ,NA)
+    x = c(x,2*(i-1)/xmid-1) 
+    y = c(y,0.75) #
+    # each vertex label and position
+    ymid = n-1
+    pref='b'
+    if(withY){
+      pref='a'
+    }
+    if(i == 1){
+      pref='x'
+    }
+    for(v in 1:n){
+      vertices = c(vertices, eval(bquote(expression(.(pref)[.(v)]))))
+      shapes = c(shapes,'circle')
+      colors = c(colors ,thiscol)
+      frame.colors = c(frame.colors ,'black')
+      x = c(x,2*(i-1)/xmid-1) 
+      if(n==1){
+        y = c(y,0)
+      }else{     
+        y = c(y,((v-1)/ymid-0.5)*ymid/ymaxmid)
+      }
+      if(withY && i == length(layers)){
+        if(is.null(ylab)){
+          vertices = c(vertices, eval(bquote(expression('y'[.(v)]))))
+        }else{
+          vertices = c(vertices, ylab[v])
+        }
+        shapes = c(shapes,'square')
+        colors = c(colors ,NA)
+        frame.colors = c(frame.colors ,NA)
+        x = c(x,(2*(i-1)+1)/xmid-1) 
+        if(n==1){
+          y = c(y,0)
+        }else{     
+          y = c(y,((v-1)/ymid-0.5)*ymid/ymaxmid)
+        }
+      }
+    }
+    # edges
+    j = 0
+    for(p in prev){
+      j = j + 1
+      k = 0
+      for(c in curr){
+        k = k + 1 
+        fromv = c(fromv, p)
+        tov = c(tov, c)
+        if(withY){
+          edges = c(edges, "")
+        }else{
+          edges = c(edges, eval(bquote(expression("w"[paste(.(j),',',.(k))]))))
+        }
+      }
+    }
+    prev=curr
+  }
+  NodeList <- data.frame(nodes, x ,y)
+  EdgeList <- data.frame(fromv, tov)
+  ret<- graph_from_data_frame(vertices = NodeList, d=EdgeList, directed = TRUE)
+  E(ret)$label = edges
+  V(ret)$shape = shapes
+  V(ret)$color = colors
+  V(ret)$frame.color = frame.colors
+  V(ret)$label = vertices
+  par(mar=c(0,0,0,0)+1)
+  plot(ret, scale=F, frame=F, asp=0.75, main=main, cex.main=cex, #margin=c(-1,-.2,-1,-.2),
+       vertex.size=60/ymaxmid,
+       vertex.label.dist=0, 
+       vertex.label.cex=cex,
+#       vertex.color="yellow", 
+       edge.label.cex = cex,
+       edge.label.dist=-20,
+       edge.arrow.size = cex/2,
+       edge.width=cex*2,
+       edge.color="green"
+  )
+
+}
+```
+
+
+## Artificial neural network (ANN)
+
+- **Train** ANN to learn which variables are important and how to combine them to predict the right answer.
+
+
+---
+.pull-left[
+```{r, ann1, results='asis'} 
+for(row in 1:2){
+  cat("<br>")
+}
+cat("\n")
+cat('<p style="text-align: center; font-size:2em;">')
+  cat("Some Big Data \nmultivariate input!\n")
+cat('</p>')
+cat("\n")
+```
+].pull-right[
+```{r, ann2, fig.height=6}
+layers =list("0"=4, "1"=5, "3"=4,"L"=3)
+ylab=c("cat=0", "dog=1", "cow=0")
+plotAnn(layers, cex=1.5, withY=T, ylab=ylab)
+```
+]
+---
+.pull-left[
+##### Input  could be, e.g.,  images
+```{r, ann3, out.width=200, fig.align='right'} 
+#, out.width="50%", fig.align='center', fig.asp=0.5, dpi=600}
+knitr::include_graphics('assets/Nora.jpeg')
+
+```
+].pull-right[
+```{r, ann4, fig.height=6}
+layers =list("0"=4, "1"=5, "3"=4,"L"=3)
+ylab=c("cat=0", "dog=1", "cow=0")
+plotAnn(layers, cex=1.5, withY=T, ylab=ylab)
+```
+]
+---
+.pull-left[
+#####  ... or Input could be genome sequences...
+```{r, ann5, results='asis'} 
+cat(paste0("...", paste0(sample(c("A", "C","G","T"), 27, replace=TRUE), collapse="")))
+cat("\n")
+for(row in 1:7){
+  cat(paste0(sample(c("A", "C","G","T"), 30, replace=TRUE), collapse=""))
+  cat("\n")
+}
+cat(paste0(paste0(sample(c("A", "C","G","T"), 27, replace=TRUE), collapse=""), "..."))
+```
+]
+.pull-right[
+```{r, ann6, fig.height=6}
+layers =list("0"=4, "1"=5, "3"=4,"L"=3)
+ylab=c("cat=0", "dog=1", "cow=0")
+plotAnn(layers, cex=1.5, withY=T, ylab=ylab)
+```
+]
+
+---
+.pull-left[
+#####  This is of course a major...
+![black box warning](assets/blackbox.jpg)
+]
+.pull-right[
+```{r, ann8, fig.height=6}
+layers =list("0"=4, "1"=5, "3"=4,"L"=3)
+ylab=c("cat=0", "dog=1", "cow=0")
+plotAnn(layers, cex=1.5, withY=T, ylab=ylab)
+```
+
+]
+
+
+
+ 
+ 
+???
+This is of course a major black box
+
+
+---
+layout: false
+# Bayesian statistics example: phylogeny
+
+
+```{r, phylogeny1, include = FALSE}
+library(ape)
+library(ggtree)
+library(phangorn)
+library(gridExtra)
+library(dplyr)
+library(tidytree)
+library(phytools)
+
+pl=list()
+par(mfrow=c(1,2))
+data(Laurasiatherian)
+subset = c( 39, 28, 47, 20, 38, 21, 34,  8, 23) #sample(5:length(Laurasiatherian), 9)
+l= Laurasiatherian[c(1, subset),]
+
+lcol = rep("0", length(l))
+names(lcol)=names(l)
+lcol["Baboon"]="2"
+lcol[names(lcol) %in% c("CaneRat", "Dormouse") ] = "1"
+
+
+d = dist.ml(l)
+
+doGgtree<-function(mytree, branchlength="branch.length", xlimmax=0.25, leafcol=lcol, title=""){
+  fit <- MPR(leafcol, mytree, "Platypus") #
+  #fit <- fastAnc(mytree, leafcol, vars=TRUE, CI=TRUE)
+  leafcol <- data.frame(node = nodeid(mytree, names(lcol)),
+                        trait = leafcol)
+  vertexcol <- data.frame(node = row.names(fit), trait = fit[,"lower"])
+  vertexcol["19",] = c("19","0")
+  col <- rbind(leafcol, vertexcol)
+  col$node <- as.numeric(col$node)
+  mytree=ladderize(root(mytree, 1, resolve.root=TRUE))
+  mytree <- full_join(mytree, col, by = 'node')
+
+  t=  ggtree(mytree, aes(x,y,color=trait), branch.length=branchlength) + 
+      geom_tree() + 
+      theme_tree() + 
+      geom_tiplab(size=3)+ 
+      geom_nodelab(size=3)+ 
+      scale_color_manual(values=c("0"="black", "2"='red', "1"='green')) +
+      ggtitle(title) +
+      ggplot2::xlim(0, xlimmax)
+  return(t)
+}
+
+nj = NJ(d)
+PP = c("","","","","","","","","","","",0.60,0.89,0.92,0.97,0.95,0.94, 0.96, 0.54)
+p=doGgtree(nj, branchlength="none",xlimmax=10)
+p1=doGgtree(nj, branchlength="none", xlimmax=10, title="NJ")
+q1=doGgtree(nj, title="NJ")
+
+bnj = bionj(d)
+p2=doGgtree(bnj, branchlength="none", xlimmax=10, title="BioNJ")
+q2=doGgtree(bnj, title="BioNJ")
+
+p3 = p +  geom_text(aes(label=PP), hjust=-.5)
+
+t = ggtree(nj, aes(x,y)) + 
+  geom_tree() +      
+  theme_tree()
+dummy = ggplot() +
+  annotate("text", x = 0, y = 0, size=8, label = "...") + 
+  theme_void()
+
+```
+.pull-left[
+```{r, phylogeny2}
+multiplot(p1, p2, ncol=2)
+```
+]
+.pull-right[
+## Clustering methods
+- works with pairwise distances
+- fast
+- single solution
+
+### Problem 
+- different methods yield different solutions
+
+
+---
+# Bayesian statistics example: phylogeny
+
+.pull-left[
+```{r, phylogeny3}
+multiplot(q1, q2, ncol=2)
+```
+]
+.pull-right[
+## Robust?
+- Using branch lengths as a measure, there is little support for either placement
+]
+---
+layout: true
+# Bayesian statistics example: phylogeny
+
+.pull-left[
+```{r, phylogeny4}
+
+
+r = 10
+c = 10
+
+pl=list()
+m=0
+for(i in 1:r){
+  for(j in 1:(c-1)){
+    m=m+1
+    pl[[m]] = t
+  }
+  m=m+1
+  pl[[m]] = dummy
+}
+grid.arrange(grobs=pl, ncol=c)
+#multiplot(grobs=pl, ncol=2)
+```
+]
+---
+.pull-right[
+## In fact there are multiple possible trees
+
+- Is one better than the other?
+]
+
+
+---
+.pull-right[
+## In fact there are multiple possible trees
+
+- Is one better than the other?
+
+### *Frequentist approach*
+  - hypothesis test
+  
+  
+
+]
+
+---
+.pull-right[
+## In fact there are multiple possible trees
+
+- Is one better than the other?
+
+### *Frequentist approach*
+  - hypothesis test
+  
+### *Bayesian approach*
+  - assign *posterior probabilities* of each tree given data
+  - Look at the whole distribution
+  - evaluate statistic of interest
+  
+
+]
+---
+.pull-right[
+### *Bayesian approach**
+- Here, statistic of interest = Support for individual clades (*clade credibility*, CC)
+  - CC of clade a = sum of trees with clade A weighted by their probabilities
+  
+```{r, phylo5, fig.height=4}
+  
+plot(p3)
+```
+
+  ]
+--
+
+- Note. Frequentist approach to clade support: use data resampling (bootstrap)
+
+---
+layout: false
+
+# "*Frequentist*" vs Bayesian statstics
+
+[Note! maybe include this in reguilarization lecture instead? -- check if doable]
+
+
+.pull-left[
+### Frequentist
+- P-values
+  - probability of data given parameters (likelihood)
+  - "pairwise" hypothesis tests 
+
+- "Point estimates" focus?
+
+- Hierarchical models
+  - regularization
+
+- confidence interval
+
+- **always check model assumptions!**
+
+]
+.pull-right[
+### Bayesian
+- Posterior probabilities
+  - probability of parameters given data
+  - posterior distributions
+
+- Sum over posterior distributions
+
+- Hierarchical priors
+   - prior distribution constraints
+
+- posterior interval
+
+- **always check model assumptions!**
+
+]
+
+<!---
+---
+
+# POssible Bayesian example
+.pull-left[
+#```{r, bayes1}
+#p9
+#```
+#]
+.pull-right[
+
+Complete hierarchical model
+- $y \sim N(\mu, \sigma)$
+- $\mu = \beta x$
+- $\beta = \begin{cases} \beta_m & \textrm{for males}\\ \beta_f & \textrm{for males}\end{cases}$
+- $\sigma = \begin{cases} \sigma_m & \textrm{for males}\\ \sigma_f & \textrm{for males}\end{cases}$
+
+prior probabilities using prior knowledge
+- $\begin{cases}\beta_m \sim N(\beta_f, 0.05) \\ \sigma_m \sim N(\sigma_f, 0.0001)\end{cases}$
+- $\begin{cases} \beta_f \sim N(0, 0.5)\\ \sigma_f \sim N(0, 0.5) \end{cases}$
+
+*posterior probability* distributions of the parameter values given the data
+
+
+
+]
+
+--->
