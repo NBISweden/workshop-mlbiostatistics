@@ -9,7 +9,8 @@ National course open for PhD students, postdocs, researchers and other employees
 <br/>
 ##### <img border="0" src="icons/calendar-date.svg" width="40" height="40"> Next course
 - 16th - 20th, November, 2020
-- SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308
+- Online ~~SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308~~ 
+
 
 
 <br/>
