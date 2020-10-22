@@ -7,85 +7,118 @@ title:  'Schedule'
 <br/>
 ##### Monday 2020-11-16
 
-**09:00 - 09:15** Welcome (Olga, Eva)
+**09:00 - 09:30** Welcome (Olga, Eva) (live stream)
 
-**09.15 - 10.00** Introductory lecture (Bengt, Olga)
+**09.30 - 10.00** Introductory lecture (Bengt) (live stream)
 
-<br/>
-Parallel sessions:
+**10:15 - 11:15** Introduction to R, R-Studio and R markdown (Olga) (~ 5 min live stream, ~ 25 min online support)
 
-**10:15 - 11:15** Introduction to R, R-Studio and R markdown (Olga, Eva)
-
-**10.15 - 11:15** Exercises in advanced R: tidyverse, packrat, data visualizations (Olga, Eva)
+**11.15 - 12:00** Mathematical foundations (Olga) (*live stream)
 
 
+*12:00 - 13:00 lunch* (*offline*)
 
-**11.15 - 12:00** Mathematical foundations (Payam)
+**13:00 - 13.30** Probability & simulations I (Eva) (live stream)
 
+**13.30 - 14.30** Exercises (online support)
 
+*14.30 - 15.00 break (offline)*
 
-*12:00 - 13:00 lunch*
+**15:00 - 15:30** Probability & simulations II (Eva) (live stream)
 
-**13:00 - 16:30** Probability & simulations (Eva, Olga)
+**13.30 - 16.30** Exercises (online support)
 
-**16:30 - 17:00** Group discussions (Olga, Eva, Payam, Bengt)
+**16.30 - 17.00** Test yourself
 
 <br/>
 ##### Tuesday 2020-11-17
 
-**09:00 - 09.30** Recap of day one
+**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
 
-**09:30 - 12:00** Descriptive statistics and data visualisation (Eva, Olga)
+**09:30 - 10.00** Descriptive statistics & data visualisation I (Eva) (live stream)
 
-*12:00 - 13:00 lunch*
+**10:00 - 10.45** Exercises (online support)
 
-**13.00 - 16.30** Hypothesis testing, incl. confidence intervals (Eva, Olga)
+**10:45 - 11.15** Descriptive statistics & data visualisation II (Eva) (live stream)
 
-**16:30 - 17:00** Group discussions (Olga, Eva, Payam, Bengt)
+**11:15 - 12.00** Exercises (online support)
+
+*12:00 - 13:00 lunch* (offline)
+
+**13.00 - 13.30** Hypothesis testing I (Eva) (live stream)
+
+**13.30 - 14.30** Exercises (online support)
+
+*14.30 - 15.00 break (offline)*
+
+**15.00 - 15.30** Hypothesis testing II (Eva) (live stream)
+
+**15.30 - 16.30** Exercises (online support)
+
+**16.30 - 17.00** Test yourself
 
 <br/>
 ##### Wednesday 2020-11-18
-**09:00 - 09.30** Recap of day two
+**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
 
-**09:30 - 12:00** Simple regression & correlation (Olga, Eva)
+**09:30 - 10:00** Simple regression & correlation I (Olga) (live stream)
+
+**10:00 - 10.45** Exercises (online support)
+
+**10:45 - 11:15** Simple regression & correlation II (Olga) (live stream)
+
+**11:15 - 12.00** Exercises (online support)
 
 *12:00 - 13:00 lunch*
 
-**13:00 - 15:30** Multiple regression (Olga, Eva)
+**13:00 - 13:30** Multiple regression (Olga) (live stream)
 
-**15.30 - 16.30** Introduction to linear mixed models and GLM (Olga, Eva)
+**13.30 - 14.30** Exercises (online support)
 
-**16:30 - 17:00** Group discussions (Olga, Eva, Payam, Bengt)
+*14.30 - 15.00 break (offline)*
+
+**15.00 - 15.30** Introduction to linear mixed models and GLM (Olga) (live stream)
+
+**15.30 - 16.30** Exercises (online support)
+
+**16.30 - 17.00** Test yourself
 
 <br/>
 ##### Thursday 2020-11-19
-**09:00 - 09.30** Recap of day three (Olga, Eva)
+**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
 
-**09.30 - 12.00** Principal Component Analaysis (Payam)
+**09.30 - 12.00** Principal Component Analysis (Payam) (live stream)
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 14.30** Clustering: k-means and HCL (Eva, Olga)
+**13.00 - 14.30** Clustering: k-means and HCL (Eva)
 
-**14:30 - 16.30** Classification with kNN (Olga) and decision trees (Payam)
+*14.30 - 15.00 break (offline)*
 
-**16:30 - 17:00** Group discussions (Olga, Eva, Payam, Bengt)
+**15:00 - 15.30** Classification with kNN and decision trees (Olga)
+
+**15.30 - 16.30** Exercises (online support)
+
+**16.30 - 17.00** Test yourself
 
 <br/>
 
 ##### Friday 2020-11-20
-**09:00 - 09.30** Recap of day four
+**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
 
 **09.30 - 12.00** Feature selection & model evaluation (Bengt)
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 16.00** Introduction to ANN for classification and regression (Bengt, Olga)
+**13.00 - 13.30** Introduction to ANN for classification and regression (Bengt)
 
-**16:00 - 17:00** Group discussion and course wrap-up (Olga, Eva, Payam, Bengt)
+**13.30 - 14.30** Exercises (online support)
+
+*14.30 - 15.00 break (offline)*
+
+**15:00 - 15:30** Test yourself
+
+**15.30 - 16.00** Course wrap-up
+
 
 <br/><br/>
-
-Daily:
-- ca. 10.00 morning coffee
-- ca. 15.00 afternoon coffee
