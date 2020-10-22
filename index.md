@@ -93,7 +93,8 @@ Unfortunately we do not have resources to financially or logistically support tr
 - [Eva Freyhult][eva] <<eva.freyhult@nbis.se>>
 - [Bengt Sennblad][bengt] <<bengt.sennblad@scilifelab.se>>
 - [Payam Emami][payam] <<payam.emami@nbis.se>>  
-- [Julie Lorent][julie] <<julie.lorent@nbis.se>>
+- Mun-Gwan Hong <<mungwan.hong@nbis.se>>
+- [Nima Rafati][nima] <<nima.rafati@nbis.se>>
 
 <br/>
 
@@ -101,7 +102,7 @@ Unfortunately we do not have resources to financially or logistically support tr
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
 [payam]: https://nbis.se/about/staff/payam-emami/
-[julie]: https://nbis.se/about/staff/julie-lorent/
+[nima]: https://nbis.se/about/staff/nima-rafati/
 
 ##### <img border="0" src="icons/email.svg" width="40" height="40"> Contact us
 - **edu.ml-biostats@nbis.se**
