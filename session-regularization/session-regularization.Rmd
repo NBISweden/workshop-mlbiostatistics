@@ -17,8 +17,10 @@ opts_chunk$set(echo=FALSE, eval=TRUE,message=FALSE, warning=FALSE, error=FALSE, 
 
 * Likelihood
     + Relation to OLS for linear model
+    + Likelihood and an orientation to Bayesian statistics
 * Overfitting
 * Regularization
+    + relation to Bayesian statistics
     + Model comparison 
         - AIC
     + Feature selection
@@ -144,6 +146,91 @@ _**NB!** This is a special case for linear models and are not generally true for
 
 In general, full-on likelihood computation and maximum likelihood estimation is relatively slow, so alternative and faster methods has been developed, e.g., OLS.
 
+</details>
+
+## Bayesian approach
+
+<details>
+<summary> Lecture notes </summary>
+
+Bayes' theorem (Thomas Bayes, 1702-1761) provides a way to obtain the requested $P[\theta|X,Y]$
+
+
+$$Pr[\theta|D] = \frac{Pr[D| \theta]Pr[\theta]}{Pr[D]}$$
+**Posterior probability**
+
+$Pr[\theta|D],$ the probability, computed posterior to analysis, of the parameters $\theta$ conditioned on the observed data, i.e, our requested probability.
+
+An important characteristic of Bayesian statistics is that the focus is not on point estimates, but on the posterior probability distribution over the parameter space of $\theta$, which provides a measure of uncertainty (probabilities) in comparison to other values.
+
+```{r, echo=FALSE}
+# fake plots for illustration purpose
+theta = seq(0,10, length=100)
+par(mfcol=c(1,2))
+pp_theta = 75*dnorm(theta,mean=4, sd=0.01)
+plot(theta,pp_theta, type='l', ylim=c(0,1))
+
+pp_theta = dnorm(theta,mean=4, sd=5)
+plot(theta,pp_theta, type='l', ylim=c(0,1.0))
+
+```
+
+**Prior probability of $\theta$**
+
+$Pr[\theta]$ is the *prior* probability of $\theta$ and should according to Bayesian statistics reflect what we know (or believe to know) about how close $\theta$ is to the true parameters. We can use information from previous studies or we can assign a *uninformative* prior, e.g., $Pr[\theta]$ follows a uniform distribution for all $\theta$ in the interval $[a,b]$. 
+
+It can be shown that the effect of the prior on the posterior probsbiity is largest when the observed data is small. With larger sample sizes, the posterior probability will eventually just depend on $Pr[D|\theta]$.
+
+**Marginal Probability of $D$**
+
+$Pr[D]=\int_{\theta}Pr[D| \theta]Pr[\theta]$ is the probability of $D$ regardless of $\theta$. This can often be difficult difficult to calculate and, for this reason, Bayesian models are often designed so that this can be calculated analystically or some approximation approach, such as Markov chain Monte Carlo (MCMC) is used.
+
+<details>
+<summary> Extra reading </summary>
+
+**Probabilistic algebra**
+
+A conditional probability $Pr[A|B]$ is the probability that $A$ happens if we know that $B$ has happened.
+To obtain the probability that both $A$ and $B$ happens we need to first take the probability that $B$ happens and then multiply it with the conditional probability that $A$ hapens given $B$, i.e.,:
+
+$$Pr[A,B] = Pr[A|B] Pr[B].$$
+
+From this follows the reverse operation
+
+$$\frac{Pr[A,B]}{Pr[B]} = Pr{A|B}$$
+Notice that this also works if we have more than one condition:
+ $Pr[A|B,C] * Pr[B] = Pr[A,B|C].$
+
+
+
+What happens in Bayes rule is that we first, in the numerator, perform $Pr[B|A]*Pr[A] = Pr[A,B]$ and then divide this with the denominator $\frac{Pr[A,B]}{Pr[B]} = Pr[A|B]$.
+
+***
+
+</details>
+
+***
+
+</details>
+
+## Bayesians vs frequentists
+
+<details>
+<summary> Lecture notes </summary>
+
+There is often described a severe controversy between Bayesians and frequentists. However, this controversy represents the extreme hardcore Bayesians and frequentists.
+
+In reality, there is a large gray-zone where frequentists and Bayesians meet and socialize:
+
+* Bayesian models can be viewed as a type of the hierarchical models often used by frequentists
+* Frequentist bootstrap analysis is often used to estimate uncertainty of point estimates in relation to alternatives, as is done in Bayesian statistics
+* The *Bayes factor* is a Bayesian  version of the likelihood ratio
+* Bayesian *posterior intervals* corresponds to frequentist *confidence intervals* (*Note* however, that there are no Bayesian significance test)
+* etc.
+
+Most practical statisticians use the tool that is adequate for the problem at hand, whether it is Bayesian or frequentist.
+
+***
 </details>
 
 
@@ -378,6 +465,30 @@ plot(pl, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xla
 
 </details>
 
+## Regularization | `Bayesian interpretation`
+<details>
+<summary> Lecture notes </summary>
+
+Regularization is a canonical example where Bayesian and frequentist statistics meet.
+
+The standard way of writing a regularized likelihood is using the logLikelihood, but what if 'de-log' it:
+
+\begin{eqnarray*}
+\log rL[\beta | X, Y]  &=& \log Pr[Y | X, \beta] - f(\beta) \\
+\Downarrow\\
+rL[\beta | X, Y]  &=& Pr[Y | X, \beta] * e^{- f(\beta)}
+\end{eqnarray*}
+
+This looks suspiciously like an un-normalized posterior probability (i.e., lacking the denominator), with an exponential prior $Pr[\beta]=e^{-f(\beta)}.$
+
+As we will see examples of, most regularization techniques have a Bayesian interpretation.
+
+
+In fact, a standard solution overfitting and, more generally, over-parameterization, i.e., problems where the likelihood function may not have a unique maximmum, is to include prior information, either as Bayesian priors or regularization terms to limit the parameter space. This is an area where Bayesian and frequentist socialize and get on well.
+
+</details>
+
+
 ##  Regularization | `AIC and model testing`
 
 <details>
@@ -575,6 +686,7 @@ The $\lambda$ parameter sets a limit on the estimation of $\beta$.
 Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
 
 $$min_{{\beta}}\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
+Lasso can also be viewed as a un-normalized Bayesian posterior probability, with a LaPlacean prior on $\beta$: $\beta_j ∼ LaPlace(0, 1/\lambda)$ 
 
 <details>
 <summary> Extra Reading </summary>

@@ -14,8 +14,10 @@ editor_options:
 
 * Likelihood
     + Relation to OLS for linear model
+    + Likelihood and an orientation to Bayesian statistics
 * Overfitting
 * Regularization
+    + relation to Bayesian statistics
     + Model comparison 
         - AIC
     + Feature selection
@@ -143,6 +145,81 @@ In general, full-on likelihood computation and maximum likelihood estimation is 
 
 </details>
 
+## Bayesian approach
+
+<details>
+<summary> Lecture notes </summary>
+
+Bayes' theorem (Thomas Bayes, 1702-1761) provides a way to obtain the requested $P[\theta|X,Y]$
+
+
+$$Pr[\theta|D] = \frac{Pr[D| \theta]Pr[\theta]}{Pr[D]}$$
+**Posterior probability**
+
+$Pr[\theta|D],$ the probability, computed posterior to analysis, of the parameters $\theta$ conditioned on the observed data, i.e, our requested probability.
+
+An important characteristic of Bayesian statistics is that the focus is not on point estimates, but on the posterior probability distribution over the parameter space of $\theta$, which provides a measure of uncertainty (probabilities) in comparison to other values.
+
+<img src="session-regularization_files/figure-html/unnamed-chunk-1-1.png" width="100%" />
+
+**Prior probability of $\theta$**
+
+$Pr[\theta]$ is the *prior* probability of $\theta$ and should according to Bayesian statistics reflect what we know (or believe to know) about how close $\theta$ is to the true parameters. We can use information from previous studies or we can assign a *uninformative* prior, e.g., $Pr[\theta]$ follows a uniform distribution for all $\theta$ in the interval $[a,b]$. 
+
+It can be shown that the effect of the prior on the posterior probsbiity is largest when the observed data is small. With larger sample sizes, the posterior probability will eventually just depend on $Pr[D|\theta]$.
+
+**Marginal Probability of $D$**
+
+$Pr[D]=\int_{\theta}Pr[D| \theta]Pr[\theta]$ is the probability of $D$ regardless of $\theta$. This can often be difficult difficult to calculate and, for this reason, Bayesian models are often designed so that this can be calculated analystically or some approximation approach, such as Markov chain Monte Carlo (MCMC) is used.
+
+<details>
+<summary> Extra reading </summary>
+
+**Probabilistic algebra**
+
+A conditional probability $Pr[A|B]$ is the probability that $A$ happens if we know that $B$ has happened.
+To obtain the probability that both $A$ and $B$ happens we need to first take the probability that $B$ happens and then multiply it with the conditional probability that $A$ hapens given $B$, i.e.,:
+
+$$Pr[A,B] = Pr[A|B] Pr[B].$$
+
+From this follows the reverse operation
+
+$$\frac{Pr[A,B]}{Pr[B]} = Pr{A|B}$$
+Notice that this also works if we have more than one condition:
+ $Pr[A|B,C] * Pr[B] = Pr[A,B|C].$
+
+
+
+What happens in Bayes rule is that we first, in the numerator, perform $Pr[B|A]*Pr[A] = Pr[A,B]$ and then divide this with the denominator $\frac{Pr[A,B]}{Pr[B]} = Pr[A|B]$.
+
+***
+
+</details>
+
+***
+
+</details>
+
+## Bayesians vs frequentists
+
+<details>
+<summary> Lecture notes </summary>
+
+There is often described a severe controversy between Bayesians and frequentists. However, this controversy represents the extreme hardcore Bayesians and frequentists.
+
+In reality, there is a large gray-zone where frequentists and Bayesians meet and socialize:
+
+* Bayesian models can be viewed as a type of the hierarchical models often used by frequentists
+* Frequentist bootstrap analysis is often used to estimate uncertainty of point estimates in relation to alternatives, as is done in Bayesian statistics
+* The *Bayes factor* is a Bayesian  version of the likelihood ratio
+* Bayesian *posterior intervals* corresponds to frequentist *confidence intervals* (*Note* however, that there are no Bayesian significance test)
+* etc.
+
+Most practical statisticians use the tool that is adequate for the problem at hand, whether it is Bayesian or frequentist.
+
+***
+</details>
+
 
 #  Overfitting
 
@@ -228,7 +305,7 @@ plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min
 
 <details>
 <summary> *Show result*</summary>
-<img src="session-regularization_files/figure-html/unnamed-chunk-4-1.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-5-1.png" width="100%" />
 
 ***
 </details>
@@ -255,7 +332,7 @@ plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min
 
 <details>
 <summary> *Show result*</summary>
-<img src="session-regularization_files/figure-html/unnamed-chunk-6-1.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-7-1.png" width="100%" />
 
 ***
 </details>
@@ -424,9 +501,33 @@ for(i in seq(1,P)){
 plot(pl, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
 ```
 
-<img src="session-regularization_files/figure-html/unnamed-chunk-7-1.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-8-1.png" width="100%" />
 
 </details>
+
+## Regularization | `Bayesian interpretation`
+<details>
+<summary> Lecture notes </summary>
+
+Regularization is a canonical example where Bayesian and frequentist statistics meet.
+
+The standard way of writing a regularized likelihood is using the logLikelihood, but what if 'de-log' it:
+
+\begin{eqnarray*}
+\log rL[\beta | X, Y]  &=& \log Pr[Y | X, \beta] - f(\beta) \\
+\Downarrow\\
+rL[\beta | X, Y]  &=& Pr[Y | X, \beta] * e^{- f(\beta)}
+\end{eqnarray*}
+
+This looks suspiciously like an un-normalized posterior probability (i.e., lacking the denominator), with an exponential prior $Pr[\beta]=e^{-f(\beta)}.$
+
+As we will see examples of, most regularization techniques have a Bayesian interpretation.
+
+
+In fact, a standard solution overfitting and, more generally, over-parameterization, i.e., problems where the likelihood function may not have a unique maximmum, is to include prior information, either as Bayesian priors or regularization terms to limit the parameter space. This is an area where Bayesian and frequentist socialize and get on well.
+
+</details>
+
 
 ##  Regularization | `AIC and model testing`
 
@@ -597,7 +698,7 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 
 <details>
 <summary> *Show result*</summary>
-<img src="session-regularization_files/figure-html/unnamed-chunk-11-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-11-2.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-12-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-12-2.png" width="100%" />
 
 ***
 </details>
@@ -670,6 +771,7 @@ The $\lambda$ parameter sets a limit on the estimation of $\beta$.
 Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
 
 $$min_{{\beta}}\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
+Lasso can also be viewed as a un-normalized Bayesian posterior probability, with a LaPlacean prior on $\beta$: $\beta_j ∼ LaPlace(0, 1/\lambda)$ 
 
 <details>
 <summary> Extra Reading </summary>
@@ -750,7 +852,7 @@ plot(fit, xvar="lambda",label=T)
 
 <details>
 <summary> *Show result*</summary>
-<img src="session-regularization_files/figure-html/unnamed-chunk-14-1.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-15-1.png" width="100%" />
 
 ***
 </details>
@@ -837,7 +939,7 @@ minlambda=cvglm$lambda.min
 
 <details>
 <summary> *Show result*</summary>
-<img src="session-regularization_files/figure-html/unnamed-chunk-16-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-16-2.png" width="100%" />
+<img src="session-regularization_files/figure-html/unnamed-chunk-17-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-17-2.png" width="100%" />
 
 ***
 </details>
@@ -969,9 +1071,9 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 
 ##Session info
 
-**R version 3.5.3 (2019-03-11)**
+**R version 4.0.2 (2020-06-22)**
 
-**Platform:** x86_64-apple-darwin15.6.0 (64-bit) 
+**Platform:** x86_64-apple-darwin17.0 (64-bit) 
 
 **locale:**
 en_US.UTF-8||en_US.UTF-8||en_US.UTF-8||C||en_US.UTF-8||en_US.UTF-8
@@ -980,7 +1082,7 @@ en_US.UTF-8||en_US.UTF-8||en_US.UTF-8||C||en_US.UTF-8||en_US.UTF-8
 _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 
 **other attached packages:** 
-_pander(v.0.6.3)_, _glmnet(v.2.0-16)_, _foreach(v.1.4.4)_, _Matrix(v.1.2-17)_, _dplyr(v.0.8.0.1)_, _kableExtra(v.1.1.0)_, _lmtest(v.0.9-37)_, _zoo(v.1.8-5)_ and _knitr(v.1.22)_
+_pander(v.0.6.3)_, _glmnet(v.4.0-2)_, _Matrix(v.1.2-18)_, _dplyr(v.1.0.2)_, _kableExtra(v.1.2.1)_, _lmtest(v.0.9-38)_, _zoo(v.1.8-8)_ and _knitr(v.1.30)_
 
 **loaded via a namespace (and not attached):** 
-_Rcpp(v.1.0.1)_, _pillar(v.1.3.1)_, _compiler(v.3.5.3)_, _highr(v.0.8)_, _iterators(v.1.0.10)_, _tools(v.3.5.3)_, _digest(v.0.6.18)_, _evaluate(v.0.13)_, _tibble(v.2.1.1)_, _lattice(v.0.20-38)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.2)_, _rlang(v.0.3.4)_, _rstudioapi(v.0.10)_, _yaml(v.2.2.0)_, _xfun(v.0.6)_, _stringr(v.1.4.0)_, _httr(v.1.4.0)_, _xml2(v.1.2.0)_, _hms(v.0.4.2)_, _tidyselect(v.0.2.5)_, _grid(v.3.5.3)_, _webshot(v.0.5.1)_, _glue(v.1.3.1)_, _R6(v.2.4.0)_, _rmarkdown(v.1.12)_, _purrr(v.0.3.2)_, _readr(v.1.3.1)_, _magrittr(v.1.5)_, _codetools(v.0.2-16)_, _scales(v.1.0.0)_, _htmltools(v.0.3.6)_, _assertthat(v.0.2.1)_, _rvest(v.0.3.3)_, _colorspace(v.1.4-1)_, _stringi(v.1.4.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
+_Rcpp(v.1.0.5)_, _compiler(v.4.0.2)_, _pillar(v.1.4.6)_, _highr(v.0.8)_, _iterators(v.1.0.12)_, _tools(v.4.0.2)_, _digest(v.0.6.26)_, _evaluate(v.0.14)_, _lifecycle(v.0.2.0)_, _tibble(v.3.0.3)_, _lattice(v.0.20-41)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.3)_, _rlang(v.0.4.8)_, _foreach(v.1.5.0)_, _rstudioapi(v.0.11)_, _yaml(v.2.2.1)_, _xfun(v.0.17)_, _httr(v.1.4.2)_, _stringr(v.1.4.0)_, _xml2(v.1.3.2)_, _generics(v.0.0.2)_, _vctrs(v.0.3.4)_, _grid(v.4.0.2)_, _webshot(v.0.5.2)_, _tidyselect(v.1.1.0)_, _glue(v.1.4.2)_, _R6(v.2.4.1)_, _survival(v.3.2-3)_, _rmarkdown(v.2.3)_, _purrr(v.0.3.4)_, _magrittr(v.1.5)_, _splines(v.4.0.2)_, _codetools(v.0.2-16)_, _scales(v.1.1.1)_, _htmltools(v.0.5.0)_, _ellipsis(v.0.3.1)_, _rvest(v.0.3.6)_, _shape(v.1.4.5)_, _colorspace(v.1.4-1)_, _stringi(v.1.5.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
