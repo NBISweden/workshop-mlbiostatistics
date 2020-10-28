@@ -1065,6 +1065,75 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 ***
 </details>
 
+
+
+For practicing the concept of Feature Selection, we will use the skeletal muscle gene expression subset (randomly sampled 1000 genes) from GTEX Human Tussue Gene Expression Consortium [3]. Here we load the gene expression matrix X, remove lowly expressed genes and pre-view it:
+
+
+```
+##                         ENSG00000243824.1_RP11-434O22.1
+## GTEX-N7MS-0426-SM-2YUN6                               2
+## GTEX-NFK9-0626-SM-2HMIV                               0
+## GTEX-NPJ8-1626-SM-2HMIY                               0
+## GTEX-O5YT-1626-SM-32PK6                               0
+## GTEX-OHPM-1626-SM-2HMK4                               0
+##                         ENSG00000140527.10_WDR93 ENSG00000205352.6_PRR13
+## GTEX-N7MS-0426-SM-2YUN6                        2                     543
+## GTEX-NFK9-0626-SM-2HMIV                        0                    1482
+## GTEX-NPJ8-1626-SM-2HMIY                        3                    1958
+## GTEX-O5YT-1626-SM-32PK6                        0                    1174
+## GTEX-OHPM-1626-SM-2HMK4                        7                    1092
+```
+
+```
+## [1] 157 546
+```
+
+We can see that the gene expression data set includes p = 546 expressed genes (features) and n = 157 samples, i.e. p >> n. The phenotype of interest we are going to address is Gender, i.e. we will figure out which of the 546 genes expressed in human skeletal muscles drive the phenotypic difference between Males and Females. Thus our response Y vector is the following:
+
+
+```
+##    Length     Class      Mode 
+##       157 character character
+```
+
+```
+## [1] 157
+```
+
+The data set used here includes 99 Males and 58 Females, it is not perfectly balanced but still not too bad. To visualize the samples, let us display a PCA plot of the 157 samples.
+
+
+```
+## Eigenvalues for the first 10 principal components, see object$sdev^2: 
+##         PC1         PC2         PC3         PC4         PC5         PC6 
+## 11979554198  1922793376   470907790   173035873    83960716    38937526 
+##         PC7         PC8         PC9        PC10 
+##    29568540    24951919    19376723    17467325 
+## 
+## Proportion of explained variance for the first 10 principal components, see object$explained_variance: 
+##         PC1         PC2         PC3         PC4         PC5         PC6 
+## 0.804731856 0.129164496 0.031633439 0.011623761 0.005640098 0.002615646 
+##         PC7         PC8         PC9        PC10 
+## 0.001986280 0.001676156 0.001301640 0.001173375 
+## 
+## Cumulative proportion explained variance for the first 10 principal components, see object$cum.var: 
+##       PC1       PC2       PC3       PC4       PC5       PC6       PC7       PC8 
+## 0.8047319 0.9338964 0.9655298 0.9771536 0.9827937 0.9854093 0.9873956 0.9890717 
+##       PC9      PC10 
+## 0.9903734 0.9915467 
+## 
+##  Other available components: 
+##  -------------------- 
+##  loading vectors: see object$rotation
+```
+
+<img src="session-regularization_files/figure-html/PCA-1.png" width="100%" /><img src="session-regularization_files/figure-html/PCA-2.png" width="100%" />
+
+The PCA plot demonstrates that there is a lot of variation between samples with respect to both PC1 and PC2, but there is no clear seggregation of Males and Females based on their skeletal muscle gene expression data. Now we are going to start with a simple gene-by-gene univariate feature selection and extend it to a multivariate features selection with different methods.
+
+
+
 <br><br><br>
 
 # Thank you
@@ -1082,7 +1151,7 @@ en_US.UTF-8||en_US.UTF-8||en_US.UTF-8||C||en_US.UTF-8||en_US.UTF-8
 _stats_, _graphics_, _grDevices_, _utils_, _datasets_, _methods_ and _base_
 
 **other attached packages:** 
-_pander(v.0.6.3)_, _glmnet(v.4.0-2)_, _Matrix(v.1.2-18)_, _dplyr(v.1.0.2)_, _kableExtra(v.1.2.1)_, _lmtest(v.0.9-38)_, _zoo(v.1.8-8)_ and _knitr(v.1.30)_
+_pander(v.0.6.3)_, _mixOmics(v.6.12.2)_, _ggplot2(v.3.3.2)_, _lattice(v.0.20-41)_, _MASS(v.7.3-53)_, _glmnet(v.4.0-2)_, _Matrix(v.1.2-18)_, _dplyr(v.1.0.2)_, _kableExtra(v.1.2.1)_, _lmtest(v.0.9-38)_, _zoo(v.1.8-8)_ and _knitr(v.1.30)_
 
 **loaded via a namespace (and not attached):** 
-_Rcpp(v.1.0.5)_, _compiler(v.4.0.2)_, _pillar(v.1.4.6)_, _highr(v.0.8)_, _iterators(v.1.0.12)_, _tools(v.4.0.2)_, _digest(v.0.6.26)_, _evaluate(v.0.14)_, _lifecycle(v.0.2.0)_, _tibble(v.3.0.3)_, _lattice(v.0.20-41)_, _viridisLite(v.0.3.0)_, _pkgconfig(v.2.0.3)_, _rlang(v.0.4.8)_, _foreach(v.1.5.0)_, _rstudioapi(v.0.11)_, _yaml(v.2.2.1)_, _xfun(v.0.17)_, _httr(v.1.4.2)_, _stringr(v.1.4.0)_, _xml2(v.1.3.2)_, _generics(v.0.0.2)_, _vctrs(v.0.3.4)_, _grid(v.4.0.2)_, _webshot(v.0.5.2)_, _tidyselect(v.1.1.0)_, _glue(v.1.4.2)_, _R6(v.2.4.1)_, _survival(v.3.2-3)_, _rmarkdown(v.2.3)_, _purrr(v.0.3.4)_, _magrittr(v.1.5)_, _splines(v.4.0.2)_, _codetools(v.0.2-16)_, _scales(v.1.1.1)_, _htmltools(v.0.5.0)_, _ellipsis(v.0.3.1)_, _rvest(v.0.3.6)_, _shape(v.1.4.5)_, _colorspace(v.1.4-1)_, _stringi(v.1.5.3)_, _munsell(v.0.5.0)_ and _crayon(v.1.3.4)_
+_Rcpp(v.1.0.5)_, _tidyr(v.1.1.2)_, _corpcor(v.1.6.9)_, _digest(v.0.6.26)_, _foreach(v.1.5.0)_, _RSpectra(v.0.16-0)_, _R6(v.2.4.1)_, _plyr(v.1.8.6)_, _ellipse(v.0.4.2)_, _evaluate(v.0.14)_, _httr(v.1.4.2)_, _highr(v.0.8)_, _pillar(v.1.4.6)_, _rlang(v.0.4.8)_, _rstudioapi(v.0.11)_, _rmarkdown(v.2.3)_, _rARPACK(v.0.11-0)_, _labeling(v.0.3)_, _splines(v.4.0.2)_, _webshot(v.0.5.2)_, _stringr(v.1.4.0)_, _igraph(v.1.2.5)_, _munsell(v.0.5.0)_, _compiler(v.4.0.2)_, _xfun(v.0.17)_, _pkgconfig(v.2.0.3)_, _shape(v.1.4.5)_, _htmltools(v.0.5.0)_, _tidyselect(v.1.1.0)_, _tibble(v.3.0.3)_, _gridExtra(v.2.3)_, _codetools(v.0.2-16)_, _matrixStats(v.0.56.0)_, _viridisLite(v.0.3.0)_, _crayon(v.1.3.4)_, _withr(v.2.3.0)_, _grid(v.4.0.2)_, _gtable(v.0.3.0)_, _lifecycle(v.0.2.0)_, _magrittr(v.1.5)_, _scales(v.1.1.1)_, _stringi(v.1.5.3)_, _farver(v.2.0.3)_, _reshape2(v.1.4.4)_, _xml2(v.1.3.2)_, _ellipsis(v.0.3.1)_, _generics(v.0.0.2)_, _vctrs(v.0.3.4)_, _RColorBrewer(v.1.1-2)_, _iterators(v.1.0.12)_, _tools(v.4.0.2)_, _glue(v.1.4.2)_, _purrr(v.0.3.4)_, _parallel(v.4.0.2)_, _survival(v.3.2-3)_, _yaml(v.2.2.1)_, _colorspace(v.1.4-1)_ and _rvest(v.0.3.6)_
