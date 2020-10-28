@@ -9,7 +9,8 @@ National course open for PhD students, postdocs, researchers and other employees
 <br/>
 ##### <img border="0" src="icons/calendar-date.svg" width="40" height="40"> Next course
 - 16th - 20th, November, 2020
-- SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308
+- Online ~~SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308~~ 
+
 
 
 <br/>
@@ -93,7 +94,8 @@ Unfortunately we do not have resources to financially or logistically support tr
 - [Eva Freyhult][eva] <<eva.freyhult@nbis.se>>
 - [Bengt Sennblad][bengt] <<bengt.sennblad@scilifelab.se>>
 - [Payam Emami][payam] <<payam.emami@nbis.se>>  
-- [Julie Lorent][julie] <<julie.lorent@nbis.se>>
+- Mun-Gwan Hong <<mungwan.hong@nbis.se>>
+- [Nima Rafati][nima] <<nima.rafati@nbis.se>>
 
 <br/>
 
@@ -101,7 +103,7 @@ Unfortunately we do not have resources to financially or logistically support tr
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
 [payam]: https://nbis.se/about/staff/payam-emami/
-[julie]: https://nbis.se/about/staff/julie-lorent/
+[nima]: https://nbis.se/about/staff/nima-rafati/
 
 ##### <img border="0" src="icons/email.svg" width="40" height="40"> Contact us
 - **edu.ml-biostats@nbis.se**
