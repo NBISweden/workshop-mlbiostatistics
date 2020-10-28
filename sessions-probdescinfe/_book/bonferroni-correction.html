@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 6 Bonferroni correction | Introduction to Biostatistics and Machine Learning</title>
+  <meta name="description" content="This is the course literature for the NBIS course Introduction to Biostatistics and Machine Learning." />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 6 Bonferroni correction | Introduction to Biostatistics and Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is the course literature for the NBIS course Introduction to Biostatistics and Machine Learning." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 6 Bonferroni correction | Introduction to Biostatistics and Machine Learning" />
+  
+  <meta name="twitter:description" content="This is the course literature for the NBIS course Introduction to Biostatistics and Machine Learning." />
+  
+
+<meta name="author" content="NBIS" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="multiple-testing.html"/>
+<link rel="next" href="benjamini-hochbegs-fdr.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="probability-theory.html"><a href="probability-theory.html"><i class="fa fa-check"></i><b>1</b> Probability theory</a><ul>
+<li class="chapter" data-level="1.1" data-path="probability-theory.html"><a href="probability-theory.html#random-variables"><i class="fa fa-check"></i><b>1.1</b> Random variables</a><ul>
+<li class="chapter" data-level="1.1.1" data-path="probability-theory.html"><a href="probability-theory.html#discrete-random-variables"><i class="fa fa-check"></i><b>1.1.1</b> Discrete random variables</a></li>
+<li class="chapter" data-level="1.1.2" data-path="probability-theory.html"><a href="probability-theory.html#continuous-random-variable"><i class="fa fa-check"></i><b>1.1.2</b> Continuous random variable</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="probability-theory.html"><a href="probability-theory.html#simulate-distributions"><i class="fa fa-check"></i><b>1.2</b> Simulate distributions</a></li>
+<li class="chapter" data-level="1.3" data-path="probability-theory.html"><a href="probability-theory.html#parametric-discrete-distributions"><i class="fa fa-check"></i><b>1.3</b> Parametric discrete distributions</a></li>
+<li class="chapter" data-level="1.4" data-path="probability-theory.html"><a href="probability-theory.html#discrete-distributions"><i class="fa fa-check"></i><b>1.4</b> Discrete distributions</a><ul>
+<li class="chapter" data-level="1.4.1" data-path="probability-theory.html"><a href="probability-theory.html#bernoulli-trial"><i class="fa fa-check"></i><b>1.4.1</b> Bernoulli trial</a></li>
+<li class="chapter" data-level="1.4.2" data-path="probability-theory.html"><a href="probability-theory.html#binomial-distribution"><i class="fa fa-check"></i><b>1.4.2</b> Binomial distribution</a></li>
+<li class="chapter" data-level="1.4.3" data-path="probability-theory.html"><a href="probability-theory.html#hypergeometric-distribution"><i class="fa fa-check"></i><b>1.4.3</b> Hypergeometric distribution</a></li>
+<li class="chapter" data-level="1.4.4" data-path="probability-theory.html"><a href="probability-theory.html#poisson-distribution"><i class="fa fa-check"></i><b>1.4.4</b> Poisson distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="probability-theory.html"><a href="probability-theory.html#conditional-probability"><i class="fa fa-check"></i><b>1.5</b> Conditional probability</a><ul>
+<li class="chapter" data-level="1.5.1" data-path="probability-theory.html"><a href="probability-theory.html#diagnostic-tests---passar-bättre-i-samband-med-klassificering"><i class="fa fa-check"></i><b>1.5.1</b> Diagnostic tests - passar bättre i samband med klassificering?</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="desc.html"><a href="desc.html"><i class="fa fa-check"></i><b>2</b> Descriptive statistics and distributions</a><ul>
+<li class="chapter" data-level="2.1" data-path="desc.html"><a href="desc.html#data-types"><i class="fa fa-check"></i><b>2.1</b> Data types</a></li>
+<li class="chapter" data-level="2.2" data-path="desc.html"><a href="desc.html#measures-of-location"><i class="fa fa-check"></i><b>2.2</b> Measures of location</a><ul>
+<li class="chapter" data-level="2.2.1" data-path="desc.html"><a href="desc.html#expected-value"><i class="fa fa-check"></i><b>2.2.1</b> Expected value</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="desc.html"><a href="desc.html#measures-of-spread"><i class="fa fa-check"></i><b>2.3</b> Measures of spread</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="desc.html"><a href="desc.html#variance-and-standard-deviation"><i class="fa fa-check"></i><b>2.3.1</b> Variance and standard deviation</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="desc.html"><a href="desc.html#random-sample"><i class="fa fa-check"></i><b>2.4</b> Random sample</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="desc.html"><a href="desc.html#the-urn-model-to-perform-simple-random-sampling"><i class="fa fa-check"></i><b>2.4.1</b> The urn model to perform simple random sampling</a></li>
+<li class="chapter" data-level="2.4.2" data-path="desc.html"><a href="desc.html#sample-properties"><i class="fa fa-check"></i><b>2.4.2</b> Sample properties</a></li>
+<li class="chapter" data-level="2.4.3" data-path="desc.html"><a href="desc.html#sample-mean-and-standard-deviation"><i class="fa fa-check"></i><b>2.4.3</b> Sample mean and standard deviation</a></li>
+<li class="chapter" data-level="2.4.4" data-path="desc.html"><a href="desc.html#standard-error"><i class="fa fa-check"></i><b>2.4.4</b> Standard error</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="parametric-continuous-distributions.html"><a href="parametric-continuous-distributions.html"><i class="fa fa-check"></i><b>3</b> Parametric continuous distributions</a><ul>
+<li class="chapter" data-level="3.1" data-path="parametric-continuous-distributions.html"><a href="parametric-continuous-distributions.html#normal-distribution"><i class="fa fa-check"></i><b>3.1</b> Normal distribution</a></li>
+<li class="chapter" data-level="3.2" data-path="parametric-continuous-distributions.html"><a href="parametric-continuous-distributions.html#central-limit-theorem"><i class="fa fa-check"></i><b>3.2</b> Central limit theorem</a></li>
+<li class="chapter" data-level="3.3" data-path="parametric-continuous-distributions.html"><a href="parametric-continuous-distributions.html#chi2-distribution"><i class="fa fa-check"></i><b>3.3</b> <span class="math inline">\(\chi^2\)</span>-distribution</a></li>
+<li class="chapter" data-level="3.4" data-path="parametric-continuous-distributions.html"><a href="parametric-continuous-distributions.html#f-distribution"><i class="fa fa-check"></i><b>3.4</b> F-distribution</a></li>
+<li class="chapter" data-level="3.5" data-path="parametric-continuous-distributions.html"><a href="parametric-continuous-distributions.html#t-distribution"><i class="fa fa-check"></i><b>3.5</b> t-distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="statistical-inference.html"><a href="statistical-inference.html"><i class="fa fa-check"></i><b>4</b> Statistical Inference</a><ul>
+<li class="chapter" data-level="4.1" data-path="statistical-inference.html"><a href="statistical-inference.html#hypothesis-test"><i class="fa fa-check"></i><b>4.1</b> Hypothesis test</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="statistical-inference.html"><a href="statistical-inference.html#the-null-and-alternative-hypothesis"><i class="fa fa-check"></i><b>4.1.1</b> The null and alternative hypothesis</a></li>
+<li class="chapter" data-level="4.1.2" data-path="statistical-inference.html"><a href="statistical-inference.html#to-perform-a-hypothesis-test"><i class="fa fa-check"></i><b>4.1.2</b> To perform a hypothesis test</a></li>
+<li class="chapter" data-level="4.1.3" data-path="statistical-inference.html"><a href="statistical-inference.html#significance-level-and-error-types"><i class="fa fa-check"></i><b>4.1.3</b> Significance level and error types</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="statistical-inference.html"><a href="statistical-inference.html#interval-estimate"><i class="fa fa-check"></i><b>4.2</b> Interval estimate</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="statistical-inference.html"><a href="statistical-inference.html#bootstrap-interval"><i class="fa fa-check"></i><b>4.2.1</b> Bootstrap interval</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="statistical-inference.html"><a href="statistical-inference.html#parametric-distributions"><i class="fa fa-check"></i><b>4.3</b> Parametric distributions</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="statistical-inference.html"><a href="statistical-inference.html#one-sample-proportions"><i class="fa fa-check"></i><b>4.3.1</b> One sample, proportions</a></li>
+<li class="chapter" data-level="4.3.2" data-path="statistical-inference.html"><a href="statistical-inference.html#one-sample-mean"><i class="fa fa-check"></i><b>4.3.2</b> One sample, mean</a></li>
+<li class="chapter" data-level="4.3.3" data-path="statistical-inference.html"><a href="statistical-inference.html#two-samples-known-sigma_1-and-sigma_2"><i class="fa fa-check"></i><b>4.3.3</b> Two samples, known <span class="math inline">\(\sigma_1\)</span> and <span class="math inline">\(\sigma_2\)</span></a></li>
+<li class="chapter" data-level="4.3.4" data-path="statistical-inference.html"><a href="statistical-inference.html#unknown-standard-deviations"><i class="fa fa-check"></i><b>4.3.4</b> Unknown standard deviations</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="statistical-inference.html"><a href="statistical-inference.html#confidence-interval"><i class="fa fa-check"></i><b>4.4</b> Confidence interval</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="multiple-testing.html"><a href="multiple-testing.html"><i class="fa fa-check"></i><b>5</b> Multiple testing</a><ul>
+<li class="chapter" data-level="5.1" data-path="multiple-testing.html"><a href="multiple-testing.html#error-types"><i class="fa fa-check"></i><b>5.1</b> Error types</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="bonferroni-correction.html"><a href="bonferroni-correction.html"><i class="fa fa-check"></i><b>6</b> Bonferroni correction</a></li>
+<li class="chapter" data-level="7" data-path="benjamini-hochbegs-fdr.html"><a href="benjamini-hochbegs-fdr.html"><i class="fa fa-check"></i><b>7</b> Benjamini-Hochbegs FDR</a></li>
+<li class="chapter" data-level="8" data-path="adjusted-p-values.html"><a href="adjusted-p-values.html"><i class="fa fa-check"></i><b>8</b> ‘Adjusted’ p-values</a><ul>
+<li class="chapter" data-level="8.1" data-path="adjusted-p-values.html"><a href="adjusted-p-values.html#example-10000-independent-tests-e.g.-genes"><i class="fa fa-check"></i><b>8.1</b> Example, 10000 independent tests (e.g. genes)</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Biostatistics and Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="bonferroni-correction" class="section level1">
+<h1><span class="header-section-number">Chapter 6</span> Bonferroni correction</h1>
+<p>To achieve a family-wise error rate of <span class="math inline">\(\leq \alpha\)</span> when performing <span class="math inline">\(m\)</span> tests, declare significance and reject the null hypothesis for any test with <span class="math inline">\(p \leq \alpha/m\)</span>.</p>
+<p>Objections: too conservative</p>
+<hr />
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="multiple-testing.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="benjamini-hochbegs-fdr.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

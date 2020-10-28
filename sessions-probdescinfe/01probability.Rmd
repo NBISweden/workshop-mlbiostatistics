@@ -1,0 +1,371 @@
+```{r, include=FALSE}
+require(tidyverse)
+require(ggplot2)
+require(reshape2)
+require(knitr)
+require(kableExtra)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=2)
+```
+
+
+# Probability theory
+
+Learning outcomes
+
+- understand the concept of random variables and probability
+- understand and learn to use resampling to compute probabilities
+
+## Random variables
+
+The outcome of a random experiment can be described by a *random variable*.
+
+Whenever chance is involved in the outcome of an experiment the outcome is a random variable.
+
+A random variable can not be predicted exactly, but the probability of all possible outcomes can be described.
+
+A random variable is usually denoted by a capital letter, $X, Y, Z, \dots$. Values collected in an experiment are *observations* of the random variable, usually denoted by lowercase letters $x, y, z, \dots$.
+
+The *population* is the collection of all possible observations of the random variable. Note, the population is not always countable.
+
+A *sample* is a subset of the population.
+
+Example random variables:
+
+- The weight of a random newborn baby
+- The smoking status of a random mother
+- The hemoglobin concentration in blood
+- The number of mutations in a gene
+- BMI of a random man
+- Weight status of a random man (underweight, normal weight, overweight, obese)
+- The result of throwing a die
+
+### Discrete random variables
+
+A discrete random number has countable number of outcomes values, such as {1,2,3,4,5,6}; {red, blue, green}; {tiny, small, average, large, huge} or all integers.
+
+A discrete random variable can be described by its *probability mass function*, pmf.
+
+The probability that the random variable, $X$, takes the value $x$ is denoted $P(X=x) = p(x)$. Note that:
+  
+1. $0 \leq p(x) \leq 1$, a probability is always between 0 and 1.
+2. $\sum p(x) = 1$, the sum over all possible outcomes is 1.
+
+**Example 1** The number of dots on a die
+
+When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the die is fair. The outcome of one dice roll can be described by a random variable $X$. The probability of a particular outcome $x$ is denoted $P(X=x)$ or $p(x)$. 
+
+The probability mass function of a fair six-sided die can be summarized in a table;
+
+```{r}
+kable(matrix(c(1:6,rep(1/6,6)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
+```
+
+or in a barplot;
+
+```{r die, fig.height=3, fig.width=7, fig.cap="Probability mass function of a die.", out.width="45%", fig.align='center'}
+plot(data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)))
+``` 
+
+**Example 2.** The smoking status of a random mother
+
+The random variable has two possible outcomes; non-smoker (0) and smoker (1). The probability of a random mother being a smoker is 0.39.
+
+```{r}
+kable(matrix(c("0","0.61","1","0.39"),ncol=2, dimnames=list(c('x','p(x)'), c('non-smoker','smoker')))) %>% kable_styling(full_width = FALSE)
+```
+
+**Example 3** The number of bacterial colonies on a plate
+
+```{r CFU, fig.cap="Probability mass distribution of the number of bacterial colonies on an agar plate.", fig.height=3, fig.width=7}
+x=1:50
+ggplot(data.frame(x=x, fx=dpois(x, lambda=25)), aes(x,fx)) + geom_bar(stat="identity") + theme_bw() + ylab("p(x)")
+```
+
+Exercise
+
+Urnexempel, räkna sannolikhet?
+
+
+### Continuous random variable
+
+A continuous random number is not limited to discrete values, but any continuous number within one or several ranges is possible.
+
+Examples: weight, height, speed, intensity, ...
+
+A continuous random variable can be described by its *probability density function*, pdf.
+
+```{r, fig.show="hold", fig.cap="Probability density function of the weight of a newborn baby.", fig.height=4, fig.width=7}
+# ounce <- 0.0283495231
+# pound <- 0.45359237
+# ggplot(babies, aes(x=wt*ounce)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() #+ ggtitle("Weight (kg) of a newborn baby"))
+#plot(ggplot(fat, aes(x=weight*pound)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() + ggtitle("Weight (kg) of a man"))
+##Simulate weights
+baby <- data.frame(smoke=sample(1000, x=0:2, prob=c(0.45,0.45,0.1), replace=TRUE)) %>% mutate(m=c(3.4, 3.0, 2.5)[smoke+1], wt=rnorm(n(), mean=m, sd=0.5))
+ggplot(baby, aes(x=wt)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() 
+```
+
+```{r normpdf2, out.width="70%", fig.align="center", eval=FALSE}
+x <- seq(-4,4,.01)
+ggplot(data.frame(x=x, fx=dnorm(x)), aes(x,fx)) + geom_line() + theme_bw() + ylab("f(x)")
+```
+
+  The probability density function, $f(x)$, is defined such that the total area under the curve is 1.
+
+$$
+  \int_{-\infty}^{\infty} f(x) dx = 1
+$$
+  
+  ```{r wtbabiesdens3, out.width="49%", warning=FALSE, message=FALSE, fig.show="hold", fig.keep="all"}
+ggplot(baby, aes(x=wt)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() 
+#plot(ggplot(data.frame(w=wt), aes(x=w)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density())
+
+df.wt <- density(baby$wt)
+df.wt <- data.frame(x=df.wt$x, y=df.wt$y)
+plot(ggplot(baby, aes(x=wt)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() + geom_area(data=df.wt %>% filter(x<3.75, x>2.33), aes(x=x, y=y)) + scale_x_continuous(breaks=c(2,2.33,3,3.75,4,5), labels=c('2','a','3','b','4','5')) + geom_hline(yintercept=0) + theme(panel.grid=element_blank()))
+#plot(ggplot(data.frame(w=wt), aes(x=w)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() + geom_area(data=df.wt %>% filter(x<3.75, x>2.33), aes(x=x, y=y)) + scale_x_continuous(breaks=c(2,2.33,3,3.75,4,5), labels=c('2','a','3','b','4','5')) + geom_hline(yintercept=0) + theme(panel.grid=element_blank()))
+```
+
+```{r pdfwtnorm, out.width="100%", eval=TRUE}
+w<-seq(1.5,5.5,.01)
+df.nwt <- data.frame(w=w, f=dnorm(w, 3.5, 0.5))
+#ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("Weight (kg)") + ylab("f(x)")
+```
+
+```{r pdfab, eval=FALSE}
+ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("Weight (kg)") + ylab("f(x)") + geom_area(data=df.nwt %>% filter(w<3.75, w>2.33)) + scale_x_continuous(breaks=c(2,2.33,3,3.75,4,5), labels=c('2','a','3','b','4','5')) + geom_hline(yintercept=0) + theme(panel.grid=element_blank())
+```
+
+The area under the curve from a to b is the probability that the random variable $X$ takes a value between a and b.
+
+$P(a \leq X \leq b) = \int_a^b f(x) dx$
+  
+<!-- #### Cumulative distribution function, cdf -->
+  
+The *cumulative distribution function*, cdf, sometimes called just the
+distribution function, $F(x)$, is defined as:
+  
+  $$F(x) = P(X<x) = \int_{-\infty}^x f(x) dx$$
+  
+  ```{r wtpdfcdf, out.width="49%", fig.show="hold"}
+plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df.nwt %>% filter(w<4.0)) + annotate("label",label=sprintf("P(X<4.0) = F(4.0) = %.2f", pnorm(4,3.5,0.5)), x=2.7, y=0.4, hjust=0))
+df.nwt$F <- pnorm(df.nwt$w, 3.5, 0.5)
+plot(ggplot(df.nwt, aes(x=w, y=F)) + geom_line() + xlab("x") + ylab("F(x)") + theme_bw() + geom_point(aes(x=4, y=pnorm(4,3.5,.5))) + annotate("label",label=sprintf("F(4.0)=%.2f", pnorm(4,3.5,.5)), x=4, y=.84, hjust=-0.2))##+ ggtitle("Cumulative distribution function") 
+```
+
+$$P(X<x) = F(x)$$
+  
+  As we know that the total probability (over all x) is 1, we can conclude that 
+
+$$P(X \geq x) = 1 - F(x)$$
+  and thus
+
+$$P(a \leq X < b) = F(b) - F(a)$$
+
+## Simulate distributions
+
+As seen in previous chapter, once the distribution is known, we can compute probabilities, such as $P(X=x), P(X<x)$ and $P(X \geq x)$. If the distribution is not known, simulation might be the solution.
+
+```{example, "Simulate coin toss", echo=TRUE}
+In a single coin toss the probabity of heads is 0.5. In 20 coin tosses, what is the probability of at least 15 heads?
+```
+
+```{r pressure, echo=FALSE, fig.cap="A coin toss. Urn model with one black ball (heads) and one white ball (tails).", out.width = '20%', fig.align="center"}
+knitr::include_graphics("figures/coinurn.png")
+```
+
+A single coin toss can be modelled by an urn with two balls. When a ball is drawn randomly from the urn, the probability to get the black ball (heads) is $P(X=H) = 0.5$.
+
+If we want to simulate tossing 20 coins (or one coin 220 times) we can use the same urn model, if the ball is replaced after each draw.
+
+In R we can simulate random draws from an urn model using the function `sample`.
+
+```{r coin, echo=TRUE}
+# A single coin toss
+sample(c("H", "T"), size=1)
+# Another coin toss
+sample(c("H", "T"), size=1)
+```
+
+Every time you run the sample a new coin toss is simulated. 
+
+The argument `size` tells the function how many balls we want to draw from the urn. To draw 20 balls from the urn, set `size=20`, remember to replace the ball after each draw!
+
+```{r coins, echo=TRUE}
+# 20 independent coin tosses
+(coins <- sample(c("H", "T"), size=20, replace=TRUE))
+```
+
+How many heads did we get in the 20 random draws?
+
+```{r, echo=TRUE}
+# How many heads?
+sum(coins == "H")
+```
+
+We can repeat this experiment (toss 20 coins and count the number of heads) several times to eastimate the distribution of number of heads in 20 coin tosses.
+
+To do the same thing several times we use the function `replicate`.
+
+```{r Nheads, echo=TRUE}
+Nheads <- replicate(1000, {
+  coins <- sample(c("H", "T"), size=20, replace=TRUE)
+  sum(coins == "H")
+})
+```
+
+Plot distribution of the number of heads in a histogram.
+
+```{r histNheads, echo=TRUE}
+hist(Nheads, breaks=0:20)
+```
+
+Now, let's get back to the question; when tossing 20 coins, what is the probability of at least 15 heads?
+
+$P(X \geq 15)$
+
+Count how many times out of our 1000 exeriments the number is 15 or greater
+
+```{r, echo=TRUE}
+sum(Nheads >= 15)
+```
+
+From this we conclude that
+
+$P(X \geq 15) =$ `r sum(Nheads>=15)/length(Nheads)`
+
+
+```{exercise, "Cointoss", echo=TRUE}
+In a single coin toss the probabity of heads is 0.5.
+
+In 20 coin tosses,   
+
+  a) what is the probability of exactly 15 heads?
+  b) what is the probability of less than 7 heads?
+  c) What is the most probable number of heads?
+  d) what is the probability of 5 tails or less?
+  e) what is the probability of 2 heads or less?
+```
+
+```{exercise, "Dice", echo=TRUE}
+When rolling 10 six sided dice, what is the probability to get at least 5 sixes?
+```
+
+```{exercise, "Pollen", echo=TRUE}
+30% of a large populationis allergic to pollen. If you randomly select 12 people to participate in your study, what is the probability than none of them will be allergic to pollen?
+```
+
+## Parametric discrete distributions
+
+### Bernoulli trial
+
+A Bernoulli trial is a random experiment with two outcomes; success and failure. The probability of success, $P(success) = p$, is constant. The probability of failure is $P(failure) = 1-p$.
+
+When coding it is convenient to code success as 1 and failure as 0.
+
+The outcome of a Bernoulli trial is a discrete random variable, $X$.
+
+```{r}
+kable(matrix(c('x','0','1','p(x)','1-p','p'), byrow=TRUE, ncol=3)) %>% kable_styling("striped", full_width = FALSE)
+```
+
+### Binomial distribution
+
+Also the number of successes in a series of independent and identical Bernoulli trials is a discrete random variable.
+
+$Y = \sum_{i=0}^n X_i$
+  
+The probability mass function of $Y$ is called the binomial distribution.
+
+### Hypergeometric distribution
+
+### Poisson distribution
+
+
+** Exercise: Dice experiment **
+  
+  * Kankse använda detta som ett illustrativt exempel iställer för som en övning? *
+  
+  When throwing 10 dice, how many dice show 6 dots?
+  
+  - Define the random variable of interest
+- What are the possible outcomes?
+  
+  - Which is the most likely number of sixes?
+  - What is the probability to get exactly 2 sixes when throwing ten dice?
+  - On average how many sixes do you get when throwing ten dice?
+  <!-- The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. -->
+  - What is the probability to get 4 or more sixes when throwing ten dice?
+  - Estimate the probability mass function  
+  
+  
+  
+** Exercises **
+  
+
+1. When throwing a fair die, what is the probability
+  a. to get 4?
+  b. 5 or more?
+  c. an odd number?
+  d. When throwing two dice, what is the probabilty of first getting 2 and then 3 or more?
+2. When throwing 20 fair dice, what is the probabaility 
+  a. to get 6 exactly 5 times?
+  b. to get 6 5 or more times?
+  
+When the entire population is known, probabilities can be computed by counting the fraction of observations that fulfil the criteria of interest.
+
+<!-- ** Exercise: ** -->
+
+<!--   Based on the babies population, compute the following probabilities -->
+
+<!-- - $P(X<2.6)$ -->
+<!--   - $P(2.3<X<4.2)$ -->
+
+
+<!--   ** Smoking status of a random mother ** -->
+
+<!--   ```{r} -->
+<!-- babies %>% group_by(smoke) %>% summarise(n=n()) %>% mutate("p"=n/sum(n), code=c('never','smokes now', 'until current pregnancy','once did, not now','unknown')) -->
+<!-- ``` -->
+<!-- Let $S$ denote the smoking status of a random mother. The probability that a random mother never smoked: $P(S=0) = p(0) = 0.4401$ Note that $S$ is a discrete random variable. -->
+
+
+<!-- ### Conditional probability -->
+
+<!-- Compute the probability that a smoking mother has a baby with a weight below 2.6 kg.  -->
+
+<!-- $$P(W<2.6|S=1)$$ -->
+
+<!--   Compute the probability that a mother who never smoked has a baby with a weight below 2.6 kg. -->
+
+<!-- $$P(W<2.6|S=0)$$ -->
+  
+  
+  
+
+
+
+## Conditional probability
+
+P(X \geq 3.5 | S = 1)
+
+### Diagnostic tests - passar bättre i samband med klassificering?
+  
+  ```{r}
+kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("not cancer", "cancer", "total"), c("pos", "neg", "tot")))) %>% kable_styling("striped", full_width = FALSE)
+```
+
+- What is the probability of a positive test result from a person with cancer?
+  - What is the probability of a negative test result from a person without cancer?
+  - If the test is positive, what is the probability of having cancer?
+  - If the test is negative, what is the probability of not having cancer?
+  - Connect the four computed probabilities with the following four tems;
+- Sensitivity
+- Specificity
+- Positive predictive value (PPV)
+- Negative predictive value (NPV)
+
+Discuss in your group!
+  
+  
+  

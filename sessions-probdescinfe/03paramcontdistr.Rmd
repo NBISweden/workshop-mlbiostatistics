@@ -1,0 +1,162 @@
+# Parametric continuous distributions
+
+## Normal distribution
+
+The normal distribution (sometimes referred to as the Gaussian distribution) is a common probability distribution and many continuous random variables can be described by the normal distribution or be approximated by the normal distribution.
+
+The normal probability density function
+
+$$f(x) = \frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{1}{2} \left(\frac{x-\mu}{\sigma}\right)^2}$$
+  
+  describes the distribution of a normal random variable, $X$, with expected value $\mu$ and standard deviation $\sigma$. In short we write $X \sim N(\mu, \sigma)$.
+
+```{r norm, out.width="50%", fig.show="hold", fig.align="center"}
+#ggplot(pop.FN, aes(x=Bodyweight)) + geom_histogram(binwidth=1, aes(y=stat(density)), color="white") + theme_bw() + geom_line(data=den.FN, aes(x=x, y=nfx), color="red")
+x <- seq(-3.5, 3.5, .1)
+dN <- data.frame(x=x, fx=dnorm(x))
+plot(ggplot(dN, aes(x=x, y=fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("f(x)") + theme_bw())
+```
+
+The bell-shaped normal distributions is symmetric around $\mu$ and $f(x) \rightarrow 0$ as $x \rightarrow \infty$ and as $x \rightarrow -\infty$.
+
+As $f(x)$ is well defined, values for the cumulative distribution function $F(x) = \int_{- \infty}^x f(x) dx$ can be computed.
+
+```{r out.width="45%", fig.show="hold"}
+dN$Fx <- pnorm(x)
+ggplot(dN, aes(x=x, y=fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("f(x)") + theme_bw() + ggtitle("Probability density function")
+ggplot(dN, aes(x=x, y=Fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("F(x)") + theme_bw() + ggtitle("Cumulative distribution function")
+```
+
+
+If $X$ is normally distributed with expected value $\mu$ and
+standard deviation $\sigma$ we write:
+  
+  $$X \sim N(\mu, \sigma)$$
+  
+  Using transformation rules we can define
+
+$$Z = \frac{X-\mu}{\sigma}, \, Z \sim N(0,1)$$ 
+  
+  Values for the cumulative standard normal distribution, $F(z)$, are tabulated (and easy to compute in R using the function ``pnorm``).
+
+Some value of particular interest:
+  
+  F(1.64) = 0.95
+F(1.96) = 0.975
+
+As the normal distribution is symmetric
+
+F(-1.64) = 0.05
+F(-1.96) = 0.025
+
+P(-1.96 < Z < 1.96) = 0.95
+
+<!-- Show table? -->
+  
+  <!-- dnorm -->
+  
+  <!-- pnorm -->
+  
+### Sum of two normal random variables
+  
+  If $X \sim N(\mu_1, \sigma_1)$ and $Y \sim N(\mu_2, \sigma_2)$ are two independent normal random variables, then their sum is also a random variable:
+  
+  $$X + Y \sim N(\mu_1 + \mu_2, \sqrt{\sigma_1^2 + \sigma_2^2})$$
+  
+  and 
+
+$$X - Y \sim N(\mu_1 - \mu_2, \sqrt{\sigma_1^2 + \sigma_2^2})$$
+  This can be extended to the case with $n$ independent and identically distributed random varibles $X_i$ ($i=1 \dots n$). If all $X_i$ are normally distributed with mean $\mu$ and standard deviation $\sigma$, $X_i \in N(\mu, \sigma)$, then the sum of all $n$ random variables will also be normally distributed with mean $n\mu$ and standard deviation $\sqrt{n} \sigma$.
+
+
+## Central limit theorem
+
+> The sum of $n$ independent and equally distributed random variables
+> is normally distributed, if $n$ is large enough.
+
+As a result of central limit theorem, the distribution of fractions or mean values of a sample follow the normal distribution, at least if the sample is large enough (a rule of thumb is that the sample size $n>30$).
+
+
+<!-- ```{example, "Mean BMI", eval=FALSE} -->
+  <!-- Percentage of body fat, age, weight, height, BMI and ten body circumference -->
+  <!-- measurements are recorded for 252 men. Consider these 252 as a population and compute the population mean ans standard deviation. -->
+  <!-- ``` -->
+  
+  ```{example, "Mean BMI", echo=TRUE}
+In a population of 252 men we can study the distribution of BMI.
+```
+
+```{r fatdata}
+fat <- read.table("http://jse.amstat.org/datasets/fat.dat.txt")
+colnames(fat) <- c("case","body.fat","body.fat.siri","density","age","weight","height","BMI","ffweight","neck","chest","abdomen","hip","thigh","knee","ankle" ,"bicep","forearm","wrist" )
+```
+
+```{r BMIhist, out.width="60%"}
+pl <- ggplot(fat, aes(x=BMI)) + geom_histogram(aes(y=stat(density)), binwidth=2, color="white") + theme_bw()
+plot(pl)
+```
+
+
+```{r BMI, echo=TRUE}
+##Population mean
+mu <- mean(fat$BMI)
+mu
+##Population variance
+sigma2 <- var(fat$BMI)/nrow(fat)*(nrow(fat)-1)
+sigma2
+##Population standard variance
+sigma <- sqrt(sigma2)
+sigma
+```
+
+Randomly sample 3, 5, 10, 15, 20, 30 men and compute the mean value, $m$. Repeat many times to get the distribution of mean values.
+
+```{r owexample, out.width="70%", fig.width=7, fig.show="hold"}
+#hist(fat$BMI)
+bmi <- fat$BMI
+n <- c(3,5,10,15,20, 30)
+rs <- sapply(n, function(k) replicate(10000, mean(sample(bmi, k))))
+colnames(rs) <- paste(sprintf("n=%i, m=%.4f", n, colMeans(rs)))
+plot(ggplot(melt(rs, varnames=c("rep", "n")), aes(x=value, color=factor(n))) + geom_density() + theme_bw())
+```
+
+Note, mean is just the sum divided by the number of samples $n$.
+
+## $\chi^2$-distribution
+
+If $X_i \in N(0,1)$ then $Y = \sum_{i=1}^n X_i^2$ is a $\chi^2$ distributed random variable, $Y \in \chi^2(n)$ with $n$ degrees of freedom (df).
+
+```{r}
+x <- seq(0, 21, .1)
+dX <- data.frame(x=x, fx=dchisq(x, df=3))
+ggplot(dX, aes(x=x, y=fx)) + geom_line() + theme_bw()
+```
+
+Example, variance is $\chi^2$ distributed.
+
+<!-- Example. $\chi^2$-test for variance -->
+  
+## F-distribution
+  
+The ratio of two $\chi^2$-distributed variables is F-distributed
+
+```{r Fdistr}
+x <- seq(0, 5, .01)
+dF <- data.frame(x=x, fx=df(x, df1=3, df2=4))
+ggplot(dF, aes(x=x, y=fx)) + geom_line() + theme_bw()
+```
+
+Example, the ratio of two variances is F-distributed
+<!-- Example. F-test of equality of variances -->
+  
+## t-distribution
+  
+  The ratio of a normally distributed variable and a $\chi^2$-distributed variable is t-distributed.
+
+```{r}
+x <- seq(-3.5,3.5, .01)
+dT <- data.frame(x=x, fx=dt(x, df=5))
+ggplot(dT, aes(x=x, y=fx)) + geom_line() + theme_bw()
+```
+
+Example, the ratio between mean and variance is t-distributed.
