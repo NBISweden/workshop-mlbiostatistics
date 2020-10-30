@@ -7,20 +7,37 @@ title:  'Pre-course material'
 ##### <img border="0" src="icons/precourse.svg" width="40" height="40"> Pre-course information
 To be decided
 
-<!-- # Pre-course
-There are few things **to do** before the course starts. These include both setting up computers as well as pre-course studying. Please read carefully and follow the instructions so we can have a good start. Contact us in case anything in unclear.
+# Pre-course
+There are few things **to do** before the course starts. These include both pre-course homework (studying), setting up communication channels and your computer.
 
-## Content
-- [R & R-Studio](#R)
-- [R libraries and datasets](#Rlib)
-- [Reading](#reading)
-- [Exercises](#exercises)
+
+- [Pre-course homework](#homework)
+- [R. R-Studio, R markdown](#R)
 - [What do bring](#whattobring)
 - [Additional resources](#extra)
+<!-- - [R libraries and datasets](#Rlib) -->
+<!-- - [Reading](#reading) -->
 
 ---
 
-### R & R-Studio <a name="R"></a>
+### Pre-course homework <a name="homework"></a>
+
+As biostatistics and machine learning is based on mathematics, time to revise. Go to [https://olgadet.github.io/bookdown-mlbiostatistics/](https://olgadet.github.io/bookdown-mlbiostatistics/) and have a look at the Preliminary Mathematics section, 7 chapters covering basics of mathematical notations, sets, functions, differentiation, integration, vectors and matrices.
+
+Find pen and paper and write down the solutions or your best attempt to the following exercises:
+- Ex. 1.3: f, g, h
+- Ex. 1.4: e, f, g, h
+- Ex. 2.2
+- Ex. 3.2, 3.3
+- Ex. 4.6: h, i, j
+- Ex. 5.1: i, j
+- Ex. 6.1: e
+- Ex. 7.1: h
+
+**Have your solutions or attempts handy on Monday**
+
+
+### R, R-Studio and Rmd <a name="R"></a>
 
 During the course we will run scripts locally on laptops using `R` and `R-Studio`. To be able to follow exercises we ask you to install R and R-Studio on your laptop. Both of these work on computers running Linux, Windows and Macintosh operating systems. R-studio is a set of tools as well as an editor that facilitates the use of R. Over the last years it has become a very popular tool and in many ways become a de-facto standard for working with R.
 
@@ -103,14 +120,14 @@ NOTE: If you do not already have the package devtools installed or for other rea
 
 ------
 
-### Reading <a name="reading"></a>
+<!-- ### Reading <a name="reading"></a>
 - 2-pager [math refresher](precourse/Maths-Refresher.pdf) (Polak, 2015)
 - Chapter **Matrix algebra**, pages 147 - 157 (subsections: Matrix Notation; Solving System of Equations; Vectors, Matrices and Scalars; Matrix Operations) from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
 - Chapter 3, session **3.1 Simple Linear Regression**, pages 61 - 70, from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani
 
-------
+------ -->
 
-### Exercises <a name="exercises"></a>
+### R practice  <a name="R-practice"></a>
 If you are new to R and/or R Markdown read carefully and practice commands. If you've been using R and R Markdown scan through the materials to double check you it covered.
 
 ##### R
@@ -130,8 +147,8 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 -------
 ### Additional resources <a name="extra"></a>
 
-#### Extra reading
--  Chapter: Inference from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love
+<!-- #### Extra reading
+-  Chapter: Inference from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love -->
 
 #### Extra R labs
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
@@ -144,4 +161,4 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
 
 
 [book-gj]: https://www-bcf.usc.edu/~gareth/ISL/ISLR%20First%20Printing.pdf
-[book-rai]: http://www.rwdc2.com/files/rafa.pdf -->
+[book-rai]: http://www.rwdc2.com/files/rafa.pdf
