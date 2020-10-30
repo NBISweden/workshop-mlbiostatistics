@@ -4,23 +4,23 @@ title:  'Pre-course material'
 ---
 
 <br/>
-##### <img border="0" src="icons/precourse.svg" width="40" height="40"> Pre-course information
-To be decided
+### <img border="0" src="icons/precourse.svg" width="40" height="40"> Pre-course information
 
-# Pre-course
+
 There are few things **to do** before the course starts. These include both pre-course homework (studying), setting up communication channels and your computer.
 
 
 - [Pre-course homework](#homework)
-- [R. R-Studio, R markdown](#R)
+- [Communication](#communication)
+- [R, R-Studio, R markdown](#R)
 - [What do bring](#whattobring)
-- [Additional resources](#extra)
+
+<!-- - [Additional resources](#extra) -->
 <!-- - [R libraries and datasets](#Rlib) -->
 <!-- - [Reading](#reading) -->
 
----
 
-### Pre-course homework <a name="homework"></a>
+#### Pre-course homework <a name="homework"></a>
 
 As biostatistics and machine learning is based on mathematics, time to revise. Go to [https://olgadet.github.io/bookdown-mlbiostatistics/](https://olgadet.github.io/bookdown-mlbiostatistics/) and have a look at the Preliminary Mathematics section, 7 chapters covering basics of mathematical notations, sets, functions, differentiation, integration, vectors and matrices.
 
@@ -37,22 +37,38 @@ Find pen and paper and write down the solutions or your best attempt to the foll
 **Have your solutions or attempts handy on Monday**
 
 
-### R, R-Studio and Rmd <a name="R"></a>
+#### Communication <a name="communication"></a>
+We will be using [Zoom](https://zoom.us) for discussions and [Zulip](https://zulip.com) for chatting in writing
 
-During the course we will run scripts locally on laptops using `R` and `R-Studio`. To be able to follow exercises we ask you to install R and R-Studio on your laptop. Both of these work on computers running Linux, Windows and Macintosh operating systems. R-studio is a set of tools as well as an editor that facilitates the use of R. Over the last years it has become a very popular tool and in many ways become a de-facto standard for working with R.
+##### Zoom Meeting
+- https://stockholmuniversity.zoom.us/j/67966236535?pwd=cVFoUWpUWUNEV1g1RmZFdGZDZmJqdz09
+*Password sent via email*
 
-Note that on some operating systems it will be easier to install and run R and R-studio if you are administrator of your own computer and hence are allowed to install software on your machine. If you do not have these privileges please ask your system administrator to install the latest version of R and R-studio.
+##### Zulip
+- Join via the invitation link *sent via email*
+- Upload your photo. Edit your profile. Introduce yourself in the "sayHi" stream
+- And feel free to start the conversation going under "prelim-math" while you're doing your pre-course homework
 
-##### Install R
+#### What to bring <a name="whattobring"></a>
+- bring your own laptop with the below R and R-Studio installations
+- have a working web camera and a quiet space to take the course from
+- have a pen and paper to write on
+- do not forget a positive attitude
 
-Install version 3.5.0 or higher
+
+#### R, R-Studio and Rmd <a name="R"></a>
+
+During the course we will run scripts locally on laptops using `R` (programming language) and `R-Studio` (editor). We  will write scripts in using R markdown files (.Rmd), a files that include both an easy-to-write plain text that can also contain chunks of embedded R code.
+
+##### R
+
+Install R version 3.5.0 or higher
 
 1.  Go to [CRAN](https://cran.rstudio.com)
 2.  Click on the link corresponding to your operating system
 3.  Download the recommended files for your system.
 4.  Run the installer or move the downloaded files to suitable place on
     your computer.
-
 
 ##### Install R Studio
 
@@ -65,8 +81,17 @@ If the installation above went without any problem you should be able to fire up
 <img src="precourse/images/RStudio.png" width="500" height="400">
 </figure>
 
-----------
-### R libraries and datasets <a name="Rlib"></a>
+
+*Note that on some operating systems it will be easier to install and run R and R-studio if you are administrator of your own computer and hence are allowed to install software on your machine. If you do not have these privileges please ask your system administrator to install the latest version of R and R-studio.*
+
+#### R and R Markdown
+- If you are new to R Markdown have a look [https://rmarkdown.rstudio.com/lesson-1.html](https://rmarkdown.rstudio.com/lesson-1.html)
+- If you are new to R you can practice both R and R markdown with codecademy [https://www.codecademy.com/learn/learn-r](https://www.codecademy.com/learn/learn-r)
+
+
+
+<!--
+##### R libraries and datasets <a name="Rlib"></a>
 
 By default, R installs a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install.
 
@@ -116,9 +141,9 @@ Example screen shoot with install.packages(ggplot2) command
 6. **Email us** <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>> the resulting `Rtest.html` file. If installation was successful, `Rtest.Rmd` will render to `Rtest.html` with KnitR. The file should be saved in the same directory as the `Rtest.Rmd`.
 7. Otherwise, you will get error messages in the console. You can try to trouble shoot by reading error messages and re-installing packages. If you are new to R and R-Studio try also reading Chapter 1 - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love. If you do not manage, email <<olga.dethlefsen@nbis.se>> and <<eva.freyhult@nbis.se>>. An empty email with a title "Will need help with R/RStudio setup" will do.
 
-NOTE: If you do not already have the package devtools installed or for other reasons run into problems installing the package googlesheets4, please skip this package! Use this file [Rtestreduced.Rmd](precourse/Rtestreduced.Rmd) to test your installation instead and send us the resulting `Rtestreduced.html` file.
+If you do not already have the package devtools installed or for other reasons run into problems installing the package googlesheets4, please skip this package! Use this file [Rtestreduced.Rmd](precourse/Rtestreduced.Rmd) to test your installation instead and send us the resulting `Rtestreduced.html` file.
 
-------
+------ -->
 
 <!-- ### Reading <a name="reading"></a>
 - 2-pager [math refresher](precourse/Maths-Refresher.pdf) (Polak, 2015)
@@ -127,34 +152,31 @@ NOTE: If you do not already have the package devtools installed or for other rea
 
 ------ -->
 
-### R practice  <a name="R-practice"></a>
+<!-- ### Additional R practice  <a name="R-practice"></a>
 If you are new to R and/or R Markdown read carefully and practice commands. If you've been using R and R Markdown scan through the materials to double check you it covered.
 
 ##### R
 
 - Read and practice commands from Chapter: **Getting started** - [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love.
-- Do lab **2.3 Lab: Introduction to R** from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available)
+- Do lab **2.3 Lab: Introduction to R** from [An Introduction to Statistical Learning][book-gj], Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (.pdf freely available) -->
 
-#### R Markdown
-- [Introduction to R Markdown](https://rmarkdown.rstudio.com/articles_intro.html)
 
--------
-### What to bring <a name="whattobring"></a>
-- bring your own laptop with the above R and R-Studio installations
-- bring pen and paper to write on
-- a positive attitude
 
 -------
-### Additional resources <a name="extra"></a>
+
+
+
+<!-- -------
+### Additional resources <a name="extra"></a> -->
 
 <!-- #### Extra reading
 -  Chapter: Inference from [Data analysis for the life sciences][book-rai], Rafael A. Irizarry and Michael I. Love -->
 
-#### Extra R labs
+<!-- #### Extra R labs
 - [Best first R tutorial](https://www.nceas.ucsb.edu/files/scicomp/Dloads/RProgramming/BestFirstRTutorial.pdf)  
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
-  A very short introduction to using R.
+  A very short introduction to using R. -->
 
 
 
