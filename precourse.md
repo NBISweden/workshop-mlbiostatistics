@@ -37,8 +37,8 @@ There are few things **to do** before the course starts. These include both pre-
 - We will be using [Zoom](https://zoom.us) for discussions and [Zulip](https://zulip.com) for chatting in writing
 
 ##### Zoom Meeting
-- https://stockholmuniversity.zoom.us/j/67966236535
-*Password sent via email*
+- [https://stockholmuniversity.zoom.us/j/67966236535](https://stockholmuniversity.zoom.us/j/67966236535)
+- *Password sent via email*
 
 ##### Zulip
 - Join via the invitation link *sent via email*
@@ -85,7 +85,7 @@ Install R version 3.5.0 or higher
 
 # install decision tress packages
 install.packages("rpart")
-install.packages("rpart")
+install.packages("rpart.part")
 install.packages("randomForest")
 
 # install artifical neural network package
@@ -94,6 +94,7 @@ install.packages("neuralnet")
 ```
 
 - To use the install package we load them by using `library()` or `require()` e.g.
+
 ```R
 
 library("neuralnet")
@@ -102,8 +103,11 @@ require("randomForest")
 ```
 
 - To see packages index page use `help()` function
+
 ```R
+
 help(package="neuralnet")
+
 ```
 
 ##### Install R packages
