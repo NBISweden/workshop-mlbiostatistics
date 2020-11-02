@@ -13,7 +13,7 @@ There are few things **to do** before the course starts. These include both pre-
 - [Pre-course homework](#homework)
 - [Communication](#communication)
 - [R, R-Studio, R markdown](#R)
-- [What do bring](#whattobring)
+- [What to bring](#whattobring)
 
 <!-- - [Additional resources](#extra) -->
 <!-- - [R libraries and datasets](#Rlib) -->
@@ -21,27 +21,23 @@ There are few things **to do** before the course starts. These include both pre-
 
 
 #### Pre-course homework <a name="homework"></a>
-
-As biostatistics and machine learning is based on mathematics, time to revise. Go to [https://olgadet.github.io/bookdown-mlbiostatistics/](https://olgadet.github.io/bookdown-mlbiostatistics/) and have a look at the Preliminary Mathematics section, 7 chapters covering basics of mathematical notations, sets, functions, differentiation, integration, vectors and matrices.
-
-Find pen and paper and write down the solutions or your best attempt to the following exercises:
-- Ex. 1.3: f, g, h
-- Ex. 1.4: e, f, g, h
-- Ex. 2.2
-- Ex. 3.2, 3.3
-- Ex. 4.6: h, i, j
-- Ex. 5.1: i, j
-- Ex. 6.1: e
-- Ex. 7.1: h
-
-**Have your solutions or attempts handy on Monday**
-
+- Biostatistics and machine learning is based on mathematics so in order to have a good start at the course we need to revise or pick-up the basics.
+- Go to [https://olgadet.github.io/bookdown-mlbiostatistics/](https://olgadet.github.io/bookdown-mlbiostatistics/) and have a look at the Preliminary Mathematics section, 7 chapters covering basics of mathematical notations, sets, functions, differentiation, integration, vectors and matrices.
+- Find pen and paper and **write down** the solutions (or your best attempt) to the following exercises:
+  - Ex. 1.3: f, g, h
+  - Ex. 1.4: e, f, g, h
+  - Ex. 2.2
+  - Ex. 3.2, 3.3
+  - Ex. 4.6: h, i, j
+  - Ex. 5.1: i, j
+  - Ex. 6.1: e
+  - Ex. 7.1: h
 
 #### Communication <a name="communication"></a>
-We will be using [Zoom](https://zoom.us) for discussions and [Zulip](https://zulip.com) for chatting in writing
+- We will be using [Zoom](https://zoom.us) for discussions and [Zulip](https://zulip.com) for chatting in writing
 
 ##### Zoom Meeting
-- https://stockholmuniversity.zoom.us/j/67966236535?pwd=cVFoUWpUWUNEV1g1RmZFdGZDZmJqdz09
+- https://stockholmuniversity.zoom.us/j/67966236535
 *Password sent via email*
 
 ##### Zulip
@@ -49,16 +45,17 @@ We will be using [Zoom](https://zoom.us) for discussions and [Zulip](https://zul
 - Upload your photo. Edit your profile. Introduce yourself in the "sayHi" stream
 - And feel free to start the conversation going under "prelim-math" while you're doing your pre-course homework
 
-#### What to bring <a name="whattobring"></a>
-- bring your own laptop with the below R and R-Studio installations
-- have a working web camera and a quiet space to take the course from
-- have a pen and paper to write on
-- do not forget a positive attitude
+#### What to bring (have) <a name="whattobring"></a>
+- a laptop with R and R-Studio installations (see below)
+- a working web camera and a quiet space to take the course from
+- solutions (or attempts) to the exercises (see above Pre-course homework)
+- a pen and paper to write on
+- a positive attitude
 
 
-#### R, R-Studio and Rmd <a name="R"></a>
+#### R, R-Studio, R-packages and Rmd <a name="R"></a>
 
-During the course we will run scripts locally on laptops using `R` (programming language) and `R-Studio` (editor). We  will write scripts in using R markdown files (.Rmd), a files that include both an easy-to-write plain text that can also contain chunks of embedded R code.
+- During the course we will run scripts locally on laptops using `R` (programming language) and `R-Studio` (editor). We  will write scripts in using R markdown files (.Rmd), a files that include both an easy-to-write plain text that can also contain chunks of embedded R code.
 
 ##### R
 
@@ -72,22 +69,49 @@ Install R version 3.5.0 or higher
 
 ##### Install R Studio
 
-Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/) download the installer corresponding to your operating system. Unpack the installer and install the app on a suitable place on your system.
-
-##### Test installations
-
-If the installation above went without any problem you should be able to fire up R-studio and see something like the following:
+- Go to the web page [rstudio](https://www.rstudio.com/products/rstudio/download/) download the installer corresponding to your operating system. Unpack the installer and install the app on a suitable place on your system.
+- You should now be able to fire up R-studio and see something like the following:
 <figure>
 <img src="precourse/images/RStudio.png" width="500" height="400">
 </figure>
 
+- *Note that on some operating systems it will be easier to install and run R and R-studio if you are administrator of your own computer and hence are allowed to install software on your machine. If you do not have these privileges please ask your system administrator to install the latest version of R and R-studio.*
 
-*Note that on some operating systems it will be easier to install and run R and R-studio if you are administrator of your own computer and hence are allowed to install software on your machine. If you do not have these privileges please ask your system administrator to install the latest version of R and R-studio.*
+##### R packages
+- By default, R installs a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install. To install a package, we type in console `install.packages("package-name")`
+- Try installing packages that we will use for decision tress and artificial neural networks
+
+```R
+
+# install decision tress packages
+install.packages("rpart")
+install.packages("rpart")
+install.packages("randomForest")
+
+# install artifical neural network package
+install.packages("neuralnet")
+
+```
+
+- To use the install package we load them by using `library()` or `require()` e.g.
+```R
+
+library("neuralnet")
+require("randomForest")
+
+```
+
+- To see packages index page use `help()` function
+```R
+help(package="neuralnet")
+```
+
+##### Install R packages
+To install R packages, open R-Studio and in the console, type
 
 #### R and R Markdown
 - If you are new to R Markdown have a look [https://rmarkdown.rstudio.com/lesson-1.html](https://rmarkdown.rstudio.com/lesson-1.html)
-- If you are new to R you can practice both R and R markdown with codecademy [https://www.codecademy.com/learn/learn-r](https://www.codecademy.com/learn/learn-r)
-
+- If you are new to R you can follow for free introduction online R lessons at codecademy [https://www.codecademy.com/learn/learn-r](https://www.codecademy.com/learn/learn-r) or at datacamp [https://www.datacamp.com/courses/free-introduction-to-r](https://www.datacamp.com/courses/free-introduction-to-r)
 
 
 <!--
@@ -177,8 +201,6 @@ If you are new to R and/or R Markdown read carefully and practice commands. If y
   A nice self learn tutorial to R, introducing many central concepts to R.
 - [A short introduction to R](https://cran.r-project.org/doc/contrib/Torfs+Brauer-Short-R-Intro.pdf)  
   A very short introduction to using R. -->
-
-
 
 
 
