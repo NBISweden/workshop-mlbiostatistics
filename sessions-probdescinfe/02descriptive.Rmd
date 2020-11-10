@@ -1,0 +1,260 @@
+# Descriptive statistics {#desc}
+
+Learning outcomes:
+
+- be aware of data types
+- compute measures of location, including mean and median
+- compute measures of spread, including quantiles, variance and standard deviation
+- learn about probability density functions and cumulative distribution functions
+- compute population mean and variance
+- compute sample mean and variance
+- use normal distribution
+- understand the central limit theorem
+
+```{r setup, include=FALSE}
+library(tidyverse)
+require(kableExtra)
+library(reshape2)
+library(ggplot2)
+require(knitr)
+require(UsingR)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=2)
+```
+
+
+
+## Data types
+
+- Categorical
+  - Nominal: named.
+Ex: dead/alive, healthy/sick, WT/mutant, AA/Aa/aa, male/female, red/green/blue
+  - Ordinal: named and ordered. Ex: pain (weak, moderate, severe), AA/Aa/aa, very young/young/middle age/old/very old, grade I, II, III, IV
+
+Reported as frequencies, proportions, summarized using mode
+
+- Quantitative (numeric)
+<!--   - Interval: no absolute zero, meaningful to compute interval ratios. -->
+<!--     Ex: time, temperature -->
+<!--   - Ratio: absolute zero, meaningful to compute ratios. Ex. height, -->
+<!--     weight, concentration -->
+<!-- Often not necessary to distinguish between interval and ratio scale, can be more useful to divide the quantitative scales into -->
+  - Discrete: finite or countable infinite values. Ex. counts, number of cells, number of reads
+  - Continuous: infinitely many uncountable values.  Ex. height, weight, concentration
+
+Useful summary statistics include mean, median, variance, standard deviation.
+
+## Measures of location
+- Mode: the most common value, can be computed also for categorical data
+- Median: The value that divide the ordered data values into two equally sized groups. 50% of the values are below the median.
+
+```{r normpdf, fig.width=2, out.width="20%"}
+df <- data.frame(x=rnorm(200, 3.5, 2))
+ggplot(df, aes(y=x)) + geom_boxplot() + theme_bw()
+```
+
+- Mean: the arithmetic mean, also called the average
+
+### Expected value
+
+The expected value of a random variable, or the population mean, is
+
+$$\mu = E[X] = \frac{1}{N}\displaystyle\sum_{i=1}^N x_i,$$
+where the sum is over all $N$ data points in the population.
+
+The above formula is probably the most intuitive for finite populations, but for infinite populations other definitions can be used.
+
+For a discrete random variable:
+
+$$\mu = E[X] = \displaystyle\sum_{k=1}^K x_k p(x_k),$$
+
+where the sum is taken over all possible outcomes.
+
+For a continuous random variable:
+
+$$\mu = E[X] = \int_{-\infty}^\infty x f(x) dx$$
+
+#### Linear transformations and combinations
+
+$$E(aX) = a E(X)$$
+
+$$E(X + Y) = E(X) + E(Y)$$
+
+$$E[aX + bY] = aE[X] + bE[Y]$$
+
+
+```{example, "All with mean value: 3.50", echo=TRUE}
+Several very different distributions can still have the same mean value.
+```
+
+```{r mean35, warning=FALSE, message=FALSE, fig.width=7, fig.height=4}
+#df <- data.frame(x=rnorm(200, 3.5, 2))
+df$x <- df$x - mean(df$x) + 3.5
+y <- exp(rnorm(200, 0, 1))
+y <- y+3.5 - mean(y)
+df$y=y
+
+df$z <- rep(c(0,10), c(200*.65, 200*.35))
+
+df$a <- rnorm(200, 3.5, 8)
+df$a <- df$a - mean(df$a) + 3.5
+b <- exp(rnorm(200, 2, 1))
+df$b <- b+3.5 - mean(b)
+c <- c(rnorm(150, 10, 3), rnorm(50,0,1))
+c <- c + 3.5 - mean(c)
+df$c <- c
+
+plot(ggplot(melt(df), aes(x=value)) + geom_histogram(color="white", bins=30)  + facet_wrap(~variable, scale="free") + theme_bw())#+ geom_text(data=data.frame(variable=colnames(df), label=sprintf("mean: %.2f", colMeans(df))), aes(x=8,y=20,label=label))
+``` 
+
+
+## Measures of spread
+- Quartiles - the three values that divide the data values into four equally sized groups.
+
+  - Q1. First quartile. 25\% of the values are below Q1. Divides the values below the median into equally sized groups.
+  - Q2. Second quartile. 50\% of the values are below Q2. Q2 is the median.
+  - Q3. Third quartile. 75\% of the values are below Q3. Divides the values above the median into equally sized groups.
+
+```{r boxplot1, fig.width=2, out.width="20%"}
+ggplot(df, aes(y=x)) + geom_boxplot() + theme_bw()
+```
+
+- IQR: interquartile range: Q3 - Q1
+- Variance, $\sigma^2$.
+The variance is the mean squared distance from the mean value.
+- Standard deviation, $\sigma = \sqrt{\sigma^2}$.
+
+### Variance and standard deviation
+
+The variance of a random variable, the population variance, is defined as
+
+$$\sigma^2 = var(X) = E[(X-\mu)^2]$$
+
+$$\sigma^2 = var(X) = \frac{1}{N} \sum_{i=1}^N (x-\mu)^2,$$
+where the sum is over all $N$ data points in the population.
+
+$$\sigma^2 = var(X) = E[(X-\mu)^2] = \left\{\begin{array}{ll}
+\displaystyle\sum_{k=1}^K (x_k-\mu)^2 p(x_k) & \textrm{if }X\textrm{ discrete} \\
+\\
+\displaystyle\int_{-\infty}^\infty (x-\mu)^2 f(x) dx & \textrm{if }X\textrm{ continuous}
+\end{array}\right.$$
+
+Standard deviation
+
+$$\sigma = \sqrt{var(X)}$$
+
+#### Linear transformations and combinations
+
+$$var(aX) = a^2 var(X)$$
+
+For independent random variables X and Y
+
+$$var(aX + bY) = a^2var(X) + b^2var(Y)$$
+
+## Random sample
+
+In many (most) experiments it is not feasible (or even possible) to examine the entire population. Instead we study a random sample.
+
+A random sample is a random subset of of $n$ individuals from a population of size $N$.
+<!-- In random sampling from a population, where the variable $X$ has a known distribution with mean $\mu$ and standard deviation $\sigma$ -->
+  
+A simple random sample is a random subset of $n$ individuals from a population population of size $N,$ where every individual has the same probability of being choosen.
+
+**Notation**
+
+A random sample $x_1,x_2,\dots,x_n$ from a distribution, $D$, consists of $n$ observations of the independent random variables $X_1, X_2,\dots,X_n$ all with the distribution $D$.
+
+### The urn model to perform simple random sampling
+
+Let every individual in the population be represented by a ball. Tha value on each ball is the measurement we are interested in, for example height, shoe size, hair color, healthy/sick, type of cancer/no cancer, blood glucose value, etc.
+
+Draw $n$ balls from the urn, without replacement, to get a random sample of size $n$.
+
+### Sample properties
+
+Summary statistics can be computed for a sample, such as the sum, proportion, mean and variance.
+
+#### Sample proportion
+
+The proportion of a population with a particular property is $\pi$.
+
+The number of individuals with the property in a simple random sample of size $n$ is a random variable $X$. The proportion of individuals a sample with the property is also a random variable;
+
+$$P = \frac{X}{n}$$
+with expected value 
+$$E[P] = \frac{E[X]}{n} = \frac{n\pi}{n} = \pi$$
+
+### Sample mean and standard deviation
+
+For a particular sample of size $n$; $x_1, \dots, x_n$, the sample mean is denoted $m = \bar x$. The sample mean is calculated as;
+  
+  $$m = \bar x = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$
+and the sample variance as;
+
+$$s^2 = \frac{1}{n-1} \sum_{i=1}^n (x-m)^2$$
+
+Note that the mean of $n$ independent identically distributed random variables, $X_i$ is itself a random variable;
+  
+$$\bar X = \frac{1}{n}\sum_{i=1}^n X_i,$$
+If $X_i \sim N(\mu, \sigma)$ then $\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right)$.
+
+When we only have a sample of size $n$, the sample mean $m$ is our best estimate of the population mean. It is possible to show that the sample mean is an unbiased estimate of the population mean, i.e. the average (over many size $n$ samples) of the sample mean is $\mu$.
+
+$$E[\bar X] = \frac{1}{n} n E[X] = E[X] = \mu$$
+
+Similarly, the sample variance is an unbiased estimate of the population variance.
+
+### Standard error
+
+Eventhough the sample can be used to calculate unbiased estimates of the population value, the sample estimate will not be perfect. The standard deviation of the sampling distribution (the distribution of sample estimates) is called the standard error.
+
+For the sample mean, $\bar X$, the variance is
+
+$$E[(\bar X - \mu)] = var(\bar X) = var(\frac{1}{n}\sum_i X_i) = \frac{1}{n^2} \sum_i var(X_i) = \frac{1}{n^2} n var(X) = \frac{\sigma^2}{n}$$
+The standard error of the mean is thus;
+
+$$SEM = \frac{\sigma}{\sqrt{n}}$$
+Replacing $\sigma$ with the sample standard deviation, $s$, we get an estimate of the standard deviation of the mean;
+
+$$SEM \approx \frac{s}{\sqrt{n}}$$
+An alternative definition of standard error of the mean is actually 
+
+$$SEM = \frac{s}{\sqrt{n}}$$
+  
+
+
+```{r babies}
+ounce <- 0.0283495231
+babies$wtkg <- babies$wt*ounce
+babies$smoking <- 1*(babies$smoke==1)
+babies$smoking[babies$smoke==9] <- NA
+babies$smoker <- c("non-smoker", "smoker")[babies$smoking + 1]
+babies$age[babies$age==99] <- NA
+babies$weightmother <- babies$wt1*0.45359237
+babies$weightmother[babies$wt1==999] <- NA
+#babies %>% dplyr::select(smoker, age, wtkg, weightmother) %>% group_by(smoker) %>% #summarize_all(.funs=c(m=mean, s=sd), na.rm=TRUE)
+N <- as.data.frame(table(babies$parity, babies$smoker))
+F <- sapply(split(N$Freq, N$Var2), function(x) x/sum(x))
+N <- sapply(split(N$Freq, N$Var2), identity)
+``` 
+
+**Exercise:** Data summary
+
+Consider the below data and summarize each of the variables.
+
+```{r }
+#babies %>% transmute(id=id, smoker=c(smoker="yes", "non-smoker"="no")[smoker], "baby weight" = wtkg, "mother weight"=weightmother, "mother age"=age, gender=sample(c("F", "M"), nrow(babies), replace=TRUE), parity=parity) %>% filter((1:nrow(babies)) %in% sample(1:nrow(babies), 13)) %>%  arrange(smoker) %>% kable() %>% kable_styling("striped")
+
+set.seed(1)
+baby <- data.frame(id=1:10, 
+                   smoker=rep(c("yes", "no"), each=5), 
+                   "baby weight (kg)"=c(2.8,3.2,3.5,2.7,3.3, 3.7,3.3,4.3,3.2,3.0),
+                   gender = sample(c("F", "M"), 10, replace=TRUE),
+                   "mother weight (kg)" = c(64, 65, 64, 73, 59, 61, 52, 59, 65, 73), 
+                   "mother age" = c(21, 27, 31, 32, 39, 26, 27, 21, 28, 33),
+                   parity = c(2,1,2,0,3,0,2,0,1,4),
+                   married = sample(c("yes", "no"), 10, replace=TRUE),
+                   check.names=FALSE)
+baby %>% kable() %>% kable_styling("striped", full_width = FALSE)
+``` 
+
