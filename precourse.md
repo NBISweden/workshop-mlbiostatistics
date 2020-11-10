@@ -79,13 +79,13 @@ Install R version 3.5.0 or higher
 
 ##### R packages
 - By default, R installs a set of packages during installation. R package, is a basic unit of sharable code, that bundles together code, data, documentation and tests. In the course we will be using both default and additional R packages; the latter we need to install. To install a package, we type in console `install.packages("package-name")`
-- Try installing packages that we will use for decision tress and artificial neural networks
+- Try installing packages that we will use for decision trees and artificial neural networks
 
 ```R
 
-# install decision tress packages
+# install decision trees packages
 install.packages("rpart")
-install.packages("rpart.part")
+install.packages("rpart.plot")
 install.packages("randomForest")
 
 # install artifical neural network package
