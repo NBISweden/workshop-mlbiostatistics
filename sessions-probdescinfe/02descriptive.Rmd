@@ -5,11 +5,10 @@ Learning outcomes:
 - be aware of data types
 - compute measures of location, including mean and median
 - compute measures of spread, including quantiles, variance and standard deviation
-- learn about probability density functions and cumulative distribution functions
+- understand the concept random sample
 - compute population mean and variance
 - compute sample mean and variance
-- use normal distribution
-- understand the central limit theorem
+
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -82,12 +81,9 @@ $$E(X + Y) = E(X) + E(Y)$$
 
 $$E[aX + bY] = aE[X] + bE[Y]$$
 
+Note, several very different distributions can still have the same mean value.
 
-```{example, "All with mean value: 3.50", echo=TRUE}
-Several very different distributions can still have the same mean value.
-```
-
-```{r mean35, warning=FALSE, message=FALSE, fig.width=7, fig.height=4}
+```{r mean35, warning=FALSE, message=FALSE, fig.width=7, fig.height=4, fig.cap="All these distributions have the same mean value, 3.50."}
 #df <- data.frame(x=rnorm(200, 3.5, 2))
 df$x <- df$x - mean(df$x) + 3.5
 y <- exp(rnorm(200, 0, 1))
@@ -112,7 +108,7 @@ plot(ggplot(melt(df), aes(x=value)) + geom_histogram(color="white", bins=30)  + 
 - Quartiles - the three values that divide the data values into four equally sized groups.
 
   - Q1. First quartile. 25\% of the values are below Q1. Divides the values below the median into equally sized groups.
-  - Q2. Second quartile. 50\% of the values are below Q2. Q2 is the median.
+  - Q2.´ Second quartile. 50\% of the values are below Q2. Q2 is the median.
   - Q3. Third quartile. 75\% of the values are below Q3. Divides the values above the median into equally sized groups.
 
 ```{r boxplot1, fig.width=2, out.width="20%"}
@@ -155,10 +151,10 @@ $$var(aX + bY) = a^2var(X) + b^2var(Y)$$
 
 In many (most) experiments it is not feasible (or even possible) to examine the entire population. Instead we study a random sample.
 
-A random sample is a random subset of of $n$ individuals from a population of size $N$.
+A random sample is a random subset of individuals from a population.
 <!-- In random sampling from a population, where the variable $X$ has a known distribution with mean $\mu$ and standard deviation $\sigma$ -->
   
-A simple random sample is a random subset of $n$ individuals from a population population of size $N,$ where every individual has the same probability of being choosen.
+A simple random sample is a random subset of individuals from a population, where every individual has the same probability of being choosen.
 
 **Notation**
 
@@ -166,7 +162,7 @@ A random sample $x_1,x_2,\dots,x_n$ from a distribution, $D$, consists of $n$ ob
 
 ### The urn model to perform simple random sampling
 
-Let every individual in the population be represented by a ball. Tha value on each ball is the measurement we are interested in, for example height, shoe size, hair color, healthy/sick, type of cancer/no cancer, blood glucose value, etc.
+Let every individual in the population be represented by a ball. The value on each ball is the measurement we are interested in, for example height, shoe size, hair color, healthy/sick, type of cancer/no cancer, blood glucose value, etc.
 
 Draw $n$ balls from the urn, without replacement, to get a random sample of size $n$.
 
@@ -178,7 +174,7 @@ Summary statistics can be computed for a sample, such as the sum, proportion, me
 
 The proportion of a population with a particular property is $\pi$.
 
-The number of individuals with the property in a simple random sample of size $n$ is a random variable $X$. The proportion of individuals a sample with the property is also a random variable;
+The number of individuals with the property in a simple random sample of size $n$ is a random variable $X$. The proportion of individuals in a sample with the property is also a random variable;
 
 $$P = \frac{X}{n}$$
 with expected value 
@@ -222,6 +218,7 @@ An alternative definition of standard error of the mean is actually
 $$SEM = \frac{s}{\sqrt{n}}$$
   
 
+## Exercises
 
 ```{r babies}
 ounce <- 0.0283495231
@@ -238,7 +235,8 @@ F <- sapply(split(N$Freq, N$Var2), function(x) x/sum(x))
 N <- sapply(split(N$Freq, N$Var2), identity)
 ``` 
 
-**Exercise:** Data summary
+```{exercise, label="Datasummary", echo=TRUE}
+**Data summary**
 
 Consider the below data and summarize each of the variables.
 
@@ -258,3 +256,12 @@ baby <- data.frame(id=1:10,
 baby %>% kable() %>% kable_styling("striped", full_width = FALSE)
 ``` 
 
+```{exercise, label="cholesterol", name="Exercise in distribution of sample mean", echo=TRUE}
+The total cholesterol in population (mg/dL) is normally distributed with $\mu = 202$ and $\sigma = 40$.
+a. How is the sample mean of a sample of 4 persons distributed? 
+$$
+\bar X = \frac{1}{4}\sum_{i=1}^4 X_i \\
+X \sim N(\mu, \sigma) \\
+\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right) = N(202, 20)
+$$
+```
