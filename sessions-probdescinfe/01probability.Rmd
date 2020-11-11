@@ -270,9 +270,9 @@ where $\mu$ is the expected value.
 
 
   
-## Exercises
+### Exercises {-}
 
-### Introduction to probability
+#### Introduction to probability {-}
 
 ```{exercise, probcoin, echo=TRUE}
 When tossing a fair coin
@@ -288,7 +288,7 @@ When tossing a fair six-sided die
   d) what is the expected value of dots on the die´.
 ```
 
-### Simulation
+#### Simulation {-}
 
 ```{exercise, "Cointoss", echo=TRUE}
 In a single coin toss the probability of heads is 0.5.
@@ -310,7 +310,7 @@ When rolling 10 six-sided dice, study the number of sixes.
  c) Using simulation, estimate the probability mass function
  d) what is the probability to get at least 5 sixes?
  e) Which is the most likely number of sixes?
- f) hat is the probability to get exactly 2 sixes?
+ f) What is the probability to get exactly 2 sixes?
  g) On average how many sixes do you get when throwing ten dice?
   <!-- The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. -->
 ```
@@ -349,10 +349,10 @@ Of the 200 persons working at a company, 60 are allergic to pollen. If you rando
 ```
 
 ```{exercise, label="Pollen4", echo=TRUE}
-Compare your results in \@ref(exr:Pollen), \@ref(exr:Pollen2) and \@ref(exr:Pollen3). Did you get the same results? Wy/why not?
+Compare your results in \@ref(exr:Pollen), \@ref(exr:Pollen2) and \@ref(exr:Pollen3). Did you get the same results? Why/why not?
 ```
 
-### Parametric discrete distributions
+#### Parametric discrete distributions {-}
 
 ```{exercise, label="pollencont", echo=TRUE}
 Do exercises \@ref(exr:Pollen), \@ref(exr:Pollen2) and \@ref(exr:Pollen3) again, but using parametric distributions. Compare your results.
@@ -365,25 +365,110 @@ If the bioinformatician selected the 1000 genes at random, what is the probabili
 ```
 
 
-### Conditional probability
+#### Conditional probability {-}
 
 ```{exercise, label="diagnostictests", echo=TRUE}
 **Diagnostic tests**
 ```
-  
+
+A study of a method for cancer prediction is evaluated. Based on the results in the below table estimate;  
 ```{r}
 kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("not cancer", "cancer", "total"), c("pos", "neg", "tot")))) %>% kable_styling("striped", full_width = FALSE)
 ```
 
-a) What is the probability of a positive test result from a person with cancer?
-b) What is the probability of a negative test result from a person without cancer?
-c) If the test is positive, what is the probability of having cancer?
-d) If the test is negative, what is the probability of not having cancer?
-e) Connect the four computed probabilities with the following four tems;
+a) the probability of a positive test result from a person with cancer?
+b) the probability of a negative test result from a person without cancer?
+c) the probability of having cancer, if the test is poitive?
+d) the probability of not having cancer, if the test is negative?
+
+e) Connect the four computed probabilities with the following four terms;
   - Sensitivity
   - Specificity
   - Positive predictive value (PPV)
   - Negative predictive value (NPV)
+
+### Solutions {-}
+
+\@ref(exr:probcoin)
+a) 0.5
+b) 0.5
+
+\@ref(exr:probdie)
+a) $\frac{1}{6}$
+b) $\frac{1}{2}$
+c) $\frac{2}{3}$
+d) 3.5
+
+\@ref(exr:Cointoss)
+a) 0.015
+b) 0.058
+c) 10
+d) 0.020
+e) 0.0002
+
+\@ref(exr:Dice)
+a) $X$, the number of sixes when rolling 10 dice.
+b) ${0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}$
+c)
+d) 0.015
+e) 1
+f) 0.29
+g) 1.7
+
+
+\@ref(exr:Cards)
+0.00049
+
+\@ref(exr:Pollen)
+
+```{r, eval=TRUE}
+## Solution using 100 replicates
+x <- replicate(100, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
+table(x)
+mean(x==0)
+## Solution using 1000 replicates
+x <- replicate(1000, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
+table(x)
+mean(x==0)
+## Solution using 100000 replicates
+x <- replicate(100000, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
+table(x)
+mean(x==0)
+## Solution using the Binomial distribution
+pbinom(0, 3, 0.3)
+```
+
+\@ref(exr:Pollen2)
+```{r, eval=TRUE}
+## Solution using 100000 replicates
+x <- replicate(100000, sum(sample(rep(c(0, 1), c(14, 6)), size=3, replace=FALSE)))
+table(x)
+mean(x==0)
+```
+
+\@ref(exr:Pollen3)
+
+```{r, eval=TRUE}
+## Solution using 100000 replicates
+x <- replicate(100000, sum(sample(rep(c(0, 1), c(140, 60)), size=3, replace=FALSE)))
+table(x)
+mean(x==0)
+```
+
+#### Parametric discrete distributions {-}
+
+\@ref(exr:GSEA)
+
+0.0025
+
+#### Conditional probability {-}
+
+\@ref(exr:diagnostictests)
+
+a) $P(pos|cancer) = 16/20$, PPV
+b) $P(neg|not cancer) = 882/980$, NPV
+c) $P(cancer|pos) = 16/114$, sensitivity
+d) $P(not cancer|neg) = 882/886$, specificity
 
 
 ## Continuous random variable
