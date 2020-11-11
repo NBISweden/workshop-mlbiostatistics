@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Artificial neural networks (ANNs)</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Bengt Sennblad" />
+    <meta name="date" content="2020-11-19" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: inverse, middle, center
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=800px&gt;&lt;/html&gt; 
+
+# Artificial neural networks (ANNs)
+## An introduction to of their basic underlying theory
+### Bengt Sennblad, NBIS
+### 2019-12-18
+
+
+???
+- frustrated of ANNs
+- black box -- ? under the hood
+- examination committe
+- Many already knows -- apologies
+- hopefully, some benefit
+
+
+
+&lt;style&gt;
+
+.remark-slide-number {
+  position: inherit;
+}
+
+.remark-slide-number .progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  height: 6px;
+  display: block;
+  left: 0;
+  right: 0;
+}
+
+.remark-slide-number .progress-bar {
+  height: 100%;
+  background-color: #EB811B;
+}
+
+.orange {
+  color: #EB811B;
+}
+&lt;/style&gt;
+
+
+
+---
+class: inverse, middle, center
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=800px&gt;&lt;/html&gt; 
+
+# Neuron models and networks
+
+---
+
+
+# Background
+
+Inspired by biological neural networks.
+Mimic neurons (at the most basic level):
+
+- Single output *state*
+    + 0 (inactive) or 
+    + 1 (activated)
+- State is a function of 1 - several inputs
+- State transmitted as input of 1 - many downstream neurons.
+
+
+&lt;img src="neuron1.jpg" width="500" height="280" style="display: block; margin: auto;" /&gt;
+
+.footnote[.font70[(c) fig from `https://medium.com/predict/artificial-neural-networks-mapping-the-human-brain-2e0bd4a93160`.]]
+
+
+
+
+---
+
+# Biological neuron
+.pull-left[
+
+&lt;img src="neuron2.png" width="500" height="280" style="display: block; margin: auto;" /&gt;
+].pull-right[
+- *Multiple input (on/off):* 
+    - from 1-several neurons 
+
+- *Processing*:
+     - _Combination_: of inputs  
+     - _Activation_: on or off state  
+
+- *Single output (on/off):* to 1-several neurons
+
+- Iterative *Learning* by trial and error
+]
+
+
+---
+
+# The Perceptron
+## The first artificial neuron 
+
+.pull-left[
+
+&lt;img src="session-ann_files/figure-html/perceptron-1.png" width="100%" height="100%" style="display: block; margin: auto;" /&gt;
+
+].pull-right[
+
+- *Multiple input (on/off):* 
+    - from 1-several neurons
+- *Processing*:
+     - **Multivariate linear model**
+`\(z=\sum_j w_j a'_j + b\)`
+     - The **step activation function**
+`$$a = 
+\begin{cases} 
+1 &amp; \quad\textrm{if} \quad z &gt;0\\ 
+0 &amp; \quad\textrm{otherwise} 
+\end{cases}$$`
+
+  - `\(w\)` weights (coefficients)
+  - `\(b\)` bias, threshold for *activation*
+
+- *Single output:* to 1-several neurons
+
+- Iterative *Learning* -- a little limited
+
+]
+???
+
+Models biological neuron as ...
+
+
+Learning benefits from doing small changes. non-active-activated flip is to sensitive to small changes.
+---
+# The Sigmoid neuron
+
+It turns out that the perceptorn is a suboptimal for ANN learning. The situation can be substantially improved by relaxing the on/off output of the perceptron -- Enter the *sigmoid neuron*:
+.pull-left[
+&lt;img src="session-ann_files/figure-html/sigmoid-1.png" width="1152" height="100%" style="display: block; margin: auto;" /&gt;
+].pull-right[
+
+- *Multiple input (on/off):* 
+    - from 1-several neurons
+- *Processing*:
+     - **Multivariate linear model**
+`$$z=\sum_j w_j a'_j + b$$`
+     - The **step activation function**
+`$$a = \sigma(z)$$`
+- *Single output:* to 1-several neurons
+
+- Iterative *Learning* efficient
+
+]
+
+???
+The basis is still a linear model, but the  output is modified by an *activation function* `\(\sigma\)` 
+
+
+---
+
+# Sigmoid neuron
+.pull-left[
+To compute the output, `\(a\)`, 
+
+- first let
+`$$z = \sum_{j=1}^M w_j a'_j + b$$`
+- then determine `\(a\)` from `\(z.\)`
+`$$a = \sigma(z),$$`
+    + `\(\sigma(z)\)` is a *sigmoid function*, more specifically the *logistic function*:
+    `$$\sigma(z) = \frac{1}{1+e^{-z}}$$`
+]
+.pull-right[
+&lt;img src="session-ann_files/figure-html/logistic-1.png" height="300" /&gt;
+
+]
+
+
+The output is now continuous, but *tends* towards either `\(0\)` or `\(1.\)`
+The *bias*, `\(b\)`, can still be viewed as a threshold for *activation*, as it moves the tendency to activation.
+
+---
+# Sigmoid neuron
+
+.footnote[.font70[ [1] also the perceptron can be viewed as a GLM. The threshold forms the activation function.]]
+
+In fact, the sigmoid neuron represents a *generalized linear model* (*GLM*)&lt;sup&gt;1&lt;/sup&gt;, specifically the logistic model
+
+In logistic regression, it is more common to describe GLMs in terms a link function that transforms the outcome:
+
+`$$logit(a) = \sum_{j=1}^M w_ja'_j + b,$$`
+
+where `\(logit(a) = \sigma^{-1}(a)\)` is called the link function.
+
+A sigmoid neuron can thus be viewed simply as a multivariate logistic model. 
+
+--
+
+However, connected in a network they can do more.
+
+---
+
+# Sigmoid Feedforward ANN
+
+
+.pull-left[
+&lt;img src="session-ann_files/figure-html/sigmoidAnn-1.png" width="1152" height="100%" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+In a *feedforward* ANN, neurons are arranged into **layers**: 
+- single *input* layer, passes the input, continuous or discrete
+- 1-several of *hidden* layers.
+- single *output* layer
+    + discrete -- **classification**
+    + continuous -- **regression**
+The output of one layer forms the input of the next layer. 
+- in a feed-forward ANN laters are _completely connected_
+
+]
+???
+- DAG
+- Each layers can have any number of neurons.
+- Specially, 
+    + size of input layer should = input size 
+    + size of output layer should = output size 
+
+
+???
+
+So while each neuron performs rather simple transformations, the sum can be very complex
+
+---
+
+# ANN depth = number of hidden layers
+
+.pull-left[
+&lt;img src="session-ann_files/figure-html/depth1-1.png" width="250" height="250" style="display: block; margin: auto;" /&gt;
+]
+--
+.pull-right[
+&lt;img src="session-ann_files/figure-html/depth2-1.png" width="250" height="250" style="display: block; margin: auto;" /&gt;
+]
+--
+.pull-left[
+&lt;img src="session-ann_files/figure-html/depth3-1.png" width="250" height="250" style="display: block; margin: auto;" /&gt;
+]
+--
+.pull-left[
+&lt;img src="session-ann_files/figure-html/depth4-1.png" width="250" height="250" style="display: block; margin: auto;" /&gt;
+]
+
+---
+# Deep Learning
+
+#### Definition
+- depth &gt; 1
+
+#### What does layer do?
+- Each layer can be viewed as transforming the original data to a new multi-dimensional space.
+
+
+
+---
+
+# Why Deep Learning?
+
+.pull-left[
+#### Regression
+
+- Single layer logistic regression
+- More layer `\(\rightarrow\)` - more complex, non-linear, models
+
+#### Classification
+
+- ANNS with depth &gt; 1
+    + A single hidden layer can classify using one hyperplane
+]
+
+.pull-right[
+![](session-ann_files/figure-html/hyperplanes1-1.png)&lt;!-- --&gt;
+]
+
+---
+
+
+# Why Deep Learning?
+
+.pull-left[
+#### Regression
+
+- Single layer logistic regression
+- More layer `\(\rightarrow\)` - more complex, non-linear, models
+
+#### Classification
+
+- ANNS with depth &gt; 1
+    + A single hidden layer can classify using one hyperplane
+    + To obatin another hyperplane, add another level
+]
+'.pull-right[
+
+![](session-ann_files/figure-html/hyperplanes2-1.png)&lt;!-- --&gt;
+]
+
+---
+
+# Mini-exercise:
+
+  - [http://playground.tensorflow.org/](http://playground.tensorflow.org/)
+      + Test different input "problems" (all are classifications)
+      + Investigate how different depth affect classification 
+      + (focus on sigmoid activation, and 2-dimensional input)
+     
+---
+
+# Summary Neuron models and networks
+
+#### Sigmoid neuron is a logistic model
+
+`\begin{eqnarray}
+z &amp;=&amp; \sum_j w_ja'_j+b\\
+a &amp;=&amp; \sigma(z)
+\end{eqnarray}`
+
+#### Feedforward network 
+- Neurons arranged into layers
+    + Input layer (single)
+    + Output layer (single)
+    + Hidden layers (1-many; depth)
+- Each hidden layer transforms the input into a new multi-dimensional space which is fed to the next layer
+
+#### Parameters
+- `\(\{w_{ij}\}\)` and `\(b_j\)` for all neurons in all hidden and output layers 
+
+???
+- Next: how to determine theparameters (learning)
+
+---
+class: inverse, middle, center
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=800px&gt;&lt;/html&gt; 
+
+# Learning
+## Cost function and Gradient descent
+
+---
+
+# Learning
+
+## Task
+Find optimal values for `\(w_i\)` and `\(b\)` over all neurons
+.pull-left[
+## Data
+Cross-validation approach
+* Training set
+* .orange[Validation set]
+* .orange[Test set]
+].pull-right[
+## Tools
+* Cost function
+* Gradient descent
+  + Back-propagation
+* .orange[Cross-validation]
+]
+
+???
+- orange = not treated
+- gradient descent to optimise fo cost function
+- back-prop to do this efficiently
+---
+
+
+# Supervised learning: cost function
+
+Suppose we have
+
+1. training samples `\(x=(x_1,\ldots,x_K)\)` with true output values `\(y=(y_1,\ldots,y_K)\)`. 
+2. an ANN that, with input `\(x\)`, produces an estimated output `\(\hat{y} = (\ldots,\hat{y}k, \ldots)\)`.
+
+Then the **quadratic cost function** is defined as follows:
+
+???
+Borrow some established concepts
+- RSS from regression
+-MSE from cross-validation
+
+--
+.pull-left[
+
+1 For each `\(x_k\)`, use the residual sum of squares, *RSS*, as an error measure
+
+`$$C(w,b|x_k) = \sum_i\frac{1}{2} \left( y_i-\hat{y}_i\right) ^2$$`
+ 
+]
+
+.pull-right[
+
+&lt;img src="session-ann_files/figure-html/rss-1.png" height="175" /&gt;
+
+]
+
+???
+* The factor 1/2 is included for convenience  (see later)
+
+--
+
+2 The full quadratic cost function is  simply the Mean Squared Error (MSE) used in cross-validation
+`\begin{eqnarray}
+C(w,b) &amp;=&amp;  \frac{1}{K} \sum_{k=1}^K C(w,b|X_k)\\
+%&amp;=&amp; \frac{1}{2K}\sum_{k=1}^K \Vert Y(X_k)-a^{(L)}(X_k)\Vert ^2
+\end{eqnarray}`
+
+???
+Now we got something to optimize for , let's optimize
+
+---
+
+# Gradient descent -- "clever hillclimbing"
+Consider inverted hill-climbing in one dimension `\(v\)`, i.e., we want to find the minimum instead of the maximum.
+
+.pull-left[
+####*Hill-climbing* 
+1. randomly choose direction and length to change `\(v\)`
+2. stay if `\(C(v|x)\)` got better, else go back.
+
+We want to be smarter!
+
+]
+
+.pull-right[
+![](session-ann_files/figure-html/descent1-1.png)&lt;!-- --&gt;
+]
+
+
+
+---
+
+# Gradient descent -- "clever hillclimbing"
+Consider inverted hill-climbing in one dimension `\(v\)`, i.e., we want to find the minimum instead of the maximum.
+
+.pull-left[
+####*Hill-climbing* 
+1. randomly choose direction and length to change `\(v\)`
+2. stay if `\(C(v|x)\)` got better, else go back.
+
+We want to be smarter!
+
+####*Gradient descent*
+1. compute the derivative `\(\frac{dC(v|x)}{dv}\)` to see which way *down* is
+
+]
+
+.pull-right[
+![](session-ann_files/figure-html/descent3-1.png)&lt;!-- --&gt;
+]
+
+---
+
+# Gradient descent -- "clever hillclimbing"
+Consider inverted hill-climbing in one dimension `\(v\)`, i.e., we want to find the minimum instead of the maximum.
+
+.pull-left[
+####*Hill-climbing* 
+1. randomly choose direction and length to change `\(v\)`
+2. stay if `\(C(v|x)\)` got better, else go back.
+
+We want to be smarter!
+
+####*Gradient descent*
+1. compute the derivative `\(\frac{dC(v|x)}{dv}\)` to see which way *down* is
+2. Take a reasonably long step in that direction, `\(v' = v-\eta\frac{dC(v|x)}{dv}\)`
+
+]
+
+.pull-right[
+![](session-ann_files/figure-html/descent4-1.png)&lt;!-- --&gt;
+]
+
+???
+
+Notice the minus sign: the derivative show which way is up and wewant to go down.
+
+---
+
+# Gradient descent in higher dimensions
+
+
+.pull-left[
+&lt;img src="session-ann_files/figure-html/twodim-1.png" width="600" /&gt;
+]
+.pull-right[
+Same thing really, but we have to have *partial derivatives* for each dimension, which makes it look more complicated. 
+
+Consider a 2-dimensional case,
+
+1 Find the (partial) derivatives
+
+`$$\begin{pmatrix}
+\frac{\partial C(v_1,v_2|x)}{\partial v_1}\\
+\frac{\partial C(v_1,v_2|x)}{\partial v_2}
+\end{pmatrix}$$`
+]
+
+???
+- `\(\partial\)` indicates partial derivative on one of the free parameters.
+--
+.pull-right[
+2 Take a resonably long step
+`$$\begin{pmatrix} v'_1\\ v'_2\end{pmatrix} = \begin{pmatrix}v_1-\eta\frac{\partial  C(x,w)}{\partial v_1} \\ v_2-\eta\frac{\partial C(x,v)}{\partial v_2} \end{pmatrix}$$`
+
+]
+
+---
+
+
+# Gradient descent in higher dimensions 
+### Applied to ANN
+
+- For each neuron and each layer:
+    + For each weight `\(w_{i,j}\)`:
+`$$w'_{i,j}=w_{i,j}- \eta \frac{\partial C(w,b|x)}{\partial w_i}$$`
+    + For each bias `\(b_{i,j}\)`:
+`$$b'_{i,j}=b_{i,j}- \eta \frac{\partial C(w,b|x)}{\partial b_i}$$`
+
+
+
+---
+layout: true
+# Summary Learning
+
+#### Cost function
+`\begin{eqnarray}
+C(w,b) &amp;=&amp; \frac{1}{2K}\sum_{k=1}^K  C(w,b|X_k)\\
+C(w,b|x) &amp;=&amp; \sum_i\left(y_i-a_i^{(L)}\right)^2
+\end{eqnarray}`
+
+- Mean squared error (MSE)
+- Residual sum of squares (RSS)
+
+#### Gradient descent
+
+- "Clever hill-climbing" in several dimensions
+- Change all variables `\(v\in (w,b)\)` by taking a reasonable step in opposite direction to the gradient 
+`\begin{equation}
+v' = v-\eta \frac{\partial C(w,b|x)}{\partial v}
+\end{equation}`
+
+---
+For this to work, we need to be able to **compute all `\(\frac{\partial C(w,b|x)}{\partial v}\)` efficiently**
+
+???
+- This is where back-propagation comes in
+
+---
+layout: false
+class: inverse, middle, center
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=800px&gt;&lt;/html&gt; 
+
+# Back-propagation
+## Computing derivatives fast
+
+---
+
+# Chain rule of derivation
+##### A reminder
+
+
+The chain rule simplifies derivation of complex functions and states that
+`$$\frac{d f(g(x))}{dx} = \frac{dg(x)}{d x} \times \frac{df(g(x))}{d g(x)}$$`
+
+
+???
+
+- continued fraction
+
+--
+
+##### An example
+.pull-left[
+`\(f(x) =(1-x)^2\)`
+
+`\(t = g(x) = 1-x\)`
+
+`\(f(t) = t^2\)`
+]
+--
+.pull-right[
+`\begin{eqnarray}
+\frac{d f(x)}{dx} &amp;=&amp; \frac{d f(t)}{dt}\times\frac{d t}{dx}\\
+%&amp;=&amp; \frac{d f(t)}{dt}\times\frac{d g(x)}{dx}\\
+&amp;=&amp; \frac{d t^2}{dt}\times\frac{d 1-x}{dx}\\
+&amp;=&amp; 2t \times -1\\
+&amp;=&amp; 2(x+1) \times 1\\
+&amp;=&amp; -2(x+1)
+\end{eqnarray}`
+]
+
+---
+
+# Chain rule more complex example (optional)
+##### A reminder
+
+.pull-left[
+The chain rule simplifies derivation of complex functions and states that
+`$$\frac{d f(g(x))}{dx} = \frac{dg(x)}{d x} \times \frac{df(g(x))}{d g(x)}$$`
+&lt;br&gt;
+&lt;br&gt;
+]
+
+???
+
+- continued fraction
+
+
+The derivative of the sigmoid function:
+
+- `\(\sigma(z) = \frac{1}{1+e^{-z}} = \left(1+e^{-z}\right)^{-1}\)`
+
+    + `\(g(z) = 1+e^{-z}\)`
+
+    + `\(f(z) = g(z) ^{-1}\)`
+---
+
+# Chain rule example (optional)
+##### A reminder 
+.pull-left[
+The chain rule simplifies derivation of complex functions and states that
+`$$\frac{d f(g(x))}{dx} = \frac{dg(x)}{d x} \times \frac{df(g(x))}{d g(x)}$$`
+
+##### An example
+
+The derivative of the sigmoid function:
+
+- `\(\sigma(x) = \frac{1}{1+e^{-x}} = \left(1+e^{-x}\right)^{-1}\)`
+
+    + `\(g(x) = 1+e^{-x}\)`
+
+    + `\(f(x) = g(x) ^{-1}\)`
+
+]
+
+???
+`$$\begin{eqnarray*}
+\frac{d\sigma(x)}{d x}
+%&amp;=&amp;\frac{d \frac{1}{1+e^{-x}}}{d x}\\ 
+&amp;=&amp; \frac{d (1+e^{-x})^{-1}}{d x}\\
+&amp;=&amp;  \frac{d (1+e^{-x})}{d x} \quad\times\quad \frac{d (1+e^{-x})^{-1}}{d (1+e^{-x})}\\
+&amp;=&amp; (-e^{-x}) \quad\times\quad -(1+e^{-x})^{-2}\\
+&amp;=&amp; \frac{e^{-x}}{(1+e^{-x})^{2}} \\
+&amp;=&amp; \frac{1}{1+e^{-x}}\quad \left(1-\frac{1}{1+e^{-x}}\right)\\\\
+&amp;=&amp; \sigma(x)\left(1-\sigma(x)\right)
+\end{eqnarray*}$$`
+
+--
+.pull-right[
+
+##### Derivation example
+
+`$$\begin{eqnarray*}
+\frac{d\sigma(x)}{d x}
+%&amp;=&amp;\frac{d \frac{1}{1+e^{-x}}}{d x}\\ 
+&amp;=&amp; \frac{d (1+e^{-x})^{-1}}{d x}\\
+&amp;=&amp;  \frac{d (1+e^{-x})}{d x} \quad\times\quad \frac{d (1+e^{-x})^{-1}}{d (1+e^{-x})}\\
+&amp;=&amp; (-e^{-x}) \quad\times\quad -(1+e^{-x})^{-2}\\
+&amp;=&amp; \frac{e^{-x}}{(1+e^{-x})^{2}} \\
+&amp;=&amp; \frac{1}{1+e^{-x}}\quad \left(1-\frac{1}{1+e^{-x}}\right)\\\\
+&amp;=&amp; \sigma(x)\left(1-\sigma(x)\right)
+\end{eqnarray*}$$`
+
+]
+
+---
+
+# Back propagation strategy
+
+Use chain rule to split `\(\frac{C(b,w|x)}{\partial v}\)` on `\(z\)` and `\(a\)` of each layer.
+
+&lt;img src="session-ann_files/figure-html/annbackprop-1.png" width="500" height="300" style="display: block; margin: auto;" /&gt;
+
+
+$$ \frac{\partial C(w,b|x)}{\partial w_1} =  \frac{\partial z_1}{\partial w_1}\times \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1} $$
+---
+layout:true
+# Mini exercise
+
+.pull-left[
+&lt;img src="session-ann_files/figure-html/sigmoidAnn3-1.png" width="600" height="300" style="display: block; margin: auto;" /&gt;
+]
+---
+.pull-right[
+### Forward pass
+`$$z_j =  w_j a_{j-1} + b_j$$`
+`$$a_j = \sigma(z_j) = \frac{1}{1+e^{-z_j}}$$`
+- *hint!*: use `plogis` to compute `\(\sigma(z)\)`
+
+]
+
+
+
+
+
+|  `\(x\)`| `\(y\)`| `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
+|----:|---:|-----:|-----:|-----:|-----:|---------:|---------------:|
+| 0.05| 0.1| -0.09|  0.48|  0.47|  0.61|      0.61|            0.13|
+
+---
+layout: false
+layout: true
+
+# Mini exercise
+
+.pull-left[
+
+&lt;img src="session-ann_files/figure-html/sigmoidAnn3b-1.png" width="600" height="300" style="display: block; margin: auto;" /&gt;
+
+
+|  `\(x\)`| `\(y\)`| `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
+|----:|---:|-----:|-----:|-----:|-----:|---------:|---------------:|
+| 0.05| 0.1| -0.09|  0.48|  0.47|  0.61|      0.61|            0.13|
+
+
+
+
+
+]
+---
+.pull-right[
+### Backward pass 1
+`$$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$`
+
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+|      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                         -0.51|
+
+---
+.pull-right[
+### Backward pass 2
+`$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$`
+
+`$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$`
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+|      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                       -0.1618|                              0.3172|                                         -0.51|
+
+---
+.pull-right[
+### Backward pass 3
+`$$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} = w_2$$`
+
+`$$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$`
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+|      0|                                             0|                                   0|                                             0|                                   0|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+
+---
+.pull-right[
+### Backward pass 4
+`$$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1} = \sigma(z_1)(1-\sigma(z_1))$$`
+
+`$$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$`
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+|      0|                                             0|                                   0|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+
+---
+.pull-right[
+### Backward pass 5
+`$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$`
+
+`$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+|      0|                                       -0.0028|                                0.05|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+---
+.pull-right[
+### Backward pass 5
+`$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$`
+
+`$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
+Let `\(\eta=\)` 0.3, then 
+
+`$$w'_1 = w_1 - \eta \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+| 0.1408|                                       -0.0028|                                0.05|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+
+---
+layout: false
+# Back-propagation
+
+#### Additional notes on strategy 
+- Do all derivatives layer-wise, backwards!
+    + [In software:
+        - Partial derivatives is collected in vectors ("gradients") layer-wise
+        - Allows use of matrix algebra to efficiently perform operations ]
+
+- Same strategy can be used for targeting weights `\(\left(\frac{\partial c(b, w|x)}{\partial w}\right)\)` and biases `\(\left(\frac{\partial c(b, w|x)}{\partial b}\right)\)`
+
+&lt;img src="session-ann_files/figure-html/finalann-1.png" width="300" height="300" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Summary -- Back-propagation
+
+
+
+---
+
+# Thanks!
+
+Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+
+The chakra comes from [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"slideNumberFormat": "<div class=\"progress-bar-container\">   <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">   </div> </div> "
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
