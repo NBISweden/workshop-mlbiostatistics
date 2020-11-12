@@ -74,7 +74,8 @@ def draw_neural_net(ax,
     
     nodeLetterWidth= 0.0007 * nodeFontSize
     edgeLetterWidth= 0.0007 * edgeFontSize
-    nodeRadius =  max(hSpacing /8., (lenMathString(max(output,key=lenMathString))+2)*nodeLetterWidth)
+    nodeRadius =  max(hSpacing /8.,
+                      (max([ lenMathString(max(x,key=lenMathString))for x in hidden ])+2)*nodeLetterWidth)
     #nodeRadius = max(hSpacing /8., (lenMathString(node_txt))/2 * nodeLetterWidth)
     biasRadius = max(hSpacing /12., (lenMathString(biasNodePrefix)+1)/2 * nodeLetterWidth)
 
@@ -140,7 +141,7 @@ def draw_neural_net(ax,
                          y_node - nodeLetterWidth,
                          input[m], #r'${}_{}$'.format(inPrefix, m+1),
                          fontsize=nodeFontSize, zorder=2)
-                txt = r'$i_{}$'.format(m+1)                                  # Change format of inout  node text here
+                txt = r'${}_{}$'.format(inNodePrefix, m+1) if inNodePrefix != "" else inNodePrefix                                 # Change format of inout  node text here
                 if not hideInOutPutNodes:
                     ax.add_artist(circle)
                     x_label = x_node - lenMathString(txt) * nodeLetterWidth/2
