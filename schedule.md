@@ -9,7 +9,7 @@ title:  'Schedule'
 
 **09:00 - 09:30** [Welcome](session-welcome/welcome) (Olga, Eva) (live stream)
 
-**09.30 - 10.00** Introductory lecture (Bengt) (live stream)
+**09.30 - 10.00** [Introductory lecture](session-intro2/intro2.html) (Bengt) (live stream)
 
 **10:15 - 11:15** Introduction to R, R-Studio and R markdown (Olga) (~ 5 min live stream, ~ 25 min online support)
 
@@ -18,7 +18,7 @@ title:  'Schedule'
 
 *12:00 - 13:00 lunch* (*offline*)
 
-**13:00 - 13.30** Probability & simulations I (Eva) (live stream)
+**13:00 - 13.30** [Probability & simulations I](sessions-probdescinfe/session-probability) (Eva) (live stream)
 
 **13.30 - 14.30** Exercises (online support)
 
@@ -35,7 +35,7 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
-**09:30 - 10.00** Descriptive statistics & data visualisation I (Eva) (live stream)
+**09:30 - 10.00** [Descriptive statistics & data visualisation I](sessions-probdescinfe/session-descstats) (Eva) (live stream)
 
 **10:00 - 10.45** Exercises (online support)
 
@@ -45,7 +45,7 @@ title:  'Schedule'
 
 *12:00 - 13:00 lunch* (offline)
 
-**13.00 - 13.30** Hypothesis testing I (Eva) (live stream)
+**13.00 - 13.30** [Hypothesis testing I](sessions-probdescinfe/session-inference) (Eva) (live stream)
 
 **13.30 - 14.30** Exercises (online support)
 
@@ -63,17 +63,17 @@ title:  'Schedule'
 
 **09:30 - 10:00** [Linear models: introduction](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html) (Olga) (live stream)
 
-**10:00 - 10.45** Exercises (online support)
+**10:00 - 10.45** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html#exercises-linear-models-i) (online support)
 
 **10:45 - 11:15** [Linear models: understanding coefficients](https://olgadet.github.io/bookdown-mlbiostatistics/regression-coefficients.html) (Olga) (live stream)
 
-**11:15 - 12.00** Exercises (online support)
+**11:15 - 12.00** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/regression-coefficients.html#exercises-linear-models-ii) (online support)
 
 *12:00 - 13:00 lunch*
 
 **13:00 - 13:30** [Linear models: model summary and assumptions](https://olgadet.github.io/bookdown-mlbiostatistics/model-summary-assumptions.html) (Olga) (live stream)
 
-**13.30 - 14.30** Exercises (online support)
+**13.30 - 14.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/model-summary-assumptions.html#exercises-linear-models-iii) (online support)
 
 *14.30 - 15.00 break (offline)*
 
@@ -106,11 +106,11 @@ title:  'Schedule'
 ##### Friday 2020-11-20
 **09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
-**09.30 - 12.00** Feature selection & model evaluation (Bengt)
+**09.30 - 12.00** [Feature selection & model evaluation](session-regularization/session-regularization) (Bengt)
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 13.30** Introduction to ANN for classification and regression (Bengt)
+**13.00 - 13.30** [Introduction to ANN for classification and regression](session-ann/session-ann) (Bengt)
 
 **13.30 - 14.30** Exercises (online support)
 
