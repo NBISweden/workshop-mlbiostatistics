@@ -13,7 +13,7 @@ title:  'Schedule'
 
 **10:15 - 11:15** [Setting up: R, R-Studio & Rmd](session-setup/setup) (Olga) (~ 5 min live stream, ~ 25 min online support)
 
-**11.15 - 12:00** Mathematical foundations (Olga) (~ 5 min live stream, ~ 30 min group session, ~10 min live stream)
+**11.15 - 12:00** [Mathematical foundations](https://jamboard.google.com/d/10iDALt33eDvA-SHTt-tc5m88zK7ftvUFMgNc42biZx8/edit?usp=sharing) (Olga) (~30 min group session, ~15 min live stream)
 
 
 *12:00 - 13:00 lunch* (*offline*)
