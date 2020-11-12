@@ -1011,21 +1011,62 @@ The samples includes 99 Males and 58 Females, it is not perfectly balanced but s
 
 ```{r, echo =T, eval=FALSE}
 ## TODO: Adjust this so that it fit what they learnt from Paya
-library("mixOmics")
-pca.gtex <- pca(X, ncomp=10)
-plotIndiv(pca.gtex, group = Y, ind.names = FALSE, legend = TRUE, title = 'PCA on GTEX Skeletal Muscles')
-plot(pca.gtex)
+pca.gtex <- prcomp(X, scale=TRUE)
+
+# sample plot
+pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
+ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  #scale_color_manual(values=mycolors) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+# barplot prop variation explained
+x = paste0("PC",1:10)
+pc_plot = data.frame(x = factor(x, levels=x), y = unlist(summary(pca.gtex)$importance[2,1:10]))
+ggplot(data=pc_plot, aes(x=x, y=y)) +
+  geom_bar(stat="identity") +
+  #    ggtitle(label=) +
+  xlab("Principal Components") +
+  ylab("Variation explained") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
 ```
 
 <details>
 <summary> *Show result*</summary>
 ```{r, fig.width=10, fig.height=8}
-## TODO: Adjust this so that it fit what they learnt from Payam
-library("mixOmics")
-pca.gtex <- pca(X, ncomp=10)
-plotIndiv(pca.gtex, group = Y, ind.names = FALSE, legend = TRUE, title = 'PCA on GTEX Skeletal Muscles')
-plot(pca.gtex)
+## TODO: Adjust this so that it fit what they learnt from Paya
+pca.gtex <- prcomp(X, scale=TRUE)
+
+# sample plot
+pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
+ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  #scale_color_manual(values=mycolors) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+# barplot prop variation explained
+x = paste0("PC",1:10)
+pc_plot = data.frame(x = factor(x, levels=x), y = unlist(summary(pca.gtex)$importance[2,1:10]))
+ggplot(data=pc_plot, aes(x=x, y=y)) +
+  geom_bar(stat="identity") +
+  #    ggtitle(label=) +
+  xlab("Principal Components") +
+  ylab("Variation explained") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
 ```
+
 
 The PCA plot demonstrates that there is a lot of variation between samples with respect to both PC1 and PC2, but there is no clear segregation of Males and Females based on their skeletal muscle gene expression data.
 
