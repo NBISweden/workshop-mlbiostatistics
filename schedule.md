@@ -7,7 +7,7 @@ title:  'Schedule'
 <br/>
 ##### Monday 2020-11-16
 
-**09:00 - 09:30** Welcome (Olga, Eva) (live stream)
+**09:00 - 09:30** [Welcome](session-welcome/welcome) (Olga, Eva) (live stream)
 
 **09.30 - 10.00** Introductory lecture (Bengt) (live stream)
 
@@ -33,7 +33,7 @@ title:  'Schedule'
 <br/>
 ##### Tuesday 2020-11-17
 
-**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
+**09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
 **09:30 - 10.00** Descriptive statistics & data visualisation I (Eva) (live stream)
 
@@ -59,33 +59,33 @@ title:  'Schedule'
 
 <br/>
 ##### Wednesday 2020-11-18
-**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
+**09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
-**09:30 - 10:00** Simple regression & correlation I (Olga) (live stream)
+**09:30 - 10:00** [Linear models: introduction](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html) (Olga) (live stream)
 
 **10:00 - 10.45** Exercises (online support)
 
-**10:45 - 11:15** Simple regression & correlation II (Olga) (live stream)
+**10:45 - 11:15** [Linear models: understanding coefficients](https://olgadet.github.io/bookdown-mlbiostatistics/regression-coefficients.html) (Olga) (live stream)
 
 **11:15 - 12.00** Exercises (online support)
 
 *12:00 - 13:00 lunch*
 
-**13:00 - 13:30** Multiple regression (Olga) (live stream)
+**13:00 - 13:30** [Linear models: model summary and assumptions](https://olgadet.github.io/bookdown-mlbiostatistics/model-summary-assumptions.html) (Olga) (live stream)
 
 **13.30 - 14.30** Exercises (online support)
 
 *14.30 - 15.00 break (offline)*
 
-**15.00 - 15.30** Introduction to linear mixed models and GLM (Olga) (live stream)
+**15.00 - 15.30** [Generalized linear models](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html) (Olga) (live stream)
 
-**15.30 - 16.30** Exercises (online support)
+**15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms) (online support)
 
 **16.30 - 17.00** Test yourself
 
 <br/>
 ##### Thursday 2020-11-19
-**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
+**09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
 **09.30 - 12.00** Principal Component Analysis (Payam) (live stream)
 
@@ -104,7 +104,7 @@ title:  'Schedule'
 <br/>
 
 ##### Friday 2020-11-20
-**09:00 - 09.30** Group discussions: recap of the previous day (live stream)
+**09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
 **09.30 - 12.00** Feature selection & model evaluation (Bengt)
 
@@ -118,7 +118,7 @@ title:  'Schedule'
 
 **15:00 - 15:30** Test yourself
 
-**15.30 - 16.00** Course wrap-up
+**15.30 - 16.00** Course wrap-up (live stream)
 
 
 <br/><br/>
