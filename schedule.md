@@ -11,7 +11,7 @@ title:  'Schedule'
 
 **09.30 - 10.00** [Introductory lecture](session-intro2/intro2.html) (Bengt) (live stream)
 
-**10:15 - 11:15** [Setting up: R, R-Studio \& Rmd](session-setup/setup) (Olga) (~ 5 min live stream, ~ 25 min online support)
+**10:15 - 11:15** [Setting up: R, R-Studio & Rmd](session-setup/setup) (Olga) (~ 5 min live stream, ~ 25 min online support)
 
 **11.15 - 12:00** Mathematical foundations (Olga) (~ 5 min live stream, ~ 30 min group session, ~10 min live stream)
 
