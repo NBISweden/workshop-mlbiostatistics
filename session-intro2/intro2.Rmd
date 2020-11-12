@@ -1,5 +1,6 @@
 ---
-title: "statsintro"
+title: "Introduction"
+subtitle: "Machine learning and Biostatistics course"
 author: "Bengt Sennblad"
 institute: "NBIS"
 date: "11/16/2020"
@@ -19,9 +20,6 @@ output:
           </div>
         </div>
 ---
-class: inverse, middle, center
-<html><div style='float:left'></div><hr color='#EB811B' size=1px width=800px></html> 
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE)
@@ -34,11 +32,6 @@ library(ggplot2)
 library(qqman)
 ```
 
-
-# Why Statistics?
-
----
-
 # Content/aim
 
 
@@ -47,50 +40,49 @@ library(qqman)
 ## What do we want you to gain from this course?
 - Learn a selection statistical methods
 
-
+{{content}}
 ]
----
+--
 
-# Content/aim
-
-
-
-.pull-left[
-## What do we want you to gain from this course?
-- Learn a selection statistical methods
-
-### ...but, more importantly,
-- be able to, by yourselves, explore additional methods
-  - finding
+#### ...but, more importantly, be able to
+- by yourselves explore statistics
+  - find alternative methods
   - get a intuitive understanding
   - evaluate assumptions
-    - know when to apply
-    - know when not to apply
-]
+      + know when to apply
+      + know when not to apply
+
 --
 .pull-right[
 ### How?
-- Go from black-box to understanding
-    -several levels
+{{content}}
+]
+--
+- Go from <span style="background-color:black"><span style="color:white">_black box_</span></span> to understanding
+    - several levels
       - models = assumptions
       - tests -- test statistics
-      - overparmeterizations
-- Appreciate theory as a friend
-    - needed for understanding assumptions
+      - over-parameterizations
+{{content}}
+--
+- Appreciate theory as a ❤️*friend*❤️
+    - help understanding assumptions
     - help when evaluating methods
-- basis/framework for learning more
-    - reading about statistical methods
-    - Basic math language
+{{content}}
+--
+- Provide a _#framework#_ for learning
+    - statistical thinking
+    - basic math language
       - not afraid of equations
       - know some basic terminology
 
-]
 ---
 class: inverse, middle, center
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=800px></html> 
 
-# Examples
-## When is statistics needed?
+# Why Statistics?
+## Examples
+
 
 ---
 
@@ -251,43 +243,24 @@ ggplot(mice, aes(y=prevalence, x=model, fill=model))+
 
 ... Now, the difference is less clear
 
+{{content}}
 ]
----
-.pull-right[
-
-### Interpretation
-
-... Now, the difference is less clear
+--
 
 ... we get uncertain
 
-]
----
-.pull-right[
+{{content}}
 
-### Interpretation
-
-... Now, the difference is less clear
-
-... we get uncertain
-
+--
 ... Uncertainty best measured as probabilities!
 
-... with probabilities we can perform a **statistical test**
-]
----
-.pull-right[
+{{content}}
+--
 
-### Interpretation
+... with probabilities we can perform a **statistical test** for difference
 
-... Now, the difference is less clear
-
-... we get uncertain
-
-... Uncertainty best measured as probabilities!
-
-... with probabilities we can perform a **statistical test** of the difference
-
+{{content}}
+--
   ![black box warning](assets/blackbox.jpg)
 ]
 
@@ -349,15 +322,25 @@ ggplot(mice, aes(y=prevalence, x = model, fill=model))+
 ... what about here?
 
 #### Tentative answer
-This might require testing hypotheses that also look at the *variance*
+This might require testing hypotheses that also look at the difference in  *variance*
 
 ]
 
 
 ---
 layout: false
-layout: true
-# Example: regression
+# Example: Protein and RNA expression
+
+#### Setup
+
+**Aim:** Investigate the relation between the Breast cancer transcriptomic and proteomics landscape
+
+- Breast cancer tumour samples experiment
+    + measure RNA expression
+    + measure protein expression
+
+
+
 ```{r, regression1}
 alpha = 1.5
 beta = 1.5
@@ -370,7 +353,8 @@ rlin<-function(x, n=1, a=alpha, b=beta, s=stddev){
 
 rlog<-function(x, n=1, a=alpha, b=beta, p){
   p = exp(-(a+b*x))
-  return(rbinom(n, 1, 1/(1+p)))
+  return(rnorm(n, 1/(1+p), 0.2))
+#  return(rbinom(n, 1, 1/(1+p)))
 }
 
 log<-function(x, n=1, a=alpha, b=beta, p){
@@ -386,55 +370,59 @@ ylin3 = unlist(lapply(x, function(x) rlin(x, b=beta2)))
 
 df = data.frame(x=x, ylin1  = ylin1, ylin2=ylin2,  ylog=ylog, ylin3=ylin3)
 p1=ggplot(df, aes(x=x, y=ylin1)) +
-  xlab("x") +
-  ylab("y") + 
+  xlab("[RNA]") +
+  ylab("[protein]") + 
   geom_point()
 
 p2 = p1 + geom_abline(intercept=alpha, slope=beta, col="red")
 
 p3 = ggplot(df, aes(x=x, y=ylin2)) +
-  xlab("x") +
-  ylab("y") + 
+  xlab("[RNA]") +
+  ylab("[protein]") + 
   geom_point() + 
   geom_abline(intercept=alpha, slope=beta, col="red")
 
 p4=ggplot(df, aes(x=x, y=ylog)) +
-  xlab("x") +
-  ylab("y") + 
+  xlab("protein variation") +
+  ylab("protein-RNA correlation") + 
   geom_point() + 
   stat_function(fun=log, col="red")
 
-p5 = ggplot(df) +
-  xlab("x") +
-  ylab("y") + 
-  geom_point(aes(x=x, y=ylin1)) + 
-  geom_point(aes(x=x, y=ylin3)) 
-
-
-p6 = g= ggplot(df) +
-  xlab("x") +
-  ylab("y") + 
-  geom_point(aes(x=x, y=ylin1), col="red") + 
-  geom_point(aes(x=x, y=ylin3), col="blue")
-
-p7 = p6 +
-  geom_abline(intercept=alpha, slope=beta,  col="red") +
-  geom_abline(intercept=alpha, slope=beta2, col="blue") 
-
-p8 = p6 
-for(b in seq(-0.75, 0.75, 0.25)){
-  p8 = p8 +
-    geom_abline(intercept=alpha, slope=beta+b,  col="red")+
-    geom_abline(intercept=alpha, slope=beta2+b, col="blue") 
-}
-
-p9 = p6 
-for(b in seq(-0.05, 0.05, 0.05)){
-  p9 = p9 +
-    geom_abline(intercept=alpha, slope=beta+b,  col="red")+
-    geom_abline(intercept=alpha, slope=beta2+b, col="blue") 
-}
+# p5 = ggplot(df) +
+#   xlab("[RNA]") +
+#   ylab("[protein]") + 
+#   geom_point(aes(x=x, y=ylin1)) + 
+#   geom_point(aes(x=x, y=ylin3)) 
+# 
+# 
+# p6 = g= ggplot(df) +
+#   xlab("[RNA]") +
+#   ylab("[protein]") + 
+#   geom_point(aes(x=x, y=ylin1), col="red") + 
+#   geom_point(aes(x=x, y=ylin3), col="blue")
+# 
+# p7 = p6 +
+#   geom_abline(intercept=alpha, slope=beta,  col="red") +
+#   geom_abline(intercept=alpha, slope=beta2, col="blue") 
+# 
+# p8 = p6 
+# for(b in seq(-0.75, 0.75, 0.25)){
+#   p8 = p8 +
+#     geom_abline(intercept=alpha, slope=beta+b,  col="red")+
+#     geom_abline(intercept=alpha, slope=beta2+b, col="blue") 
+# }
+# 
+# p9 = p6 
+# for(b in seq(-0.05, 0.05, 0.05)){
+#   p9 = p9 +
+#     geom_abline(intercept=alpha, slope=beta+b,  col="red")+
+#     geom_abline(intercept=alpha, slope=beta2+b, col="blue") 
+# }
 ```
+---
+
+layout: true
+# Example: Protein and RNA expression
 
 .pull-left[
 ```{r, regression2}
@@ -444,54 +432,42 @@ p1
 ]
 ---
 .pull-right[
-Dependencies between variables
+### Discovery: 
+- **Correlation** between Protein and RNA expression
 
-- Relation between two variables -- **correlation**
+{{content}}
 ]
-
-???
-
-Hmnm try to find some biological example for this
----
-.pull-right[
-Dependencies between variables
-
-- Relation between two variables -- **correlation**
+--
   ![black box warning](assets/blackbox.jpg)
 
-]
- 
 ???
 
-Actually, not going to throgh this here .. have to wait until the session on this
+Actually, not going to through this here .. have to wait until the session on this
 ---
+
 .pull-right[
-Dependencies between variables
+### Discovery: 
+- **Correlation** between Protein and RNA expression
 
-- Relation between two variables -- **correlation**
+### Hypothesis: 
+- RNA expression governs protein expression
 
-- One variable depends on the other -- **regression**
-  - **fit** a **linear model** 
+{{content}}
 ]
+--
 
-???
+### Test
+- **regression**
+    + **fit** a **linear model** 
+{{content}}
 
-Need some good biological example
-
----
-.pull-right[
-Dependencies between variables
-
-- Relation between two variables -- **correlation**
-
-- One variable depends on the other -- **regression**
-  - **fit** a **linear model** 
+--
   ![black box warning](assets/blackbox.jpg)
-]
+
 ---
 layout: false
 layout: true
-# Example: regression
+# Example: Protein and RNA expression
 
 .pull-left[
 ```{r, regression3}
@@ -500,66 +476,35 @@ p2
 ]
 ---
 .pull-right[
-## Linear model
+### Linear model
 
 - Extend our previous model
-
-    + Variation of $y$ approximately $N(\mu,\sigma)$  
+    + Variation of $[Prot]$ approximately $N(\mu,\sigma)$  
     *and*
-    + $\mu = \alpha +\beta x$ 
-       
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+    + $\mu = \alpha +\beta [RNA]$ 
+{{content}}
 ]
 
 ???
 Maybe this can suffice as hierarchical model example instead...?
----
-.pull-right[
-## Linear model
-
-- Extend our previous model
-    + Variation of $y$ approximately $N(\mu,\sigma)$  
-    *and*
-    + $\mu = \alpha +\beta x$ 
-
+--
 - Uses
   1. Simulation
       - validating methods
-<br>
-<br>
-<br>
-
-]
----
-.pull-right[
-## Linear model
-
-- Extend our previous model
-    + Variation of $y$ approximately $N(\mu,\sigma)$  
-    *and*
-    + $\mu = \alpha +\beta x$ 
-
-- Uses
-  1. Simulation
-      - validating methods
+{{content}}
+--
   2. Inference 
       - **regression**
           - optimal $\alpha$ and $\beta$ values
-
-
-]
+      - **significance test**
+      
 ???
 - $\beta$ tells how strongly y depend on x
 - not always this simple
 ---
 layout: false
 layout: true
-# Example: regression
+# Example: Protein and RNA expression
 
 .pull-left[
 ```{r, regression4}
@@ -569,30 +514,33 @@ p3
 
 ---
 .pull-right[
-## Linear model
+### Linear model
 
 - Extend our previous model
-    + Variation of $y$ approximately $N(\mu,\sigma)$  
+    + Variation of $[Prot]$ approximately $N(\mu,\sigma)$  
     *and*
-    + $\mu = \alpha +\beta x$ 
-
+    + $\mu = \alpha +\beta [RNA]$ 
 - Uses
   1. Simulation
       - validating methods
   2. Inference 
       - **regression**
           - optimal $\alpha$ and $\beta$ values
-
-
+      - **significance test**
 ]
 
-???
 
-- much higher $\sigma=10$ (before $\sigma=1$)
+???
+More realistic
+
+These researchers found that there were a portion of genes low correlation RNA  and protein expression
+
+
+
 ---
 layout: false
 layout: true
-# Example: regression
+# Example: Protein and RNA expression
 
 .pull-left[
 ```{r, regression5}
@@ -601,32 +549,41 @@ p4
 ]
 ---
 .pull-right[
-... What about here
+### Another hypothesis: 
+- RNA-protein correlation is governed by RNA variation
 
+### $\Leftarrow$ Result
+- How should this be interpreted?
 
+{{content}}
 ]
----
-.pull-right[
-... What about here
-
-## Non-linear dependencies
-
-]
----
-.pull-right[
-... What about here
-
-## Non-linear dependencies
-
+--
+### Non-linear dependencies
 - **Generalized linear models (GLMs)**
+{{content}}
+--
   ![black box warning](assets/blackbox.jpg)
 
 ]
 
 ---
 layout: false
+# Example: GWAS
+
+## Setup: 
+
+Aim: Elucidate the genetic setup of IMD condition
+
+- Case-control cohort (N = 1000)
+- Genome-wide SNP assay (P= 5000)
+
+
+
+---
 layout: true
 # Example: GWAS
+
+
 .pull-left[
 ```{r, gwas, cache=TRUE, warning=FALSE}
 chromlengths=c(
@@ -664,7 +621,7 @@ gwas = data.frame(
   CHR = unlist(lapply(seq(1,m), function(x) rep(x, 5000)))
   )
 
-manhattan(gwas, suggestiveline=FALSE, genomewideline=FALSE)
+manhattan(gwas, suggestiveline=FALSE, genomewideline=-log10(0.05))
 
 ```
 
@@ -672,64 +629,36 @@ manhattan(gwas, suggestiveline=FALSE, genomewideline=FALSE)
 ---
 .pull-right[
 
-### Manhattan plot
+## Manhattan plot
 
 - Individual association test for each SNP and disease
 - $-log_{10}$ P-value against genomic position
-
+{{content}}
 ]
 
 ???
--log(0.05) = 1.30103
-- thousands of associations
----
+-log(0.05) = 1.30103 (line)
+- several houndred or even thousand associations
+--
 
-.pull-right[
-
-### Manhattan plot
-
-- Individual association test for each SNP and disease
-- $-log_{10}$ P-value against genomic position
 
 #### *Multiple tests*
 - Repeated experiments are more likely to succeed under H0
+{{content}}
 
-
-]
 
 ???
 
 - Discuss repeated dice throws
 - This manhattan plot is actually generated under the null model
----
-.pull-right[
-
-### Manhattan plot
-
-- Individual association test for each SNP and disease
-- $-log_{10}$ P-value against genomic position
-
-#### *Multiple tests*
-- Repeated experiments are more likely to succeed under H0
+--
 
 #### Multiple test correction
 - **Bonferroni, False Discovery Rate (FDR)**
+{{content}}
 
-]
+--
 
----
-.pull-right[
-
-### Manhattan plot
-
-- Individual association test for each SNP and disease
-- $-log_{10}$ P-value against genomic position
-
-#### *Multiple tests*
-- Repeated experiments are more likely to succeed under H0
-
-#### Multiple test correction
-- **Bonferroni, False Discovery Rate (FDR)**
   ![black box warning](assets/blackbox.jpg)
 
 ]
@@ -737,6 +666,8 @@ manhattan(gwas, suggestiveline=FALSE, genomewideline=FALSE)
 
 ---
 layout: false
+# Multivariate analysis
+---
 layout: true
 # Multivariate analysis
 
@@ -761,7 +692,7 @@ df = data.frame(x=x,y=y, z=z)
 #df = data.frame(x=c(x,x),y=c(rep(1, length(x)), rep(2, length(x))), z=c(ylin1, ylin3))
 #df = data.frame(x=c(x,x),y=c(rnorm(length(x), mean=1, sd=0.00001), rnorm(length(x), 2, 0.00001)), z=c(ylin1, ylin3))
 
-scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="y", zlab="z", phi=20, theta=-50, zlim=c(-20,20))
+scatter3D(x=df$x, z=df$z, y=df$y, xlab="[RNA]", ylab="[proteases]", zlab="[protein]", phi=20, theta=-50, zlim=c(-20,20))
 #scatter3D(x=df$x, z=df$z, y=df$y)
 
 
@@ -776,7 +707,7 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="y", zlab="z", phi=20, theta=-5
 # ylin4 = unlist(lapply(1:length(z), function(n) rmlin(x[n], z[n])))
 # df = data.frame(x=x,z=z, y=ylin4)
 # 
-# scatter3D(x=x,y=z, z=ylin4,xlab="x", ylab="z", zlab="y", phi=10, theta=40)
+# scatter3D(x=x,y=z, z=ylin4,xlab="x", ylab="[protein]", zlab="age", phi=10, theta=40)
 ```
 ]
 
@@ -794,18 +725,19 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="y", zlab="z", phi=20, theta=-5
 
 ---
 .pull-right[
-## Example: Multivariate regression
+## Multivariate regression
 - We can visualize models with 3 variables
 - and write an equation for this:  
-$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma age\end{cases}$
+$\begin{cases}[prot] &\sim N(\mu, \sigma) \\\mu = &\alpha+\beta [RNA] \\&\quad + \gamma [proteases] \end{cases}$
 {{content}}
- 
 ]
 
 --
 - For >3 variables, visualization breaks...
+{{content}}
+--
 - but we can still write it as an equation:  
-$\begin{cases}y \sim N(\mu, \sigma) \\\mu = \alpha+\beta x + \gamma age + \delta BMI\end{cases}$
+$\begin{cases}[prot] \sim& N(\mu, \sigma) \\\mu =& \alpha+\beta [RNA] \\&\quad+ \gamma [proteases]\\ &\quad + \delta [miRNA]\end{cases}$
 
 ---
 layout: false
@@ -816,7 +748,7 @@ library(plot3D)
 
 z = unlist(lapply(1:nrow, function(i) rmul(x[i], y[i], c=0)))
 df = data.frame(x=x,y=y, z=z)
-scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="y", zlab="z", phi=20, theta=-50, zlim=c(-20,20))
+scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="age", zlab="[protein]", phi=20, theta=-50, zlim=c(-20,20))
 
 ```
 ]
@@ -845,10 +777,9 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="y", zlab="z", phi=20, theta=-5
 ---
 layout: false
 layout: true
-# Big data - Machine learning
+# Example: Single cell expression data
 
-## PCA and clustering
-
+### Machine learning - Dimensional reduction
 .pull-left[
 ```{r, pca}
 
@@ -892,11 +823,9 @@ print(p)
 layout: false
 layout: true
 
-# Big data - Machine learning
+# Example: Species classification
 
-
-
-## Artificial neural network (ANN)
+## Machine learning -- Artificial neural network (ANN)
 
 - **Train** ANN to learn feature selection and model selection to predict the right answer.
 
@@ -986,231 +915,12 @@ cat(paste0(paste0(sample(c("A", "C","G","T"), 27, replace=TRUE), collapse=""), "
 ???
 This is of course a major black box
 
-
 ---
 layout: false
-# Example: phylogeny
+# Welcome to the course!
 
+<br>
+<br>
 
-```{r, phylogeny1, include = FALSE}
-library(ape)
-library(ggtree)
-library(phangorn)
-library(gridExtra)
-library(dplyr)
-library(tidytree)
-library(phytools)
-
-pl=list()
-par(mfrow=c(1,2))
-data(Laurasiatherian)
-subset = c( 39, 28, 47, 20, 38, 21, 34,  8, 23) #sample(5:length(Laurasiatherian), 9)
-l= Laurasiatherian[c(1, subset),]
-
-lcol = rep("0", length(l))
-names(lcol)=names(l)
-lcol["Baboon"]="2"
-lcol[names(lcol) %in% c("CaneRat", "Dormouse") ] = "1"
-
-
-d = dist.ml(l)
-
-doGgtree<-function(mytree, branchlength="branch.length", xlimmax=0.25, leafcol=lcol, title=""){
-  fit <- MPR(leafcol, mytree, "Platypus") #
-  #fit <- fastAnc(mytree, leafcol, vars=TRUE, CI=TRUE)
-  leafcol <- data.frame(node = nodeid(mytree, names(lcol)),
-                        trait = leafcol)
-  vertexcol <- data.frame(node = row.names(fit), trait = fit[,"lower"])
-  vertexcol["19",] = c("19","0")
-  col <- rbind(leafcol, vertexcol)
-  col$node <- as.numeric(col$node)
-  mytree=ladderize(root(mytree, 1, resolve.root=TRUE))
-  mytree <- full_join(mytree, col, by = 'node')
-
-  t=  ggtree(mytree, aes(x,y,color=trait), branch.length=branchlength) + 
-      geom_tree() + 
-      theme_tree() + 
-      geom_tiplab(size=3)+ 
-      geom_nodelab(size=3)+ 
-      scale_color_manual(values=c("0"="black", "2"='red', "1"='green')) +
-      ggtitle(title) +
-      ggplot2::xlim(0, xlimmax)
-  return(t)
-}
-
-nj = NJ(d)
-PP = c("","","","","","","","","","","",0.60,0.89,0.92,0.97,0.95,0.94, 0.96, 0.54)
-p=doGgtree(nj, branchlength="none",xlimmax=10)
-p1=doGgtree(nj, branchlength="none", xlimmax=10, title="NJ")
-q1=doGgtree(nj, title="NJ")
-
-bnj = bionj(d)
-p2=doGgtree(bnj, branchlength="none", xlimmax=10, title="BioNJ")
-q2=doGgtree(bnj, title="BioNJ")
-
-p3 = p +  geom_text(aes(label=PP), hjust=-.5)
-
-t = ggtree(nj, aes(x,y)) + 
-  geom_tree() +      
-  theme_tree()
-dummy = ggplot() +
-  annotate("text", x = 0, y = 0, size=8, label = "...") + 
-  theme_void()
-
-```
-.pull-left[
-```{r, phylogeny2}
-multiplot(p1, p2, ncol=2)
-```
-
-]
-
-.pull-right[
-## Clustering methods
-- works with pairwise distances
-- fast
-- single solution (point estimate)
-
-### Problem 
-- different methods yield different solutions
-]
-
----
-# Example: phylogeny
-
-.pull-left[
-```{r, phylogeny3}
-multiplot(q1, q2, ncol=2)
-```
-]
-.pull-right[
-## Robust?
-- Using branch lengths as a measure, there is little support for either placement
-]
----
-# Example: phylogeny
-
-.pull-left[
-```{r, phylogeny4}
-
-
-r = 10
-c = 10
-
-pl=list()
-m=0
-for(i in 1:r){
-  for(j in 1:(c-1)){
-    m=m+1
-    pl[[m]] = t
-  }
-  m=m+1
-  pl[[m]] = dummy
-}
-grid.arrange(grobs=pl, ncol=c)
-#multiplot(grobs=pl, ncol=2)
-```
-]
-.pull-right[
-### In fact there are multiple possible trees
-
-- Is one better than the other?
-{{content}}
-]
-
-
---
-
-#### *Frequentist approach*
-  - hypothesis test
-{{content}}
-
-
---
-
-#### *Bayesian approach*
-  - assign *posterior probabilities* of each tree given data
-  - Look at the whole distribution
-  - evaluate statistic of interest
-{{content}}
---
-![black box warning](assets/blackbox.jpg)
-
----
-# Example: phylogeny
-.pull-left[
-```{r, phylogeny4a}
-# 
-# 
-# r = 10
-# c = 10
-# 
-# pl=list()
-# m=0
-# for(i in 1:r){
-#   for(j in 1:(c-1)){
-#     m=m+1
-#     pl[[m]] = t
-#   }
-#   m=m+1
-#   pl[[m]] = dummy
-# }
-grid.arrange(grobs=pl, ncol=c)
-#multiplot(grobs=pl, ncol=2)
-```
-]
-
-.pull-right[
-### *Bayesian approach*
-- Here, statistic of interest = Support for individual clades (*clade credibility*, CC)
-  - CC of clade a = sum of trees with clade A weighted by their probabilities
-  
-```{r, phylo5, fig.height=4}
-  
-plot(p3)
-```
-
-  ]
---
-
-- Note. Frequentist approach to clade support: use data resampling (bootstrap)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<center>
+![black box warning](assets/blackboxgift.png)
