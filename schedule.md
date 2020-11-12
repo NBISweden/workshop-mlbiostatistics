@@ -13,7 +13,7 @@ title:  'Schedule'
 
 **10:15 - 11:15** Introduction to R, R-Studio and R markdown (Olga) (~ 5 min live stream, ~ 25 min online support)
 
-**11.15 - 12:00** Mathematical foundations (Olga) (*live stream)
+**11.15 - 12:00** Mathematical foundations (Olga) (live stream)
 
 
 *12:00 - 13:00 lunch* (*offline*)
@@ -59,6 +59,7 @@ title:  'Schedule'
 
 <br/>
 ##### Wednesday 2020-11-18
+
 **09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
 **09:30 - 10:00** [Linear models: introduction](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html) (Olga) (live stream)
