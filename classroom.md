@@ -29,7 +29,6 @@ We have created
   - Group: t-tasters
   - Group: Bootstrappers
   - Group: Integrators
-  - Group: Limitless
   - Group: summaTHORs
   - Q&A 1
   - Q&A 2
