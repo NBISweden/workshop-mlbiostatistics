@@ -9,7 +9,7 @@ options(digits=2)
 ```
 
 
-# Probability theory
+# Probability theory {#session-probability}
 
 Learning outcomes
 
@@ -23,6 +23,41 @@ Learning outcomes
 - understand the central limit theorem
 
 ## Introduction to probability
+
+Some things are more likely to occur than others. Compare:
+
+- the chance of the sun rising tomorrow with the chance that no-one is infected with COVID-19 tomorrow
+- the chance of a cold dark winter in Stockholm with the chance of no rainy days over the summer months in Stockholm
+
+We intuitively believe that the chance of sun rising or dark winter occurring are enormously higher than COVID-19 disappearing over night or having no rain over the entire summer. **Probability** gives us a scale for measuring the likeliness of events to occur. **Probability rules** enable us to reason about uncertain events. The probability rules are expressed in terms of [sets](https://en.wikipedia.org/wiki/Set_(mathematics)), a well-defined collection of distinct objects.
+
+Suppose we perform an experiment that we do not know the outcome of, i.e. we are uncertain about the outcome. We can however list all the outcomes that might occur.
+
+- **sample space** is the set $S$ of these possible outcomes of the experiment, e.g. getting 1, 2 etc. on the 6-sided dice $S=\{1,2,3,4,5,6\}$
+- **an event** is a subset of the sample space
+- an event is said to **occur** if the outcome of the experiment belong to this set
+- $E'$**complement** of the event $E$ contains all the outcomes in $S$ which are not in $E$
+- $E \cap F = \emptyset$ are said to be **disjoint**
+
+
+### Axioms of probability
+1. $0 \leq P(E) \geq 1$ for any event $E \subseteq S$
+2. $P(S) = 1$
+3. if $E$, $F$ are disjoint events, then $P(U \cup F) = P(E) + F(J)$
+
+### Common rules and theorems
+- **probability of the complement**: let $E \subseteq S$ be any event, then $P(E') = 1 - P(E)$ 
+- **probability of the impossible event**: $P(\emptyset)=0$
+- **inequality of the probability of a subset**: let $E,F \subseteq S$ be events such that $E \subseteq F$ then $P(F) \geq P(E)$
+- **the probability of a union**: let $E,F \subseteq S$ be any two events, then $P(E \cup F) = P(E) + P(F) - P(E \cap F)$
+
+### Conditional probability
+- let $E,F \subseteq S$ be two events that $P(E)>0$ then the conditional probability of $F$ given that $E$ occurs is defined to be: $$P(F|E) = \frac{P(E\cap F)}{P(E)}$$
+
+**Product rule** follows conditional probability: let $E,F \subseteq S$ be events such that $P(E)>0$ then: $$P(E \cap F) = P(F|E)P(E)$$
+
+
+
 
 ### Random variables
 
@@ -112,7 +147,7 @@ x=1:50
 ggplot(data.frame(x=x, fx=dpois(x, lambda=25)), aes(x,fx)) + geom_bar(stat="identity") + theme_bw() + ylab("p(x)")
 ```
 
-#### Expected value
+### Expected value
 
 When the probability mass function is know the *expected value* of the random variable can be computed.
 
@@ -121,11 +156,11 @@ For a *uniform distribution*, where every object has the same probability (in th
 
 $$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i$$
 
-#### Variance
+### Variance
 
 The variance is a measure of spread and is defined as the expected value of the squared distance from the population mean;
 
-$$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x) dx$$
+$$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i)$$
 
 
 ### Simulate distributions
@@ -257,20 +292,32 @@ The probability density function
 $$P(X=k) = \frac{{Np \choose x} {N-Np \choose n-x}}{N \choose n}$$
 can be computed in R using `dhyper` and the cumulative distribution function $P(X \leq k)$ can be computed using `phyper`.
 
+
 #### Poisson distribution
 
 The Poisson distribution describe the number of times a rare event occurs in a large number of trials.
 
-A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time perion can be modelled using the Poisson distribution.
+A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period can be modelled using the Poisson distribution.
 
 The probability mass function;
 
 $$P(X=k) = \frac{\mu}{k!}e^{-\mu},$$
-where $\mu$ is the expected value.
+where $\mu$ is the expected value, which is $\mu = n \pi$, where $n$ is the number of objects sampled from the population and $\pi$ is the probability of a single object.
+
+The Poisson distribution can approximate the binomial distribution if $n$ is large ($n>10$) and $\pi$ is small ($\pi < 0.1$).
+
+### Distributions in R
+
+Probability density functions for the binomial, hypergeometric and Poisson distributions can in R can be computed using functions `dnorm`, `dt`, `dchisq`, and `df`, respectively.
+
+Cumulative distribution functions can be computed using `pnorm`, `pt`, `pchisq` and `pf`.
+
+Also, functions for computing an $x$ such that $P(X<x) = q$, where $q$ is a probability of interest are available using `qnorm`, `qt`, `qchisq` and `qf`.
 
 
+Useful R functions: `ppois`,  `dpois`, `qpois`
   
-### Exercises {-}
+## Exercises: Discrete random variables {-}
 
 #### Introduction to probability {-}
 
@@ -378,28 +425,32 @@ kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dim
 
 a) the probability of a positive test result from a person with cancer?
 b) the probability of a negative test result from a person without cancer?
-c) the probability of having cancer, if the test is poitive?
+c) the probability of having cancer, if the test is positive?
 d) the probability of not having cancer, if the test is negative?
 
 e) Connect the four computed probabilities with the following four terms;
-  - Sensitivity
-  - Specificity
-  - Positive predictive value (PPV)
-  - Negative predictive value (NPV)
 
-### Solutions {-}
+- Sensitivity
+- Specificity
+- Positive predictive value (PPV)
+- Negative predictive value (NPV)
+
+### Solutions: Discrete random variables {-}
 
 \@ref(exr:probcoin)
+
 a) 0.5
 b) 0.5
 
 \@ref(exr:probdie)
+
 a) $\frac{1}{6}$
 b) $\frac{1}{2}$
 c) $\frac{2}{3}$
 d) 3.5
 
 \@ref(exr:Cointoss)
+
 a) 0.015
 b) 0.058
 c) 10
@@ -407,6 +458,7 @@ d) 0.020
 e) 0.0002
 
 \@ref(exr:Dice)
+
 a) $X$, the number of sixes when rolling 10 dice.
 b) ${0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}$
 c)
@@ -417,6 +469,7 @@ g) 1.7
 
 
 \@ref(exr:Cards)
+
 0.00049
 
 \@ref(exr:Pollen)
@@ -465,10 +518,10 @@ mean(x==0)
 
 \@ref(exr:diagnostictests)
 
-a) $P(pos|cancer) = 16/20$, PPV
-b) $P(neg|not cancer) = 882/980$, NPV
-c) $P(cancer|pos) = 16/114$, sensitivity
-d) $P(not cancer|neg) = 882/886$, specificity
+a) $P(pos|cancer) = 16/20$, sensitivity
+b) $P(neg|not cancer) = 882/980$, specificity
+c) $P(cancer|pos) = 16/114$, PPV
+d) $P(not cancer|neg) = 882/886$, NPV
 
 
 ## Continuous random variable
@@ -719,6 +772,7 @@ ggplot(dX, aes(x=x, y=fx, color=factor(paste0("n=",n), levels=paste0("n=",sort(u
 ```{example, label="chisq", echo=FALSE}
 $\frac{(n-1)S^2}{\sigma^2} is $\chi^2$ distributed with $n-1$ degrees of freedom.
 ```
+
 <!-- Example. $\chi^2$-test for variance -->
   
 ### F-distribution
@@ -750,16 +804,23 @@ dT <- data.frame(x=x, n=rep(c(2, 3,5,7, 10, 15, 20, 30), each=length(x))) %>%
 ggplot(dT, aes(x=x, y=fx, color=factor(paste0("n=",n), levels=paste0("n=",sort(unique(n)))))) + geom_line() + theme_bw() + scale_color_discrete("")
 ```
 
+
 ```{example, name="t-distribution", label="tdistr", echo=TRUE}
 The ratio between sample mean and sample variance is t-distributed.
 ```
 
-## Exercises
+### Distributions in R
 
-### Normal distribution
+Probability density functions for the normal, t, $\chi^2$ and F distributions can in R can be computed using functions `dnorm`, `dt`, `dchisq`, and `df`, respectively.
 
-```{exercise, label="normtable", name="Exercise in using the normal table", echo=TRUE}
-  
+Cumulative distribution functions can be computed using `pnorm`, `pt`, `pchisq` and `pf`.
+
+Also, functions for computing an $x$ such that $P(X<x) = q$, where $q$ is a probability of interest are available using `qnorm`, `qt`, `qchisq` and `qf`.
+
+## Exercises: Continuous random variables {-}
+
+```{exercise, label="normtable", name="Exercise on using the normal table", echo=TRUE}
+
 Let $Z \sim N(0,1)$ be a standard normal random variable, and compute;
 
   a. $P(Z<1.64)$
@@ -768,6 +829,8 @@ Let $Z \sim N(0,1)$ be a standard normal random variable, and compute;
   d. $P(Z<2.36)$
   e. An $a$ such that $P(Z<a) = 0.95$
   f. An $b$ such that $P(Z>b) = 0.975$
+  
+Note, this ecercise can be solved using the standard normal table or using the R functions `pnorm`and `qnorm`.
 ```
 
 ```{exercise, label="ztransform", name="Exercise in standardization/transformation", echo=TRUE}
@@ -778,4 +841,44 @@ If $X \sim N(3,2)$, compute the probabilities
   c. $P(X \geq 7)$
 ```
 
+```{exercise, label="sumdistr", echo=TRUE}
+The hemoglobin (Hb) value in a male population is normally distributed woth mean 188 g/L and standard deviation 14 g/L.
+a) Men with Hb below 158 g/L are considered anemic. Waht is the probability of a random man being anemic?
+b) When randomly selecting 10 men from the population, what is the probability that none of them are anemic?
+```
+
+```{exercise, label="poisson", echo=TRUE}
+A rare disease affects 3 in 100000 in a large population. If 10000 people are randomly selected from the population, what is the probability
+
+a) that no one in the sample is affected?
+b) that at least two in the sample are affected?
+```
+
+```{exercise, label="pill", echo=TRUE}
+A drug company is producing a pill, with on average 12 mg of active substance. The amount of active substance is normally distributed with mean 12 mg and standard deviation 0.5 mg, if the production is without problems. Sometimes there is a problem with the production and the amount of active substance will be too high or too low, in which case the pill has to be discarded. What should the upper and lower critical values (limits for when a pill is acceptable) be in order not to discard more than 1/20 pills from a problem free production?
+```
+
+
+### Solutions {-}
+
+\@ref(exr:normtable)
+
+a. 0.9495
+b. 0.9495
+c. 0.975
+d. 0.9909
+e. 1.64
+f. -1.96
+  
+\@ref(exr:ztransform)
+  
+a. 0.84
+b. 0.34
+c. 0.023
+
+
+\@ref(exr:sumdistr)
+
+a) 0.016
+b) 0.85
 

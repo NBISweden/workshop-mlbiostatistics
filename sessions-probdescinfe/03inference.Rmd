@@ -10,7 +10,7 @@ options(digits=4)
 ```
 
 
-# Statistical Inference
+# Statistical Inference {#session-inference}
 
 Learning outcomes:
 
@@ -199,6 +199,37 @@ Study setup:
 3. Measure body weight after one week.
 ```
 
+```{r mice, echo=FALSE, eval=FALSE}
+## Full mouse population can be downloaded from
+mp <- read.csv("https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/mice_pheno.csv")
+## Select all female mice
+pop.F <- mp %>% filter(Sex=="F")
+## Select all the female mice on high fat diet
+pop.F.hf <- (pop.F %>% filter(Diet=="hf"))[, "Bodyweight"]
+## Select all the female mice on ordinary diet
+pop.F.n <- (pop.F %>% filter(Diet=="chow"))[, "Bodyweight"]
+
+## Select the seed so that we all get the same random mice!
+set.seed(1)
+## Select 12 HF mice
+xHF <- round(sample(pop.F.hf, 12))
+## Select 12 O mice
+xN <- round(sample(pop.F.n, 12))
+```
+
+The observed values, mouse weights in grams, are summarized below;
+
+```{r miceobs, echo=FALSE}
+## 12 HF mice
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+```
+
+```{r}
+kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_size=14)
+```
+
 ##### Null and alternative hypotheses {-}
 $$
 \begin{aligned}
@@ -211,16 +242,6 @@ where $\mu_2$ is the (unknown) mean body weight of the high-fat mouse population
 
 Studied population: Female mice that can be ordered from a lab.
 
-```{r mice, echo=FALSE}
-## Download the mouse population
-mp <- read.csv("https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/mice_pheno.csv")
-## Select all female mice
-pop.F <- mp %>% filter(Sex=="F")
-## Select all the female mice on high fat diet
-pop.F.hf <- (pop.F %>% filter(Diet=="hf"))[, "Bodyweight"]
-## Select all the female mice on ordinary diet
-pop.F.n <- (pop.F %>% filter(Diet=="chow"))[, "Bodyweight"]
-```
 
 ##### Test statistic {-}
 
@@ -232,22 +253,14 @@ Mean weight of 12 (randomly selected) mice on high-fat diet, $\bar X_2$. $E[\bar
 
 The mean difference is also a random variable: $D = \bar X_2 - \bar X_1$
 
-The observed values, mouse weights in grams, are summarized below;
+Observed values;
 
-```{r miceobs, echo=F}
-## Select the seed so that we all get the same random mice!
-set.seed(1)
-## Select 12 HF mice
-xHF <- round(sample(pop.F.hf, 12))
-## Select 12 O mice
-xN <- round(sample(pop.F.n, 12))
-```
+```{r, echo=TRUE}
+## 12 HF mice
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
 
-```{r}
-kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_size=14)
-```
-
-```{r }
 ##Compute mean body weights of the two samples
 mHF <- mean(xHF)
 mN <- mean(xN) 
@@ -277,29 +290,36 @@ Assume $H_0$ is true, i.e. assume all mice are equivalent and
 If we repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
 
 
-```{r permtest, echo=F, out.width="50%"}
+```{r permtest, echo=TRUE, out.width="50%"}
 ## All 24 body weights in a vector
 x <- c(xHF, xN)
 ## Mean difference
-dobs <- mean(x[1:12]) - mean(x[13:24])
-#dobs
-## Permute
-y <- sample(x)
-##Mean difference
-#mean(y[1:12]) - mean(y[13:24])
+(dobs <- mean(x[1:12]) - mean(x[13:24]))
+
+## Permute once
+(y <- sample(x))
+##Compute mean difference
+mean(y[1:12]) - mean(y[13:24])
 dnull.perm <- replicate(n = 100000, {
   y <- sample(x)
   ##Mean difference
   mean(y[1:12]) - mean(y[13:24])
 })
 ggplot(data.frame(d=dnull.perm), aes(x=d)) + geom_histogram(bins=25, color="white") + theme_bw() + geom_vline(xintercept=dobs, color="red")
-## Compute the p-value
-#mean(dnull.perm>dobs)
+##Alternatively plot using hist
+## hist(dnull.perm)
 ```
+
 
 ##### Compute p-value {-}
 
 What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
+
+```{r micepval, echo=TRUE}
+## Compute the p-value
+sum(dnull.perm>dobs)/length(dnull.perm)
+mean(dnull.perm>dobs)
+```
 
 $P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) = $`r sprintf("%.3g",mean(dnull.perm>=dobs))`
 
@@ -307,7 +327,29 @@ Conclusion?
 
 <!-- ## Parametric hypothesis tests -->
 
-## Parametric distributions
+## Exercises: Hypothesis tests, resampling {-}
+
+```{exercise, label="pollentest", echo=TRUE}
+You believe that the proportion of Swedish students allergic to pollen is greater than 0.3 (the proportion allergic to pollen in Sweden). To test this you observe 20 people in a student group at BMC in Uppsala, 9 or them are allergic to pollen. Is this reason to believe that the proportion of Swedish students allergic to pollen i greater than 0.3?
+
+Can you identify any problems with this study setup?
+```
+
+```{exercise, label="diet", echo=TRUE}
+A diet study aims to study how the hemoglobin (Hb) levels in blood are affected by an iron-rich diet consisting of tofu, soybeans, broccoli, lentils and peas. To perform the study the dietician has recruited 40 male participants, who are randomly assigned to the iron-rich diet or control group (no change in participants diet), 20 participant in each group.
+
+The observed Hb levels (in g/L);
+```
+
+```{r, echo=TRUE}
+ctrl <- c(197, 186, 157, 170, 193, 188, 175, 186, 177, 191, 168, 193, 191, 189, 188, 192, 179, 186, 197, 203)
+iron <- c(187, 218, 196, 210, 206, 178, 181, 193, 172, 202, 169, 221, 183, 222, 185, 174, 192, 192, 162, 211)
+```
+
+Perform a hypothesis test to investigate if the Hb level is affected (increased or decreased) by the iron-rich diet.
+
+
+## Parametric tests
 
 In previous chapters we have computed the sampling distribution using resampling techniques to be able to perform hypothesis tests or compute interval estimates. If the null distribution was already known (or could be computed based on a few assumptions) resampling would not be necessary.
 
@@ -405,8 +447,6 @@ $$t = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$
 is t-distributed with $df=n-1$ degrees of freedom.
 
 ### Two samples, proportions
-
-
 
 $$H_0: \pi_1 - \pi_2 = 0\\
 H_1: \pi_1 - \pi_2 \neq 0$$
@@ -518,13 +558,21 @@ Hence, the test statistic for comparing the variances of two groups
 $$F = \frac{S_1^2}{S_2^2}$$
 is $F$-distributed with $n_1-1$ and $n_2-1$ degrees of freedom.
 
-In R a test of equal variances can be performred using the function `var.test`.
+In R a test of equal variances can be performed using the function `var.test`.
 
 
-### Exercises
+## Exercises: Hypothesis tests, parametric {-}
 
 ```{exercise, label="Hb", echo=TRUE}
-The hemoglobin value (Hb) in women is  on average 140 g/L. You observe the following Hb values in a set of five men: 154, 140, 147, 162, 172. Assume that Hb is normally distributed. Is there a reason to believe that the mean Hb value in men differ from that in women? 
+The hemoglobin value (Hb) in women is  on average 140 g/L. You observe the following Hb values in a set of five male blood donors: 154, 140, 147, 162, 172. Assume that Hb is normally distributed. Is there a reason to believe that the mean Hb value in men differ from that in women? 
+```
+
+```{exercise, label="Hb2", echo=TRUE}
+The hemoglobin value (Hb) in men is on average 188 g/L. The Hb values in \@ref(exr:Hb2) were actually measured after the men had donated blood. Is there a reason to believe that the mean Hb level after blood donation is less than 188 g/L?
+```
+
+```{exercise, label="Hb3", echo=TRUE}
+By observing the Hb values in 5 male blood donors; 154, 140, 147, 162, 172 g/L, and 5 female blood donors: 123, 140, 137, 132, 127 g/L, is there a reason to believe that the Hb level is higher in men than in women?
 ```
 
 ```{exercise, label="mice12", echo=TRUE}
@@ -538,20 +586,8 @@ kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_siz
 Does high fat diet increase body weight in mice?
 
 a) Assume equal variances.
-```{r ttesteqvar, echo=TRUE, eval=FALSE}
-# Student's t-test with pooled variances
-t.test(xHF, xN, var.equal=TRUE, alternative="greater")
-```
-
 b) Don't assume equal variances.
-```{r ttestuneqvar, echo=TRUE, eval=FALSE}
-# Unequal variances with Welch approximation to the degrees of freedom (the default)
-t.test(xHF, xN, var.equal=FALSE, alternative="greater")
-```
 
-```{r}
-
-```
 
 <!-- Exercise, known $\sigma$ -->
 <!-- If the means of the populations are unknown, but the standard variations are known -->
@@ -567,6 +603,35 @@ t.test(xHF, xN, var.equal=FALSE, alternative="greater")
 <!-- pnorm((dobs-0)/sqrt(5.1^2/12 + 3.4^2/12), lower.tail=FALSE) -->
 <!-- ``` -->
 
+### Solutions: Hypothesis tests, parametric {-}
+
+\@ref(exr:Hb)
+
+```{r}
+x <- c(154, 140, 147, 162, 172)
+## sample mean
+m <- mean(x)
+## standard error of mean
+SE <- sd(x)/sqrt(5)
+## Observed value of test statistic
+tobs <- (m-140)/SE
+## P(t>tobs)
+pt(tobs, df=4, lower.tail=FALSE)
+## p = P(t>tobs) + P(t<-tobs) = 2 * P(t>tobs)
+p <- 2*pt(tobs, df=4, lower.tail=FALSE)
+```
+
+\@ref(exr:mice12)
+a) 
+```{r ttesteqvar, echo=TRUE, eval=TRUE}
+# Student's t-test with pooled variances
+t.test(xHF, xN, var.equal=TRUE, alternative="greater")
+```
+b) 
+```{r ttestuneqvar, echo=TRUE, eval=TRUE}
+# Unequal variances with Welch approximation to the degrees of freedom (the default)
+t.test(xHF, xN, var.equal=FALSE, alternative="greater")
+```
 
 
 ## Point and interval estimates
@@ -595,7 +660,7 @@ knitr::include_graphics("figures/pollenurn42.png")
 Sample from the urn with replacement to compute the bootstrap distribution.
 
 ```{r CIboot, out.width="45%", fig.align="center"}
-x <- rep(0:1, c(67,33))
+x <- rep(0:1, c(58, 42))
 pboot <- replicate(100000, mean(sample(x, replace=TRUE)))
 ciboot <- quantile(pboot, c(0.025, 0.975))
 ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=5000), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=5000, label="95%")
@@ -646,17 +711,17 @@ The 95% confidence interval $$\pi = p \pm 1.96 \sqrt{\frac{p(1-p)}{n}}$$
 A 95% confidence interval will have 95% chance to cover the true value.
 
 ```{r CIallergy, fig.width=7, fig.height=3}
+set.seed(13)
+p <- replicate(100, mean(sample(0:1, 100, p=c(.7,.3), replace=TRUE)))
 ggplot(data.frame(x=1:40, p=p[61:100]) %>% mutate(ymin=p-1.96*sqrt((p*(1-p))/100), ymax=p+1.96*sqrt((p*(1-p))/100)), aes(x=x, ymin=ymin, ymax=ymax, color=0.3>ymin & 0.3<ymax)) + geom_errorbar() + geom_hline(yintercept=0.3) + xlab("") + ylab("p") + theme_bw() + theme(legend.position="none")
 ```
 
-
-
-Back to our example of proportion pollen allergic in Uppsala. $p=0.33$ and $SE=\sqrt{\frac{p(1-p)}{n}} = `r sqrt(0.33*(1-0.33)/100)`$.
+Back to our example of proportion pollen allergic in Uppsala. $p=0.42$ and $SE=\sqrt{\frac{p(1-p)}{n}} = `r sqrt(0.42*(1-0.42)/100)`$.
 
 Hence, the 95% confidence interval is 
-$$\pi = 0.33 \pm 1.96 * 0.05 = 0.33 \pm 0.092$$
+$$\pi = 0.42 \pm 1.96 * 0.05 = 0.42 \pm 0.092$$
 or
-$$(0.33-0.092, 0.33+0.092) = (0.24, 0.42)$$
+$$(0.42-0.092, 0.42+0.092) = (0.32, 0.52)$$
 
 ```{exercise, label="CIprop", echo=TRUE}
 a) How can we get a narrower confidence interval?
@@ -701,10 +766,28 @@ alpha = 0.05
 qt(1-alpha/2, df=n-1)
 ```
 
-```{exercise, label="CIm1", echo=TRUE}
-You measure the Hb value in 10 50 year old men and get the following observations; 145, 165, 134, 167, 158, 176, 156, 189, 143, 123. Compute a 95% confidence interval for the mean Hb value.
+## Exercises: Interval estimates {-}
+
+```{exercise, label="CIHb", echo=TRUE}
+You measure the Hb value in 10 50-year old men and get the following observations; 145, 165, 134, 167, 158, 176, 156, 189, 143, 123 g/L.
+
+a) Compute a 95% bootstrap interval for the mean Hb value.
+b) Compute the sample mean Hb value
+c) Compute the sample variance
+d) Compute the sample standard deviation
+b) Assume that Hb is normally distributed and compute a 95% confidence interval for the mean Hb value.
 ```
 
+```{exercise, label="CIscale", echo=TRUE}
+A scale has a normally distributed error with mean 0 and standard deviation 2.3 g. You measure a sample 10 times and observe the mean weight 43 g.
+
+a) Compute a 95% confidence interval of the sample weight
+b) Compute a 90% confidence interval of the sample weight
+```
+
+```{exercise, label=""}
+You observe 150 students at BMC of which 25 are smokers.  Compute a 95% confidence interval for the proportion of smokers among BMC students.
+```
 
 
 ## Multiple testing
@@ -729,13 +812,13 @@ $$P(\mbox{reject } H_0 | H_1 \mbox{ is true}) = P(\mbox{reject } H_0 | H_0 \mbox
 
 #### Perform one test:
   
-  - P(One type I error) = $\alpha$
-  - P(No type I error) = $1 - \alpha$
+- P(One type I error) = $\alpha$
+- P(No type I error) = $1 - \alpha$
   
 #### Perform $m$ independent tests:
   
-  - P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
-  - P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
+- P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+- P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
   
 ```{r multiple, echo=FALSE, out.width="50%", fig.align="center", fig.width=4, fig.height=4}
 a=0.05
@@ -770,9 +853,9 @@ Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$
 
 ### 'Adjusted' p-values
   
-  Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
+Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
   
-- Using Bonferroni's method the adjusted p-values are:
+- Using Bonferroni's method the 'adjusted' p-values are:
   
   $\tilde p_i = \min(m p_i, 1)$.
 
