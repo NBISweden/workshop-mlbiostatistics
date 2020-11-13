@@ -88,7 +88,7 @@ title:  'Schedule'
 ##### Thursday 2020-11-19
 **09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
-**09.30 - 12.00** Principal Component Analysis (Payam) (live stream)
+**09.30 - 12.00** [Principal Component Analysis](https://payamemami.github.io/pca_basics/) (Payam) (live stream)
 
 *12:00 - 13:00 lunch*
 
@@ -96,9 +96,9 @@ title:  'Schedule'
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15.30** Classification with kNN and decision trees (Olga)
+**15:00 - 15.30** [Classification with kNN and decision trees](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html) (Olga) (live stream)
 
-**15.30 - 16.30** Exercises (online support)
+**15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html#exercises-classification) (online support)
 
 **16.30 - 17.00** Test yourself (online support)
 
