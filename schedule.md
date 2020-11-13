@@ -11,7 +11,7 @@ title:  'Schedule'
 
 **09.30 - 10.00** [Introductory lecture](session-intro2/intro2.html) (Bengt) (live stream)
 
-**10:15 - 11:15** [Setting up: R, R-Studio & Rmd](session-setup/setup) (Olga) (~ 5 min live stream, ~ 25 min online support)
+**10:15 - 11:00** [Setting up: R, R-Studio & Rmd](session-setup/setup) (Olga) (~ 10 min live stream, ~ 35 min online support)
 
 **11.15 - 12:00** [Mathematical foundations](https://jamboard.google.com/d/10iDALt33eDvA-SHTt-tc5m88zK7ftvUFMgNc42biZx8/edit?usp=sharing) (Olga) (~30 min group session, ~15 min live stream)
 
@@ -24,38 +24,38 @@ title:  'Schedule'
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15:30** Probability & simulations II (Eva) (live stream)
+**15:00 - 15:30** [Probability & simulations II](sessions-probdescinfe/session-probabilit/ssion-probability#continuous-random-variable) (Eva) (live stream)
 
 **13.30 - 16.30** Exercises (online support)
 
-**16.30 - 17.00** Test yourself
+**16.30 - 17.00** Test yourself (online support)
 
 <br/>
 ##### Tuesday 2020-11-17
 
 **09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
-**09:30 - 10.00** [Descriptive statistics & data visualisation I](sessions-probdescinfe/session-descstats) (Eva) (live stream)
+**09:30 - 10.00** [Descriptive statistics](sessions-probdescinfe/session-descstats) (Eva) (live stream)
 
 **10:00 - 10.45** Exercises (online support)
 
-**10:45 - 11.15** Descriptive statistics & data visualisation II (Eva) (live stream)
+**10:45 - 11.15** [Hypothesis testing I](sessions-probdescinfe/session-inference) (Eva) (live stream)
 
 **11:15 - 12.00** Exercises (online support)
 
 *12:00 - 13:00 lunch* (offline)
 
-**13.00 - 13.30** [Hypothesis testing I](sessions-probdescinfe/session-inference) (Eva) (live stream)
+**13.00 - 13.30** [Hypothesis testing II](sessions-probdescinfe/session-inference#point-and-interval-estimates) (Eva) (live stream)
 
 **13.30 - 14.30** Exercises (online support)
 
 *14.30 - 15.00 break (offline)*
 
-**15.00 - 15.30** Hypothesis testing II (Eva) (live stream)
+**15.00 - 15.30** [Hypothesis testing III](session-inference#multiple-testing) (Eva) (live stream)
 
 **15.30 - 16.30** Exercises (online support)
 
-**16.30 - 17.00** Test yourself
+**16.30 - 17.00** Test yourself (online support)
 
 <br/>
 ##### Wednesday 2020-11-18
@@ -82,7 +82,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms) (online support)
 
-**16.30 - 17.00** Test yourself
+**16.30 - 17.00** Test yourself (online support)
 
 <br/>
 ##### Thursday 2020-11-19
@@ -100,7 +100,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** Exercises (online support)
 
-**16.30 - 17.00** Test yourself
+**16.30 - 17.00** Test yourself (online support)
 
 <br/>
 
@@ -117,7 +117,7 @@ title:  'Schedule'
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15:30** Test yourself
+**15:00 - 15:30** Test yourself (online support)
 
 **15.30 - 16.00** Course wrap-up (live stream)
 
