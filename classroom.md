@@ -83,7 +83,7 @@ _choose to do whatever works best for you (anything goes)_
 Psss...Eva, Payam and Bengt are statistical geeks and Mun-Gwuan, Nima and Lucile are super helpful
 
 
-_Note: you should be able to move between break out room. Try updating your Zomm if this is not the case._
+_Note: you should be able to move between break out room. Try updating your Zoom if this is not the case._
 
 #### Cameras and photos
 * please have your cameras on during online session and group sessions
