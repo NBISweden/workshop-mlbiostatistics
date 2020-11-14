@@ -2,6 +2,7 @@
 title: "Session Regularization"
 output:
   bookdown::html_document2:
+    theme: cerulean
     code_folding: hide
     keep_md: false
     number_sections: false
@@ -9,11 +10,16 @@ output:
 editor_options:
   chunk_output_type: console
 ---
-
+<style type="text/css">
+  body{
+  font-size: 14pt;
+}
+</style>
 ```{r setup, message=FALSE, echo=FALSE, show=FALSE}
 #setwd("workshop-mlbiostatistics/session-regularization")
 
 library(knitr)
+library(ggplot2)
 opts_chunk$set(echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, error=FALSE, out.width='100%', fig.height=3) #, fig.width=6)#, knitr.kable.NA = '-')
 ```
 
@@ -51,13 +57,19 @@ Since statistical model contain an element of randomness, the reasoning above mi
 To formalize this intuition, Edwards (1972) defined the likelihood of model parameters being true given observed data as
 
 $$L[\theta|Y,X] \propto Pr[Y|X, \theta]$$
-Notice that this means that $L[\theta|Y,X]$ is not a proper probability, hence the term *likelihood* is used.
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 Notice that this notation is not uncommonly mixed up, so you might also see the notation $L[Y|X,\theta]$ for the likelihood.
 
-Similarly $\propto Pr[Y|X, \theta]$ is often referred to as the *likelihood function*.
+Similarly $Pr[Y|X, \theta]$ is often referred to as the *likelihood function* or simply the likelihood.
+
+***
+</details>
+Notice that this means that $L[\theta|Y,X]$ is not a proper probability, hence the term *likelihood* is used.
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+In fact, for continuous $Y$, $Pr[Y|X, \theta]$ may be a density $f[Y|X, \theta]$ rather than a probability.
 
 ***
 </details>
@@ -67,7 +79,7 @@ In practice, the proportionality is ignored and we set
 $$L[\theta|Y,X] = Pr[Y|X, \theta]$$
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 The proportionality (indicated by '$\propto$') means there are some unknown constant factor, $k$, such that $L[\theta|Y,X] = k Pr[Y|X, \theta]$. However, the factor $k$ is assumed to be constant over $\theta$s and over models. 
 
 When the likelihood of two $\theta$s (or models) are compared this is almost always done as a _likelihood ratio_, 
@@ -79,10 +91,10 @@ which means that the factor $k$ disappears. Hence the factor $k$ is always ignor
 ***
 </details>
 
-In maximum likelihood estimation of some parameters $\theta$, one simply selects the estimates $\widehat\theta$ that gives the highest likelihood $max_{\theta}L[\theta|X,Y] = L[\widehat\theta|X,Y]$. In many applications of  likelihood and maximum likelihood, it is practical to instead use the logarithm of the likelihood, the logLikelihood, $\log L[\theta_1|Y,X]$.
+In maximum likelihood estimation, _MLE_, of some parameters $\theta$, one simply selects the estimates $\widehat\theta$ that gives the highest likelihood, i.e.,  $$\widehat{\theta} = max_{\theta}L[\theta|X,Y] = L[\widehat\theta|X,Y].$$ In many applications of  likelihood and maximum likelihood, it is practical to instead use the logarithm of the likelihood, the logLikelihood, $$\log L[\theta_1|Y,X].$$
 <details>
-<summary> Extra Reading </summary>
-As mentioned above, the logarithm of the likelihood, the logLikelihood, $\log L[\theta_1|Y,X]$, or sometimes the negative logLikelihood, $-\log L[\theta_1|Y,X]$, is often used. Notice, that 
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+As mentioned above, the logarithm of the likelihood, the logLikelihood, $\log L[\theta_1|Y,X],$ or sometimes the negative logLikelihood, $-\log L[\theta_1|Y,X]$, is often used. Notice, that 
 
 1. The $\theta$ estimates that maximizes  $\log L[\theta|Y,X]$ also maximizes $L[\theta|Y,X]$
 2. The $\theta$ estimates that minimizes $-\log L[\theta|Y,X]$ maximizes $L[\theta|Y,X]$
@@ -110,18 +122,18 @@ $$ y = \beta x + \epsilon, $$
 
 where the residuals $\epsilon\sim N(0,\sigma^2)$. 
 
-It turns out that the  likelihood estimates of both $\beta$ and $\sigma^2$ are functions of the  RSS of the residuals, so that the likelihood can be approximated by
+It turns out that the maximum likelihood estimates of both $\beta$ and $\sigma^2$ are functions of the  RSS of the residuals, so that the likelihood can be approximated by
 
 $$  \log L[\beta, \sigma^2|Y,X] \approx -\frac{N}{2} \log RSS$$
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 The likelihood for given $\beta$ and $\sigma^2$, given observed data $Y$ and $X$ is given by
 
 $$ L[\beta, \sigma^2|Y,X] = \prod_i pdf_{Normal}(y_i, \mu=\beta x_i, \sigma^2=\sigma^2) = \prod_i \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(y_i-\beta x_i)^2}{2\sigma^"}} $$
 
-where $pdf_{Normal}$ denotes the probability distribution function for the Normal distribution. If we work with the logLIkelihood instead, we get 
+where $pdf_{Normal}$ denotes the probability distribution function for the Normal distribution. If we work with the logLikelihood instead, we get 
 
 $$\begin{eqnarray*}
 \log L[\beta, \sigma^2|Y,X] 
@@ -165,7 +177,7 @@ $$Pr[\theta|D] = \frac{Pr[D| \theta]Pr[\theta]}{Pr[D]}$$
 
 $Pr[\theta|D],$ the probability, computed posterior to analysis, of the parameters $\theta$ conditioned on the observed data, i.e, our requested probability.
 
-An important characteristic of Bayesian statistics is that the focus is not on point estimates, but on the posterior probability distribution over the parameter space of $\theta$, which provides a measure of uncertainty (probabilities) in comparison to other values.
+One important characteristic of Bayesian statistics is that, typically, the focus is not on point estimates, but on the posterior probability distribution over the parameter space of $\theta$, which provides a measure of uncertainty (probabilities) in comparison to other values.
 
 ```{r, echo=FALSE}
 # fake plots for illustration purpose
@@ -183,19 +195,19 @@ plot(theta,pp_theta, type='l', ylim=c(0,1.0))
 
 $Pr[\theta]$ is the *prior* probability of $\theta$ and should according to Bayesian statistics reflect what we know (or believe to know) about how close $\theta$ is to the true parameters. We can use information from previous studies or we can assign a *uninformative* prior, e.g., $Pr[\theta]$ follows a uniform distribution for all $\theta$ in the interval $[a,b]$. 
 
-It can be shown that the effect of the prior on the posterior probsbiity is largest when the observed data is small. With larger sample sizes, the posterior probability will eventually just depend on $Pr[D|\theta]$.
+It can be shown that the effect of the prior on the posterior probbility is largest when the observed data is small. With larger sample sizes, the posterior probability will eventually just depend on $Pr[D|\theta]$.
 
 **Marginal Probability of $D$**
 
-$Pr[D]=\int_{\theta}Pr[D| \theta]Pr[\theta]$ is the probability of $D$ regardless of $\theta$. This can often be difficult difficult to calculate and, for this reason, Bayesian models are often designed so that this can be calculated analystically or some approximation approach, such as Markov chain Monte Carlo (MCMC) is used.
+$Pr[D]=\int_{\theta}Pr[D| \theta]Pr[\theta]$ is the probability of $D$ regardless of $\theta$. This can often be difficult difficult to calculate and, for this reason, Bayesian models are often designed so that this can be calculated analytically or using some approximation approach, such as Markov chain Monte Carlo (MCMC) is used.
 
 <details>
-<summary> Extra reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 **Probabilistic algebra**
 
 A conditional probability $Pr[A|B]$ is the probability that $A$ happens if we know that $B$ has happened.
-To obtain the probability that both $A$ and $B$ happens we need to first take the probability that $B$ happens and then multiply it with the conditional probability that $A$ hapens given $B$, i.e.,:
+To obtain the probability that both $A$ and $B$ happens we need to first take the probability that $B$ happens and then multiply it with the conditional probability that $A$ hapens given $B$, i.e.:
 
 $$Pr[A,B] = Pr[A|B] Pr[B].$$
 
@@ -227,9 +239,11 @@ There is often described a severe controversy between Bayesians and frequentists
 In reality, there is a large gray-zone where frequentists and Bayesians meet and socialize:
 
 * Bayesian models can be viewed as a type of the hierarchical models often used by frequentists
-* Frequentist bootstrap analysis is often used to estimate uncertainty of point estimates in relation to alternatives, as is done in Bayesian statistics
-* The *Bayes factor* is a Bayesian  version of the likelihood ratio
+* The likelihood could be interpreted as an unnormalized posterior probability under an uninformative prior
+* Frequentist bootstrap analysis is often used to estimate uncertainty of point estimates in relation to alternatives, similarly to what is done in Bayesian statistics
+* Conversely, the maximum _a posteriori_ estimate is a point estimate, similar to the MLE
 * Bayesian *posterior intervals* corresponds to frequentist *confidence intervals* (*Note* however, that there are no Bayesian significance test)
+* The *Bayes factor* is a Bayesian  version of the likelihood ratio
 * etc.
 
 Most practical statisticians use the tool that is adequate for the problem at hand, whether it is Bayesian or frequentist.
@@ -409,7 +423,7 @@ _Overfitting_
 
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 <h2> Model comparison | `Likelihood ratio test`</h1>
 
 For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with $d=$ the difference in free params in the two models.
@@ -430,7 +444,7 @@ library(kableExtra)
 kable(lrt,"html",row.names=F, col.names=c("Compared models","logL 1st model","logL 2nd model","logLR", "P-value", "Sign at 0.05"),digits=30, format.args=list(snsmall=0)) %>% kable_styling(bootstrap="striped", font_size = 14, full_width=F)
 
 ```
-In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as *lnkage disequiibriium*, may cause problems for LRT (*the example is not optimized to show this*).
+In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as *linkage disequilibriium*, may cause problems for LRT (*the example is not optimized to show this*).
 
 
 ***
@@ -507,9 +521,9 @@ The Akaike information criterion (AIC), for a model $m$ with variables $X$, is d
 We see that $AIC_m = -2 \left(\log \max L[{\beta}|X,Y] - \#X\right)$, i.e., $-2$ times the the simple $\log rL$, we just looked at in our first regularization example. 
     
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
-The difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
+From a information theory perspective, the difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
 
 ***
 </details>
@@ -519,16 +533,16 @@ Sometimes, the *relative likelihood* for model $m$ is used, which is
 where $AIC_{min}$ is the minimum AIC among a set of compared models
       
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 * $relL$ can be interpreted as proportional to the probability that the model $m$ minimizes the information loss.
 <!--       and can be interpreted as -->
 <!-- $rL \propto Pr[m\textrm{ minimizes estimated information loss}]$. -->
 
-   * Notice that
-   
-$$\log relL = \frac{\#X_m }{\#X_{min}}\log\frac{\max L[{\beta}_{m}|X_m,Y]}{\max L[{\beta}_{min}|X_{min},Y]}$$
-  we see that $rL$ can be viewed as a  likelihood ratio weighted by the ratio of number of $X$ variables.
+   * Notice that,  
+$$relL = \frac{\max L[{\beta}_{m}|X_m,Y]}{\max L[{\beta}_{min}|X_{min},Y]} \times e^{-\left(\#X_{m}-\#X_{min}\right)}$$
+
+   we see that $rL$ can be viewed as a  likelihood ratio weighted by a function of the difference in number of $X$ variables.
 * However, AIC are not limited to nested models
 
 ***
@@ -562,10 +576,10 @@ for(i in seq(1,P)){
   aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
 }
 minaic=min(aic$aic)
-aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
+aic$relL=format(exp((minaic-aic$aic)/2), digits=4)
 aic$isAICmin = ifelse(aic$aic==minaic,"Yes","-")
 
-kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
+kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","relL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
 ```
 
 <details>
@@ -595,7 +609,7 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 ***
 </details>
 
-* Try to plot the $AIC$ and the $reL$ with the different models on the $X$-axis
+* Try to plot the $AIC$ and the $relL$ with the different models on the $X$-axis
 
 ```{r,echo=F, fig.height=4, echo=TRUE, eval=FALSE}
 library(stats)
@@ -604,7 +618,7 @@ library(stats)
 plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(aic$aic)),ceiling(max(aic$aic))),ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
-plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
+plot(aic$relL, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 ```  
 
 <details>
@@ -633,10 +647,10 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 <summary> Some possible answers </summary>
 <h4>Some possible answers</h4>
 
-* We see that the best model is the one with the 3 first X-variables (in line with our *oracle knowledge*) and that the second best model (with the first 2 X-variabels) is $\approx70\%$ worse.
+* We see that the best model is the one with the 3 first X-variables (in line with our *oracle knowledge*) and that the second best model (with the first 4 X-variabels) is $\approx60\%$ worse.
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 * Sometimes it is desirable to compute a significance for rejecting a model in favour of another model. A NULL distribution for the $relL$ statistic is usally obtained through simulation, e.g., using parameteric bootstrapping.
 
@@ -657,10 +671,12 @@ plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 
 LASSO  stands for Least absolute shrinkage and selection operator ("shrinkage" is another common term for regularization) and is a method for selecting variables to include in a multivariate model.
 
+Here, we do nott explicitly compare two models with different number of variables. Instead all variables are included and the regularization acts upon the values of $\beta$ so that only important variabels have a $\beta_i> 0$.
+
 Classical LASSO builds on RSS of a linear regression model $Y \sim X{\beta}$ with regularization
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 Extensions to glms exists, but then using a regularized likelihood expression
     
@@ -670,7 +686,7 @@ Extensions to glms exists, but then using a regularized likelihood expression
 The regularization term $f(\beta) = \lambda\sum_{\beta_i\in\beta} |\beta_i-0|= \lambda\sum_{\beta_i\in\beta} |\beta_i|$
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 Often the regularization term is expressed in terms of the $\ell_1-norm$, which can be viewed simply a short-hand notation, e.g., the $\ell_1-norm$ of $\beta$ is
 $$ ||\beta||_1 = \sum_{\beta_i\in\beta} |\beta_i|$$
@@ -689,11 +705,11 @@ The $\lambda$ parameter sets a limit on the estimation of $\beta$.
 
 Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
 
-$$min_{{\beta}}\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
+$$min\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
 Lasso can also be viewed as a un-normalized Bayesian posterior probability, with a LaPlacean prior on $\beta$: $\beta_j ∼ LaPlace(0, 1/\lambda)$ 
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 Other common notation for LASSO:
 
@@ -707,7 +723,7 @@ Other common notation for LASSO:
 The optimal values of $\beta$ are then estimated, using some algorithm (lars or coordinate descent).
 
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 The *Coordinate descent* algorithm is used in the R package `glmnet`:
 
@@ -722,7 +738,7 @@ The *Coordinate descent* algorithm is used in the R package `glmnet`:
 </details>
             
 <details>
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 Alternatives to LASSO, differing mainly in the auxiliary criterion
 
@@ -746,7 +762,7 @@ Alternatives to LASSO, differing mainly in the auxiliary criterion
          + and the coefficients are back-standardized before reported
 
 <details> 
-<summary> Extra Reading </summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 Standardization in `glmnet`:
 $x' = \frac{x-\bar{x}}{1/\sqrt{N}||X-\bar{x}||_2}$
@@ -782,7 +798,7 @@ plot(fit, xvar="lambda",label=T)
 * In which direction is the effect
 * Which lambda should we select?
   - Given our *oracle knowledge*, where would an appropriate $\lambda$ be?
-  - Can we use that?
+  - Can we use that in the general case?
 
 <details>
 <summary> Some possible answers </summary>
@@ -828,7 +844,7 @@ For $i \in \{1,2,\ldots, k\}$, set $D_i$ as the test data set and the union of t
 This gives a distribution of $MSE$ from which we can estimate, e.g., mean and standard deviation.
 
 <details>
-<summary>Additional reading</summary>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
 
 This distribution allows us to use more elaborate means to select $\lambda$. One common suggestion is to use the largest $\lambda$ whose $MSE$ is within 1 standard error from the minimum value (called `lambda.1se` in `glmnet`). The motivation argued for this choice is *parsimony*, in the sense that larger $\lambda$ will include fewer variables (hence it is parsimonious in terms of number of included variables). 
 
@@ -887,7 +903,7 @@ minlambda=cvglm$lambda.min
 </details>
 
 ### Task| `Final LASSO effect sizes`
-* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$). (Use function`coef`).
+* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$); compare with oracle knowledge. (Hint: Use function`coef`).
 
 ```{r, echo =T, eval=FALSE}
 # Actually the following suffice for output on console
@@ -1011,13 +1027,13 @@ The samples includes 99 Males and 58 Females, it is not perfectly balanced but s
 
 ```{r, echo =T, eval=FALSE}
 ## TODO: Adjust this so that it fit what they learnt from Paya
-pca.gtex <- prcomp(X, scale=TRUE)
+pca.gtex <- prcomp(X, scale=FALSE, center=TRUE)
 
 # sample plot
 pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
 ggplot(pca_plot) +
   geom_point(aes(x=x, y=y, color=Groups)) +
-  #scale_color_manual(values=mycolors) +
+  scale_color_manual(values=c("red","blue")) +
   ggtitle(label="PCA on GTEX Skeletal Muscles") +
   xlab("PC1") +
   ylab("PC2") +
@@ -1026,40 +1042,52 @@ ggplot(pca_plot) +
 
 # barplot prop variation explained
 x = paste0("PC",1:10)
-pc_plot = data.frame(x = factor(x, levels=x), y = unlist(summary(pca.gtex)$importance[2,1:10]))
+# calculate variation explained
+y.var <- pca.gtex$sdev ^ 2
+y.pvar <- y.var/sum(y.var)
+y.pvar<-y.pvar*100
+
+pc_plot=0
+pc_plot = data.frame(x = factor(x, levels=x), y = y.pvar[1:10])
 ggplot(data=pc_plot, aes(x=x, y=y)) +
   geom_bar(stat="identity") +
-  #    ggtitle(label=) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
   xlab("Principal Components") +
   ylab("Variation explained") +
   theme_bw() +
   theme(title=element_text(face="bold")) 
 
 ```
-
 <details>
 <summary> *Show result*</summary>
 ```{r, fig.width=10, fig.height=8}
 ## TODO: Adjust this so that it fit what they learnt from Paya
-pca.gtex <- prcomp(X, scale=TRUE)
+pca.gtex <- prcomp(X, scale=FALSE, center=TRUE)
 
 # sample plot
 pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
 ggplot(pca_plot) +
   geom_point(aes(x=x, y=y, color=Groups)) +
-  #scale_color_manual(values=mycolors) +
+  scale_color_manual(values=c("red","blue")) +
   ggtitle(label="PCA on GTEX Skeletal Muscles") +
   xlab("PC1") +
   ylab("PC2") +
   theme_bw() +
   theme(title=element_text(face="bold")) 
 
+# calculate variation explained
+y.var <- pca.gtex$sdev ^ 2
+y.pvar <- y.var/sum(y.var)
+y.pvar<-y.pvar*100
 # barplot prop variation explained
 x = paste0("PC",1:10)
-pc_plot = data.frame(x = factor(x, levels=x), y = unlist(summary(pca.gtex)$importance[2,1:10]))
+y = y.pvar[1:10]
+
+pc_plot=0
+pc_plot = data.frame(x = factor(x, levels=x), y = y)
 ggplot(data=pc_plot, aes(x=x, y=y)) +
   geom_bar(stat="identity") +
-  #    ggtitle(label=) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
   xlab("Principal Components") +
   ylab("Variation explained") +
   theme_bw() +
@@ -1073,7 +1101,7 @@ The PCA plot demonstrates that there is a lot of variation between samples with 
 ***
 </details>
 
-We want to investigate if there are a subset of genes that are associated to the phenotype *Gender*, that is, we want to do find multivariate association analyses. 
+We want to investigate if there are a subset of genes that are associated to the phenotype *Gender*, that is, we want to do find optimal multivariate regression analyses. 
 Since *Gender* is a binary variable, it is appropriate to use logistic *GLM* (`glm` with `family=binomial()`) for all analyses.
 However, as suggested by the PCA, the majority of genes are probably not associated to *Gender*. Hence we want to perform *feature selection* to identify a, hopefully, optimal multivariate model to use. 
 
@@ -1092,7 +1120,7 @@ We will first try to use AIC to determine the best multivariate model. A main de
     - Hints:
         1. Reuse code from the [AIC task above](.Task | `AIC analysis`). 
         2. Use `myX[,seq(1, i)]` to get the use only the `i` first columns of `myX`.
-        3. Use `as.matrix` to convert the given subsetted `X` data.frame to a matrix before unsing it in the GLM.
+        3. Use `as.matrix` to convert the given subsetted `X` data.frame to a matrix before using it in the GLM.
 * Try to run `doAIC` using different orderings and subsets of `X` as `myX`, e.g.:
     - ordered by size of odds ratio, by P-value
     - top 20, top 100 or only significant P-values (unadjusted or adjusted)
@@ -1101,7 +1129,7 @@ We will first try to use AIC to determine the best multivariate model. A main de
 <details>
 <summary> *Possible solutions*</summary>
 #### Univariate analysis
-```{r warning=FALSE, echo=TRUE}
+```{r warning=FALSE, echo=TRUE, eval=FALSE}
 coefs<-vector()
 pvals<-vector()
 a<-seq(from=0,to=dim(X)[2],by=100)
@@ -1113,13 +1141,35 @@ for(i in 1:dim(X)[2])
 }
 univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
 univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
+# Optional
 datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),]) 
+```
+
+```{r warning=FALSE, echo=FALSE}
+coefs<-vector()
+pvals<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+for(i in 1:dim(X)[2])
+{
+  model = glm(Y~X[,i], family=binomial)
+  coefs=append(coefs, exp(coef(summary(model))[,1][2])) #
+  pvals=append(pvals, coef(summary(model))[,4][2]) #
+}
+univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
+univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
+# Optionally uncomment
+#datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),]) 
+
+# Following is just get an output table to the lecture
+univariateResults[order(univariateResults$FDR),][1:10,] %>%
+  kable(, format='html', row.names=F, #col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0
+  )  %>%  kable_styling( font_size = 14)
 ```
 
 
 #### doAIC function
 
-```{r warning=FALSE, evho=TRUE}
+```{r warning=FALSE, echo=TRUE}
 library(stats)
 coef<-vector()
 pval<-vector()
@@ -1221,28 +1271,30 @@ doAIC(X[,univariateResults[univariateResults$FDR <= 0.05, "GENE"]], Y)
       - Clever step-wise addition: Select the most significant univariate model, take its residuals and use as a new phenotype in a second round of univariate analyses, compare AIC to the previous round, iterate!
       - Raw force: Create models for all possible combinations of variables in `X`, find the model among these that maximises AIC.
 * The univariate analyses comprised only one model with a significant adjusted P-value, while our AIC analysis suggest that there may exist multivariate models that has lower AIC
-  - The penalty of multiple testing.
+  - What could be the reason for this?
+      + The penalty of multiple testing.
 
 ***
 </details>
 
 ## LASSO
 
-We now turn to LASSO feature selection.  We will use `glmnet` to run LASSO on a logisitc GLM `Y` vs `X` and find an optimal value of $\lambda$ via 10-fold cross-validation. 
+We now turn to LASSO feature selection.  We will use `glmnet` to run LASSO on a logistic GLM `Y` vs `X` and find an optimal value of $\lambda$ via 10-fold cross-validation. 
 
 ### Task| `LASSO`
 
 * Run LASSO on `X` and `Y` with 100-fold cross-validation
   - Identify the optimal $\lambda$
       - Optionally, plot the result of the cross-validation
-      - Optionally, plot the traces of¢beta$ for the inclusion of variables in the model.
-* Create a table of the genes included in the optimal LASSO model and their $beta$, e.g., using `datatable`
+      - Optionally, plot the traces of $\beta$ for the inclusion of variables in the model.
+* Create a table of the genes included in the optimal LASSO model and their $\beta$, e.g., using `datatable`
 * Run `doAIC` on the subset of `X` corresponding to genes in the optimal LASSO model.
 
 <details>
 <summary> *Possible solutions*</summary>
 
-```{r LASSO,fig.width=10,fig.height=8}
+#### Lasso and optimal lambda
+```{r,fig.width=10,fig.height=8, echo =TRUE}
 library(glmnet)
 par(mfrow=c(1,2))
 # run lasso (alpha=1) for linear model (family=binomial)
@@ -1251,23 +1303,33 @@ cvglm=cv.glmnet(as.matrix(X),Y, family=binomial(), alpha=1, standardize=T, nfold
 plot(cvglm)
 plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
-
-#lasso_fit <- cv.glmnet(as.matrix(X), Y, family="binomial", alpha=1)
-#plot(lasso_fit)
-#lasso_fit$lambda.min
-#og(lasso_fit$lambda.min)
+print(minlambda)
 ```
 
+#### Feature selection
 Once we know the optimal $\lambda$, we can display the names of the most informative features selected by LASSO for that optimal $\lambda$.
 
-```{r bestmodel}
+```{r , echo=TRUE, eval=FALSE}
 genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
-betas= data.frame(betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
-betas<-betas[order(-abs(betas$betas)), , drop =FALSE]
+betas= data.frame(genes = genes, 
+                  betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
+betas<-betas[order(-abs(betas$betas)), ]
 datatable(betas)
 ```
 
-```{r warning=FALSE, echo=TRUE}
+```{r}
+genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
+betas= data.frame(genes = genes, 
+                  betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
+betas<-betas[order(-abs(betas$betas)), ]
+
+betas %>%
+  kable(format='html', row.names=F)  %>%  
+  kable_styling( font_size = 14)
+```
+
+#### AIC of best model
+```{r, warning=FALSE, echo=TRUE}
 doAIC(X[,genes], Y)
 ```
 </details>
@@ -1285,7 +1347,7 @@ doAIC(X[,genes], Y)
   - Multiple test correction reduces the power of the univariate approach
 * The optimal LASSO model is different from those obtained from the various AIC approach (most likely:); moreover, the optimal LASSO model has a lower AIC than those investigated in the AIC approach (most likely)
   - In general, unless we test all models corresponding all possible combinatorial subsets of variables or apply some clever search algorithm (similar to the one LASSO uses), we are unlikely to find the optimal model.
-      - Even then, we might get idifferent answers, because the regularization applied in AIC and LASSO are different.
+      - Even then, we might get different answers, because the regularization applied in AIC and LASSO are different.
 
 </details>
 
