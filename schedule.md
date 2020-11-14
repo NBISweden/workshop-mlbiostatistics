@@ -113,7 +113,7 @@ title:  'Schedule'
 
 **13.00 - 13.30** [Introduction to ANN for classification and regression](session-ann/session-ann) (Bengt)
 
-**13.30 - 14.30** Exercises (online support)
+**13.30 - 14.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/ann-regression-and-classification.html) (online support)
 
 *14.30 - 15.00 break (offline)*
 
