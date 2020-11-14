@@ -20,13 +20,13 @@ title:  'Schedule'
 
 **13:00 - 13.30** [Probability & simulations I](sessions-probdescinfe/session-probability) (Eva) (live stream)
 
-**13.30 - 14.30** Exercises (online support)
+**13.30 - 14.30** [Exercises](sessions-probdescinfe/session-probability#exercises-discrete-random-variables) (online support)
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15:30** [Probability & simulations II](sessions-probdescinfe/session-probabilit/ssion-probability#continuous-random-variable) (Eva) (live stream)
+**15:00 - 15:30** [Probability & simulations II](sessions-probdescinfe/session-probability#continuous-random-variable) (Eva) (live stream)
 
-**13.30 - 16.30** Exercises (online support)
+**13.30 - 16.30** [Exercises](sessions-probdescinfe/session-probability#exercises-continuous-random-variables) (online support)
 
 **16.30 - 17.00** Test yourself (online support)
 
@@ -37,23 +37,23 @@ title:  'Schedule'
 
 **09:30 - 10.00** [Descriptive statistics](sessions-probdescinfe/session-descstats) (Eva) (live stream)
 
-**10:00 - 10.45** Exercises (online support)
+**10:00 - 10.45** [Exercises](sessions-probdescinfe/session-descstats#exercises-descriptive-statistics) (online support)
 
 **10:45 - 11.15** [Hypothesis testing I](sessions-probdescinfe/session-inference) (Eva) (live stream)
 
-**11:15 - 12.00** Exercises (online support)
+**11:15 - 12.00** [Exercises](sessions-probdescinfe/session-inference.html#exercises-hypothesis-tests-resampling) (online support)
 
 *12:00 - 13:00 lunch* (offline)
 
-**13.00 - 13.30** [Hypothesis testing II](sessions-probdescinfe/session-inference#point-and-interval-estimates) (Eva) (live stream)
+**13.00 - 13.30** [Hypothesis testing II](sessions-probdescinfe/session-inference#parametric-tests) (Eva) (live stream)
 
-**13.30 - 14.30** Exercises (online support)
+**13.30 - 14.30** [Exercises](sessions-probdescinfe/session-inference#exercises-hypothesis-tests-parametric) (online support)
 
 *14.30 - 15.00 break (offline)*
 
-**15.00 - 15.30** [Hypothesis testing III](session-inference#multiple-testing) (Eva) (live stream)
+**15.00 - 15.30** [Hypothesis testing III](sessions-probdescinfe/session-inference#point-and-interval-estimates) (Eva) (live stream)
 
-**15.30 - 16.30** Exercises (online support)
+**15.30 - 16.30** [Exercises](sessions-probdescinfe/session-inference#exercises-interval-estimates) (online support)
 
 **16.30 - 17.00** Test yourself (online support)
 
@@ -88,7 +88,7 @@ title:  'Schedule'
 ##### Thursday 2020-11-19
 **09:00 - 09.30** Group discussions: recap of the previous day (group session)
 
-**09.30 - 12.00** Principal Component Analysis (Payam) (live stream)
+**09.30 - 12.00** [Principal Component Analysis](https://payamemami.github.io/pca_basics/) (Payam) (live stream)
 
 *12:00 - 13:00 lunch*
 
@@ -96,9 +96,9 @@ title:  'Schedule'
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15.30** Classification with kNN and decision trees (Olga)
+**15:00 - 15.30** [Classification with kNN and decision trees](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html) (Olga) (live stream)
 
-**15.30 - 16.30** Exercises (online support)
+**15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html#exercises-classification) (online support)
 
 **16.30 - 17.00** Test yourself (online support)
 
