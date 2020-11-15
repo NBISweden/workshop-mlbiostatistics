@@ -28,7 +28,7 @@ title:  'Schedule'
 
 **13.30 - 16.30** [Exercises](sessions-probdescinfe/session-probability#exercises-continuous-random-variables) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://forms.gle/XjKA5EugBYvisYJr7) (online support)
 
 <br/>
 ##### Tuesday 2020-11-17
@@ -55,7 +55,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](sessions-probdescinfe/session-inference#exercises-interval-estimates) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://forms.gle/qYef4p6HwD68D6rJ7) (online support)
 
 <br/>
 ##### Wednesday 2020-11-18
@@ -82,7 +82,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://forms.gle/WDapnKmJUnov6zqS8) (online support)
 
 <br/>
 ##### Thursday 2020-11-19
