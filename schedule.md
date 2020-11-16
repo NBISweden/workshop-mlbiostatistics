@@ -33,7 +33,7 @@ title:  'Schedule'
 <br/>
 ##### Tuesday 2020-11-17
 
-**09:00 - 09.30** Group discussions: recap of the previous day (group session)
+**09:00 - 09.30** [Group discussions: recap of the previous day](sessions-testyourself/day-02-am)
 
 **09:30 - 10.00** [Descriptive statistics](sessions-probdescinfe/session-descstats) (Eva) (live stream)
 
@@ -82,7 +82,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms) (online support)
 
-**16.30 - 17.00** [Test yourself](https://forms.gle/WDapnKmJUnov6zqS8) (online support)
+**16.30 - 17.00** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSduQiDkSgOvrzo4rcwY7B0XprGCZbbRR5j5oCo2TE57Qvfk3A/viewform?usp=sf_link) (online support)
 
 <br/>
 ##### Thursday 2020-11-19
