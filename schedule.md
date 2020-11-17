@@ -82,7 +82,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms) (online support)
 
-**16.30 - 17.00** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSduQiDkSgOvrzo4rcwY7B0XprGCZbbRR5j5oCo2TE57Qvfk3A/viewform?usp=sf_link) (online support)
+**16.30 - 17.00** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSfho2fsTq1rMFex_Fra9lMR9sqoF7l44f-OBYg-j2axicJkqg/viewform?usp=sf_link) (online support)
 
 <br/>
 ##### Thursday 2020-11-19
