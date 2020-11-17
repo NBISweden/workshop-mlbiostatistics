@@ -60,7 +60,7 @@ title:  'Schedule'
 <br/>
 ##### Wednesday 2020-11-18
 
-**09:00 - 09.30** Group discussions: recap of the previous day (group session)
+**09:00 - 09.30** [Group discussions: recap of the previous day](sessions-testyourself/day-03-am) (group session)
 
 **09:30 - 10:00** [Linear models: introduction](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html) (Olga) (live stream)
 
@@ -119,7 +119,7 @@ title:  'Schedule'
 
 **15:00 - 15:30** Test yourself (online support)
 
-**15.30 - 16.00** Course wrap-up (live stream)
+**15.30 - 16.00** [Course wrap-up](https://docs.google.com/forms/d/e/1FAIpQLSffJNwmSt6vr-LMuH0gmEXk6fjUjpONkZ7tI5QHGlwJLYowdQ/viewform?usp=sf_link) (live stream)
 
 
 <br/><br/>
