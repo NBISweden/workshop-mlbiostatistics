@@ -1,4 +1,4 @@
-## Gist originally developed by @craffel and improved by @ljhuang2017
+## Gist originally developed by @craffel and improved by @ljhuang2017 and @bsennblad
 
 from matplotlib import pyplot as plt
 from matplotlib import patches as mpatches
@@ -74,8 +74,10 @@ def draw_neural_net(ax,
     
     nodeLetterWidth= 0.0007 * nodeFontSize
     edgeLetterWidth= 0.0007 * edgeFontSize
+    r1=hSpacing /8.
+    r2 = max([ lenMathString(max(x,key=lenMathString))for x in hidden ])*nodeLetterWidth
     nodeRadius =  max(hSpacing /8.,
-                      (max([ lenMathString(max(x,key=lenMathString))for x in hidden ])+2)*nodeLetterWidth)
+                      (max([ lenMathString(max(x,key=lenMathString))for x in hidden ])+1)*nodeLetterWidth/2)
     #nodeRadius = max(hSpacing /8., (lenMathString(node_txt))/2 * nodeLetterWidth)
     biasRadius = max(hSpacing /12., (lenMathString(biasNodePrefix)+1)/2 * nodeLetterWidth)
 

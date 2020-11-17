@@ -395,7 +395,7 @@ In a *feedforward* ANN, neurons are arranged into **layers**:
 - 1-several of *hidden* layers.
 - single *output* layer
     + discrete -- **classification**
-    + continuous -- **regression**
+    + continuous -- **regression**  
 The output of one layer forms the input of the next layer. 
 - in a feed-forward ANN laters are _completely connected_
 
@@ -407,6 +407,7 @@ The output of one layer forms the input of the next layer.
     + size of input layer should = input size 
     + size of output layer should = output size 
 
+**Notice that output $\hat{y}_i$ is the same as $a_i$ for the output layer.
 
 ???
 
@@ -613,13 +614,17 @@ plt.show()
 ]
 
 ---
-# Deep Learning
+# Hidden layers
 
-#### Definition
-- depth > 1
-
-#### What does layer do?
+#### Inutitive function of hidden layers?
 - Each layer can be viewed as transforming the original data to a new multi-dimensional space.
+
+#### Depth
+- Number of hidden layers
+
+#### Deep Learning
+- ANN with depth > 1
+
 
 
 
@@ -628,15 +633,15 @@ plt.show()
 # Why Deep Learning?
 
 .pull-left[
-#### Regression
+#### For regression
 
 - Single layer logistic regression
 - More layer $\rightarrow$ - more complex, non-linear, models
 
-#### Classification
+#### For classification
 
-- ANNS with depth > 1
-    + A single hidden layer can classify using one hyperplane
+- ANNs with depth > 1
+    + A single hidden layer can classify data points using one hyperplane
 ]
 
 .pull-right[
@@ -671,7 +676,7 @@ p
 #### Regression
 
 - Single layer logistic regression
-- More layer $\rightarrow$ - more complex, non-linear, models
+- More layer $\rightarrow$ more complex, non-linear, models
 
 #### Classification
 
@@ -712,7 +717,7 @@ a &=& \sigma(z)
 - Neurons arranged into layers
     + Input layer (single)
     + Output layer (single)
-    + Hidden layers (1-many; depth)
+    + Hidden layers (1-many; depth, Deep Learning)
 - Each hidden layer transforms the input into a new multi-dimensional space which is fed to the next layer
 
 #### Parameters
@@ -909,7 +914,9 @@ arrows(x0=x,x1=x+e, y0=f(x)-e, angle=45,col = "green", lwd=5)
 
 ???
 
-Notice the minus sign: the derivative show which way is up and wewant to go down.
+- Notice the minus sign: the derivative show which way is up and wewant to go down.
+
+- Prepare for "partial derivative"
 
 ---
 
@@ -928,25 +935,26 @@ image_read('valley_with_ball.png') %>%
 ]
 .pull-right[
 Same thing really, but we have to have *partial derivatives* for each dimension, which makes it look more complicated. 
+{{content}}
+]
+--
 
 Consider a 2-dimensional case,
 
-1 Find the (partial) derivatives
-
+1. Find the (partial) derivatives  
 $$\begin{pmatrix}
 \frac{\partial C(v_1,v_2|x)}{\partial v_1}\\
 \frac{\partial C(v_1,v_2|x)}{\partial v_2}
 \end{pmatrix}$$
-]
+{{content}}
 
 ???
 - $\partial$ indicates partial derivative on one of the free parameters.
 --
-.pull-right[
-2 Take a resonably long step
+2. Take a resonably long step
 $$\begin{pmatrix} v'_1\\ v'_2\end{pmatrix} = \begin{pmatrix}v_1-\eta\frac{\partial  C(x,w)}{\partial v_1} \\ v_2-\eta\frac{\partial C(x,v)}{\partial v_2} \end{pmatrix}$$
 
-]
+
 
 ---
 
@@ -963,7 +971,7 @@ $$b'_{i,j}=b_{i,j}- \eta \frac{\partial C(w,b|x)}{\partial b_i}$$
 
 
 ---
-layout: true
+
 # Summary Learning
 
 #### Cost function
@@ -983,7 +991,9 @@ C(w,b|x) &=& \sum_i\left(y_i-a_i^{(L)}\right)^2
 v' = v-\eta \frac{\partial C(w,b|x)}{\partial v}
 \end{equation}
 
----
+{{content}}
+--
+
 For this to work, we need to be able to **compute all $\frac{\partial C(w,b|x)}{\partial v}$ efficiently**
 
 ???
@@ -1036,13 +1046,15 @@ $f(t) = t^2$
 ---
 
 # Chain rule more complex example (optional)
-##### A reminder
 
 .pull-left[
+##### A reminder
+
 The chain rule simplifies derivation of complex functions and states that
 $$\frac{d f(g(x))}{dx} = \frac{dg(x)}{d x} \times \frac{df(g(x))}{d g(x)}$$
-<br>
-<br>
+
+{{content}}
+
 ]
 
 ???
@@ -1057,13 +1069,7 @@ The derivative of the sigmoid function:
     + $g(z) = 1+e^{-z}$
 
     + $f(z) = g(z) ^{-1}$
----
-
-# Chain rule example (optional)
-##### A reminder 
-.pull-left[
-The chain rule simplifies derivation of complex functions and states that
-$$\frac{d f(g(x))}{dx} = \frac{dg(x)}{d x} \times \frac{df(g(x))}{d g(x)}$$
+--
 
 ##### An example
 
@@ -1075,7 +1081,6 @@ The derivative of the sigmoid function:
 
     + $f(x) = g(x) ^{-1}$
 
-]
 
 ???
 $$\begin{eqnarray*}
@@ -1164,6 +1169,7 @@ plt.show()
 
 
 $$ \frac{\partial C(w,b|x)}{\partial w_1} =  \frac{\partial z_1}{\partial w_1}\times \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1} $$
+
 ---
 layout:true
 # Mini exercise
@@ -1234,7 +1240,7 @@ draw_neural_net(ax,
 plt.show()
 ```
 ]
----
+
 .pull-right[
 ### Forward pass
 $$z_j =  w_j a_{j-1} + b_j$$
@@ -1244,9 +1250,22 @@ $$a_j = \sigma(z_j) = \frac{1}{1+e^{-z_j}}$$
 ]
 
 
-
+---
 
 ```{r, tab1a, echo =FALSE}
+tab = data.frame(x = 0, 
+                 y=0, 
+                 z1=0, 
+                 a1=0, 
+                 z2=0,
+                 a2=0,
+                 haty=0,
+                 C=0)
+
+kable(tab, booktabs = TRUE, col.names = c("$x$", "$y$", "$z_1$", "$a_1$", "$z_2$", "$a_2$", "$\\hat{y}$",  "$C(w,b\\vert x)$"), escape = FALSE)
+```
+---
+```{r, tab1b, echo =FALSE}
 tab = data.frame(x = py$x, 
                  y=py$y, 
                  z1=py$z1, 
@@ -1283,7 +1302,7 @@ draw_neural_net(ax,
 plt.show()
 ```
 
-```{r, tab1b, echo =FALSE}
+```{r, tab1c, echo =FALSE}
 tab = data.frame(x = py$x, 
                  y=py$y, 
                  z1=py$z1, 
@@ -1384,7 +1403,31 @@ mynames = c(
 $$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$
 
 ]
+
 ```{r, bw1, echo =FALSE}
+kable(tab2, booktabs = TRUE, 
+      col.names =  mynames,
+      # c(
+      #   "$\\frac{\\partial C(w,b\\vert x)}{\\partial w_1}$",
+      #   "$\\frac{\\partial z_1}{\\partial w_1}$", 
+      #   "$\\frac{\\partial C(w,b\\vert x)}{\\partial z_1}$",
+      #   "$\\frac{\\partial a_1}{\\partial z_1}$", 
+      #   "$\\frac{\\partial C(w,b\\vert x)}{\\partial a_1}$", 
+      #   "$\\frac{\\partial z_2}{\\partial a_1}$",
+      #   "$\\frac{\\partial C(w,b\\vert x)}{\\partial z_2}$",
+      #   "$\\frac{\\partial a_2}{\\partial z_2}$",  
+      #   "$\\frac{\\partial C(w,b\\vert x)}{\\partial a_2}$"
+      # ), 
+      escape = FALSE)
+```
+---
+.pull-right[
+### Backward pass 1
+$$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$
+
+]
+
+```{r, bw1b, echo =FALSE}
 tab2$dcda2 = py$dcda2
 kable(tab2, booktabs = TRUE, 
       col.names =  mynames,
@@ -1410,6 +1453,18 @@ $$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \
 $$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$
 ]
 ```{r, bw2, echo =FALSE}
+kable(tab2, booktabs = TRUE, 
+      col.names = mynames, 
+      escape = FALSE)
+```
+---
+.pull-right[
+### Backward pass 2
+$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$
+
+$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$
+]
+```{r, bw2a, echo =FALSE}
 tab2$da2dz2=py$da2dz2
 tab2$dcdz2=py$dcdz2
 kable(tab2, booktabs = TRUE, 
@@ -1425,6 +1480,20 @@ $$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} =
 $$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$
 ]
 ```{r, bw3, echo =FALSE}
+
+kable(tab2, booktabs = TRUE, 
+      col.names = mynames, 
+      escape = FALSE)
+```
+
+---
+.pull-right[
+### Backward pass 3
+$$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} = w_2$$
+
+$$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$
+]
+```{r, bw3b, echo =FALSE}
 tab2$dcda1=py$dcda1
 tab2$dz2da1=py$dz2da1
 
@@ -1441,6 +1510,20 @@ $$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1}
 $$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$
 ]
 ```{r, bw4, echo =FALSE}
+
+kable(tab2, booktabs = TRUE, 
+      col.names = mynames, 
+      escape = FALSE)
+```
+
+---
+.pull-right[
+### Backward pass 4
+$$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1} = \sigma(z_1)(1-\sigma(z_1))$$
+
+$$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$
+]
+```{r, bw4b, echo =FALSE}
 tab2$dcdz1=py$dcdz1
 tab2$da1dz1=py$da1dz1
   
@@ -1457,6 +1540,20 @@ $$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} 
 $$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
 ]
 ```{r, bw5, echo =FALSE}
+
+kable(tab2, booktabs = TRUE, 
+      col.names = mynames, 
+      escape = FALSE)
+```
+
+---
+.pull-right[
+### Backward pass 5
+$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
+
+$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
+]
+```{r, bw5b, echo =FALSE}
 tab2$dcdw1=py$dcdw1
 tab2$dz1dw1=py$dz1dw1
   
@@ -1464,9 +1561,10 @@ kable(tab2, booktabs = TRUE,
       col.names = mynames, 
       escape = FALSE)
 ```
+
 ---
 .pull-right[
-### Backward pass 5
+### Backward pass 6
 $$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
 
 $$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
@@ -1475,12 +1573,27 @@ Let $\eta=$ `r py$eta`, then
 $$w'_1 = w_1 - \eta \frac{\partial C(w_1,b|x)}{\partial z_1}$$
 ]
 ```{r, bw6, echo =FALSE}
-tab2$wnew = py$wnew
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
       escape = FALSE)
 ```
 
+---
+.pull-right[
+### Backward pass 6
+$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
+
+$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
+Let $\eta=$ `r py$eta`, then 
+
+$$w'_1 = w_1 - \eta \frac{\partial C(w_1,b|x)}{\partial z_1}$$
+]
+```{r, bw6b, echo =FALSE}
+tab2$wnew = py$wnew
+kable(tab2, booktabs = TRUE, 
+      col.names = mynames, 
+      escape = FALSE)
+```
 ---
 layout: false
 # Back-propagation
@@ -1552,11 +1665,43 @@ plt.show()
 
 # Summary -- Back-propagation
 
+##### Efficient computation of partial derivatives $\frac{\partial C(w,b|x)}{\partial v}, v\in w\cup b$
 
++ Chain rule allows computing partial derivatives layer-wise, backwards
 
 ---
 
-# Thanks!
+# Final words on ANN
+.pull-left[
+##### Iterative training
++ Back-propagation is run for all training data for a large number, $n$, iterations (or *epochs*)
+{{content}}
+]
+
+--
+
+##### Evaluation
++ Cross-validation -- test data
++ Cost plots and accuracy plot
+{{content}}
+--
+
+##### Requirements
++ Typically large number, $p$, of weights and biases
++ Require (very) large number, $n$, of samples
+
+--
+.pull-right[
+##### Uses
++ Prediction, classification
+  - speech/scripture/image recognition
+  - biological image analysis (microscopy, spatial transcriptomics)
+  - protein structure/localization
++ More complex non-linear regression models
+]
+---
+
+# Thanks! Questions
 
 Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
 
