@@ -1,0 +1,365 @@
+# ANN regression and classification
+
+**Aims**
+
+- to introduce regression and classification with ANN via examples
+
+**Learning outcomes**
+
+- to be able to use neuralnet() package for classification and regression
+
+## Exercise 1.1
+
+```{r, echo=F}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo=TRUE, 
+  fig.align = "center"
+  )
+```
+
+### Set-up
+```{r libraries}
+# Clean all variables and load libraries
+rm(list=ls())
+library(mlbench) # CancerBreast dataset
+library(class) # knn
+library(rpart) # decision tree
+library(rpart.plot) # decision tree plots
+library(neuralnet) # ann
+library(NeuralNetTools) # ann tools
+library(ggplot2) # plotting
+library(ggiraphExtra)
+
+```
+
+### Load and process the data
+
+```{r data-input}
+# Data input 
+data("BreastCancer")
+head(BreastCancer) # preview data
+str(BreastCancer) # show data types
+
+# data summary
+summary(BreastCancer)
+
+# convert variables to numerical values
+data.breast <- BreastCancer
+data.breast <- data.frame(Class = BreastCancer$Class,
+                          Cell.size = as.numeric(BreastCancer$Cell.size),
+                          Cell.shape = as.numeric(BreastCancer$Cell.shape), 
+                          Cl.thickness = as.numeric(BreastCancer$Cl.thickness),
+                          Marg.adhesion = as.numeric(BreastCancer$Marg.adhesion),
+                          Epith.c.size = as.numeric(BreastCancer$Epith.c.size), 
+                          Bare.nuclei = as.numeric(BreastCancer$Bare.nuclei),
+                          Bl.cromatin = as.numeric(BreastCancer$Bare.nuclei),
+                          Normal.nucleoli = as.numeric(BreastCancer$Normal.nucleoli), 
+                          Mitoses = as.numeric(BreastCancer$Mitoses)
+                          )
+
+str(data.breast)
+
+# Remove missing data
+data.breast <- na.omit(data.breast)
+
+```
+
+
+```{r pca, include=F}
+# PCA on the data
+data.pca <- data.breast[, 3:ncol(data.breast)]
+summary(data.pca)
+
+# check variance
+round(diag(var(data.pca, na.rm = TRUE)))
+
+# fit PCA model 
+pca.model <- prcomp(data.pca, scale. = TRUE, center = TRUE)
+summary(pca.model)
+
+# plot
+pca.frame <- data.frame(PC1 = pca.model$x[,1], PC2=pca.model$x[,2], cancer=data.breast$Class)
+ggplot(pca.frame, aes(PC1, PC2, colour = cancer)) + geom_point()
+
+```
+
+### Data split
+
+```{r data-split}
+# Split into train, validation, test
+# split data into train 50%, validation 25% and test dataset 25%
+set.seed(1)
+n <- nrow(data.breast) # no. of observations
+idx.train <- sample(c(1:n), round(n/2))
+idx.valid <- sample(c(1:n)[-idx.train], round(n/4))
+idx.test <- setdiff(c(1:n), c(idx.train, idx.valid))
+
+data.train <- data.breast[idx.train,]
+data.valid <- data.breast[idx.valid,]
+data.test <- data.breast[idx.test,]
+
+dim(data.train)
+dim(data.valid)
+dim(data.test)
+
+```
+
+
+```{r knn-find-k, include=F}
+# run knn with different values of k from 1 : 30
+k.values <- 1:30
+class.rate <- rep(0, length(k.values)) # allocate empty vector to collect correct classification rates
+for (k in seq_along(k.values))
+{
+  pred.class <- knn(train = data.train[, -1], test=data.valid[, -1], cl = data.train[,1], k)
+  class.rate[k] <- sum((pred.class==data.valid[,1]))/length(pred.class)
+}
+
+# for which value of k we reach the highest classification rate
+which.max(class.rate)
+
+# plot classification rate as a function of k
+plot(class.rate, type="l", xlab="k", ylab="class. rate")
+
+# Do knn by finding best k, collect overall classification rate
+# Do decision tree, collect overall classification rate
+# ANN for classification
+
+```
+
+### Default knn, decision tree and logistic regression classification
+```{r}
+# KNN (k=3)
+knn.pred <- knn(train = data.train[, -1], data.test[, -1], data.train[,1], k=3)
+knn.cr <- sum((knn.pred==data.test[,1]))/length(knn.pred) # classification rate
+print(knn.cr)
+
+# Decision tree
+cart.1 <- rpart(data.train$Class ~ Cl.thickness + Cell.size +  Cell.shape + Marg.adhesion + Epith.c.size + Bare.nuclei + Bl.cromatin + Normal.nucleoli + Mitoses, data=data.train)
+rpart.plot(cart.1)
+cart.pred <- predict(cart.1, newdata = data.test, type="class")
+cart.cr <- sum((cart.pred==data.test[,1]))/length(cart.pred)
+print(cart.cr)
+
+# Logisitc regression
+logreg <- glm(data.train$Class ~ Cl.thickness + Cell.size +  Cell.shape + Marg.adhesion + Epith.c.size + Bare.nuclei + Bl.cromatin + Normal.nucleoli + Mitoses, data=data.train, family = binomial(link="logit"))
+print(summary(logreg))
+logreg.prob <- predict(logreg, newdata=data.test, type="response")
+
+logreg.pred <- rep("malignant", nrow(data.test))
+logreg.pred[logreg.prob <= 0.5] <- "benign"
+logreg.cr <- sum((logreg.pred==data.test[,1]))/length(logreg.pred)
+print(logreg.cr)
+
+print(c(knn.cr, cart.cr, logreg.cr))
+```
+
+### ANN classification: fitting model
+```{r ann-classification-fit, fig.cap = "ANN model representation. The black lines show the connections between each layer and the weights on each connection; B nodes represent bias terms added in each step (bias nodes), and the hidden nodes are the ones between the input and output, here only one node"}
+# fit ANN classification model (default parameters and logistic activation function)
+# notice linear.output set to FALSE
+ann.c1 <- neuralnet(Class ~ Cl.thickness + Cell.size +  Cell.shape + 
+                        Marg.adhesion + Epith.c.size + Bare.nuclei + 
+                        Bl.cromatin + Normal.nucleoli + Mitoses, 
+                        data=data.train, 
+                        linear.output = FALSE, 
+                        act.fct = "logistic")
+
+plotnet(ann.c1, cex_val = 0.6)
+
+```
+
+### ANN classification: comparering to logistic regression
+```{r ann-classification-logisitc-regression}
+# we run prediction using compute function()
+ann.c1_predictions <- neuralnet::compute(ann.c1, 
+                                  data.test)
+ann.c1_predictions <- ann.c1_predictions$net.result
+
+# The prediction result shows the probability of each class
+# with first column corresponding to benign and second to malignant
+# we know as by typing str(data.breast) we can see that our Class is ordered benign and malignant
+head(ann.c1_predictions)
+
+# So we need the extract the class with the highest prediction values as the predicted result
+# e.g by using ifelse
+ann.c1_pred <- max.col(ann.c1_predictions) # find out which column has the maximum value
+ann.c1_pred <- ifelse(ann.c1_pred==1, "benign", "malignant") # if the first column was max, set it to beign, malignant otherwise
+ann1.cr <- sum((ann.c1_pred==data.test[,1]))/length(ann.c1_pred)
+print(ann1.cr)
+
+# Compare with our previous models
+print(c(knn.cr, cart.cr, logreg.cr, ann1.cr))
+
+# Note: we see we are not doing quite similar to logistic regression
+# It is not surprising as we only have one hidden layer with only one node with logistic activation function
+# and the linear regression can be viewed as a simple special case of neural network with no hidden layer
+
+```
+
+### ANN classification: adding hidden layers
+```{r, fig.cap = "ANN model representation for classification, two hidden layers, with two and five nodes respectively"}
+# Lets add some more 2 more hidden layers, with 2 and 5 nodes, via hidden parameter
+# and see if our predictions improve
+set.seed(1)
+ann.c2 <- neuralnet(Class ~ Cl.thickness + Cell.size +  Cell.shape + 
+                        Marg.adhesion + Epith.c.size + Bare.nuclei + 
+                        Bl.cromatin + Normal.nucleoli + Mitoses, 
+                        data=data.train, 
+                        hidden = c(2,5),
+                        linear.output = FALSE, 
+                        act.fct = "logistic")
+
+plotnet(ann.c2, cex_val = 0.6)
+
+
+ann.c2_predictions <- neuralnet::compute(ann.c2, data.test)$net.result
+ann.c2_pred <- max.col(ann.c2_predictions) # find out which column has the maximum value
+ann.c2_pred <- ifelse(ann.c2_pred==1, "benign", "malignant") # if the first column was max, set it to beign, malignant otherwise
+ann2.cr <- sum((ann.c2_pred==data.test[,1]))/length(ann.c2_pred)
+
+# Compare with our previous models
+print(c(knn.cr, cart.cr, logreg.cr, ann1.cr, ann2.cr))
+
+# Feel free to experiment with more layers and more nodes
+
+```
+
+### ANN classification: changing activation function
+```{r}
+# For multi-class problems softmax activation function is used (equivalent to multiple logistic regression)
+# We can change activation function via act.fct parameter and include custom functions
+# e.g. softplus <- function(x) log(1 + exp(x)) 
+# or relu <- function(x) sapply(x, function(z) max(0,z))
+# here we switch to "tanh" from a default "logistic"
+
+set.seed(101)
+ann.c3 <- neuralnet(Class ~ Cl.thickness + Cell.size +  Cell.shape + 
+                        Marg.adhesion + Epith.c.size + Bare.nuclei + 
+                        Bl.cromatin + Normal.nucleoli + Mitoses, 
+                        data=data.train, 
+                        hidden = c(2,5),
+                        linear.output = FALSE, 
+                        act.fct = "tanh")
+
+ann.c3_predictions <- neuralnet::compute(ann.c3, data.test)$net.result
+ann.c3_pred <- max.col(ann.c3_predictions) # find out which column has the maximum value
+ann.c3_pred <- ifelse(ann.c3_pred==1, "benign", "malignant") # if the first column was max, set it to benign, malignant otherwise
+ann3.cr <- sum((ann.c3_pred==data.test[,1]))/length(ann.c3_pred)
+
+# Compare with our previous models
+print(c(knn.cr, cart.cr, logreg.cr, ann1.cr, ann2.cr, ann3.cr))
+
+```
+
+
+### ANN regression
+```{r, fig.cap=c("ANN network visualisation for regression", "Comparison of predicted values vs. known values with linear regression (blue) and ANN (red) on the training data set (left) and on the test data set (right)")}
+set.seed(1)
+
+# read in data on Pima Indians Diabeses Database
+data(PimaIndiansDiabetes)
+head(PimaIndiansDiabetes)
+summary(PimaIndiansDiabetes)
+str(PimaIndiansDiabetes)
+# pregnant: Number of times pregnant
+# glucose: Plasma glucose concentration (glucose tolerance test) 
+# pressure: Diastolic blood pressure (mm Hg)
+# triceps: Triceps skin fold thickness (mm)
+# insulin: 2-Hour serum insulin (mu U/ml)
+# mass: Body mass index (weight in kg/(height in m)\^2) Diabetes pedigree function
+# age: Age (years)
+# diabetes: Class variable (test for diabetes)
+
+# remove missing values i.e. some mass measurements are 0
+idx.0 <- which(PimaIndiansDiabetes$mass == 0)
+data.pima <- PimaIndiansDiabetes[-idx.0,]
+
+# re-scale data
+data.pima$diabetes <- as.numeric(data.pima$diabetes)-1
+maxs <- apply(data.pima, 2, max)
+mins <- apply(data.pima, 2, min)
+data.pima <- as.data.frame(scale(data.pima, center=mins, scale=maxs - mins))
+head(data.pima)
+
+# split into train and test
+n <- nrow(data.pima)
+idx.train <- sample(c(1:n), round(n/2))
+idx.test <- setdiff(c(1:n), idx.train)
+data.train <- data.pima[idx.train, ]
+data.test <- data.pima[idx.test,]
+
+# fit multiple regression model to predict mass (BMI) based on other measurements
+reg <- lm(mass ~ age + triceps + factor(diabetes) + insulin + glucose + pregnant + pressure, data = data.train)
+summary(reg)
+
+# calculate sum of squared errors (SSE) 
+yhat.reg1 <- predict(reg, newdata = data.test)
+reg.sse <- data.frame(sse.train = sum((reg$fitted.values - data.train$mass)^2)/2, 
+                      sse.test = sum((yhat.reg1 - data.test$mass)^2)/2)
+
+# fit ANN regression model
+# notice linear.output set to TRUE this time
+ann.r1 <- neuralnet(mass ~  age + triceps  + insulin + glucose + pregnant + pressure, 
+                        data = data.train,
+                        hidden = c(5),
+                        linear.output = TRUE)
+
+plotnet(ann.r1)
+
+# SSE and RMSE errors
+yhat.annr1 <- neuralnet::compute(ann.r1, data.test)$net.result
+annr1.sse <- data.frame(sse.train = sum((ann.r1$net.result[[1]] - data.train$mass)^2)/2, 
+                      sse.test = sum((yhat.annr1 - data.train$mass)^2)/2)
+
+# compare SSE errors for train and test between multiple regression and ANN
+print(reg.sse)
+print(annr1.sse)
+
+# plot predicted values vs. mass values for the train and test data separately
+par(mfrow=c(1,2))
+plot(data.train$mass, reg$fitted.values, pch=19, col="lightblue", xlab="mass (true value)", ylab="Prediction")
+points(data.train$mass, ann.r1$net.result[[1]], pch=19, col="coral2")
+lines(x=c(-100:100), y=c(-100:100))
+
+plot(data.test$mass, yhat.reg1, pch=19, col="lightblue", xlab="mass (true value)", ylab="Prediction")
+points(data.test$mass, yhat.annr1, pch=19, col="coral2")
+lines(x=c(-100:100), y=c(-100:100))
+
+```
+
+### ANN rep value
+Have we said at the lecture that the weights are randomly assigned at the start? How do we know that we have a best network? Above we have looked at one network and used a random seed to ensure reproducibility of the results. We could have been just unlucky with our comparisons to logigits or linear regression. In practice, one would fit many networks and choose a best one
+```{r, include = TRUE, eval=F}
+# Here we will set rep to 5, it is getting computationally heavy
+set.seed(1)
+ann.r2 <- neuralnet(mass ~  age + triceps  + insulin + glucose + pregnant + pressure, 
+                        data = data.train,
+                        hidden = c(5),
+                        linear.output = TRUE, 
+                        rep = 5)
+
+#plot(ann.r2, rep = "best")
+```
+
+### ANN relative importance of variables
+- Weights that connect nodes in a neural network cannot be interpreted as the parameters coefficients of a standard linear regression model
+- They can be thought of as analogous to them and can be used to describe relationships between variables
+- i.e. weights dictate the relative influence of information that is processed in the network such that input variables that are not relevant in terms of their correlation with the response are suppressed by the weights
+- A difference between neural network and a regression model is that the number of weights is excessive in the former case
+- This makes neural network powerful and flexible, the price for that is easiness of integration of the model, it is not so straightforward anymore
+- One method to identify the relative importance of the covariates is by Garson (1991) and is based by deconstructing the model weights (implented in NerualNetTools)
+```{r, fig.cap="Output of the variable important call for one of the ANN regression models"}
+garson(ann.r1)
+```
+
+Feel free to experiment with different options of the neuralnet() and different datasets that we have used so far. Do note however, that neurlanet() package is great fpr getting some ideas about running ANN, the heavy duty work is done on GPUs typically via [Keras](https://tensorflow.rstudio.com/guide/keras/), often in Python, although now [Tensforlow](https://tensorflow.rstudio.com) is available for R as well. 
+
+
+
+
+
+
+
+
