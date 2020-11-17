@@ -51,7 +51,7 @@ The alternative hypothesis expresses what the researcher is interested in "the t
 ```{definition, label="samplingdistribution", echo=TRUE}
 **Sampling distribution**
 
-A sampling distribution is the distribution of a statistic of a large number of samples drawn from a specific population.
+A **sampling distribution** is the distribution of a sample statistic. The samplling distribution can be obtained by drawing a large number of samples from a specific population.
 ```
 
 ```{definition, label="nulldistribution", echo=TRUE}
@@ -90,7 +90,7 @@ kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error,
 
 The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$|$H_0$ is true).
 
-The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controll by setting the significance level to a disired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want to many missed hits (type II error).
+The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is control by setting the significance level to a disired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want to many missed hits (type II error).
 
 The significance level should be set before the hypothesis test is performed. Common values to use are 0.05 or 0.01.
 
@@ -305,7 +305,10 @@ dnull.perm <- replicate(n = 100000, {
   ##Mean difference
   mean(y[1:12]) - mean(y[13:24])
 })
-ggplot(data.frame(d=dnull.perm), aes(x=d)) + geom_histogram(bins=25, color="white") + theme_bw() + geom_vline(xintercept=dobs, color="red")
+ggplot(data.frame(d=dnull.perm), aes(x=d)) +
+  geom_histogram(bins=25, color="white") +
+  theme_bw() +
+  geom_vline(xintercept=dobs, color="red")
 ##Alternatively plot using hist
 ## hist(dnull.perm)
 ```
@@ -321,7 +324,7 @@ sum(dnull.perm>dobs)/length(dnull.perm)
 mean(dnull.perm>dobs)
 ```
 
-$P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) = $`r sprintf("%.3g",mean(dnull.perm>=dobs))`
+$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = $ `r sprintf("%.3g",mean(dnull.perm>=dobs))`
 
 Conclusion?
 
@@ -416,7 +419,7 @@ $$Z_{obs} = \frac{0.42-0.3}{\sqrt{\frac{0.3(1-0.3)}{100}}} = `r zobs <- (.42-.3)
 
 The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed probability is below $\alpha=0.05$ our significance threshold, $H_0$ will be rejected.
 
-$$p = P(P>\pi_0) = P(Z>Z_{obs}) = P(Z>`r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$
+$$p = P(P \geq \pi_0) = P(Z \geq Z_{obs}) = P(Z \geq `r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$
 
 As `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`<0.05 we reject $H_0$ and conclude that there is reason to believe that the proportion of allergic in Uppsala is greater than 0.3.
 
@@ -607,7 +610,7 @@ b) Don't assume equal variances.
 
 \@ref(exr:Hb)
 
-```{r}
+```{r, echo=TRUE}
 x <- c(154, 140, 147, 162, 172)
 ## sample mean
 m <- mean(x)
@@ -619,6 +622,7 @@ tobs <- (m-140)/SE
 pt(tobs, df=4, lower.tail=FALSE)
 ## p = P(t>tobs) + P(t<-tobs) = 2 * P(t>tobs)
 p <- 2*pt(tobs, df=4, lower.tail=FALSE)
+p
 ```
 
 \@ref(exr:mice12)
@@ -723,11 +727,6 @@ $$\pi = 0.42 \pm 1.96 * 0.05 = 0.42 \pm 0.092$$
 or
 $$(0.42-0.092, 0.42+0.092) = (0.32, 0.52)$$
 
-```{exercise, label="CIprop", echo=TRUE}
-a) How can we get a narrower confidence interval?
-b) Here we computed a 95% interval, what if we want a 90% confidence interval?
-c) or a 99% confidence interval?
-```
 
 ##### Confidence interval of mean
 
@@ -778,6 +777,15 @@ d) Compute the sample standard deviation
 b) Assume that Hb is normally distributed and compute a 95% confidence interval for the mean Hb value.
 ```
 
+
+```{exercise, label="CIprop", echo=TRUE}
+In the pollen example we calculated a 95% confidence interval.
+
+a) How can we get a narrower confidence interval?
+b) We computed a 95% interval, what if we want a 90% confidence interval?
+c) or a 99% confidence interval?
+```
+
 ```{exercise, label="CIscale", echo=TRUE}
 A scale has a normally distributed error with mean 0 and standard deviation 2.3 g. You measure a sample 10 times and observe the mean weight 43 g.
 
@@ -785,9 +793,114 @@ a) Compute a 95% confidence interval of the sample weight
 b) Compute a 90% confidence interval of the sample weight
 ```
 
-```{exercise, label=""}
+```{exercise, label="BMCsmokers"}
 You observe 150 students at BMC of which 25 are smokers.  Compute a 95% confidence interval for the proportion of smokers among BMC students.
 ```
+
+### Solutions
+
+\@ref(exr:CIHb)
+
+a)
+
+```{r, echo=TRUE}
+obs <- c(145, 165, 134, 167, 158, 176, 156, 189, 143, 123)
+mboot <- replicate(10000, {
+  x <- sample(obs, size=10, replace=TRUE)
+  mean(x)
+})
+hist(mboot)
+## 05% confidence interval
+quantile(mboot, c(0.025, 0.975))
+```
+
+b)
+```{r, echo=TRUE}
+(m <- mean(obs))
+```
+
+c)
+```{r, echo=TRUE}
+(v <- var(obs))
+```
+
+d) 
+```{r, echo=TRUE}
+(s <- sd(obs))
+```
+
+e) Assume that Hb is normally distributed and compute a 95% confidence interval for the mean Hb value.
+```{r, echo=TRUE}
+n <- length(obs)
+t <- qt(0.975, df=9)
+##95% confidence interval 
+c(m - t*s/sqrt(n), m + t*s/sqrt(n))
+```
+
+
+\@ref(exr:CIprop)
+a) Calculate a 90% confidence interval instead. Or sample more people than 100.
+
+b) Change the z number,
+
+$$p \pm z * SE$$
+  
+For a 90% confidence interval use z=1.64
+
+```{r, echo=TRUE}
+p <- 0.42
+n <- 100
+SE <- sqrt(p*(1-p)/n)
+z <- qnorm(0.95)
+c(p - z*SE, p + z*SE)
+```
+
+c) or a 99% confidence interval?
+
+```{r, echo=TRUE}
+z <- qnorm(0.995)
+c(p - z*SE, p + z*SE)
+```
+
+
+\@(ref:CIscale)
+
+The measured weight is a random variable $X \sim N(\mu, \sigma)$. You know that $\sigma = 2.3$, $\mu$ is the weight of the smaple.
+
+a) Compute a 95% confidence interval of the sample weight
+
+```{r, echo=TRUE}
+## 95% ciónfidence interval
+m <- 42
+sigma <- 2.3
+n <- 10
+z <- qnorm(0.975)
+c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
+```
+
+
+b) Compute a 90% confidence interval of the sample weight
+
+```{r, echo=TRUE}
+z <- qnorm(0.95)
+c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
+```
+
+
+\@(ref:BMCsmokers)
+
+
+You observe 150 students at BMC of which 25 are smokers.  Compute a 95% confidence interval for the proportion of smokers among BMC students.
+
+```{r, echo=TRUE}
+p <- 25/150
+n <- 150
+z <-qnorm(0.975)
+SE <- sqrt(p*(1-p)/n)
+## 95% CI
+c(p - z*SE, p + z*SE)
+```
+
 
 
 ## Multiple testing

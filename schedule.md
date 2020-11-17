@@ -28,12 +28,12 @@ title:  'Schedule'
 
 **13.30 - 16.30** [Exercises](sessions-probdescinfe/session-probability#exercises-continuous-random-variables) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://forms.gle/XjKA5EugBYvisYJr7) (online support)
 
 <br/>
 ##### Tuesday 2020-11-17
 
-**09:00 - 09.30** Group discussions: recap of the previous day (group session)
+**09:00 - 09.30** [Group discussions: recap of the previous day](sessions-testyourself/day-02-am)
 
 **09:30 - 10.00** [Descriptive statistics](sessions-probdescinfe/session-descstats) (Eva) (live stream)
 
@@ -55,12 +55,12 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](sessions-probdescinfe/session-inference#exercises-interval-estimates) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://forms.gle/qYef4p6HwD68D6rJ7) (online support)
 
 <br/>
 ##### Wednesday 2020-11-18
 
-**09:00 - 09.30** Group discussions: recap of the previous day (group session)
+**09:00 - 09.30** [Group discussions: recap of the previous day](sessions-testyourself/day-03-am) (group session)
 
 **09:30 - 10:00** [Linear models: introduction](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html) (Olga) (live stream)
 
@@ -82,7 +82,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSfho2fsTq1rMFex_Fra9lMR9sqoF7l44f-OBYg-j2axicJkqg/viewform?usp=sf_link) (online support)
 
 <br/>
 ##### Thursday 2020-11-19
@@ -113,13 +113,13 @@ title:  'Schedule'
 
 **13.00 - 13.30** [Introduction to ANN for classification and regression](session-ann/session-ann) (Bengt)
 
-**13.30 - 14.30** Exercises (online support)
+**13.30 - 14.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/ann-regression-and-classification.html) (online support)
 
 *14.30 - 15.00 break (offline)*
 
 **15:00 - 15:30** Test yourself (online support)
 
-**15.30 - 16.00** Course wrap-up (live stream)
+**15.30 - 16.00** [Course wrap-up](https://docs.google.com/forms/d/e/1FAIpQLSffJNwmSt6vr-LMuH0gmEXk6fjUjpONkZ7tI5QHGlwJLYowdQ/viewform?usp=sf_link) (live stream)
 
 
 <br/><br/>
