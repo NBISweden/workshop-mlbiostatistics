@@ -86,7 +86,7 @@ title:  'Schedule'
 
 <br/>
 ##### Thursday 2020-11-19
-**09:00 - 09.30** Group discussions: recap of the previous day (group session)
+**09:00 - 09.30** [Group discussions: recap of the previous day](sessions-testyourself/day-04-am) (group session)
 
 **09.30 - 12.00** [Principal Component Analysis](https://payamemami.github.io/pca_basics/) (Payam) (live stream)
 
@@ -100,7 +100,7 @@ title:  'Schedule'
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html#exercises-classification) (online support)
 
-**16.30 - 17.00** Test yourself (online support)
+**16.30 - 17.00** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSeJ3keDHM6oDwDj-JBjVc6mY_yA0CGYOpJpbtcs14l-lmVV-Q/viewform?usp=sf_link) (online support)
 
 <br/>
 
