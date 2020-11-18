@@ -92,7 +92,9 @@ title:  'Schedule'
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 14.30** Clustering: k-means and HCL (Eva)
+**13.00 - 13.30** [Clustering: k-means and hierarchical clustering](sessions-probdescinfe/session-clustering) (Eva)
+
+**13.30-14.30** [Exercises](sessions-probdescinfe/session-clustering.html#exercises-clustering)
 
 *14.30 - 15.00 break (offline)*
 
