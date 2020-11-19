@@ -144,9 +144,9 @@ layer_sizes = [3,1,1]
 weights = [
     np.array(
         [
-            ["w_{1,1}"],
-            ["w_{2,1}"], 
-            ["w_{3,1}"],
+            ["w_{1}"],
+            ["w_{2}"], 
+            ["w_{3}"],
         ]
     ),
     np.array(
@@ -158,10 +158,10 @@ weights = [
 ]
 biases = [
     np.array(
-        ["b1"]
+        ["b"]
     ), 
     np.array(
-        ["b_2"]
+        ["b"]
     )
 ]
 fig = plt.figure(figsize=(12, 12), dpi=600)
@@ -193,7 +193,7 @@ plt.show()
     - from 1-several neurons
 - *Processing*:
      - **Multivariate linear model**
-$z=\sum_j w_j a'_j + b$
+$z=\sum_i w_i a'_i + b$
      - The **step activation function**
 $$a = 
 \begin{cases} 
@@ -211,10 +211,17 @@ $$a =
 ]
 ???
 
-Models biological neuron as ...
+-Models biological neuron as ...
+
+-Explain how to read figure
+  - input a'
+  - weights w
+  - bias b
+  - output a
+
+-Learning benefits from doing small changes. non-active-activated flip is to sensitive to small changes.
 
 
-Learning benefits from doing small changes. non-active-activated flip is to sensitive to small changes.
 ---
 # The Sigmoid neuron
 
@@ -230,9 +237,9 @@ layer_sizes = [3,1,1]
 weights = [
     np.array(
         [
-            ["w_{1,1}"],
-            ["w_{2,1}"], 
-            ["w_{3,1}"],
+            ["w_{1}"],
+            ["w_{2}"], 
+            ["w_{3}"],
         ]
     ),
     np.array(
@@ -244,10 +251,10 @@ weights = [
 ]
 biases = [
     np.array(
-        ["b1"]
+        ["b"]
     ), 
     np.array(
-        ["b_2"]
+        ["b"]
     )
 ]
 fig = plt.figure(figsize=(12, 12), dpi=600)
@@ -278,7 +285,7 @@ plt.show()
     - from 1-several neurons
 - *Processing*:
      - **Multivariate linear model**
-$$z=\sum_j w_j a'_j + b$$
+$$z=\sum_{i=1} w_i a'_i + b$$
      - The **step activation function**
 $$a = \sigma(z)$$
 - *Single output:* to 1-several neurons
@@ -298,7 +305,7 @@ The basis is still a linear model, but the  output is modified by an *activation
 To compute the output, $a$, 
 
 - first let
-$$z = \sum_{j=1}^M w_j a'_j + b$$
+$$z = \sum_{i=1}^M w_i a'_i + b$$
 - then determine $a$ from $z.$
 $$a = \sigma(z),$$
     + $\sigma(z)$ is a *sigmoid function*, more specifically the *logistic function*:
@@ -327,7 +334,7 @@ In fact, the sigmoid neuron represents a *generalized linear model* (*GLM*)<sup>
 
 In logistic regression, it is more common to describe GLMs in terms a link function that transforms the outcome:
 
-$$logit(a) = \sum_{j=1}^M w_ja'_j + b,$$
+$$logit(a) = \sum_{i=1}^M w_ia'_i + b,$$
 
 where $logit(a) = \sigma^{-1}(a)$ is called the link function.
 
@@ -394,10 +401,13 @@ In a *feedforward* ANN, neurons are arranged into **layers**:
 - single *input* layer, passes the input, continuous or discrete
 - 1-several of *hidden* layers.
 - single *output* layer
+The output of one layer forms the input of the next layer. 
+- in a feed-forward ANN, layers are _completely connected_
+- Network output $\hat{y}$
     + discrete -- **classification**
     + continuous -- **regression**  
-The output of one layer forms the input of the next layer. 
-- in a feed-forward ANN laters are _completely connected_
+    + $\hat{y}_j=a_j$ for neuron $j$ in output layer
+
 
 ]
 ???
@@ -411,7 +421,9 @@ The output of one layer forms the input of the next layer.
 
 ???
 
-So while each neuron performs rather simple transformations, the sum can be very complex
+- So while each neuron performs rather simple transformations, the sum can be very complex
+
+- Point out that we now have dopuble indices
 
 ---
 
@@ -592,6 +604,10 @@ plt.show()
 
 ```
 ]
+
+???
+- removed weights
+
 --
 .pull-left[
 ```{python depth4, echo=F, out.height=250, out.width=250, fig.align='center'}
@@ -612,6 +628,9 @@ plt.title("7 layer", fontsize=48)
 plt.show()
 ```
 ]
+
+???
+- remove bias nodes
 
 ---
 # Hidden layers
@@ -673,16 +692,16 @@ p
 # Why Deep Learning?
 
 .pull-left[
-#### Regression
+#### For regression
 
 - Single layer logistic regression
 - More layer $\rightarrow$ more complex, non-linear, models
 
-#### Classification
+#### For classification
 
-- ANNS with depth > 1
+- ANNs with depth > 1
     + A single hidden layer can classify using one hyperplane
-    + To obatin another hyperplane, add another level
+    + To obtain another hyperplane, add another level
 ]
 '.pull-right[
 
@@ -694,7 +713,126 @@ p +
 ]
 
 ---
+layout: true
+# Other activation functions
 
+```{r tanh, echo=FALSE}
+
+library(ggplot2)
+
+ptanh<-ggplot(data= data.frame(x=0), mapping=aes(x=x)) +
+  stat_function(fun=tanh) +
+  xlim(-10,10) +
+  xlab("z") +
+  ylab("tanh(z)")
+
+
+relu<-function(z){
+  ret=z
+  ret[z<=0]=0
+  return(ret)
+}
+
+prelu<-ggplot(data= data.frame(x=0), mapping=aes(x=x)) +
+  stat_function(fun=relu) +
+  xlim(-10,10) +
+  xlab("z") +
+  ylab("relu(z)")
+
+library(ggplot2)
+softmax<-function(z, sumotherez){
+  ez = exp(z)
+  return(ez/(sumotherez+ez))
+}
+otherz = c(-5, -1, 0, 1, 5)
+sumotherez = sapply(otherz, function(x)  length(x) * exp(x))
+labelsumotherez = sapply(sumotherez, format, digit=2, scientific=3)
+
+psoftmax=ggplot(data= data.frame(x=0), mapping=aes(x=x)) +
+  xlim(-10,10) +
+  xlab("z") +
+  ylab("softmax(z)")
+
+for(i  in seq(1,5)){
+  mycol = paste(otherz[i])
+  psoftmax = psoftmax + stat_function(fun=function (x, i) softmax(x,sumotherez[i]), aes(colour = paste(!!mycol)), args = list(i=i))
+}
+psoftmax = psoftmax +  scale_colour_manual(expression("avg "*z), values = c("yellow","orange", "red", "darkgreen","blue"))
+
+```
+---
+.pull-left[
+#### $tanh$
+- $\tanh(z) = \frac{e^z-e^{-z}}{e^z+e^{-z}} = 2\sigma(2z) -1$
+]
+.pull-right[
+```{r, echo =FALSE, fig.height =3, fig.width=3}
+ptanh
+```
+]
+.pull-left[
+#### *Rectified Linear Unit* (*ReLU*)
+- $relu(z) =\begin{cases}z &\textrm{if } z >0\\0 &\textrm{otherwise}\end{cases}$
+
+]
+.pull-right[
+```{r, echo =FALSE, fig.height =3, fig.width=3}
+prelu
+```
+]
+---
+.pull-left[
+#### *SoftMax*
+\begin{eqnarray}
+softmax(z_i) &=&\frac{e^{z_i}}{\sum_k e^{z_k}} = \frac{e^{z_i}}{S+e^{z_i}},\\
+&&\textrm{where }S=\sum_{k\neq i} e^{z_k}
+\end{eqnarray}
+- used in output layer
+  - Normalized over output neurons  
+  $\rightarrow$ "probabilities"
+
+]
+.pull-right[
+```{r, echo =FALSE, fig.height =3, fig.width=4}
+psoftmax
+```
+{{content}}
+]
+
+--
+
+```{python pyann1, echo=F, out.height=300, out.width=300, fig.align='center'}
+import numpy as np
+import matplotlib.pyplot as plt
+from draw_neural_net import draw_neural_net
+
+#--------[1] Input data
+#dataset = np.mat('-1 -1 -1; -1 1 1; 1 -1 1; 1 1 -1')
+#X_train = dataset
+#y_train = np.mat('0; 1; 1; 0')
+#-----2-2-1
+layer_sizes= (4,5,5,5,3)
+
+output = [ "COW=0", "DOG=1", "CAT=0" ]
+
+fig = plt.figure(figsize=(12, 12))
+
+ax = fig.gca()
+ignore=ax.axis('off')
+nodeFontSize = 35
+
+draw_neural_net(ax,
+                layerSizes=layer_sizes, 
+                outPrefix = output,
+                nodePrefix = "",
+                inNodePrefix = "",
+                nodeFontSize=nodeFontSize,
+                hideBias = True)
+plt.show()
+```
+
+---
+layout: false
 # Mini-exercise:
 
   - [http://playground.tensorflow.org/](http://playground.tensorflow.org/)
@@ -709,8 +847,8 @@ p +
 #### Sigmoid neuron is a logistic model
 
 \begin{eqnarray}
-z &=& \sum_j w_ja'_j+b\\
-a &=& \sigma(z)
+z_j &=& \sum_i w_{i,j}a'_i+b_j\\
+a_j &=& \sigma(z_j)
 \end{eqnarray}
 
 #### Feedforward network 
@@ -719,12 +857,15 @@ a &=& \sigma(z)
     + Output layer (single)
     + Hidden layers (1-many; depth, Deep Learning)
 - Each hidden layer transforms the input into a new multi-dimensional space which is fed to the next layer
+- Output $y$, where
+    + $\hat{y_j} = a_j$ for neuron $j$ in the output layer
+    + *regression* or *classification*
 
 #### Parameters
 - $\{w_{ij}\}$ and $b_j$ for all neurons in all hidden and output layers 
 
 ???
-- Next: how to determine theparameters (learning)
+- Next: how to determine the parameters (learning)
 
 ---
 class: inverse, middle, center
@@ -738,7 +879,7 @@ class: inverse, middle, center
 # Learning
 
 ## Task
-Find optimal values for $w_i$ and $b$ over all neurons
+Find optimal values for $w_{\cdot,j}$ and $b_j$ over all neurons $j$
 .pull-left[
 ## Data
 Cross-validation approach
@@ -762,10 +903,10 @@ Cross-validation approach
 
 # Supervised learning: cost function
 
-Suppose we have
+Suppose we apply
 
-1. training samples $x=(x_1,\ldots,x_K)$ with true output values $y=(y_1,\ldots,y_K)$. 
-2. an ANN that, with input $x$, produces an estimated output $\hat{y} = (\ldots,\hat{y}k, \ldots)$.
+1. an ANN that, with input $x$, produces an estimated output $\hat{y}$ to
+2. training samples $X=(x^{(1)},\ldots,x^{(K)})$ with true output values $Y=(y^{(1)},\ldots,y^{(K)})$. 
 
 Then the **quadratic cost function** is defined as follows:
 
@@ -777,9 +918,9 @@ Borrow some established concepts
 --
 .pull-left[
 
-1 For each $x_k$, use the residual sum of squares, *RSS*, as an error measure
+1 For each $x\in X$, use the residual sum of squares, *RSS*, as an error measure
 
-$$C(w,b|x_k) = \sum_i\frac{1}{2} \left( y_i-\hat{y}_i\right) ^2$$
+$$C(w,b|x) = \sum_i\frac{1}{2} \left( y_i-\hat{y}_i\right) ^2$$
  
 ]
 
@@ -805,12 +946,16 @@ text(x=4, y=4, labels="-2", cex=2, pos=4, col="darkgray")
 
 2 The full quadratic cost function is  simply the Mean Squared Error (MSE) used in cross-validation
 \begin{eqnarray}
-C(w,b) &=&  \frac{1}{K} \sum_{k=1}^K C(w,b|X_k)\\
-%&=& \frac{1}{2K}\sum_{k=1}^K \Vert Y(X_k)-a^{(L)}(X_k)\Vert ^2
+C(w,b) &=&  \frac{1}{K} \sum_{k=1}^K C(w,b|x^{(k)})\\
+%&=& \frac{1}{2K}\sum_{k=1}^K \Vert Y(x_k)-a^{(L)}(X_k)\Vert ^2
 \end{eqnarray}
 
 ???
+- We will here focus on $C(w,b|x)$
+
 Now we got something to optimize for , let's optimize
+
+
 
 ---
 
@@ -976,8 +1121,8 @@ $$b'_{i,j}=b_{i,j}- \eta \frac{\partial C(w,b|x)}{\partial b_i}$$
 
 #### Cost function
 \begin{eqnarray}
-C(w,b) &=& \frac{1}{2K}\sum_{k=1}^K  C(w,b|X_k)\\
-C(w,b|x) &=& \sum_i\left(y_i-a_i^{(L)}\right)^2
+C(w,b) &=& \frac{1}{K}\sum_{k=1}^K  C(w,b|x^{(k)})\\
+C(w,b|x) &=& \frac{1}{2}\sum_i\left(y_i-a_i^{(L)}\right)^2
 \end{eqnarray}
 
 - Mean squared error (MSE)
@@ -1189,8 +1334,8 @@ layer_sizes = [1,1,1]
 x= 0.05
 y = 0.1
 i1 = x
-w1 = 0.14
-w2=0.35
+w1 = 0.1
+w2=0.3
 b1 = -0.10
 b2 = 0.30
 z1 = w1*i1+b1
@@ -1198,21 +1343,21 @@ a1 = sigma(z1)
 z2 = w2*a1+b2
 a2 = sigma(z2)
 C = 0.5 * (y-a2)**2
-z1 = round(z1, 2)
-a1 = round(a1, 2)
-z2 = round(z2, 2)
-a2 = round(a2, 2)
-C = round(C,2)
+# z1 = round(z1, 2)
+# a1 = round(a1, 2)
+# z2 = round(z2, 2)
+# a2 = round(a2, 2)
+# C = round(C,2)
 
 weights = [
     np.array(
         [
-            ["w_1 "+"{}".format(w1)]
+            ["w_1:{}".format(w1)]
          ]
     ),
     np.array(
         [
-            [ "w_2 "+"{}".format(w2)]
+            [ "w_2:{}".format(w2)]
         ]
     )
 ]
@@ -1225,6 +1370,17 @@ biases = [
     )
 ]
 
+hidden = [
+                np.array(
+                [ r"$i_1$"]
+                ),
+                np.array(
+                [ r"$z_1\rightarrow a_1$"]
+                ),
+                np.array(
+                [ r"$z_2\rightarrow a_2$"]
+                ),
+]
 
 fig = plt.figure(figsize=(12, 12))
 ax = fig.gca()
@@ -1233,9 +1389,10 @@ ignore=ax.axis('off')
 draw_neural_net(ax, 
                 layerSizes = layer_sizes, 
                 weights = weights, 
+                nodePrefix = hidden,
                 biases=biases, 
                 inPrefix = ["{}".format(x)], 
-                nodeFontSize=25, edgeFontSize = 25, edgeWidth = 3
+                nodeFontSize=25, edgeFontSize = 20, edgeWidth = 3
                )
 plt.show()
 ```
@@ -1253,27 +1410,27 @@ $$a_j = \sigma(z_j) = \frac{1}{1+e^{-z_j}}$$
 ---
 
 ```{r, tab1a, echo =FALSE}
-tab = data.frame(x = 0, 
-                 y=0, 
-                 z1=0, 
-                 a1=0, 
-                 z2=0,
-                 a2=0,
-                 haty=0,
-                 C=0)
+tab = data.frame(x=signif(py$x, 2),
+                 y=signif(py$y, 2),
+                 z1=0., 
+                 a1=0., 
+                 z2=0.,
+                 a2=0.,
+                 haty=0.,
+                 C=0.)
 
 kable(tab, booktabs = TRUE, col.names = c("$x$", "$y$", "$z_1$", "$a_1$", "$z_2$", "$a_2$", "$\\hat{y}$",  "$C(w,b\\vert x)$"), escape = FALSE)
 ```
 ---
 ```{r, tab1b, echo =FALSE}
-tab = data.frame(x = py$x, 
-                 y=py$y, 
-                 z1=py$z1, 
-                 a1=py$a1, 
-                 z2=py$z2,
-                 a2=py$a2,
-                 haty=py$a2,
-                 C=py$C)
+tab = data.frame(x = signif(py$x, 2), 
+                 y=signif(py$y, 2), 
+                 z1=signif(py$z1, 2), 
+                 a1=signif(py$a1, 2), 
+                 z2=signif(py$z2, 2),
+                 a2=signif(py$a2, 2),
+                 haty=signif(py$a2, 2),
+                 C=signif(py$C, 2))
 
 kable(tab, booktabs = TRUE, col.names = c("$x$", "$y$", "$z_1$", "$a_1$", "$z_2$", "$a_2$", "$\\hat{y}$",  "$C(w,b\\vert x)$"), escape = FALSE)
 ```
@@ -1296,21 +1453,22 @@ draw_neural_net(ax,
                 layerSizes = layer_sizes, 
                 weights = weights, 
                 biases=biases, 
+                nodePrefix = hidden,
                 inPrefix = ["{}".format(x)], 
-                nodeFontSize=25, edgeFontSize = 25, edgeWidth = 3
+                nodeFontSize=25, edgeFontSize = 20, edgeWidth = 3
                )
 plt.show()
 ```
 
 ```{r, tab1c, echo =FALSE}
-tab = data.frame(x = py$x, 
-                 y=py$y, 
-                 z1=py$z1, 
-                 a1=py$a1, 
-                 z2=py$z2,
-                 a2=py$a2,
-                 haty=py$a2,
-                 C=py$C)
+tab = data.frame(x = signif(py$x, 2), 
+                 y=signif(py$y, 2), 
+                 z1=signif(py$z1, 2), 
+                 a1=signif(py$a1, 2), 
+                 z2=signif(py$z2, 2),
+                 a2=signif(py$a2, 2),
+                 haty=signif(py$a2, 2),
+                 C=signif(py$C, 2))
 
 kable(tab, booktabs = TRUE, col.names = c("$x$", "$y$", "$z_1$", "$a_1$", "$z_2$", "$a_2$", "$\\hat{y}$",  "$C(w,b\\vert x)$"), escape = FALSE)
 ```
@@ -1332,17 +1490,17 @@ dcdw1 = dcdz1 * dz1dw1
 
 wnew = w1 - eta * dcdw1
 
-dcda2 = round(dcda2, 4)
-da2dz2= round(da2dz2, 4)
-dcdz2 = round(dcdz2, 4)
-dz2da1 = round(dz2da1, 4)
-dcda1 = round(dcda1, 4)
-da1dz1 = round(da1dz1, 4)
-dcdz1 = round(dcdz1, 4)
-dz1dw1 = round(dz1dw1, 4)
-dcdw1 = round(dcdw1, 4)
+# dcda2 = round(dcda2, 4)
+# da2dz2= round(da2dz2, 4)
+# dcdz2 = round(dcdz2, 4)
+# dz2da1 = round(dz2da1, 4)
+# dcda1 = round(dcda1, 4)
+# da1dz1 = round(da1dz1, 4)
+# dcdz1 = round(dcdz1, 4)
+# dz1dw1 = round(dz1dw1, 4)
+# dcdw1 = round(dcdw1, 4)
 
-wnew = round(wnew, 4)
+# wnew = round(wnew, 4)
 
 ```
 
@@ -1400,7 +1558,7 @@ mynames = c(
 ---
 .pull-right[
 ### Backward pass 1
-$$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$
+{{content}}
 
 ]
 
@@ -1420,6 +1578,8 @@ kable(tab2, booktabs = TRUE,
       # ), 
       escape = FALSE)
 ```
+--
+$$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$
 ---
 .pull-right[
 ### Backward pass 1
@@ -1428,7 +1588,7 @@ $$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}
 ]
 
 ```{r, bw1b, echo =FALSE}
-tab2$dcda2 = py$dcda2
+tab2$dcda2 = signif(py$dcda2,2)
 kable(tab2, booktabs = TRUE, 
       col.names =  mynames,
       # c(
@@ -1448,25 +1608,29 @@ kable(tab2, booktabs = TRUE,
 ---
 .pull-right[
 ### Backward pass 2
-$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$
-
-$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$
+{{content}}
 ]
 ```{r, bw2, echo =FALSE}
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
       escape = FALSE)
 ```
+--
+$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$
+
+$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$
+
 ---
 .pull-right[
 ### Backward pass 2
 $$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$
 
 $$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$
+
 ]
 ```{r, bw2a, echo =FALSE}
-tab2$da2dz2=py$da2dz2
-tab2$dcdz2=py$dcdz2
+tab2$da2dz2=signif(py$da2dz2, 4)
+tab2$dcdz2=signif(py$dcdz2, 4)
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
       escape = FALSE)
@@ -1475,9 +1639,7 @@ kable(tab2, booktabs = TRUE,
 ---
 .pull-right[
 ### Backward pass 3
-$$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} = w_2$$
-
-$$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$
+{{content}}
 ]
 ```{r, bw3, echo =FALSE}
 
@@ -1485,6 +1647,10 @@ kable(tab2, booktabs = TRUE,
       col.names = mynames, 
       escape = FALSE)
 ```
+--
+$$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} = w_2$$
+
+$$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$
 
 ---
 .pull-right[
@@ -1494,8 +1660,8 @@ $$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} =
 $$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$
 ]
 ```{r, bw3b, echo =FALSE}
-tab2$dcda1=py$dcda1
-tab2$dz2da1=py$dz2da1
+tab2$dcda1=signif(py$dcda1, 4)
+tab2$dz2da1=signif(py$dz2da1, 4)
 
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
@@ -1505,9 +1671,7 @@ kable(tab2, booktabs = TRUE,
 ---
 .pull-right[
 ### Backward pass 4
-$$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1} = \sigma(z_1)(1-\sigma(z_1))$$
-
-$$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$
+{{content}}
 ]
 ```{r, bw4, echo =FALSE}
 
@@ -1515,6 +1679,11 @@ kable(tab2, booktabs = TRUE,
       col.names = mynames, 
       escape = FALSE)
 ```
+
+--
+$$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1} = \sigma(z_1)(1-\sigma(z_1))$$
+
+$$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$
 
 ---
 .pull-right[
@@ -1524,8 +1693,8 @@ $$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1}
 $$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$
 ]
 ```{r, bw4b, echo =FALSE}
-tab2$dcdz1=py$dcdz1
-tab2$da1dz1=py$da1dz1
+tab2$dcdz1=signif(py$dcdz1, 4)
+tab2$da1dz1=signif(py$da1dz1, 4)
   
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
@@ -1535,9 +1704,7 @@ kable(tab2, booktabs = TRUE,
 ---
 .pull-right[
 ### Backward pass 5
-$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
-
-$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
+{{content}}
 ]
 ```{r, bw5, echo =FALSE}
 
@@ -1545,6 +1712,12 @@ kable(tab2, booktabs = TRUE,
       col.names = mynames, 
       escape = FALSE)
 ```
+
+--
+$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
+
+$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
+
 
 ---
 .pull-right[
@@ -1554,8 +1727,8 @@ $$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} 
 $$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
 ]
 ```{r, bw5b, echo =FALSE}
-tab2$dcdw1=py$dcdw1
-tab2$dz1dw1=py$dz1dw1
+tab2$dcdw1=signif(py$dcdw1, 4)
+tab2$dz1dw1=signif(py$dz1dw1, 4)
   
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
@@ -1564,7 +1737,7 @@ kable(tab2, booktabs = TRUE,
 
 ---
 .pull-right[
-### Backward pass 6
+### Update $w_1$
 $$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
 
 $$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
@@ -1580,7 +1753,7 @@ kable(tab2, booktabs = TRUE,
 
 ---
 .pull-right[
-### Backward pass 6
+### Update $w_1$
 $$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$
 
 $$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$
@@ -1589,7 +1762,7 @@ Let $\eta=$ `r py$eta`, then
 $$w'_1 = w_1 - \eta \frac{\partial C(w_1,b|x)}{\partial z_1}$$
 ]
 ```{r, bw6b, echo =FALSE}
-tab2$wnew = py$wnew
+tab2$wnew = signif(py$wnew, 4)
 kable(tab2, booktabs = TRUE, 
       col.names = mynames, 
       escape = FALSE)
@@ -1681,14 +1854,14 @@ plt.show()
 --
 
 ##### Evaluation
-+ Cross-validation -- test data
 + Cost plots and accuracy plot
++ Cross-validation --train/validation/test 
 {{content}}
 --
 
 ##### Requirements
-+ Typically large number, $p$, of weights and biases
-+ Require (very) large number, $n$, of samples
++ Typical case, $p$, the number of of weights and biases, are large, which
++ Require (very) large number, $n$, of samples/training data
 
 --
 .pull-right[
@@ -1697,9 +1870,24 @@ plt.show()
   - speech/scripture/image recognition
   - biological image analysis (microscopy, spatial transcriptomics)
   - protein structure/localization
-+ More complex non-linear regression models
++ Regression
+  - Artificial image generation 
+  - Molecular simulations
+  More complex non-linear regression models
+{{content}}
 ]
+--
+
+##### Overfitting
+- Regularization
+
 ---
+class: inverse, middle, center
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=800px></html> 
+# Want to learn know more about ANNs?
+## NBIS workshop on Neural Networks and Deep Learning, 2021
+---
+
 
 # Thanks! Questions
 

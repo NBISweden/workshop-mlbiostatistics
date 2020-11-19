@@ -120,7 +120,7 @@ Mimic neurons (at the most basic level):
     - from 1-several neurons
 - *Processing*:
      - **Multivariate linear model**
-`\(z=\sum_j w_j a'_j + b\)`
+`\(z=\sum_i w_i a'_i + b\)`
      - The **step activation function**
 `$$a = 
 \begin{cases} 
@@ -138,10 +138,17 @@ Mimic neurons (at the most basic level):
 ]
 ???
 
-Models biological neuron as ...
+-Models biological neuron as ...
+
+-Explain how to read figure
+  - input a'
+  - weights w
+  - bias b
+  - output a
+
+-Learning benefits from doing small changes. non-active-activated flip is to sensitive to small changes.
 
 
-Learning benefits from doing small changes. non-active-activated flip is to sensitive to small changes.
 ---
 # The Sigmoid neuron
 
@@ -154,7 +161,7 @@ It turns out that the perceptorn is a suboptimal for ANN learning. The situation
     - from 1-several neurons
 - *Processing*:
      - **Multivariate linear model**
-`$$z=\sum_j w_j a'_j + b$$`
+`$$z=\sum_{i=1} w_i a'_i + b$$`
      - The **step activation function**
 `$$a = \sigma(z)$$`
 - *Single output:* to 1-several neurons
@@ -174,7 +181,7 @@ The basis is still a linear model, but the  output is modified by an *activation
 To compute the output, `\(a\)`, 
 
 - first let
-`$$z = \sum_{j=1}^M w_j a'_j + b$$`
+`$$z = \sum_{i=1}^M w_i a'_i + b$$`
 - then determine `\(a\)` from `\(z.\)`
 `$$a = \sigma(z),$$`
     + `\(\sigma(z)\)` is a *sigmoid function*, more specifically the *logistic function*:
@@ -198,7 +205,7 @@ In fact, the sigmoid neuron represents a *generalized linear model* (*GLM*)&lt;s
 
 In logistic regression, it is more common to describe GLMs in terms a link function that transforms the outcome:
 
-`$$logit(a) = \sum_{j=1}^M w_ja'_j + b,$$`
+`$$logit(a) = \sum_{i=1}^M w_ia'_i + b,$$`
 
 where `\(logit(a) = \sigma^{-1}(a)\)` is called the link function.
 
@@ -221,10 +228,13 @@ In a *feedforward* ANN, neurons are arranged into **layers**:
 - single *input* layer, passes the input, continuous or discrete
 - 1-several of *hidden* layers.
 - single *output* layer
+The output of one layer forms the input of the next layer. 
+- in a feed-forward ANN, layers are _completely connected_
+- Network output `\(\hat{y}\)`
     + discrete -- **classification**
     + continuous -- **regression**  
-The output of one layer forms the input of the next layer. 
-- in a feed-forward ANN laters are _completely connected_
+    + `\(\hat{y}_j=a_j\)` for neuron `\(j\)` in output layer
+
 
 ]
 ???
@@ -238,7 +248,9 @@ The output of one layer forms the input of the next layer.
 
 ???
 
-So while each neuron performs rather simple transformations, the sum can be very complex
+- So while each neuron performs rather simple transformations, the sum can be very complex
+
+- Point out that we now have dopuble indices
 
 ---
 
@@ -255,10 +267,17 @@ So while each neuron performs rather simple transformations, the sum can be very
 .pull-left[
 &lt;img src="session-ann_files/figure-html/depth3-1.png" width="250" height="250" style="display: block; margin: auto;" /&gt;
 ]
+
+???
+- removed weights
+
 --
 .pull-left[
 &lt;img src="session-ann_files/figure-html/depth4-1.png" width="250" height="250" style="display: block; margin: auto;" /&gt;
 ]
+
+???
+- remove bias nodes
 
 ---
 # Hidden layers
@@ -301,16 +320,16 @@ So while each neuron performs rather simple transformations, the sum can be very
 # Why Deep Learning?
 
 .pull-left[
-#### Regression
+#### For regression
 
 - Single layer logistic regression
 - More layer `\(\rightarrow\)` more complex, non-linear, models
 
-#### Classification
+#### For classification
 
-- ANNS with depth &gt; 1
+- ANNs with depth &gt; 1
     + A single hidden layer can classify using one hyperplane
-    + To obatin another hyperplane, add another level
+    + To obtain another hyperplane, add another level
 ]
 '.pull-right[
 
@@ -318,7 +337,49 @@ So while each neuron performs rather simple transformations, the sum can be very
 ]
 
 ---
+layout: true
+# Other activation functions
 
+
+---
+.pull-left[
+#### `\(tanh\)`
+- `\(\tanh(z) = \frac{e^z-e^{-z}}{e^z+e^{-z}} = 2\sigma(2z) -1\)`
+]
+.pull-right[
+![](session-ann_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+]
+.pull-left[
+#### *Rectified Linear Unit* (*ReLU*)
+- `\(relu(z) =\begin{cases}z &amp;\textrm{if } z &gt;0\\0 &amp;\textrm{otherwise}\end{cases}\)`
+
+]
+.pull-right[
+![](session-ann_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+]
+---
+.pull-left[
+#### *SoftMax*
+`\begin{eqnarray}
+softmax(z_i) &amp;=&amp;\frac{e^{z_i}}{\sum_k e^{z_k}} = \frac{e^{z_i}}{S+e^{z_i}},\\
+&amp;&amp;\textrm{where }S=\sum_{k\neq i} e^{z_k}
+\end{eqnarray}`
+- used in output layer
+  - Normalized over output neurons  
+  `\(\rightarrow\)` "probabilities"
+
+]
+.pull-right[
+![](session-ann_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+{{content}}
+]
+
+--
+
+&lt;img src="session-ann_files/figure-html/pyann1-1.png" width="300" height="300" style="display: block; margin: auto;" /&gt;
+
+---
+layout: false
 # Mini-exercise:
 
   - [http://playground.tensorflow.org/](http://playground.tensorflow.org/)
@@ -333,8 +394,8 @@ So while each neuron performs rather simple transformations, the sum can be very
 #### Sigmoid neuron is a logistic model
 
 `\begin{eqnarray}
-z &amp;=&amp; \sum_j w_ja'_j+b\\
-a &amp;=&amp; \sigma(z)
+z_j &amp;=&amp; \sum_i w_{i,j}a'_i+b_j\\
+a_j &amp;=&amp; \sigma(z_j)
 \end{eqnarray}`
 
 #### Feedforward network 
@@ -343,12 +404,15 @@ a &amp;=&amp; \sigma(z)
     + Output layer (single)
     + Hidden layers (1-many; depth, Deep Learning)
 - Each hidden layer transforms the input into a new multi-dimensional space which is fed to the next layer
+- Output `\(y\)`, where
+    + `\(\hat{y_j} = a_j\)` for neuron `\(j\)` in the output layer
+    + *regression* or *classification*
 
 #### Parameters
 - `\(\{w_{ij}\}\)` and `\(b_j\)` for all neurons in all hidden and output layers 
 
 ???
-- Next: how to determine theparameters (learning)
+- Next: how to determine the parameters (learning)
 
 ---
 class: inverse, middle, center
@@ -362,7 +426,7 @@ class: inverse, middle, center
 # Learning
 
 ## Task
-Find optimal values for `\(w_i\)` and `\(b\)` over all neurons
+Find optimal values for `\(w_{\cdot,j}\)` and `\(b_j\)` over all neurons `\(j\)`
 .pull-left[
 ## Data
 Cross-validation approach
@@ -386,10 +450,10 @@ Cross-validation approach
 
 # Supervised learning: cost function
 
-Suppose we have
+Suppose we apply
 
-1. training samples `\(x=(x_1,\ldots,x_K)\)` with true output values `\(y=(y_1,\ldots,y_K)\)`. 
-2. an ANN that, with input `\(x\)`, produces an estimated output `\(\hat{y} = (\ldots,\hat{y}k, \ldots)\)`.
+1. an ANN that, with input `\(x\)`, produces an estimated output `\(\hat{y}\)` to
+2. training samples `\(X=(x^{(1)},\ldots,x^{(K)})\)` with true output values `\(Y=(y^{(1)},\ldots,y^{(K)})\)`. 
 
 Then the **quadratic cost function** is defined as follows:
 
@@ -401,9 +465,9 @@ Borrow some established concepts
 --
 .pull-left[
 
-1 For each `\(x_k\)`, use the residual sum of squares, *RSS*, as an error measure
+1 For each `\(x\in X\)`, use the residual sum of squares, *RSS*, as an error measure
 
-`$$C(w,b|x_k) = \sum_i\frac{1}{2} \left( y_i-\hat{y}_i\right) ^2$$`
+`$$C(w,b|x) = \sum_i\frac{1}{2} \left( y_i-\hat{y}_i\right) ^2$$`
  
 ]
 
@@ -420,12 +484,16 @@ Borrow some established concepts
 
 2 The full quadratic cost function is  simply the Mean Squared Error (MSE) used in cross-validation
 `\begin{eqnarray}
-C(w,b) &amp;=&amp;  \frac{1}{K} \sum_{k=1}^K C(w,b|X_k)\\
-%&amp;=&amp; \frac{1}{2K}\sum_{k=1}^K \Vert Y(X_k)-a^{(L)}(X_k)\Vert ^2
+C(w,b) &amp;=&amp;  \frac{1}{K} \sum_{k=1}^K C(w,b|x^{(k)})\\
+%&amp;=&amp; \frac{1}{2K}\sum_{k=1}^K \Vert Y(x_k)-a^{(L)}(X_k)\Vert ^2
 \end{eqnarray}`
 
 ???
+- We will here focus on `\(C(w,b|x)\)`
+
 Now we got something to optimize for , let's optimize
+
+
 
 ---
 
@@ -547,8 +615,8 @@ Consider a 2-dimensional case,
 
 #### Cost function
 `\begin{eqnarray}
-C(w,b) &amp;=&amp; \frac{1}{2K}\sum_{k=1}^K  C(w,b|X_k)\\
-C(w,b|x) &amp;=&amp; \sum_i\left(y_i-a_i^{(L)}\right)^2
+C(w,b) &amp;=&amp; \frac{1}{K}\sum_{k=1}^K  C(w,b|x^{(k)})\\
+C(w,b|x) &amp;=&amp; \frac{1}{2}\sum_i\left(y_i-a_i^{(L)}\right)^2
 \end{eqnarray}`
 
 - Mean squared error (MSE)
@@ -714,14 +782,14 @@ layout:true
 ---
 
 
-| `\(x\)`| `\(y\)`| `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
-|---:|---:|-----:|-----:|-----:|-----:|---------:|---------------:|
-|   0|   0|     0|     0|     0|     0|         0|               0|
----
-
 |  `\(x\)`| `\(y\)`| `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
 |----:|---:|-----:|-----:|-----:|-----:|---------:|---------------:|
-| 0.05| 0.1| -0.09|  0.48|  0.47|  0.61|      0.61|            0.13|
+| 0.05| 0.1|     0|     0|     0|     0|         0|               0|
+---
+
+|  `\(x\)`| `\(y\)`|  `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
+|----:|---:|------:|-----:|-----:|-----:|---------:|---------------:|
+| 0.05| 0.1| -0.095|  0.48|  0.44|  0.61|      0.61|            0.13|
 
 ---
 layout: false
@@ -734,9 +802,9 @@ layout: true
 &lt;img src="session-ann_files/figure-html/sigmoidAnn3b-1.png" width="600" height="300" style="display: block; margin: auto;" /&gt;
 
 
-|  `\(x\)`| `\(y\)`| `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
-|----:|---:|-----:|-----:|-----:|-----:|---------:|---------------:|
-| 0.05| 0.1| -0.09|  0.48|  0.47|  0.61|      0.61|            0.13|
+|  `\(x\)`| `\(y\)`|  `\(z_1\)`| `\(a_1\)`| `\(z_2\)`| `\(a_2\)`| `\(\hat{y}\)`| `\(C(w,b\vert x)\)`|
+|----:|---:|------:|-----:|-----:|-----:|---------:|---------------:|
+| 0.05| 0.1| -0.095|  0.48|  0.44|  0.61|      0.61|            0.13|
 
 
 
@@ -746,7 +814,7 @@ layout: true
 ---
 .pull-right[
 ### Backward pass 1
-`$$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$`
+{{content}}
 
 ]
 
@@ -754,6 +822,8 @@ layout: true
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
 |      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                             0|
+--
+`$$\frac{\partial C(w,b|x)}{\partial a_2} =  \frac{\partial \frac{1}{2}(y-a_2)^2}{\partial a_2} = (y-a_2)$$`
 ---
 .pull-right[
 ### Backward pass 1
@@ -769,25 +839,43 @@ layout: true
 ---
 .pull-right[
 ### Backward pass 2
-`$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$`
-
-`$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$`
+{{content}}
 ]
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
 |      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                         -0.51|
+--
+`$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$`
+
+`$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$`
+
 ---
 .pull-right[
 ### Backward pass 2
 `$$\frac{\partial a_2}{\partial z_2} =  \frac{\partial \sigma(z)}{\partial a} = \sigma(z)(1-\sigma(z))$$`
 
 `$$\frac{\partial C(w,b|x)}{\partial z_2} =  \frac{\partial a_2}{\partial z_2} \times \frac{\partial C(w,b|x)}{\partial a_2}$$`
+
 ]
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                       -0.1623|                              0.3189|                                         -0.51|
+
+---
+.pull-right[
+### Backward pass 3
+{{content}}
+]
+
+| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
+|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
+|      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                       -0.1623|                              0.3189|                                         -0.51|
+--
+`$$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} = w_2$$`
+
+`$$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$`
 
 ---
 .pull-right[
@@ -799,19 +887,22 @@ layout: true
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                             0|                                   0|                                             0|                                   0|                                             0|                                   0|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                             0|                                   0|                                             0|                                   0|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
 
 ---
 .pull-right[
-### Backward pass 3
-`$$\frac{\partial z_2}{\partial a_1} =  \frac{\partial w_2*a_1+b_1}{\partial a} = w_2$$`
-
-`$$\frac{\partial C(w,b|x)}{\partial a_1} =  \frac{\partial z_2}{\partial a_1} \times \frac{\partial C(w,b|x)}{\partial z_2}$$`
+### Backward pass 4
+{{content}}
 ]
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                             0|                                   0|                                             0|                                   0|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                             0|                                   0|                                             0|                                   0|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
+
+--
+`$$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1} = \sigma(z_1)(1-\sigma(z_1))$$`
+
+`$$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$`
 
 ---
 .pull-right[
@@ -823,19 +914,23 @@ layout: true
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                             0|                                   0|                                             0|                                   0|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                             0|                                   0|                                      -0.04869|                              0.2494|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
 
 ---
 .pull-right[
-### Backward pass 4
-`$$\frac{\partial a_1}{\partial z_1} =  \frac{\partial \sigma(z_1)}{\partial a_1} = \sigma(z_1)(1-\sigma(z_1))$$`
-
-`$$\frac{\partial C(w,b|x)}{\partial z_1} =  \frac{\partial a_1}{\partial z_1} \times \frac{\partial C(w,b|x)}{\partial a_1}$$`
+### Backward pass 5
+{{content}}
 ]
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                             0|                                   0|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                             0|                                   0|                                      -0.04869|                              0.2494|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
+
+--
+`$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$`
+
+`$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
+
 
 ---
 .pull-right[
@@ -847,23 +942,11 @@ layout: true
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                             0|                                   0|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                     -0.002435|                                0.05|                                      -0.04869|                              0.2494|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
 
 ---
 .pull-right[
-### Backward pass 5
-`$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$`
-
-`$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
-]
-
-| `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
-|------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                       -0.0028|                                0.05|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
-
----
-.pull-right[
-### Backward pass 6
+### Update `\(w_1\)`
 `$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$`
 
 `$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
@@ -874,11 +957,11 @@ Let `\(\eta=\)` 0.3, then
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-|      0|                                       -0.0028|                                0.05|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+|      0|                                     -0.002435|                                0.05|                                      -0.04869|                              0.2494|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
 
 ---
 .pull-right[
-### Backward pass 6
+### Update `\(w_1\)`
 `$$\frac{\partial z_1}{\partial w_1} =  \frac{\partial w_1a_1+b_1}{\partial a_1} = a_1$$`
 
 `$$\frac{\partial C(w_1,b|x)}{\partial z_1} =  \frac{\partial z_1}{\partial w_1} \times \frac{\partial C(w_1,b|x)}{\partial z_1}$$`
@@ -889,7 +972,7 @@ Let `\(\eta=\)` 0.3, then
 
 | `\(w'_1\)`| `\(\frac{\partial C(w,b\vert x)}{\partial w_1}\)`| `\(\frac{\partial z_1}{\partial w_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_1}\)`| `\(\frac{\partial a_1}{\partial z_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_1}\)`| `\(\frac{\partial z_2}{\partial a_1}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial z_2}\)`| `\(\frac{\partial a_2}{\partial z_2}\)`| `\(\frac{\partial C(w,b\vert x)}{\partial a_2}\)`|
 |------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|-----------------------------------:|---------------------------------------------:|
-| 0.1408|                                       -0.0028|                                0.05|                                       -0.0566|                              0.2496|                                       -0.0566|                                0.35|                                       -0.1618|                              0.3172|                                         -0.51|
+| 0.1007|                                     -0.002435|                                0.05|                                      -0.04869|                              0.2494|                                      -0.04869|                                 0.3|                                       -0.1623|                              0.3189|                                         -0.51|
 ---
 layout: false
 # Back-propagation
@@ -924,14 +1007,14 @@ layout: false
 --
 
 ##### Evaluation
-+ Cross-validation -- test data
 + Cost plots and accuracy plot
++ Cross-validation --train/validation/test 
 {{content}}
 --
 
 ##### Requirements
-+ Typically large number, `\(p\)`, of weights and biases
-+ Require (very) large number, `\(n\)`, of samples
++ Typical case, `\(p\)`, the number of of weights and biases, are large, which
++ Require (very) large number, `\(n\)`, of samples/training data
 
 --
 .pull-right[
@@ -940,9 +1023,24 @@ layout: false
   - speech/scripture/image recognition
   - biological image analysis (microscopy, spatial transcriptomics)
   - protein structure/localization
-+ More complex non-linear regression models
++ Regression
+  - Artificial image generation 
+  - Molecular simulations
+  More complex non-linear regression models
+{{content}}
 ]
+--
+
+##### Overfitting
+- Regularization
+
 ---
+class: inverse, middle, center
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=800px&gt;&lt;/html&gt; 
+# Want to learn know more about ANNs?
+## NBIS workshop on Neural Networks and Deep Learning, 2021
+---
+
 
 # Thanks! Questions
 
