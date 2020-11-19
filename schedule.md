@@ -107,7 +107,7 @@ title:  'Schedule'
 <br/>
 
 ##### Friday 2020-11-20
-**09:00 - 09.30** Group discussions: recap of the previous day (group session)
+**09:00 - 09.30** [Group discussions: recap of the previous day](sessions-testyourself/day-05-am) (group session)
 
 **09.30 - 12.00** [Feature selection & model evaluation](session-regularization/session-regularization) (Bengt)
 
@@ -119,7 +119,7 @@ title:  'Schedule'
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15:30** Test yourself (online support)
+**15:00 - 15:30** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSclULhwNzB0v7V4fVfS9KGe3JLp7WEY5ZWZq1WkP8D--YG2JA/viewform?usp=sf_link) (online support)
 
 **15.30 - 16.00** [Course wrap-up](https://docs.google.com/forms/d/e/1FAIpQLSffJNwmSt6vr-LMuH0gmEXk6fjUjpONkZ7tI5QHGlwJLYowdQ/viewform?usp=sf_link) (live stream)
 
