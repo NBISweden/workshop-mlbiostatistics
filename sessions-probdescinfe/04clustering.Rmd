@@ -1,19 +1,19 @@
-
 ```{r, include=FALSE}
 require(tidyverse)
 require(ggplot2)
 require(reshape2)
 require(knitr)
 require(kableExtra)
+require(ggdendro)
 knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
 options(digits=2)
 ```
 
-# Clustering
+# Clustering {#session-clustering}
 
 Clustering is about grouping objects together according to similarity. The objects are grouped into clusters so that objectes within the same cluster are more similar to one another than to objects in other clusters.
 
-Clustering is usually performed based on a set of $n$ objects each with $p$ measurements. A single object $i$ can thus be described by the vector ${\mathbf x}_i = [x_{i1}, x_{i2}, \dots, x_{ip}]$.
+Clustering is usually performed based on a set of $n$ objects, each with $p$ measurements. A single object $i$ can thus be described by the vector ${\mathbf x}_i = [x_{i1}, x_{i2}, \dots, x_{ip}]$.
 
 With only $p=2$ measurements these measurements can easily be plotted and we could illustrate clusters by colors.
 
@@ -52,7 +52,7 @@ $$WSS = \sum_{k=1}^K\sum_{i \in C_k}\sum_{j=1}^p (x_{ij} - m_{kj})^2$$
 
 The initial centroids can be selected in several different ways. Two common methods are;
 
-* Select $K$ data points as initial centroids
+* Forgy's method: Select $K$ data points as initial centroids
 * Randomly assign each data point to one out of $K$ clusters and compute the centroids for these initial clusters.
 
 ## Dissimilarity matrix
@@ -88,8 +88,7 @@ $$d_{pear}(x,y) = \sqrt{1-r}$$
 
 Hierarchical clustering does not require the number of clusters to be specified. Instead of creating a single set of clusters it creates a hierarchy of clusterings based on pairwise dissimilarities.
 
-```{r, fig.cap="A hierarchical cluster dendrogram.", fig.width=7, fig.height=3.5}
-require(ggdendro)
+```{r dendro, fig.cap="A hierarchical cluster dendrogram.", fig.width=7, fig.height=3.5}
 h <- hclust(dist(iris[, 1:4]))
 ggdendrogram(h)
 ```
@@ -122,7 +121,7 @@ $$d_{cl}(A, B) = \max_{i,j} d(a_i, b_j)$$
 
 #### Average linkage {-}
 
-Average linkage takes as a cluster dissimilarity the distance between the two closest objects in the two clusters.
+Average linkage takes as a cluster dissimilarity the average distance between the objects in the in the two clusters.
 
 $$d_{al}(A, B) = \frac{1}{n_A n_B}\sum_i\sum_j d(a_i, b_j)$$
 
@@ -135,9 +134,9 @@ Ward's linkage method minimize the within variance, by merging clusters with the
 $$d_{wl}(A, B) = \sum_{i=1}^{n_A} (a_i - m_{A \cup B})^2 + \sum_{i=1}^{n_B} (b_i - m_{A \cup B})^2 - \sum_{i=1}^{n_A} (a_i - m_{A})^2 - \sum_{i=1}^{n_B} (b_i - m_{B})^2$$
 where $m_A, m_B, m_{A \cup B}$ are the center of the clusters $A$, $B$ and $A \cup B$, respectively. 
 
-Note that Ward's linkage method should not be combined with any dissimilarity matrix as it is based on the squared Euclidean distance. In the R function `hclus` either the Euclidean or squared Euclidean distance can be used in combination with the linkage `method='ward.D'` or `method='ward.D2`, respectively.
+Note that Ward's linkage method should not be combined with any dissimilarity matrix as it is based on the squared Euclidean distance. In the R function `hclust` either the Euclidean or squared Euclidean distance can be used in combination with the linkage `method='ward.D'` or `method='ward.D2`, respectively.
 
-```{r, fig.cap="Hierarchical clustering of the same data set using Euclidean distance and four different linkage methods.", fig.show="hold", fig.width=7, fig.height=3.5}
+```{r dendromulti, fig.cap="Hierarchical clustering of the same data set using Euclidean distance and four different linkage methods.", fig.show="hold", fig.width=7, fig.height=3.5}
 require(ggdendro)
 hsl <- hclust(dist(iris[, 1:4]), method="single")
 hcl <- hclust(dist(iris[, 1:4]), method="complete")
@@ -150,29 +149,95 @@ ggdendrogram(hal, labels=FALSE) + ggtitle("Average linkage")
 ggdendrogram(hwl, labels=FALSE) + ggtitle("Ward's linkage")
 ```
 
-### Exercises: Clustering
+## Exercises: Clustering {-}
 
-```{exercise}
+```{exercise, label="five", echo=TRUE}
 Based on a two dimensional data set you will investigate K-means clustering.
 ```
 
 ```{r fiveclusters}
+set.seed(1919)
 x <- c(1,3,1.5,3.5,2)
 y <- c(1,1,3,3,5)
-s <- c(.4,.4,.4,.5,.7)
+sx <- c(.4,.4,.4,.5,.7)
+sy <- c(.6,.4,.4,.7,.7)
 
-df <- data.frame(klass=rep(1:5, c(30, 15, 25, 10,18)), stringsAsFactors = FALSE) %>% mutate(kl=letters[klass], x=rnorm(n(),x[klass], sd=s[klass]), y=rnorm(n(), y[klass], sd=s[klass]))
-df %>% ggplot(aes(x=x,y=y, color=kl)) + geom_point()
+df <- data.frame(klass=rep(1:5, c(30, 15, 25, 10,18)), stringsAsFactors = FALSE) %>% mutate(group=letters[klass], x=rnorm(n(),x[klass], sd=sx[klass]), y=rnorm(n(), y[klass], sd=sy[klass])) %>% dplyr::select(-klass)
+#df %>% ggplot(aes(x=x,y=y, color=group)) + geom_point()
+write.csv(df, file="clusterdata.csv")
+```
 
-df$kmeans <- kmeans(df[, c('x','y')], centers=5)$cluster
-#df %>% ggplot(aes(x=x, y=y, color=klass)) + geom_point() + theme(legend.position = "none")
-df %>% ggplot(aes(x=x, y=y, color=factor(kmeans))) + geom_point() + theme_bw() + theme(legend.position = "none")
+Download the two-dimensional [data set](clusterdata.csv).
+
+a) Try to cluster the data using the k-means algorithm (function `kmeans` in R). Use Forgy's method for initialization and select a value for $k$. If you get a message that the algorithm did not converge in 10 iterations, try increasing the number of iterations
+b) Plot the data and color by cluster id
+c) Run the same analysis again, do you get the same results? (You can compare two vectors of class identities using the function `table`.)
+d) By setting the argument `nstart` to 4 the algorithm will automatically try four different (random) starting points.
+e) Try different values for $k$, run the k-means algorithm and collect the WSS ('tot.withinss'). Plot WSS vs k. Thw WSS is always decreasing as k increases, but the curve can still give you a hint of which $k$ to choose. The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
+Which $k$ would you pick based on this?
+
+```{exercise, label="NCI60", echo=TRUE}
+The NCI60 data set consists of gene expression values for 6830 genes for 64 cell lines.
+
+Using this data set investigate a few hierarchical clustering distances and linkage methods.
+```
+
+The data can be downloaded in R using the following command
+
+```{r, echo=TRUE, eval=FALSE}
+nci.data <- read.table("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv", sep=",",row.names=1,header=TRUE)
+nci.label <- scan("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label", what="")
+```
+
+* What is the size of the data matrix? Do every column represent a gene or a cell line?
+* Compute the Euclidean distance between cell lines.
+This can be accomplished using the function `dist`. Read the help text `?dist`. This function computes the distance between rows of the input data matrix. If the rows represent cell lines, you can run `dist(nci.data)`, but if your cell lines are represented by columns you need to transpose the data matrix first `dist(t(nci.data))`.
+* Cluster the cell lines using complete linkage hierarchical clustering, use the function `hclust`.
+* Plot the result! (If you read the help text about `hclust` you should know how to plot)
+   - Try changing the labels to something more informative (such as `label=nci.label`). 
+   - Investigate the argument `hang`, what happens if you set it to -1?
+
+* Try the linkage methods "single", "average" and "ward.D" in addition to "complete". Compare the results. Which method do you think is 'best'?
+* Pick the tree resulting from the method you think is 'best'. How many clusters are there?
+You can cut the tree on any level to get between 1 and 64 clusters. The function `cutree` cuts either on a specific height (dissimilarity) or to get a specific number of clusters.
+* Compute the Pearson correlation between the cell lines, use the function `cor`
+* Convert the correlation matrix to a dissimilarity matrix and cluster using complete or average linkage.
 
 
-```{r}
-#X <- read.csv2("../../workshop-mlbiostatistics/session-pca_clustering/data/cpm.csv",row.names = 1)
-#log2X <- log2(X+1)
-set.seed(2871)
+
+### Solutions
+
+\@ref(exr:five)
+
+```{r exrfive}
+## Load the data
+df <- read.csv("fiveclasses.csv")
+
+## K-means with k=5, this uses Forgy's method, you can also try the default Hariigan-Wong
+km1 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")$cluster
+## Letter is just to name the clusters, A, B, C, ...
+df$km1 <- LETTERS[km1]
+
+##Plot
+df %>% ggplot(aes(x=x, y=y, color=km1)) + geom_point() + theme_bw() + theme(legend.position = "none")
+
+##Run kmeans again
+km2 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")$cluster
+df$km2 <- LETTERS[km2]
+df %>% ggplot(aes(x=x, y=y, color=km2)) + geom_point() + theme_bw() + theme(legend.position = "none")
+
+## Automatically try several different starting points
+km3 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy", nstart=10)$cluster
+df$km3 <- LETTERS[km3]
+df %>% ggplot(aes(x=x, y=y, color=km3)) + geom_point() + theme_bw() + theme(legend.position = "none")
+
+## Try different k and compute within sum of squares
+WSS <- sapply(1:10, function(k) kmeans(df[, c('x','y')], centers=k, algorithm ="Forgy", nstart=10, iter.max=20)$tot.withinss)
+plot(1:10, WSS)
+```
+
+
+```{r, eval=FALSE}
 k <- 5
 l <- 10
 X0 <- matrix(rnorm(k*l, runif(l, 2.5,2.5), 0.2), k, l, byrow=TRUE)
@@ -186,30 +251,38 @@ X <- do.call("cbind", lapply(1:l, function(i) matrix(X1[,i] + rnorm(q[i]*nrow(X1
 
 plot(hclust(dist(X)))
 ```
-```{exercise}
-The NCI60 data set consists of gene expression values for 6830 genes for 64 cell lines.
 
-Using this data set investigate a few hierarchical clustering distances and linkage methods.
+\@ref(exr:NCI60)
+
+```{r exrnci, fig.show=TRUE}
+nci.data <- read.table("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv", sep=",",row.names=1,header=TRUE)
+nci.label <- scan("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label", what="")
+
+## Size of data matrix (first number is rows, second number of columns)
+dim(nci.data)
+
+## Euclidean distance
+deucl <- dist(t(nci.data), method = "euclidean")
+
+## Complete linkage
+hcl <- hclust(deucl, method = "complete")
+
+## plot the dendrogram
+plot(hcl, labels=nci.label)
+
+plot(hcl, labels=nci.label, hang=-1)
+
+## Compute using other linkage methods
+hsl <-  hclust(deucl, method = "single")
+hal <-  hclust(deucl, method = "average")
+hwl <-  hclust(deucl, method = "ward.D")
+
+##Plot using same command as above
+
+## Pearson correlation
+r <- cor(nci.data, method = "pearson")
+dcor <- as.dist(sqrt(1-r))
+hcor <- hclust(dcor, method="complete")
+plot(hcor, labels=nci.label)
 ```
-
-The data can be downloaded in R using the following command
-
-```{r NCI60}
-nci.data <- read.table(url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"), sep=",",row.names=1,header=TRUE)
-nci.label <-scan(url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label"),what="")
-```
-
-* What is the size of the data matrix? Do every column represent a gene or a cell line?
-* Compute the Euclidean distance between cell lines.
-This can be accomplished using the function `dist`. Read the help text `?dist`. This function computes the distance between rows of the input data matrix. If the rows represent cell lines, you can run `dist(nci.data)`, but if your cell lines are represented by columns you need to transpose the data matrix first `t(nci.data)`.
-* Cluster the cell lines using complete linkage hierarchical clustering, use the function `hclust`.
-* Plot the result! (If you read the help text about `hclust` you should know how to plot)
-   - Try changing the labels to something more informative (such as `label=nci.label`). 
-   - Investigate the argument `hang`, what happens if you set it to -1?
-
-* Try the linkage methods "single", "average" and "ward.D" in addition to "complete". Compare the results. Which method is 'best'?
-
-Pick the tree resulting from the method you think is 'best'. How many clusters are there?
-
-You can cut the tree on any level to get between 1 and 64 clusters. The function `cutree` either on a specific height (dissimilarity) or to get a specific number of clusters.
 
