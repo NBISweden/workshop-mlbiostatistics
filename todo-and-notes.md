@@ -26,6 +26,9 @@ title:  'To Do'
 - add multi-categorical logistic regression example (extra reading)
 - add mixed effect models example (extra reading)
 - add at the end of chapters: similar methods, methods extensions, i.e. where to go next
+- same dataset throughout the week? make up one with toxicity levels, gene expression response, 2 groups, count data of number of mutations
+- pipeline of analysis: data cleaning, data exploration and then biostatistics and machine learning  
+- p-value of the lm model 
 
 ## Select students a bit better
 - it is introductory course
