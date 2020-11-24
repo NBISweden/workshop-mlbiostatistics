@@ -172,10 +172,10 @@ In general, full-on likelihood computation and maximum likelihood estimation is 
 Bayes' theorem (Thomas Bayes, 1702-1761) provides a way to obtain the requested $P[\theta|X,Y]$
 
 
-$$Pr[\theta|D] = \frac{Pr[D| \theta]Pr[\theta]}{Pr[D]}$$
+$$Pr[\theta|X,Y] = \frac{Pr[Y| X, \theta]Pr[\theta]}{Pr[Y|X]}$$
 **Posterior probability**
 
-$Pr[\theta|D],$ the probability, computed posterior to analysis, of the parameters $\theta$ conditioned on the observed data, i.e, our requested probability.
+$Pr[\theta|X,Y],$ the probability, computed posterior to analysis, of the parameters $\theta$ conditioned on the observed data, i.e, our requested probability.
 
 One important characteristic of Bayesian statistics is that, typically, the focus is not on point estimates, but on the posterior probability distribution over the parameter space of $\theta$, which provides a measure of uncertainty (probabilities) in comparison to other values.
 
@@ -199,7 +199,7 @@ It can be shown that the effect of the prior on the posterior probbility is larg
 
 **Marginal Probability of $D$**
 
-$Pr[D]=\int_{\theta}Pr[D| \theta]Pr[\theta]$ is the probability of $D$ regardless of $\theta$. This can often be difficult difficult to calculate and, for this reason, Bayesian models are often designed so that this can be calculated analytically or using some approximation approach, such as Markov chain Monte Carlo (MCMC) is used.
+$Pr[Y|X]=\int_{\theta}Pr[Y| X, \theta]Pr[\theta]$ is the probability of $Y|X$ regardless of $\theta$. This can often be difficult difficult to calculate and, for this reason, Bayesian models are often designed so that this can be calculated analytically or using some approximation approach, such as Markov chain Monte Carlo (MCMC) is used.
 
 <details>
 <summary> <span style="color:gray">Extra Reading</span> </summary>
@@ -277,6 +277,8 @@ N=100 # number of samples
 P=10 # number of variables
 
 # Draw variables, x_{i,1},...,x_{i,P} for all N individuals, from a uniform distribution in interval (0,1) (this is the default interval for runif)
+# 1. runif generates N*P+1 values, round them off to 2 decimals
+# 2. Put values into a matrix with N rows and P columns
 X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P)
 
 # generate a y variable from a multivarite lm of 3 first X variables only
@@ -285,7 +287,7 @@ b0=3
 # effect sizes for first three variables
 b=c(runif(3, min=0.5, max=1.0))
 
-# generate y
+# generate y for all samples (=rows in X) using only the 3 first variables (columns) of X
 Y <- b0 + X[,1] * b[1] + X[,2] * b[2] + X[,3] * b[3] + rnorm(N)
 
 ```
@@ -324,10 +326,10 @@ What are the max Likelihood estimates of the two models? (we can use the R funct
 library(stats)
 ll= vector()
 for(i in seq(1,2)){
-  Xi=X[,seq(1,i)]
-  ll[i] <- logLik(lm(Y~Xi))
+  Xi=X[,seq(1,i)] # use variables 1..i
+  ll[i] <- logLik(lm(Y~Xi)) # logLik extract loglikelihood from lm 
 }
-# plot likelihoods for models with 1 and 2 vaiables
+# plot likelihoods for models with 1 and 2 variables
 plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P), ylim=c(floor(min(ll)),ceiling(max(ll)))) 
 # xlim and ylim not really necessary here, but I can reuse the plot statement below, so the plots look similar
 ```
@@ -457,28 +459,26 @@ In our simple test case, the LRT also succeed in picking the correct model. It s
 
 Regularization is a concept that adds auxiliary criteria, so-called *regularization terms*,  to probabilistic models.  This is called regularized likelihood models or penalized likelihood models. Typically, the regularization term is a function of parameters $\beta$:
 
-$$\log rL[\beta | X, Y]  = \log Pr[Y | X, \beta] - f(\beta),$$
+$$\log rL[\beta | X, Y]  = \log L[\beta | X, Y] - f(\beta),$$
 
 
 A very simple regularized likelihood model uses $f(\beta) = \#\beta = \#X$, that is the number of $X$ variables.  
-$$\log rL[{\beta} | X, Y]  = \log Pr[Y | X, {\beta}] - \#X, $$
+$$\log rL[{\beta} | X, Y]  = \log L[\beta | X, Y] - \#X, $$
 
 
 Applying this rL to our example data, solves the overfitting problem.
 
 ```{r,echo=F, fig.height=4, echo=TRUE}
 # compute loglikelihood (ll) for all models including 1-P variables
-pl= vector() 
+rl= vector() 
 for(i in seq(1,P)){
-  xi=X[,seq(1,i)]
-  xi=cbind(rep(1,N), xi)
+  xi=X[,seq(1,i), drop=FALSE]
   fit = lm(Y~xi)
-  # To make the code simple, we forestall next step and use the AIC function here
-  # AIC= -2(pl) so convert back
-  pl[i] = -AIC(fit)/2
+  # Compute the regularized Likelihood
+  rl[i] = logLik(fit) - i
 }
 # plot ll of all models
-plot(pl, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xlab="model #", type = "b")
+plot(rl, xlim=c(1,P), ylim=c(floor(min(rl)),ceiling(max(rl))),ylab="log rL", xlab="model #", type = "b")
 ```  
 
 </details>
@@ -489,12 +489,12 @@ plot(pl, xlim=c(1,P), ylim=c(floor(min(pl)),ceiling(max(pl))),ylab="log pL", xla
 
 Regularization is a canonical example where Bayesian and frequentist statistics meet.
 
-The standard way of writing a regularized likelihood is using the logLikelihood, but what if 'de-log' it:
+The standard way of writing a regularized likelihood is using the logLikelihood, but what if we 'de-log' it:
 
 \begin{eqnarray*}
-\log rL[\beta | X, Y]  &=& \log Pr[Y | X, \beta] - f(\beta) \\
-\Downarrow\\
-rL[\beta | X, Y]  &=& Pr[Y | X, \beta] * e^{- f(\beta)}
+\log rL[\beta | X, Y]  &= \log L[\beta | X, Y] - f(\beta) &=\log Pr[Y | X, \beta] - f(\beta)  \\
+&\Downarrow\\
+rL[\beta | X, Y]  &=  L[\beta | X, Y]\times e^{-f(\beta)}&= Pr[Y | X, \beta] \times e^{- f(\beta)}
 \end{eqnarray*}
 
 This looks suspiciously like an un-normalized posterior probability (i.e., lacking the denominator), with an exponential prior $Pr[\beta]=e^{-f(\beta)}.$
@@ -563,7 +563,7 @@ library(dplyr)      # used for nice table formatting
 library(kableExtra) # used for nice table formatting
 
 mprev <- lm(Y ~ X[,1]) # current miminimum AIC model
-# dummyentry to be replaced
+# dummy entry to be replaced
 aic=data.frame(models=0, aic=0, isAICmin="-") 
 
 for(i in seq(1,P)){
@@ -573,13 +573,16 @@ for(i in seq(1,P)){
   if(i==2){ #include also the first model
     aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
   }
-  aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
+  aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-")
 }
+# Identify the model with min AIC and compare all others to that
 minaic=min(aic$aic)
 aic$relL=format(exp((minaic-aic$aic)/2), digits=4)
 aic$isAICmin = ifelse(aic$aic==minaic,"Yes","-")
 
-kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","relL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
+kable(aic, format='html', row.names=F, 
+      col.names=c("Compared models","AIC","Minimum AIC","relL"))%>%
+  kable_styling( font_size = 14)
 ```
 
 <details>
@@ -603,7 +606,9 @@ minaic=min(aic$aic)
 aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
 aic$lowest = ifelse(aic$aic==minaic,"Yes","-")
 
-kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
+kable(aic, format='html', row.names=F, 
+      col.names=c("Compared models","AIC","Minimum AIC","relL"))%>% 
+  kable_styling( font_size = 14)
 ```
 
 ***
@@ -615,10 +620,13 @@ kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Mini
 library(stats)
 
 # plot AIC of all models
-plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(aic$aic)),ceiling(max(aic$aic))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), 
+     ylim=c(floor(min(aic$aic)), ceiling(max(aic$aic))),
+     ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
-plot(aic$relL, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
+plot(aic$relL, xlim=c(1,P), 
+     ylab="relL", xlab="model #", type = "b")
 ```  
 
 <details>
@@ -627,10 +635,13 @@ plot(aic$relL, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
 library(stats)
 
 # plot AIC of all models
-plot(aic$aic, xlim=c(1,P), ylim=c(floor(min(aic$aic)),ceiling(max(aic$aic))),ylab="AIC", xlab="model #", type = "b")
+plot(aic$aic, xlim=c(1,P), 
+     ylim=c(floor(min(aic$aic)), ceiling(max(aic$aic))),
+     ylab="AIC", xlab="model #", type = "b")
 
 # plot relL of all models
-plot(aic$rl, xlim=c(1,P), ylab="relL", xlab="model #", type = "b")
+plot(aic$rl, xlim=c(1,P), 
+     ylab="relL", xlab="model #", type = "b")
 ```  
 
 ***
@@ -683,7 +694,7 @@ Extensions to glms exists, but then using a regularized likelihood expression
 ***
 </details>
 
-The regularization term $f(\beta) = \lambda\sum_{\beta_i\in\beta} |\beta_i-0|= \lambda\sum_{\beta_i\in\beta} |\beta_i|$
+The regularization term $f(\beta) = \lambda\sum_{\beta_i\in\beta} |\beta_i|$
 
 <details>
 <summary> <span style="color:gray">Extra Reading</span> </summary>
@@ -700,12 +711,14 @@ We note, BTW, that you already have been working with an $\ell_2-norm$: since $R
 ***
 </details>  
     
-The $\lambda$ parameter sets a limit on the estimation of $\beta$. 
+The $\lambda$ parameter defines how strong the regularization becomes; a higher $\lambda$ will put a stricter limit on the estimation of individual $\beta_i$ values. 
 
 
 Lasso is traditionally described as RSS with an auxiliary criterion/constraint: 
 
-$$min\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
+$$min\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|,$$
+but, equivalently, it can be written in terms of the likelihood:
+$$max \log L[\beta|X,Y] - \lambda\sum_{\beta_i\in\beta} |\beta_i|.$$
 Lasso can also be viewed as a un-normalized Bayesian posterior probability, with a LaPlacean prior on $\beta$: $\beta_j ∼ LaPlace(0, 1/\lambda)$ 
 
 <details>
@@ -715,7 +728,6 @@ Other common notation for LASSO:
 
 * You might often see the notation $$min_{{\beta}}\left\{RSS\right\} \textrm{ subject to } ||{\beta}||_1 <= t$$
   where $t$ is related to $\lambda$.
-* Lasso can also be viewed as a Bayesian posterior probability, with a LaPlacean prior on $\beta$: $\beta_j ∼ LaPlace(0, 1/\lambda)$ 
 
 ***
 </details>
@@ -740,11 +752,12 @@ The *Coordinate descent* algorithm is used in the R package `glmnet`:
 <details>
 <summary> <span style="color:gray">Extra Reading</span> </summary>
 
-Alternatives to LASSO, differing mainly in the auxiliary criterion
+Alternatives to LASSO, differing mainly in the auxiliary criterion, include
 
   - *Ridge regression* which uses a $\ell_2$ norm
-  - *Elastic-net*, which uses a mixed model combination of the  $\ell_1$ norm and the $\ell_2$ norm.
+  - *Elastic-net*, which uses a mixed model combination of the  $\ell_1$ norm and the $\ell_2$ norm
 
+ (both these are implemented in the R package `glmnet`, which we will use below).
 *** 
 </details>
 
@@ -776,7 +789,7 @@ library(glmnet)
 fit = glmnet(X,Y, family="gaussian", alpha=1, standardize=T)
 ```
 
-* A graphical way to view the result is to `plot` the paths of $\beta$ for increasing vaules of $\lambda$.
+* A graphical way to view the result is to `plot` the paths of $\beta$ for increasing vaules of $\lambda$. This plot shows how the $\beta_i$ for different variables changes with $\lambda$. The plot is perhaps best read from right to left, going from higher and thereby stricter, $\lambda$ values to lower $\lambda$ values including more and more variables/non-zero $\beta_i$.
 
 ```{r, echo=T, fig.height=5, eval=FALSE} 
 par(mfrow=c(1,1))
@@ -806,7 +819,7 @@ plot(fit, xvar="lambda",label=T)
 <h4>Some possible answers</h4>
 * The order appears to be $(1,2,3,7,6,5,10,9,4,8)$
 * $\beta_i > 0, i\in \{1,2,3,4,7,9\}$, while $\beta_i<0, i\in \{5,6,8,10\}$
-* Given *oracle knowledge*, the correct $\lambda$ appears lie somewhere in the interval $[\approx \exp(-2.1), \approx\exp(-2.5)]$
+* Given *oracle knowledge*, the correct $\lambda$ appears lie somewhere in the interval $[\approx \exp(-1), \approx\exp(-2.5)]$
 * In the normal case, we do not have *oracle knowledge*.
 
 ***
@@ -834,12 +847,12 @@ The LASSO model will be different depending on how we set $\lambda$. A problem i
 The ultimate way of testing an estimated model (with parameters) is to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error*, $MSE$ ($=RSS/N$).
 Naturally, we want to minimize $MSE$, i.e., the error of the model. In our LASSO application, this means that we want to select the $\lambda$ that minimizes the $MSE$
 
-In cross validation, this approach is emaulated by partioning the data at hand into a *training* and  *test* (or *validation*) data set. The model parameters are estimated ('trained') on the the training data and the validated on the test data.
+In cross validation, this approach is emulated by partioning the data at hand into a *training* and  *validation* data set. The model parameters are estimated ('trained') on the the training data and the validated on the validation data. (Optionally, a *test* partition can be assigned in cross-validation on which the final, selected model is evaluated; this is not employed here).
 
 By chance, this may fail if the partitioning is 'non-representative'. A solution is to repeat the cross-validation procedure with another partioning.
 
 In $k$-fold cross validation, the original data is split into $k$ sub-datasets $\{D_1,D_2,\ldots, D_k\}$.
-For $i \in \{1,2,\ldots, k\}$, set $D_i$ as the test data set and the union of the other datasets be the training data. Perform cross validation as above.
+For $i \in \{1,2,\ldots, k\}$, set $D_i$ as the validation data set and the union of the other datasets be the training data. Perform cross validation as above.
 
 This gives a distribution of $MSE$ from which we can estimate, e.g., mean and standard deviation.
 
@@ -856,10 +869,10 @@ Here we will limit ourselves to finding the minimum $\lambda$, called `lambda.mi
 </details>
 
 ### Task | `Determine optimal LASSO `$\lambda$` using cross-validation`
-* Use the function `cv.glmnet` to perform cross validation (same options as for `glmnet`)
+* Use the function `cv.glmnet` to perform cross validation (same options as for `glmnet`), store it in a R variable, e.g., `cvglm`,
 * `plot` the cross-validation results 
-* Compare with the plot of estimated $\beta_i$ under different $\lambda$.
-* Determine the optimal $\lambda$ (the one with minimal error)
+* Compare with the plot of estimated $\beta_i$ under different $\lambda$ (these can be accessed from the result as `cvglm$glmnet.fix`).
+* Determine the optimal $\lambda$ (the one with minimal error, can be found in `cvglm$lambda.min`) 
 
 ```{r, echo=T,fig.height=5, eval=FALSE}
 library(glmnet)
@@ -870,6 +883,7 @@ cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
 plot(cvglm)
 plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
+print(minlambda)
 ```
 
 <details>
@@ -883,6 +897,7 @@ cvglm=cv.glmnet(X,Y, family="gaussian", alpha=1, standardize=T, nfolds=100)
 plot(cvglm)
 plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
+print(minlambda)
 ```
 
 ***
@@ -903,7 +918,7 @@ minlambda=cvglm$lambda.min
 </details>
 
 ### Task| `Final LASSO effect sizes`
-* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$); compare with oracle knowledge. (Hint: Use function`coef`).
+* Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$); compare with oracle knowledge. (Hint: see `? coef.cv.glmnet`).
 
 ```{r, echo =T, eval=FALSE}
 # Actually the following suffice for output on console
