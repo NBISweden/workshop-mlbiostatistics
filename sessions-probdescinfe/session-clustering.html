@@ -381,17 +381,67 @@ You can cut the tree on any level to get between 1 and 64 clusters. The function
 <div id="solutions-2" class="section level3">
 <h3><span class="header-section-number">4.3.2</span> Solutions</h3>
 <p><a href="session-clustering.html#exr:five">4.1</a></p>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb108-1" data-line-number="1"><span class="co">## Load the data</span></a>
+<a class="sourceLine" id="cb108-2" data-line-number="2">df &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;clusterdata.csv&quot;</span>)</a>
+<a class="sourceLine" id="cb108-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb108-4" data-line-number="4"><span class="co">## K-means with k=5, this uses Forgy&#39;s method, you can also try the default Hariigan-Wong</span></a>
+<a class="sourceLine" id="cb108-5" data-line-number="5">km1 &lt;-<span class="st"> </span><span class="kw">kmeans</span>(df[, <span class="kw">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="dt">centers=</span><span class="dv">5</span>, <span class="dt">algorithm =</span><span class="st">&quot;Forgy&quot;</span>)<span class="op">$</span>cluster</a></code></pre></div>
 <pre><code>## Warning: did not converge in 10 iterations</code></pre>
-<p><img src="sessions-probdescinfe_files/figure-html/exrfive-1.png" width="2100" /><img src="sessions-probdescinfe_files/figure-html/exrfive-2.png" width="2100" /></p>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb110-1" data-line-number="1"><span class="co">## Letter is just to name the clusters, A, B, C, ...</span></a>
+<a class="sourceLine" id="cb110-2" data-line-number="2">df<span class="op">$</span>km1 &lt;-<span class="st"> </span>LETTERS[km1]</a>
+<a class="sourceLine" id="cb110-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb110-4" data-line-number="4"><span class="co">##Plot</span></a>
+<a class="sourceLine" id="cb110-5" data-line-number="5">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">color=</span>km1)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrfive-1.png" width="6000" /></p>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb111-1" data-line-number="1"><span class="co">##Run kmeans again</span></a>
+<a class="sourceLine" id="cb111-2" data-line-number="2">km2 &lt;-<span class="st"> </span><span class="kw">kmeans</span>(df[, <span class="kw">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="dt">centers=</span><span class="dv">5</span>, <span class="dt">algorithm =</span><span class="st">&quot;Forgy&quot;</span>)<span class="op">$</span>cluster</a>
+<a class="sourceLine" id="cb111-3" data-line-number="3">df<span class="op">$</span>km2 &lt;-<span class="st"> </span>LETTERS[km2]</a>
+<a class="sourceLine" id="cb111-4" data-line-number="4">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">color=</span>km2)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrfive-2.png" width="6000" /></p>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb112-1" data-line-number="1"><span class="co">## Automatically try several different starting points</span></a>
+<a class="sourceLine" id="cb112-2" data-line-number="2">km3 &lt;-<span class="st"> </span><span class="kw">kmeans</span>(df[, <span class="kw">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="dt">centers=</span><span class="dv">5</span>, <span class="dt">algorithm =</span><span class="st">&quot;Forgy&quot;</span>, <span class="dt">nstart=</span><span class="dv">10</span>)<span class="op">$</span>cluster</a></code></pre></div>
 <pre><code>## Warning: did not converge in 10 iterations
 
 ## Warning: did not converge in 10 iterations</code></pre>
-<p><img src="sessions-probdescinfe_files/figure-html/exrfive-3.png" width="2100" /></p>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb114-1" data-line-number="1">df<span class="op">$</span>km3 &lt;-<span class="st"> </span>LETTERS[km3]</a>
+<a class="sourceLine" id="cb114-2" data-line-number="2">df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x=</span>x, <span class="dt">y=</span>y, <span class="dt">color=</span>km3)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrfive-3.png" width="6000" /></p>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" data-line-number="1"><span class="co">## Try different k and compute within sum of squares</span></a>
+<a class="sourceLine" id="cb115-2" data-line-number="2">WSS &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="cf">function</span>(k) <span class="kw">kmeans</span>(df[, <span class="kw">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="dt">centers=</span>k, <span class="dt">algorithm =</span><span class="st">&quot;Forgy&quot;</span>, <span class="dt">nstart=</span><span class="dv">10</span>, <span class="dt">iter.max=</span><span class="dv">20</span>)<span class="op">$</span>tot.withinss)</a></code></pre></div>
 <pre><code>## Warning: did not converge in 20 iterations</code></pre>
-<p><img src="sessions-probdescinfe_files/figure-html/exrfive-4.png" width="2100" /></p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1"><span class="kw">plot</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, WSS)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrfive-4.png" width="6000" /></p>
 <p><a href="session-clustering.html#exr:NCI60">4.2</a></p>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1">nci.data &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv&quot;</span>, <span class="dt">sep=</span><span class="st">&quot;,&quot;</span>,<span class="dt">row.names=</span><span class="dv">1</span>,<span class="dt">header=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb118-2" data-line-number="2">nci.label &lt;-<span class="st"> </span><span class="kw">scan</span>(<span class="st">&quot;https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label&quot;</span>, <span class="dt">what=</span><span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb118-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb118-4" data-line-number="4"><span class="co">## Size of data matrix (first number is rows, second number of columns)</span></a>
+<a class="sourceLine" id="cb118-5" data-line-number="5"><span class="kw">dim</span>(nci.data)</a></code></pre></div>
 <pre><code>## [1] 6830   64</code></pre>
-<p><img src="sessions-probdescinfe_files/figure-html/exrnci-1.png" width="2100" /><img src="sessions-probdescinfe_files/figure-html/exrnci-2.png" width="2100" /><img src="sessions-probdescinfe_files/figure-html/exrnci-3.png" width="2100" /></p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1"><span class="co">## Euclidean distance</span></a>
+<a class="sourceLine" id="cb120-2" data-line-number="2">deucl &lt;-<span class="st"> </span><span class="kw">dist</span>(<span class="kw">t</span>(nci.data), <span class="dt">method =</span> <span class="st">&quot;euclidean&quot;</span>)</a>
+<a class="sourceLine" id="cb120-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb120-4" data-line-number="4"><span class="co">## Complete linkage</span></a>
+<a class="sourceLine" id="cb120-5" data-line-number="5">hcl &lt;-<span class="st"> </span><span class="kw">hclust</span>(deucl, <span class="dt">method =</span> <span class="st">&quot;complete&quot;</span>)</a>
+<a class="sourceLine" id="cb120-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb120-7" data-line-number="7"><span class="co">## plot the dendrogram</span></a>
+<a class="sourceLine" id="cb120-8" data-line-number="8"><span class="kw">plot</span>(hcl, <span class="dt">labels=</span>nci.label)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrnci-1.png" width="6000" /></p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1"><span class="kw">plot</span>(hcl, <span class="dt">labels=</span>nci.label, <span class="dt">hang=</span><span class="op">-</span><span class="dv">1</span>)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrnci-2.png" width="6000" /></p>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1"><span class="co">## Compute using other linkage methods</span></a>
+<a class="sourceLine" id="cb122-2" data-line-number="2">hsl &lt;-<span class="st">  </span><span class="kw">hclust</span>(deucl, <span class="dt">method =</span> <span class="st">&quot;single&quot;</span>)</a>
+<a class="sourceLine" id="cb122-3" data-line-number="3">hal &lt;-<span class="st">  </span><span class="kw">hclust</span>(deucl, <span class="dt">method =</span> <span class="st">&quot;average&quot;</span>)</a>
+<a class="sourceLine" id="cb122-4" data-line-number="4">hwl &lt;-<span class="st">  </span><span class="kw">hclust</span>(deucl, <span class="dt">method =</span> <span class="st">&quot;ward.D&quot;</span>)</a>
+<a class="sourceLine" id="cb122-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb122-6" data-line-number="6"><span class="co">##Plot using same command as above</span></a>
+<a class="sourceLine" id="cb122-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb122-8" data-line-number="8"><span class="co">## Pearson correlation</span></a>
+<a class="sourceLine" id="cb122-9" data-line-number="9">r &lt;-<span class="st"> </span><span class="kw">cor</span>(nci.data, <span class="dt">method =</span> <span class="st">&quot;pearson&quot;</span>)</a>
+<a class="sourceLine" id="cb122-10" data-line-number="10">dcor &lt;-<span class="st"> </span><span class="kw">as.dist</span>(<span class="kw">sqrt</span>(<span class="dv">1</span><span class="op">-</span>r))</a>
+<a class="sourceLine" id="cb122-11" data-line-number="11">hcor &lt;-<span class="st"> </span><span class="kw">hclust</span>(dcor, <span class="dt">method=</span><span class="st">&quot;complete&quot;</span>)</a>
+<a class="sourceLine" id="cb122-12" data-line-number="12"><span class="kw">plot</span>(hcor, <span class="dt">labels=</span>nci.label)</a></code></pre></div>
+<p><img src="sessions-probdescinfe_files/figure-html/exrnci-3.png" width="6000" /></p>
 </div>
 </div>
 </div>

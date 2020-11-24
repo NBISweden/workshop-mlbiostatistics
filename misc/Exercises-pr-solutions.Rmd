@@ -1,0 +1,190 @@
+---
+title: "Exercises-pr-solutions"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE)
+```
+
+Exercise 1.1 When tossing a fair coin a) what is the probability of heads? b) what is the probability of tails?
+a) 0.5
+b) 0.5
+
+Exercise 1.2 When tossing a fair six-sided die a) what is the probability of getting 6? b) what is the probability of an even number? c) what is the probability of getting 3 or more? d) what is the expected value of dots on the die?
+```{r}
+# a)
+1/6
+
+# b) 
+length(c(2,4,6))/length(c(1,2,3,4,5,6))
+
+# c) 
+length(c(3,4,5,6))/length(c(1,2,3,4,5,6))
+
+# d) 
+mean(c(1,2,3,4,5,6))
+
+```
+Exercise 1.3 In a single coin toss the probability of heads is 0.5.
+In 20 coin tosses,
+a) what is the probability of exactly 15 heads?
+b) what is the probability of less than 7 heads?
+c) What is the most probable number of heads?
+d) what is the probability of 5 tails or less?
+e) what is the probability of 2 heads or less?
+```{r}
+Nheads <- replicate(10000, {
+  coins <- sample(c("H", "T"), size=20, replace=TRUE)
+  sum(coins == "H")
+})
+
+# a) 
+round(sum(Nheads == 15)/length(Nheads), 3)
+
+# b) 
+round(sum(Nheads < 7)/length(Nheads), 3)
+
+# c) 
+mean(Nheads)
+
+# d) 
+Nheads <- replicate(10000, {
+  coins <- sample(c("H", "T"), size=20, replace=TRUE)
+  sum(coins == "T")
+})
+round(sum(Nheads <= 5)/length(Nheads), 3)
+
+# e) 
+sum(Nheads <= 2)/length(Nheads)
+
+```
+Exercise 1.4 When rolling 10 six-sided dice, study the number of sixes.
+a) Define the random variable of interest
+b) What are the possible outcomes?
+c) Using simulation, estimate the probability mass function
+```{r}
+
+Nheads <- replicate(10000, {
+  dice <- sample(c(1,2,3,4,5,6), size=10, replace=TRUE)
+  sum(dice == "6")
+})
+
+
+
+```
+
+
+d) what is the probability to get at least 5 sixes?
+```{r}
+
+Nheads <- replicate(10000, {
+  dice <- sample(c(1,2,3,4,5,6), size=10, replace=TRUE)
+  sum(dice == "6")
+})
+
+sum(Nheads >= 5) / length(Nheads)
+
+```
+
+e) Which is the most likely number of sixes?
+```{r}
+
+# you can read it from histogram, here 1
+hist(Nheads)
+
+```
+
+f) What is the probability to get exactly 2 sixes?
+```{r}
+sum(Nheads == 6) / length(Nheads)
+```
+
+g) On average how many sixes do you get when throwing ten dice?
+```{r}
+mean(Nheads)
+```
+
+Exercise 1.5 A deck of cards consists of 52 cards; 13 diamonds, 13 spades, 13 hearts and 13 clubs. When five cards are randomly selected (a poker hand), what is the probability of getting all hearts?
+```{r}
+Nhearts <- replicate(10000, {
+  cards <- sample(c(rep("D", 13), rep("S", 13), rep("H", 13), rep("C", 13)), size=5, replace=FALSE)
+  sum(cards == "D")
+})
+sum(Nhearts == 5)/length(Nheads)
+
+```
+
+Exercise 1.6 30% of a large population is allergic to pollen. If you randomly select 3 people to participate in your study, what is the probability than none of them will be allergic to pollen?
+```{r}
+
+Nhealthy<- replicate(10000, {
+  people <- sample(c(rep("H", 7), rep("A", 3)), size=3, replace=TRUE)
+  sum(people == "H")
+})
+sum(Nhealthy == 3)/length(Nhealthy)
+
+
+# with binom()
+# success: being allergic
+# failure: being healthy 
+# 0 successes in 3 attempts with probability success 3/10
+pbinom(0, 3, prob  = 3/10)
+
+```
+
+Exercise 1.7 In a class of 20 students, 6 are allergic to pollen. If you randomly select 3 of the students to participate in your study, what is the probability than none of them will be allergic to pollen?
+
+```{r}
+
+Nhealthy<- replicate(10000, {
+  people <- sample(c(rep("H", 14), rep("A", 6)), size=3, replace=FALSE)
+  sum(people == "H")
+})
+sum(Nhealthy == 3)/length(Nhealthy)
+
+# with binom()
+# success: being allergic
+# failure: being healthy 
+# 0 successes in 3 attempts with probability success 3/10
+pbinom(0, 3, prob  = 3/10)
+
+
+
+
+```
+Exercise 1.8 Of the 200 persons working at a company, 60 are allergic to pollen. If you randomly select 3 people to participate in your study, what is the probability that none of them are allergic to pollen?
+```{r}
+Nhealthy<- replicate(10000, {
+  people <- sample(c(rep("H", 140), rep("A", 60)), size=3, replace=FALSE)
+  sum(people == "H")
+})
+sum(Nhealthy == 3)/length(Nhealthy)
+
+```
+
+Exercise 1.9 Compare your results in 1.6, 1.7 and 1.8. Did you get the same results? Why/why not?
+In 1.6 we sample with replacement, in 1.7 and 1.8 we sample without replacement (we cannot pick the same person twice from a class or a company)
+```{r}
+
+pbinom()
+
+```
+
+
+Exercise 1.10 Do exercises 1.6, 1.7 and 1.8 again, but using parametric distributions. Compare your results.
+1.6 
+```{r}
+
+
+
+```
+
+
+1.7 
+```{r}
+phyper(20, 200, 20000-200, 1000, lower.tail = FALSE)
+#k = 20
+# 
+```
+In a class of 20 students, 6 are allergic to pollen. If you randomly select 3 of the students to participate in your study, what is the probability than none of them will be allergic to pollen?
