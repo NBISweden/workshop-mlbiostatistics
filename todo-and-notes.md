@@ -12,6 +12,7 @@ title:  'To Do'
 - move more of the probability to the course?
 - add some basic R tutorial (see what we are covering and make exercises for that)
 - add finding the best number of clusters in k-means
+- suggestion from a student: start each session with why we are learning a thing (biological example) and then go into how. 
 
 ## Content adjustments
 - more time to go through each individual thing
@@ -28,7 +29,7 @@ title:  'To Do'
 - add at the end of chapters: similar methods, methods extensions, i.e. where to go next
 - same dataset throughout the week? make up one with toxicity levels, gene expression response, 2 groups, count data of number of mutations
 - pipeline of analysis: data cleaning, data exploration and then biostatistics and machine learning  
-- p-value of the lm model 
+- p-value of the lm model
 
 ## Select students a bit better
 - it is introductory course
