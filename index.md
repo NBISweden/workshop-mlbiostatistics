@@ -3,6 +3,9 @@ layout: default
 title:  'Introduction to biostatistics and machine learning'
 ---
 
+Note: we are building a new website for 2021 course, running online 2021-10-04 - 2021-10-08. Application is open [here](https://forms.gle/w4WLmuLAX8pUWydm8)
+
+
 ##### <img border="0" src="icons/info.svg" width="40" height="40"> Introduction to biostatistics and machine learning
 National course open for PhD students, postdocs, researchers and other employees in need of biostatistical skills within all Swedish universities.  The course is geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods. It would also suit those already applying biostatistical methods but have never got a chance to reflect on and truly grasp the basic statistical concepts, such as the commonly misinterpreted p-value.
 
