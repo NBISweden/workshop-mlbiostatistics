@@ -3,7 +3,7 @@ layout: default
 title:  'Introduction to biostatistics and machine learning'
 ---
 
-Note: we are building a new website for 2021 course, running online 2021-10-04 - 2021-10-08. Application is open [here](https://forms.gle/w4WLmuLAX8pUWydm8)
+Note: we are building a new website for 2021 course. At the moment, the website contains schedule and materials from 2020.
 
 
 ##### <img border="0" src="icons/info.svg" width="40" height="40"> Introduction to biostatistics and machine learning
@@ -11,15 +11,14 @@ National course open for PhD students, postdocs, researchers and other employees
 
 <br/>
 ##### <img border="0" src="icons/calendar-date.svg" width="40" height="40"> Next course
-- 16th - 20th, November, 2020
-- Online ~~SciLifeLab, Uppsala University, BMC, Husargatan 3, E10:1308~~
+- 4th - 8th October, 2021
+- Online
 
 
 
 <br/>
 ##### <img border="0" src="icons/application.svg" width="40" height="40"> Application & Registration of interest
-- Application is now **closed**
-- Sign up [here](https://forms.gle/HFupumprMDaQfjRQA) and we will notify you when the application for the next course opens
+- Application is now [open](https://forms.gle/w4WLmuLAX8pUWydm8)
 <!-- - Application is **open**  Apply [here](https://forms.gle/wsjYYuujFMhUc2FV7) -->
 
 
@@ -29,24 +28,24 @@ National course open for PhD students, postdocs, researchers and other employees
 <br/>
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Important dates
 
-- Application open: February, 14th, 2020
-- Application deadline: September, 14th, 2020
-- Confirmation to accepted students: October, 2nd, 2020
-- Course days: 16th - 20th, November, 2020
+- Application opens: now
+- Application deadline: 21st of August, 2021
+- Confirmation to accepted students: 1st of September, 2021
+- Course days: 4th - 8th October, 2021
 
 
 <br/>
 
 ##### <img border="0" src="icons/content.svg" width="40" height="40"> Course content
-- Short introduction to R with R-Studio
 - Probability theory
 - Hypothesis testing and confidence intervals
 - Resampling
-- Linear and logistic regression methods
-- Model selection
+- Linear regression methods
+- Introduction to generalized linear models
+- Model evaluation
 - Unsupervised learning incl. clustering and dimension reduction methods
 - Supervised learning incl. classification
-- Primer on decision trees and Artificial Neural Networks
+
 
 
 <br/>
@@ -57,39 +56,28 @@ In this course we focus on an active learning approach. The course participants 
 <br/>
 
 ##### <img border="0" src="icons/enter.svg" width="40" height="40"> Entry requirements
-- No prior biostatistical knowledge is assumed
+- Basic R programming skills
 - BYOL (bring your own laptop) with R and RStudio installed
+- No prior biostatistical knowledge is assumed
 
 <br/>
 
 ##### <img border="0" src="icons/selection.svg" width="40" height="40"> Selection criteria
- - Due to limited space the course can accommodate maximum of 25 participants. If we receive more applications, participants will be selected based on several criteria. Selection criteria include correct entry requirements, motivation to attend the course as well as gender and geographical balance.
+ - The course can accommodate maximum of 25 participants. If we receive more applications, participants will be selected based on several criteria. Selection criteria include correct entry requirements, motivation to attend the course as well as gender and geographical balance.
  - NBIS prioritises academic participants (students, staff, affiliated researchers) in Sweden. We can accept participants from industry and/or outside Sweden if we have seats available and the requirements criteria are met.
 
 <br/>
 ##### <img border="0" src="icons/fees.svg" width="40" height="40"> Fees
-- A course fee of 2000 SEK will be invoiced to accepted participants.
+- This online training event has no fee. However, if you accept a position at the workshop and do not participate (no-show) you will be invoiced 2000 SEK.
 - For non-academic participants the fee may vary (VAT)
-- The fee includes lunches, coffee and snacks.
 - Please note that we cannot invoice individuals.
 
-<br/>
-##### <img border="0" src="icons/travel-01.svg" width="40" height="40"> Travel & accommodation
-Unfortunately we do not have resources to financially or logistically support travelling arrangements.
 
 <br/>
 ##### <img border="0" src="icons/diploma.svg" width="40" height="40"> Course credits
 - Upon successful course completion, assessed based on active participation in all course session, we will issue a course certificate.
 
 - Please note that we are **not** able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40 h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.
-
-
-<br/>
-##### <img border="0" src="icons/virus.svg" width="40" height="40"> COVID-19
-- We are following responsible authorities' and university's recommendations when organising the course. Especially, to enable keeping the recommend social distance, the course is limited to 20 students and held in a large room, sitting up to 48 people. We will also set-up help desks do be able to help out with coding issues while keeping the recommended distance.
-- If we cannot run the course on site, due to change in authorities' recommendations, we will run the course online, free of charge.  
-
-
 
 <br/>
 ##### <img border="0" src="icons/team.svg" width="40" height="40"> Teaching team

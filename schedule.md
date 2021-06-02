@@ -1,9 +1,10 @@
 ---
 layout: default
-title:  'Schedule'
+title:  'Schedule 2020'
 ---
 
-##### <img border="0" src="icons/schedule-02.svg" width="40" height="40"> Schedule
+
+##### <img border="0" src="icons/schedule-02.svg" width="40" height="40"> Schedule 2020
 <br/>
 ##### Monday 2020-11-16
 
@@ -121,7 +122,7 @@ title:  'Schedule'
 
 **anytime** [Test yourself](https://docs.google.com/forms/d/e/1FAIpQLSclULhwNzB0v7V4fVfS9KGe3JLp7WEY5ZWZq1WkP8D--YG2JA/viewform?usp=sf_link) (online support)
 
-**anytime** [Feedback survey](https://docs.google.com/forms/d/e/1FAIpQLSffJNwmSt6vr-LMuH0gmEXk6fjUjpONkZ7tI5QHGlwJLYowdQ/viewform?usp=sf_link) 
+**anytime** [Feedback survey](https://docs.google.com/forms/d/e/1FAIpQLSffJNwmSt6vr-LMuH0gmEXk6fjUjpONkZ7tI5QHGlwJLYowdQ/viewform?usp=sf_link)
 
 
 <br/><br/>
