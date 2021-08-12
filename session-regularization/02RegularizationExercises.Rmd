@@ -1,0 +1,444 @@
+
+# Exercises
+
+## Data
+
+We will here use biological experimental data, more specifically a skeletal muscle gene expression subset (randomly sampled 1000 genes) from GTEX Human Tissue Gene Expression Consortium ([Lonsdale et al. 2013](https://www.nature.com/articles/ng.2653)). We will use the approaches we learned above to perform feature selection on this data with respect to a logicit regression analysis.
+
+### Task| `Load the GTEX muscle expression data`
+
+* Load the data from the file `GTEX/GTEX_SkeletalMuscles_157Samples_1000Genes.txt` into a data.frame `X`. 
+* Check the dimensions of `X` 
+* Optionally, you can preview `X` using the function `datatable(X)`:
+
+```{r, echo =T, eval=FALSE}
+X<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_1000Genes.txt", header=TRUE, row.names=1, check.names=FALSE, sep="\t")
+X<-X[,colMeans(X)>=1]
+
+dim(X)
+library(DT)
+datatable(X)
+```
+
+<details>
+<summary> *Show result*</summary>
+```{r, fig.width=10, fig.height=8, echo=FALSE}
+X<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_1000Genes.txt", header=TRUE, row.names=1, check.names=FALSE, sep="\t")
+X<-X[,colMeans(X)>=1]
+
+dim(X)
+library(DT)
+datatable(X)
+```
+</details>
+
+#### Think about
+* What are the dimensions of `X`? What does this mean for multivariate analysis?
+
+<details>
+<summary> Some possible answers </summary>
+<h4>Some possible answers</h4>
+* We can see that the gene expression data set includes p = `r ncol(X)` expressed genes (features) and n = `r nrow(X)` samples, i.e., there are more variables than samples (p >> n). 
+* We do not have power to estimate a multivariate model including all variables; we need to do feature selection.
+
+***
+</details>
+
+<br>
+The phenotype of interest that we address address is *Gender*, i.e. we will figure out which of the `r ncol(X)` genes expressed in human skeletal muscles drive the phenotypic difference between Males and Females. 
+
+### Task| `Load the GTEX Gender data`
+
+* Load the Gender data for the GTEX samples from the file `GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt` in to a variale `Y` (Hint: keep only the variable `Gender`)
+* Check that the the number of samples corresponds to `X` and how many women and men there are.
+
+```{r, echo =T, eval=FALSE}
+Y<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt", header=TRUE, sep="\t", stringsAsFactors=TRUE)$GENDER
+
+summary(Y)
+length(Y)
+```
+
+<details>
+<summary> *Show result*</summary>
+```{r, fig.width=10, fig.height=8}
+Y<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt", header=TRUE, sep="\t", stringsAsFactors=TRUE)$GENDER
+
+summary(Y)
+length(Y)
+```
+The samples includes 99 Males and 58 Females, it is not perfectly balanced but still not too bad. 
+</details>
+
+### Task| `Visualize the data`
+* Do a PCA analysis of `X` and color/group them by `Y`
+* Do a barplot of explained variance per principal component
+
+```{r, echo =T, eval=FALSE}
+pca.gtex <- prcomp(X, scale=TRUE, center=TRUE)
+
+# sample plot
+pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
+ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  scale_color_manual(values=c("red","blue")) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+# barplot prop variation explained
+x = paste0("PC",1:10)
+# calculate variation explained
+y.var <- pca.gtex$sdev ^ 2
+y.pvar <- y.var/sum(y.var)
+y.pvar<-y.pvar*100
+
+pc_plot=0
+pc_plot = data.frame(x = factor(x, levels=x), y = y.pvar[1:10])
+ggplot(data=pc_plot, aes(x=x, y=y)) +
+  geom_bar(stat="identity") +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("Principal Components") +
+  ylab("Variation explained") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+```
+<details>
+<summary> *Show result*</summary>
+```{r, fig.width=10, fig.height=8}
+## TODO: Adjust this so that it fit what they learnt from Paya
+pca.gtex <- prcomp(X, scale=FALSE, center=TRUE)
+
+# sample plot
+pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
+ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  scale_color_manual(values=c("red","blue")) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+# calculate variation explained
+y.var <- pca.gtex$sdev ^ 2
+y.pvar <- y.var/sum(y.var)
+y.pvar<-y.pvar*100
+# barplot prop variation explained
+x = paste0("PC",1:10)
+y = y.pvar[1:10]
+
+pc_plot=0
+pc_plot = data.frame(x = factor(x, levels=x), y = y)
+ggplot(data=pc_plot, aes(x=x, y=y)) +
+  geom_bar(stat="identity") +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("Principal Components") +
+  ylab("Variation explained") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+```
+
+
+The PCA plot demonstrates that there is a lot of variation between samples with respect to both PC1 and PC2, but there is no clear segregation of Males and Females based on their skeletal muscle gene expression data.
+
+***
+</details>
+
+We want to investigate if there are a subset of genes that are associated to the phenotype *Gender*, that is, we want to do find optimal multivariate regression analyses. 
+Since *Gender* is a binary variable, it is appropriate to use logistic *GLM* (`glm` with `family=binomial()`) for all analyses.
+However, as suggested by the PCA, the majority of genes are probably not associated to *Gender*. Hence we want to perform *feature selection* to identify a, hopefully, optimal multivariate model to use. 
+
+
+## Model testing
+
+###  AIC (BIC)
+
+
+Coming from a _information theory_ base, Hirotugu Akaike came up with a very similar approach for the overfitting problem.
+
+The Akaike information criterion (AIC), for a model $m$ with variables $X$, is defined as
+
+  $$AIC_m = 2\# X - 2\log \max L[{\beta}|X,Y]$$
+
+We see that $AIC_m = -2 \left(\log \max L[{\beta}|X,Y] - \#X\right)$, i.e., $-2$ times the the simple $\log rL$, we just looked at in our first regularization example. 
+    
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+
+From a information theory perspective, the difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
+
+***
+</details>
+    
+Sometimes, the *relative likelihood* for model $m$ is used, which is
+      $$relL = e^\frac{ AIC_{min} - AIC_{m} }{2}$$
+where $AIC_{min}$ is the minimum AIC among a set of compared models
+      
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+
+* $relL$ can be interpreted as proportional to the probability that the model $m$ minimizes the information loss.
+<!--       and can be interpreted as -->
+<!-- $rL \propto Pr[m\textrm{ minimizes estimated information loss}]$. -->
+
+   * Notice that,  
+$$relL = \frac{\max L[{\beta}_{m}|X_m,Y]}{\max L[{\beta}_{min}|X_{min},Y]} \times e^{-\left(\#X_{m}-\#X_{min}\right)}$$
+
+   we see that $rL$ can be viewed as a  likelihood ratio weighted by a function of the difference in number of $X$ variables.
+* However, AIC are not limited to nested models
+
+***
+</details>
+
+
+
+
+We will first try to use AIC to determine the best multivariate model. A main decision is to choose the order in which to add variables to models. To help with that, we will first perform univariate regressions. 
+
+### Task| `AIC`
+* Perform separate univariate logistic regression ($logit(Y)\sim\beta X$) analyses for all genes of `X`
+    - Collect the Gene name, P-values and Odds ratios (or alternatively the coeficients) in a data.frame *univariateResults* (one row per gene)
+        - Hint: use `coef(summary(<your glm model>)` to extract P-values and coefficients
+    - Also add a column with adjusted p-values to the data.frame
+    - Optionally show the new data.frame in a `datatable`
+* Write an R function `doAIC` that performs a AIC analysis on multivariate GLMs including sequentially more genes from a given matrix `myX` and a fixed outcome `mY` in the models.
+    - Hints:
+        1. Reuse code from the [Naive regularization example task above](.Example | `A naive regularization model`). 
+        2. Use `myX[,seq(1, i)]` to get the use only the `i` first columns of `myX`.
+        3. Use `as.matrix` to convert the given subsetted `X` data.frame to a matrix before using it in the GLM.
+* Try to run `doAIC` using different orderings and subsets of `X` as `myX`, e.g.:
+    - ordered by size of odds ratio, by P-value
+    - top 20, top 100 or only significant P-values (unadjusted or adjusted)
+    
+
+<details>
+<summary> *Possible solutions*</summary>
+#### Univariate analysis
+```{r warning=FALSE, echo=TRUE, eval=FALSE}
+coefs<-vector()
+pvals<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+for(i in 1:dim(X)[2])
+{
+  model = glm(Y~X[,i], family=binomial)
+  coefs=append(coefs, exp(coef(summary(model))[,1][2])) #
+  pvals=append(pvals, coef(summary(model))[,4][2]) #
+}
+univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
+univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
+# Optional
+datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),]) 
+```
+
+```{r warning=FALSE, echo=FALSE}
+coefs<-vector()
+pvals<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+for(i in 1:dim(X)[2])
+{
+  model = glm(Y~X[,i], family=binomial)
+  coefs=append(coefs, exp(coef(summary(model))[,1][2])) #
+  pvals=append(pvals, coef(summary(model))[,4][2]) #
+}
+univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
+univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
+# Optionally uncomment
+#datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),]) 
+
+# Following is just get an output table to the lecture
+univariateResults[order(univariateResults$FDR),][1:10,] %>%
+  kable(, format='html', row.names=F, #col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0
+  )  %>%  kable_styling( font_size = 14)
+```
+
+
+#### doAIC function
+
+```{r warning=FALSE, echo=TRUE}
+library(stats)
+coef<-vector()
+pval<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+
+doAIC<-function(myX, myY){
+  myX = as.matrix(myX)
+  mprev <- glm(myY ~ myX[,1], family=binomial()) # current miminimum AIC model
+  # dummyentry to be replaced
+  aic=data.frame(models=0, aic=0, isAICmin="-") 
+  for(i in seq(1,ncol(myX))){
+    m <- glm(as.numeric(myY) ~ myX[,seq(1,i)]) #, family=binomial())
+    fit = AIC(mprev,m)
+    mprev = m
+    if(i==2){ #include also the first model
+      aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
+    }
+    aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
+  }
+  minaic=min(aic$aic)
+  aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
+  aic$isAICmin = ifelse(aic$aic==minaic,"Yes","-")
+  
+  print("Best model is:")
+  print(aic[aic$isAICmin == "Yes",])
+  # Table of all models
+  kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
+}
+```
+
+#### doAIC| `Sorted on *Odds ratio* -- top 20 genes`
+
+```{r warning=FALSE, echo=TRUE}
+# Add variable according to their odds ratio in univariate logistic regression
+# Use top 20 variables 
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[, head(univariateResults$GENE,20)], Y)
+```
+
+#### doAIC| `Sorted on *Odds ratio* -- top 100 genes`
+
+```{r warning=FALSE, echo=TRUE, echo=TRUE}
+# Add variable according to their odds ratio in univariate logistic regression
+# Use top 100 variables 
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[, head(univariateResults$GENE,100)], Y)
+```
+
+#### doAIC| `Sorted on *P-value* -- top 20 genes`
+
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(univariateResults$PVALUE),]
+doAIC(X[, head(univariateResults$GENE,20)], Y)
+```
+
+#### doAIC| `Sorted on *P-value* -- top 100 genes`
+
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(univariateResults$PVALUE),]
+doAIC(X[, head(univariateResults$GENE,100)], Y)
+```
+
+#### doAIC| `Only significant P-value -- Sorted on *P-value*`
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(univariateResults$PVALUE),]
+doAIC(X[,univariateResults[univariateResults$PVALUE <= 0.05, "GENE"]], Y)
+```
+
+#### doAIC| `Only significant P-value -- Sorted on *Odds ratio*`
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[,univariateResults[univariateResults$PVALUE <= 0.05, "GENE"]], Y)
+```
+
+#### doAICX| `Only significant adjusted p-value (FDR) -- Sorted on *Odds ratio*`
+
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[,univariateResults[univariateResults$FDR <= 0.05, "GENE"]], Y)
+```
+
+***
+
+</details>
+
+#### Think about:
+
+* Could you find a good order to sequentially add variables to the tested models?
+  - How can one solve this otherwise?
+* What's the relation of the best models to the univariate analysis
+
+<details>
+<summary> Some possible answers </summary>
+<h4>Some possible answers</h4>
+
+* It seems very difficult to outline a general approach to sequentially design that works (i.e., finds a minimal model that optimizes AIC)  "out-of-the-box for" for all cases.
+  - Possible other solutions:
+      - Naive clever: run several variants as above and try to manually hand-pick the most likely  variables based on substantial AIC changes when added... difficult!
+      - Clever step-wise addition: Select the most significant univariate model, take its residuals and use as a new phenotype in a second round of univariate analyses, compare AIC to the previous round, iterate!
+      - Raw force: Create models for all possible combinations of variables in `X`, find the model among these that maximises AIC.
+* The univariate analyses comprised only one model with a significant adjusted P-value, while our AIC analysis suggest that there may exist multivariate models that has lower AIC
+  - What could be the reason for this?
+      + The penalty of multiple testing.
+
+***
+</details>
+
+## Fetaure Selection
+
+We now turn to feature selection.  We will use `glmnet` to run LASSO/Ridge regression/Elastic net on a logistic GLM `Y` vs `X` and find an optimal value of $\lambda$ via 10-fold cross-validation. 
+
+### Task| `LASSO`
+
+* Run LASSO on `X` and `Y` with 100-fold cross-validation
+  - Identify the optimal $\lambda$
+      - Optionally, plot the result of the cross-validation
+      - Optionally, plot the traces of $\beta$ for the inclusion of variables in the model.
+* Create a table of the genes included in the optimal LASSO model and their $\beta$, e.g., using `datatable`
+* Run `doAIC` on the subset of `X` corresponding to genes in the optimal LASSO model.
+
+<details>
+<summary> *Possible solutions*</summary>
+
+#### Lasso and optimal lambda
+```{r,fig.width=10,fig.height=8, echo =TRUE}
+library(glmnet)
+par(mfrow=c(1,2))
+# run lasso (alpha=1) for linear model (family=binomial)
+cvglm=cv.glmnet(as.matrix(X),Y, family=binomial(), alpha=1, standardize=T, nfolds=10)
+
+plot(cvglm)
+plot(cvglm$glmnet.fit, xvar="lambda",label=T)
+minlambda=cvglm$lambda.min
+print(minlambda)
+```
+
+#### Feature selection
+Once we know the optimal $\lambda$, we can display the names of the most informative features selected by LASSO for that optimal $\lambda$.
+
+```{r , echo=TRUE, eval=FALSE}
+genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
+betas= data.frame(genes = genes, 
+                  betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
+betas<-betas[order(-abs(betas$betas)), ]
+datatable(betas)
+```
+
+```{r}
+genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
+betas= data.frame(genes = genes, 
+                  betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
+betas<-betas[order(-abs(betas$betas)), ]
+
+betas %>%
+  kable(format='html', row.names=F)  %>%  
+  kable_styling( font_size = 14)
+```
+
+#### AIC of best model
+```{r, warning=FALSE, echo=TRUE}
+doAIC(X[,genes], Y)
+```
+</details>
+
+#### Think about:
+* How does the LASSO result compare to the results form AIC and univariate analyses?
+* Think about the reasons for similarity/dissimilarity
+
+<details>
+<summary> Some possible answers </summary>
+<h4>Some possible answers</h4>
+
+* The features selected by LASSO includes the gene from the univariate approach, but also several others
+  - This is often the case in practice 
+  - Multiple test correction reduces the power of the univariate approach
+* The optimal LASSO model is different from those obtained from the various AIC approach (most likely:); moreover, the optimal LASSO model has a lower AIC than those investigated in the AIC approach (most likely)
+  - In general, unless we test all models corresponding all possible combinatorial subsets of variables or apply some clever search algorithm (similar to the one LASSO uses), we are unlikely to find the optimal model.
+      - Even then, we might get different answers, because the regularization applied in AIC and LASSO are different.
+
+</details>
+
+<br><br><br>
