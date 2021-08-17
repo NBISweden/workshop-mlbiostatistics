@@ -4,6 +4,24 @@ title:  'To Do'
 ---
 
 
+## ToDo
+
+- select students and notify the accepted and non-accepted
+- adjust pre-course, add R section? Move some of the probability theory?
+- set-up Zoom link
+- decide how to take questions from students: Zoom, Zulip, Canvas, other?
+- email out instruction on how to join and pre-course link
+- find TAs
+- go through materials and exercises
+- have basic Canvas functionality
+- add daily quizzes to Canvas
+
+- update "Welcome session" with 2021 graph
+
+
+
+## ToDo
+from 2020
 ## Content
 - overall: go through materials with fresh eyes, make sure we have all solutions
 - improve? daily questions? Leave some mistakes on purpose to get the discussion going?
@@ -12,7 +30,7 @@ title:  'To Do'
 - move more of the probability to the course?
 - add some basic R tutorial (see what we are covering and make exercises for that)
 - add finding the best number of clusters in k-means
-- suggestion from a student: start each session with why we are learning a thing (biological example) and then go into how. 
+- suggestion from a student: start each session with why we are learning a thing (biological example) and then go into how.
 
 ## Content adjustments
 - more time to go through each individual thing
