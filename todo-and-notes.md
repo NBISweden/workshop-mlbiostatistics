@@ -6,23 +6,44 @@ title:  'To Do'
 
 ## ToDo
 
-- select students and notify the accepted and non-accepted
-- adjust pre-course, add R section? Move some of the probability theory?
+Main
+
+- select students and notify the accepted and non-accepted (Eva, Olga)
+- adjust pre-course, add R section? Move some of the probability theory? (Olga, Eva)
 - set-up Zoom link
 - decide how to take questions from students: Zoom, Zulip, Canvas, other?
 - email out instruction on how to join and pre-course link
 - find TAs
-- go through materials and exercises
-- have basic Canvas functionality
-- add daily quizzes to Canvas
+- go through materials and exercises (all)
+- have basic Canvas functionality (Eva, Olga, all)
+- add daily quizzes to Canvas (Olga)
+- check schedule (all)
+- decide groups
+- decide how to run things, like before from Uppsala or all online?
 
-- update "Welcome session" with 2021 graph
+
+Content specific
+
+- update "Welcome session" with 2021 graph (Olga)
+- check "Intro lecture" (Bengt)
+- check "Mathematical Foundation" team session (Olga)
+- check "Daily challenges": have solutions and answers ready (all)
+- check "Probability and Simulations I, II" (mistakes, solutions, add/remove content, add label "supplementary" exercise(s))(Eva, Olga, TAs)
+- check "Descriptive stats" (Eva, Olga, TAs)
+- check "Hypothesis testing I, II, III" (Eva, Olga, TAs)
+- check "Linear models" sections (mistakes, solutions, add/remove content, add label "supplementary" exercise(s))(Olga, Eva, TAs)
+- check "PCA" session (Payam, Olga, TAs): add solutions and/or more exercises?
+- check "Clustering" session (Eva, Olga, TAs)
+- replace "Classification" with "Classification and model evaluation session" or "Supervised learning: classification and model evaluation" (Olga, Eva, TAs)
+- check "Regularization" session (Bengt, Olga, TAs)
+- add "Random Forest" (Payam? Olga?)
+- check course feedback (Olga, Eva)
 
 
 
-## ToDo
-from 2020
-## Content
+## From 2020
+Content
+
 - overall: go through materials with fresh eyes, make sure we have all solutions
 - improve? daily questions? Leave some mistakes on purpose to get the discussion going?
 - Olga: add correct Gini index equation and example to decision tree
@@ -32,7 +53,8 @@ from 2020
 - add finding the best number of clusters in k-means
 - suggestion from a student: start each session with why we are learning a thing (biological example) and then go into how.
 
-## Content adjustments
+Content adjustments
+
 - more time to go through each individual thing
 - free up some time
 - move probability to pre-course
