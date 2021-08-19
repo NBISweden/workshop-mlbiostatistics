@@ -156,7 +156,7 @@ However, as suggested by the PCA, the majority of genes are probably not associa
 
 ## Model testing
 
-###  AIC (BIC)
+###  AIC and BIC
 
 
 Coming from a _information theory_ base, Hirotugu Akaike came up with a very similar approach for the overfitting problem.
@@ -164,17 +164,30 @@ Coming from a _information theory_ base, Hirotugu Akaike came up with a very sim
 The Akaike information criterion (AIC), for a model $m$ with variables $X$, is defined as
 
   $$AIC_m = 2\# X - 2\log \max L[{\beta}|X,Y]$$
+The Bayesian information criterion, ($BIC$), differs by the weighting of $L_0$-norm:
 
-We see that $AIC_m = -2 \left(\log \max L[{\beta}|X,Y] - \#X\right)$, i.e., $-2$ times the the simple $\log rL$, we just looked at in our first regularization example. 
-    
+ $$BIC_m = \log(n)\# X - 2\log \max L[{\beta}|X,Y],$$
+where $n$ is the sample size (number of observations). The two criteria can be written more general as (scaled) regularized likelihood:
+
+$$-2\left( \log L[Y\beta|X,Y] - \lambda ||\beta||_0\right),$$
+with
+
+\begin{eqnarray*}
+\lambda &=& 
+  \begin{cases}
+    1&\textrm{for $AIC$}\\ 
+    \frac{\log n}{2}&\textrm{for $BIC$}
+  \end{cases}.
+\end{eqnarray*}
+
 <details>
 <summary> <span style="color:gray">Extra Reading</span> </summary>
 
-From a information theory perspective, the difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
-
+As mentioned before, we see that $AIC_m = -2 \left(\log \max L[{\beta}|X,Y] - \#X\right)$, i.e., $-2$ times the the simple $\log rL$, we just looked at in our first regularization example. 
 ***
 </details>
-    
+ 
+
 Sometimes, the *relative likelihood* for model $m$ is used, which is
       $$relL = e^\frac{ AIC_{min} - AIC_{m} }{2}$$
 where $AIC_{min}$ is the minimum AIC among a set of compared models
@@ -196,19 +209,36 @@ $$relL = \frac{\max L[{\beta}_{m}|X_m,Y]}{\max L[{\beta}_{min}|X_{min},Y]} \time
 </details>
 
 
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+
+From a information theory perspective, the difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
+
+***
+</details>
 
 
-We will first try to use AIC to determine the best multivariate model. A main decision is to choose the order in which to add variables to models. To help with that, we will first perform univariate regressions. 
+$AIC$ and $BIC$ are implemented in the R base `stat` packages as `AIC(m)` and `BIC(m)`, respecitvely. In their simplest use, a `lm` or `glm` model is given as argument and the value of its $AIC$ and $BIC$, respectively, is returned.
+Simple example use is:
 
-### Task| `AIC`
+```
+m = lm(y~x)
+AIC(m)
+```
+
+### Task| `AIC/BIC`
+
+We will first try to use these criteria to determine the best multivariate model. A main decision is to choose the order in which to add variables to models. To help with that, we will first perform univariate regressions. 
+
+
 * Perform separate univariate logistic regression ($logit(Y)\sim\beta X$) analyses for all genes of `X`
     - Collect the Gene name, P-values and Odds ratios (or alternatively the coeficients) in a data.frame *univariateResults* (one row per gene)
         - Hint: use `coef(summary(<your glm model>)` to extract P-values and coefficients
     - Also add a column with adjusted p-values to the data.frame
     - Optionally show the new data.frame in a `datatable`
-* Write an R function `doAIC` that performs a AIC analysis on multivariate GLMs including sequentially more genes from a given matrix `myX` and a fixed outcome `mY` in the models.
+* Write an R function `doAIC` that performs a AIC or BIC (select one) analysis on multivariate GLMs including sequentially more genes from a given matrix `myX` and a fixed outcome `mY` in the models.
     - Hints:
-        1. Reuse code from the [Naive regularization example task above](.Example | `A naive regularization model`). 
+        1. Reuse code from the [Naive regularization example task above](#naive), but replace the `logLik` call with calls to `AIC` or `BIC`
         2. Use `myX[,seq(1, i)]` to get the use only the `i` first columns of `myX`.
         3. Use `as.matrix` to convert the given subsetted `X` data.frame to a matrix before using it in the GLM.
 * Try to run `doAIC` using different orderings and subsets of `X` as `myX`, e.g.:
@@ -232,7 +262,7 @@ for(i in 1:dim(X)[2])
 univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
 univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
 # Optional
-datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),]) 
+datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),], rownames=FALSE) 
 ```
 
 ```{r warning=FALSE, echo=FALSE}
@@ -248,12 +278,14 @@ for(i in 1:dim(X)[2])
 univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
 univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
 # Optionally uncomment
-#datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),]) 
+univariateResults[order(-abs((1-univariateResults$PVALUE))),]  %>%
+  datatable(rownames=FALSE, 
+            options = list(
+              headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+              ))  %>%
+  formatSignif(columns=c("COEFFICIENTS", "PVALUE","FDR"),digits=3) %>%
+  formatStyle(columns = colnames(univariateResults), fontSize = '75%')
 
-# Following is just get an output table to the lecture
-univariateResults[order(univariateResults$FDR),][1:10,] %>%
-  kable(, format='html', row.names=F, #col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0
-  )  %>%  kable_styling( font_size = 14)
 ```
 
 
@@ -267,17 +299,13 @@ a<-seq(from=0,to=dim(X)[2],by=100)
 
 doAIC<-function(myX, myY){
   myX = as.matrix(myX)
-  mprev <- glm(myY ~ myX[,1], family=binomial()) # current miminimum AIC model
   # dummyentry to be replaced
   aic=data.frame(models=0, aic=0, isAICmin="-") 
   for(i in seq(1,ncol(myX))){
     m <- glm(as.numeric(myY) ~ myX[,seq(1,i)]) #, family=binomial())
-    fit = AIC(mprev,m)
-    mprev = m
-    if(i==2){ #include also the first model
-      aic[i-1,] = list(paste0(i-1," variable"), signif(fit$AIC[1],5), "-") 
-    }
-    aic[i,] = list(paste0(i," variables"), signif(fit$AIC[2],5), "-") 
+#    fit = AIC(m)
+    fit = BIC(m)
+    aic[i,] = list(paste0(i," first variables"), signif(fit,5), "-") 
   }
   minaic=min(aic$aic)
   aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
@@ -285,8 +313,16 @@ doAIC<-function(myX, myY){
   
   print("Best model is:")
   print(aic[aic$isAICmin == "Yes",])
+  names(aic) = colnames=c("Compared models","AIC","Minimum AIC","rL")
+
   # Table of all models
-  kable(aic, format='html', row.names=F, col.names=c("Compared models","AIC","Minimum AIC","rL"),digits=30,format.args=list(snsmall=0))  %>%  kable_styling( font_size = 14)
+  aic %>%
+    datatable(rownames=FALSE, 
+              options = list(
+                headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+              ))  %>%
+    formatSignif(columns=c("AIC", "rL"),digits=3) %>%
+    formatStyle(columns = colnames(aic), fontSize = '75%')
 }
 ```
 
@@ -367,13 +403,19 @@ doAIC(X[,univariateResults[univariateResults$FDR <= 0.05, "GENE"]], Y)
 ***
 </details>
 
-## Fetaure Selection
+## Feature Selection
 
 We now turn to feature selection.  We will use `glmnet` to run LASSO/Ridge regression/Elastic net on a logistic GLM `Y` vs `X` and find an optimal value of $\lambda$ via 10-fold cross-validation. 
 
-### Task| `LASSO`
+The same approach as the one used in [the LASSO example](# Regularization | `LASSO and Feature selection`) can also be used for ridge regression and elastic net, by changing `glmnet` elastic net mixing parameter `alpha`:
 
-* Run LASSO on `X` and `Y` with 100-fold cross-validation
+- `alpha=1` gives LASSO
+- `alpha=0` gives ridge regression
+- `0<alpha<1` gives elastic net
+
+### Task| `LASSO/Ridge Regression/Elastic Net`
+
+* Pick one approach among LSSSO, Ridge Regression or Elastic Net and run it  on `X` and `Y` with 100-fold cross-validation (for elastic net, select an arbitrary value of `alpha`)
   - Identify the optimal $\lambda$
       - Optionally, plot the result of the cross-validation
       - Optionally, plot the traces of $\beta$ for the inclusion of variables in the model.
@@ -383,17 +425,20 @@ We now turn to feature selection.  We will use `glmnet` to run LASSO/Ridge regre
 <details>
 <summary> *Possible solutions*</summary>
 
-#### Lasso and optimal lambda
+#### Example using Lasso and optimal lambda
 ```{r,fig.width=10,fig.height=8, echo =TRUE}
 library(glmnet)
 par(mfrow=c(1,2))
 # run lasso (alpha=1) for linear model (family=binomial)
-cvglm=cv.glmnet(as.matrix(X),Y, family=binomial(), alpha=1, standardize=T, nfolds=10)
+#alpha = 1 #LASSO
+#alpha = 0 # Ridge regression
+alpha = 0.75 # Elastic net, arbitrary value alpha, would be optimized in a real analysis
+cvglm=cv.glmnet(as.matrix(X),Y, family=binomial(), alpha=alpha, standardize=T, nfolds=10)
 
 plot(cvglm)
 plot(cvglm$glmnet.fit, xvar="lambda",label=T)
 minlambda=cvglm$lambda.min
-print(minlambda)
+print(paste0("min lambda (logged) = ", signif(minlambda, 3), " (", signif(log(minlambda), 3), ")"))
 ```
 
 #### Feature selection
@@ -404,40 +449,58 @@ genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
 betas= data.frame(genes = genes, 
                   betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
 betas<-betas[order(-abs(betas$betas)), ]
-datatable(betas)
+betas %>%
+  datatable(rownames=FALSE, 
+            options = list(
+              headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+            ))  %>%
+  formatSignif(columns=c("betas"),digits=3) %>%
+  formatStyle(columns = colnames(betas), fontSize = '75%')
 ```
 
-```{r}
+```{r, echo=FALSE}
 genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
 betas= data.frame(genes = genes, 
                   betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
 betas<-betas[order(-abs(betas$betas)), ]
 
 betas %>%
-  kable(format='html', row.names=F)  %>%  
-  kable_styling( font_size = 14)
+  datatable(rownames=FALSE, 
+            options = list(
+              headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+            ))  %>%
+  formatSignif(columns=c("betas"),digits=3) %>%
+  formatStyle(columns = colnames(betas), fontSize = '75%')
+
 ```
 
 #### AIC of best model
+
+For simplicity, just use your `doAIX` function
 ```{r, warning=FALSE, echo=TRUE}
 doAIC(X[,genes], Y)
 ```
 </details>
 
 #### Think about:
-* How does the LASSO result compare to the results form AIC and univariate analyses?
+* How does the LASSO/Ridge Regression/Elastic Net result compare to the results form AIC/BIC and univariate analyses?
 * Think about the reasons for similarity/dissimilarity
 
 <details>
 <summary> Some possible answers </summary>
 <h4>Some possible answers</h4>
 
-* The features selected by LASSO includes the gene from the univariate approach, but also several others
+* The features selected by LASSO/RIdge Regression/Elastic Net includes the gene from the univariate approach, but also several others
   - This is often the case in practice 
   - Multiple test correction reduces the power of the univariate approach
-* The optimal LASSO model is different from those obtained from the various AIC approach (most likely:); moreover, the optimal LASSO model has a lower AIC than those investigated in the AIC approach (most likely)
-  - In general, unless we test all models corresponding all possible combinatorial subsets of variables or apply some clever search algorithm (similar to the one LASSO uses), we are unlikely to find the optimal model.
-      - Even then, we might get different answers, because the regularization applied in AIC and LASSO are different.
+* The optimal LASSO model is different from those obtained from the various AIC/BIC approach (most likely:); moreover, the optimal LASSO model has a lower AIC/BIC than those investigated in the AIC/BIC approach (most likely)
+* The optimal Ridge Regression model may contain many variables, much more than LASSO, and maybe also than the the best AIC/BIC model. This is because Ridge Regression tend to give unimportant variables very low, but still non-zero $beta$ and is therefore, less effective for feature selection.
+* The optimal Elastic Net model will depend on the arbitrarily chosen values fo `alpha`, but will somewhere in between LASSO and Ridge Regression
+  - In general, unless we test all models corresponding all possible combinatorial subsets of variables or apply some clever search algorithm (similar to the one LASSO uses), we are unlikely to find the optimal model using AIC/BIC.
+     - Even then, we might get different answers, because the regularization applied in AIC/BIC and LASSO are different.
+  - When applied to the data with features selected by LASSO, `doAIC` choses a model that includes all variables -- this is in line with the notion that LASSO approximates $L_0$-based regularization well.
+  - On the other hand, BIC penalization is more strict than AIC and, hence, BIC applied to the LASSo-selected data selects a model with fewer variables than LASSO.
+      
 
 </details>
 
