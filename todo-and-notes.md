@@ -12,14 +12,13 @@ Main
 - select few for the waiting list (Eva)
 - notify the ones on the waiting list (after September 2nd) (Eva)
 - make a final list of students (Olga, Eva)
+- send the students list with invoice information to Jessica Lindberg to add students to Canvas. From NBIS_DEMO instructions: "Upon acceptance to the course, the students will be added by the email that was provided in their application form. This will be done by Jessica Lindberg upon your sending your accepted list of participants and respective invoicing information."
 - decide student groups (4 or 5)
 
-
 - set-up and check Zoom link (Olga, Eva)
-- figure out how we add students to Canvas
+- figure out how we add students to Canvas:
 - check pre-course materials, add links to Canvas
 - email out "pre-course" materials and how to join the course (Zoom, Canvas)
-
 
 - find more TAs (in progress)
 
