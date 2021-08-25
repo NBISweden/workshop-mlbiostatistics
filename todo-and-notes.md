@@ -9,17 +9,25 @@ title:  'To Do'
 Main
 
 - select students and notify the accepted and non-accepted (Eva, Olga)
-- adjust pre-course, add R section? Move some of the probability theory? (Olga, Eva)
-- set-up Zoom link
-- decide how to take questions from students: Zoom, Zulip, Canvas, other?
-- email out instruction on how to join and pre-course link
-- find TAs
-- go through materials and exercises (all)
+- select few for the waiting list (Eva)
+- notify the ones on the waiting list (after September 2nd) (Eva)
+- make a final list of students (Olga, Eva)
+- decide student groups (4 or 5)
+
+
+- set-up and check Zoom link (Olga, Eva)
+- figure out how we add students to Canvas
+- check pre-course materials, add links to Canvas
+- email out "pre-course" materials and how to join the course (Zoom, Canvas)
+
+
+- find more TAs (in progress)
+
+
 - have basic Canvas functionality (Eva, Olga, all)
+- figure out Canvas chat & discussion: taking questions
+- go through materials and exercises (all)
 - add daily quizzes to Canvas (Olga)
-- check schedule (all)
-- decide groups
-- decide how to run things, like before from Uppsala or all online?
 
 
 Content specific
@@ -38,6 +46,16 @@ Content specific
 - check "Regularization" session (Bengt, Olga, TAs)
 - add "Random Forest" (Payam? Olga?)
 - check course feedback (Olga, Eva)
+
+## Zoom link
+-
+
+
+## Take with to Uppsala
+- backup conference camera from G7 (booked)
+- Bose microphone/speaker
+- screen, keyboard, trackpad
+- camera
 
 
 

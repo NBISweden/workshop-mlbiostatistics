@@ -3,6 +3,10 @@ layout: default
 title:  'Schedule 2021'
 ---
 
+Note: depreciated, latest version on
+https://uppsala.instructure.com/courses/51998/pages/preliminary-schedule
+
+
 From Slack
 Monday: introduction (Olga / Bengt), probability theory (Eva)
 Tuesday: descriptive stats and hypothesis testing (Eva)
@@ -14,13 +18,11 @@ Friday: Regularization (Bengt), RandomForest (Olga if Payam says no ;)) (edited)
 <br/>
 ##### Monday 2021-10-04
 
-**09:00 - 09:30** [Welcome](session-welcome/welcome) (Olga, Eva) (live stream)
+**09:00 - 10:00** [Welcome](session-welcome/welcome) (Olga, Eva) (live stream) incl. R/R-Studio & Rmd
 
-**09.30 - 10.00** [Introductory lecture](session-intro2/intro2.html) (Bengt) (live stream)
+**10.00 - 10:30** [Introductory lecture](session-intro2/intro2.html) (Bengt) (live stream)
 
-**10:15 - 11:00** [Setting up: R, R-Studio & Rmd](session-setup/setup) (Olga) (~ 10 min live stream, ~ 35 min online support)
-
-**11.15 - 12:00** [Mathematical foundations](https://jamboard.google.com/d/10iDALt33eDvA-SHTt-tc5m88zK7ftvUFMgNc42biZx8/edit?usp=sharing) (Olga) (~30 min group session, ~15 min live stream)
+**11.00 - 12:00** [Mathematical foundations](https://jamboard.google.com/d/10iDALt33eDvA-SHTt-tc5m88zK7ftvUFMgNc42biZx8/edit?usp=sharing) (Olga) (~30 min group session, ~15 min live stream)
 
 
 *12:00 - 13:00 lunch* (*offline*)
@@ -105,7 +107,7 @@ Friday: Regularization (Bengt), RandomForest (Olga if Payam says no ;)) (edited)
 
 *14.30 - 15.00 break (offline)*
 
-**15:00 - 15.30** [Classification with kNN and decision trees](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html) (Olga) (live stream)
+**15:00 - 15.30** [Introduction to supervised learning: classification and regression](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html) (Olga) (live stream)
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html#exercises-classification) (online support)
 
@@ -120,11 +122,11 @@ Friday: Regularization (Bengt), RandomForest (Olga if Payam says no ;)) (edited)
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 13.30** [Introduction to ANN for classification and regression](session-ann/session-ann) (Bengt)
+**13.00 - 13.30** [Random Forest](session-ann/session-ann) (Bengt)
 
 **13.30 - 14.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/ann-regression-and-classification.html) (online support)
 
-**14.30 - 16.00** Course wrap-up (group session)
+**14.30 - 16.00** Course wrap-up  (group session & and few summary slides)
 
 **anytime** [Daily challenge](https://docs.google.com/forms/d/e/1FAIpQLSclULhwNzB0v7V4fVfS9KGe3JLp7WEY5ZWZq1WkP8D--YG2JA/viewform?usp=sf_link) (online support)
 
