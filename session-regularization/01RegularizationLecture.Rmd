@@ -29,7 +29,7 @@ that is, the probability that the model with parameters $\theta$ and given $X$ g
 
 Likelihood builds on the intuition that if parameters $\theta_T$ is close to the 'truth', then $Pr[Y| X, \theta]$ will be higher for $\theta_T$ than for any more "wrong" parameter $\theta_W$. We should therefore select the $\theta$ that maximizes $Pr[Y| X, \theta]$; this is called maximum likelihood estimation (MLE) of $\theta$.
 
-Since statistical model contain an element of randomness, the reasoning above might not always be correct for any single obeservation. However, if we sum over a large number of observations it will be true on average. Hence the need for datasets that are large enough.
+Since statistical model contain an element of randomness, the reasoning above might not always be correct for any single observation. However, if we sum over a large number of observations it will be true on average. Hence the need for datasets that are large enough.
 
 To formalize this intuition, Edwards (1972) defined the likelihood of model parameters being true given observed data as
 
@@ -84,7 +84,7 @@ As mentioned above, the logarithm of the likelihood, the logLikelihood, $\log L[
 
 Likelihood and maximum likelihood estimation are central concepts in statistics. Many statistical tests and methods uses or is based on the concept of maximum likelihood.
 
-(In the following, I will simplify notation and not differentiate between etimates and random variables, e.g., $\theta$ will be used also for $\widehat\theta$.)
+(In the following, I will simplify notation and not differentiate between estimates and random variables, e.g., $\theta$ will be used also for $\widehat\theta$.)
 
 
 ## Likelihood | `Likelihood and OLS for linear models`
@@ -175,7 +175,7 @@ P=10 # number of variables
 # 2. Put values into a matrix with N rows and P columns
 X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P)
 
-# generate a y variable from a multivarite lm of 3 first X variables only
+# generate a y variable from a multivariate lm of 3 first X variables only
 # intercept
 b0=3
 # effect sizes for first three variables
@@ -342,7 +342,7 @@ library(kableExtra)
 kable(lrt,"html",row.names=F, col.names=c("Compared models","logL 1st model","logL 2nd model","logLR", "P-value", "Sign at 0.05"),digits=30, format.args=list(snsmall=0)) %>% kable_styling(bootstrap="striped", font_size = 14, full_width=F)
 
 ```
-In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as *linkage disequilibriium*, may cause problems for LRT (*the example is not optimized to show this*).
+In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as *linkage disequilibrium*, may cause problems for LRT (*the example is not optimized to show this*).
 
 
 ***
@@ -387,7 +387,7 @@ print(paste("Model",which(ifelse(rl==maxrl,TRUE,FALSE)), "has the maximum rL"))
 ### Mini-task: Think about:
 
 * Which is the best model? Is this correct compared to our *oracle knowledge*?
-* What an we say about how good is it compared to the other models?
+* What can we say about how good it is compared to the other models?
 * Can you see a drawback in our model testing approach above? If so, how can we solve that?
 
 <details>
@@ -399,7 +399,7 @@ print(paste("Model",which(ifelse(rl==maxrl,TRUE,FALSE)), "has the maximum rL"))
 <details>
 <summary> <span style="color:gray">Extra Reading</span> </summary>
 
-* Sometimes it is desirable to compute a significance for rejecting a model in favour of another model. A NULL distribution for the $relL$ statistic is usally obtained through simulation, e.g., using parameteric bootstrapping.
+* Sometimes it is desirable to compute a significance for rejecting a model in favour of another model. A NULL distribution for the $relL$ statistic is usually obtained through simulation, e.g., using parametric bootstrapping.
 
 ***
 </details>
@@ -416,9 +416,9 @@ print(paste("Model",which(ifelse(rl==maxrl,TRUE,FALSE)), "has the maximum rL"))
 
 LASSO  stands for *Least absolute shrinkage and selection operator* ("shrinkage" is another common term for regularization) and is a method for selecting variables to include in a multivariate model.
 
-Here, we do not explicitly compare two models with different number of variables. Instead all variables are included and the regularization acts upon the values of $\beta$ so that only important variabels have a $\beta_i> 0$.
+Here, we do not explicitly compare two models with different number of variables. Instead all variables are included and the regularization acts upon the values of $\beta$ so that only important variables have a $\beta_i> 0$.
 
-Classical LASSO builds on RSS of a linear regression model $Y \sim X{\beta}$ with regularization
+Classical LASSO builds on RSS (residual sum of squares) of a linear regression model $Y \sim X{\beta}$ with regularization
 
 
 The regularization term $f(\beta) = \lambda\sum_{\beta_i\in\beta} |\beta_i|$
@@ -481,7 +481,7 @@ library(glmnet)
 fit = glmnet(X,Y, family="gaussian", alpha=1, standardize=T)
 ```
 
-* A graphical way to view the result is to `plot` the paths of $\beta$ for increasing vaules of $\lambda$. This plot shows how the $\beta_i$ for different variables $i$ changes with $\lambda$. The plot is perhaps best read from right to left, going from higher and thereby stricter, $\lambda$ values to lower $\lambda$ values including more and more variables/non-zero $\beta_i$.
+* A graphical way to view the result is to `plot` the paths of $\beta$ for increasing values of $\lambda$. This plot shows how the $\beta_i$ for different variables $i$ changes with $\lambda$. The plot is perhaps best read from right to left, going from higher and thereby stricter, $\lambda$ values to lower $\lambda$ values including more and more variables/non-zero $\beta_i$.
 
 ```{r, echo=T, fig.height=5, eval=FALSE} 
 par(mfrow=c(1,1))
@@ -534,7 +534,7 @@ Naturally, we want to minimize $MSE$, i.e., the error of the model. In our LASSO
 
 In cross validation, this approach is emulated by partitioning the data at hand into a *training* and  *validation* data set. The model parameters are estimated ('trained') on the the training data and the validated on the validation data. (Optionally, a *test* partition can be assigned in cross-validation on which the final, selected model is evaluated; this is not employed here).
 
-By chance, this may fail if the partitioning is 'non-representative'. A solution is to repeat the cross-validation procedure with another partioning.
+By chance, this may fail if the partitioning is 'non-representative'. A solution is to repeat the cross-validation procedure with another partitioning.
 
 In $k$-fold cross validation, the original data is split into $k$ sub-datasets $\{D_1,D_2,\ldots, D_k\}$.
 For $i \in \{1,2,\ldots, k\}$, set $D_i$ as the validation data set and the union of the other datasets be the training data. Perform cross validation as above.
@@ -692,13 +692,13 @@ Compare competing models, how much better is the best model.
 
 #### Generalization
 
-In Machine learning the goal is often prediction, i.e., using the estimated model to predict outcoomes $Y'$ from a completely new set of predictords, $X'$. Overfitting will make the estimated model to specialized to prediction of the training outcomes including the noise it contains. 
+In Machine learning the goal is often prediction, i.e., using the estimated model to predict outcomes $Y'$ from a completely new set of predictors, $X'$. Overfitting will make the estimated model to specialized to prediction of the training outcomes including the noise it contains. 
 
 Regularization can therefore be motivated as a technique to improve the generalizability of a learned model by reducing its overfitting to the training data..
 
 #### Feature selection/sparsity
 
-In many applications, e.g., for clinical diagnosis, a small model with few variables explaining the bulk of the outcome is preferred over a detailed model that explains as much of the outcome as possible. In these applications, regularization can be used for selecting the most important features and ignoring the other vasriables.
+In many applications, e.g., for clinical diagnosis, a small model with few variables explaining the bulk of the outcome is preferred over a detailed model that explains as much of the outcome as possible. In these applications, regularization can be used for selecting the most important features and ignoring the other variables.
 
 More generally, sparsity may also lead to more easily interpreted models, e.g., for biological questions.
 
@@ -745,7 +745,7 @@ Here, the $L_0$-norm can also be viewed as the number of variables, $\#X$, inclu
 
 The *Akaike Information Criterion*, $AIC$, as well as the *Bayesian Information Criterion*, $BIC$, for model selection use a logLikelihood penalized with an $L_0$ "norm", with different values of $\lambda$ ($1$ and $ln(n)/2$, respectively).
 
-In fact, regularization with the $L_0$-norm would be the desired approachin most cases. However, as we have seen, finding the optimal model is really hard; in fact this is an *NP-hard* problem. Hence, alternative approaches using other norms has been investigated. 
+In fact, regularization with the $L_0$-norm would be the desired approaching most cases. However, as we have seen, finding the optimal model is really hard; in fact this is an *NP-hard* problem. Hence, alternative approaches using other norms has been investigated. 
 
 #### The $L_1$ norm
 
@@ -767,12 +767,12 @@ Geometrically, the $L_1$-norm is also the *Manhattan distance* from origo.
 So another way of writing LASSO is
 
 $$min\left\{RSS\right\} + \lambda ||\beta||_1.$$
-As we have seen, LASSO is an effective algoritm for regularization with the $L_1$-norm. It also does a decent job of mimicking the $L_0$-"norm", i.e., setting $\beta_i=0$ for certain variables $i$. However, it has been shown that it can occasionally produce non-unique solutions.
+As we have seen, LASSO is an effective algorithm for regularization with the $L_1$-norm. It also does a decent job of mimicking the $L_0$-"norm", i.e., setting $\beta_i=0$ for certain variables $i$. However, it has been shown that it can occasionally produce non-unique solutions.
 
 <details>
 <summary> *Extra reading*</summary>
 
-The absolute value $|x|$ is not differentiable at $x=0$, so neither is the $L_1$-norm. This is a drawback in some Machine Learing approaches, e.g., those using so-called *gradient descent*.
+The absolute value $|x|$ is not differentiable at $x=0$, so neither is the $L_1$-norm. This is a drawback in some Machine Learning approaches, e.g., those using so-called *gradient descent*.
 
 ***
 
@@ -797,12 +797,12 @@ Geometrically, the $L_2$-norm is also the *Euclidean distance* from origo.
 We note that you already have been working with an $L_2-norm$: since $RSS = ||Y-X\beta||_2^2$ is simply the square of the $L_2$ norm of the residuals.
 Similarly, the sample standard deviation could be written using the $L_2$-norm, $sd(x) = \frac{||x-\bar{x}||_2}{\sqrt{n-1}}.$
 
-For regularization, the $L_2$-norm is used in *ridge regression*. Computationally, regularization with an $L_2$-norm is even more efficient than with an $L_1$-norm. It works well to pevent over-fitting, but because it is bad at shrinking $\beta_i$'s all the way to zero, it is not so good for feature selection.
+For regularization, the $L_2$-norm is used in *ridge regression*. Computationally, regularization with an $L_2$-norm is even more efficient than with an $L_1$-norm. It works well to prevent over-fitting, but because it is bad at shrinking $\beta_i$'s all the way to zero, it is not so good for feature selection.
 
 <details>
 <summary> *Extra reading*</summary>
 
-The $L_2$-norm is differentiable at all values, making it usable in Machine Learing approaches using so-called *gradient descent*.
+The $L_2$-norm is differentiable at all values, making it usable in Machine Learning approaches using so-called *gradient descent*.
 
 ***
 

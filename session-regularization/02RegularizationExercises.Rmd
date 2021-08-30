@@ -3,7 +3,7 @@
 
 ## Data
 
-We will here use biological experimental data, more specifically a skeletal muscle gene expression subset (randomly sampled 1000 genes) from GTEX Human Tissue Gene Expression Consortium ([Lonsdale et al. 2013](https://www.nature.com/articles/ng.2653)). We will use the approaches we learned above to perform feature selection on this data with respect to a logicit regression analysis.
+We will here use biological experimental data, more specifically a skeletal muscle gene expression subset (randomly sampled 1000 genes) from GTEX Human Tissue Gene Expression Consortium ([Lonsdale et al. 2013](https://www.nature.com/articles/ng.2653)). We will use the approaches we learned above to perform feature selection on this data with respect to a logistic regression analysis.
 
 ### Task| `Load the GTEX muscle expression data`
 
@@ -45,11 +45,11 @@ datatable(X)
 </details>
 
 <br>
-The phenotype of interest that we address address is *Gender*, i.e. we will figure out which of the `r ncol(X)` genes expressed in human skeletal muscles drive the phenotypic difference between Males and Females. 
+The phenotype of interest that we address is *Gender*, i.e. we will figure out which of the `r ncol(X)` genes expressed in human skeletal muscles drive the phenotypic difference between Males and Females. 
 
 ### Task| `Load the GTEX Gender data`
 
-* Load the Gender data for the GTEX samples from the file `GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt` in to a variale `Y` (Hint: keep only the variable `Gender`)
+* Load the Gender data for the GTEX samples from the file `GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt` in to a variable `Y` (Hint: keep only the variable `Gender`)
 * Check that the the number of samples corresponds to `X` and how many women and men there are.
 
 ```{r, echo =T, eval=FALSE}
@@ -218,7 +218,7 @@ From a information theory perspective, the difference in $AIC$ between two model
 </details>
 
 
-$AIC$ and $BIC$ are implemented in the R base `stat` packages as `AIC(m)` and `BIC(m)`, respecitvely. In their simplest use, a `lm` or `glm` model is given as argument and the value of its $AIC$ and $BIC$, respectively, is returned.
+$AIC$ and $BIC$ are implemented in the R base `stat` packages as `AIC(m)` and `BIC(m)`, respectively. In their simplest use, a `lm` or `glm` model is given as argument and the value of its $AIC$ and $BIC$, respectively, is returned.
 Simple example use is:
 
 ```
@@ -232,7 +232,7 @@ We will first try to use these criteria to determine the best multivariate model
 
 
 * Perform separate univariate logistic regression ($logit(Y)\sim\beta X$) analyses for all genes of `X`
-    - Collect the Gene name, P-values and Odds ratios (or alternatively the coeficients) in a data.frame *univariateResults* (one row per gene)
+    - Collect the Gene name, P-values and Odds ratios (or alternatively the coefficients) in a data.frame *univariateResults* (one row per gene)
         - Hint: use `coef(summary(<your glm model>)` to extract P-values and coefficients
     - Also add a column with adjusted p-values to the data.frame
     - Optionally show the new data.frame in a `datatable`
@@ -415,7 +415,7 @@ The same approach as the one used in [the LASSO example](# Regularization | `LAS
 
 ### Task| `LASSO/Ridge Regression/Elastic Net`
 
-* Pick one approach among LSSSO, Ridge Regression or Elastic Net and run it  on `X` and `Y` with 100-fold cross-validation (for elastic net, select an arbitrary value of `alpha`)
+* Pick one approach among LASSO, Ridge Regression or Elastic Net and run it  on `X` and `Y` with 100-fold cross-validation (for elastic net, select an arbitrary value of `alpha`)
   - Identify the optimal $\lambda$
       - Optionally, plot the result of the cross-validation
       - Optionally, plot the traces of $\beta$ for the inclusion of variables in the model.
@@ -490,12 +490,12 @@ doAIC(X[,genes], Y)
 <summary> Some possible answers </summary>
 <h4>Some possible answers</h4>
 
-* The features selected by LASSO/RIdge Regression/Elastic Net includes the gene from the univariate approach, but also several others
+* The features selected by LASSO/Ridge Regression/Elastic Net includes the gene from the univariate approach, but also several others
   - This is often the case in practice 
   - Multiple test correction reduces the power of the univariate approach
 * The optimal LASSO model is different from those obtained from the various AIC/BIC approach (most likely:); moreover, the optimal LASSO model has a lower AIC/BIC than those investigated in the AIC/BIC approach (most likely)
 * The optimal Ridge Regression model may contain many variables, much more than LASSO, and maybe also than the the best AIC/BIC model. This is because Ridge Regression tend to give unimportant variables very low, but still non-zero $beta$ and is therefore, less effective for feature selection.
-* The optimal Elastic Net model will depend on the arbitrarily chosen values fo `alpha`, but will somewhere in between LASSO and Ridge Regression
+* The optimal Elastic Net model will depend on the arbitrarily chosen values of `alpha`, but will somewhere in between LASSO and Ridge Regression
   - In general, unless we test all models corresponding all possible combinatorial subsets of variables or apply some clever search algorithm (similar to the one LASSO uses), we are unlikely to find the optimal model using AIC/BIC.
      - Even then, we might get different answers, because the regularization applied in AIC/BIC and LASSO are different.
   - When applied to the data with features selected by LASSO, `doAIC` choses a model that includes all variables -- this is in line with the notion that LASSO approximates $L_0$-based regularization well.
