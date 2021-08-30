@@ -2,7 +2,7 @@
 # Learning outcomes
 
 * ML pipeline
-    + preprocessing (scalin,l nrmalization/standardization);
+    + preprocessing (scaling, normalization/standardization);
     + Feature selection
     + Cross-validation
     + Model evaluation
@@ -322,7 +322,9 @@ _Overfitting_
 <summary> <span style="color:gray">Extra Reading</span> </summary>
 <h2> Model comparison | `Likelihood ratio test`</h1>
 
-For nested models $-2 \max LRT$ is $\chi^2(d)$-distributed, with $d=$ the difference in free params in the two models.
+
+For nested models $-2 \max \frac{L[\theta_1|Y,X]}{L[\theta_0|Y,X]}$ is $\chi^2(d)$-distributed, with $d=$ the difference in free parameters in the two models.
+This fors the basis of the *likelihood ratio test*. This is very frequently used with in statistics, but does not perform any regularization. Applying a likelihood ratio test to our data yields the following result:
 
 ```{r, lrt, echo=F}
 library(lmtest)
@@ -462,22 +464,16 @@ The *coordinate descent* algorithm is used in the R package `glmnet`:
 ### Example | `Lasso using the glmnet R-package`
 
 * Use function `glmnet` to perform LASSO analysis on our example data; relevant arguments of the function:
+    + preprocessing
+        + Standardization in `glmnet`:
+$x' = \frac{x-\bar{x}}{\sqrt{\frac{1}{n}\sum_i(x_i-\bar{x})^2}},$
+where $\sqrt{\frac{1}{n}\sum_i(x_i-\bar{x})^2}$ is the uncorrected sample standard deviation.
+          - The variables Y and X must be centered and standardized to ensure that all variables are given equal weight in the model selection.
+          - standardization of $X$ to unit variance in `glmnet` is obtained  by setting the argument `standardize=TRUE` which is the default
+          - the values of $Y$ is always standardized (?) for `family=gaussian` (LASSO)
+            + and the coefficients are back-standardized before reported
     + linear regression (`family='gaussian'` = default)
     + LASSO (`alpha=1` = default)
-    + standardization
-        + The variables Y and X must be centered and standardized to ensure that all variables are given equal weight in the model selection.
-        + standardization of $X$ to unit variance in `glmnet` is obtained  by setting the argument `standardize=TRUE` which is the default
-        + the values of $Y$ is always standardized (?) for `family=gaussian` (LASSO)
-            + and the coefficients are back-standardized before reported
-
-<details> 
-<summary> <span style="color:gray">Extra Reading</span> </summary>
-
-Standardization in `glmnet`:
-$x' = \frac{x-\bar{x}}{1/\sqrt{N}||X-\bar{x}||_2}$
-
-***
-</details>
 
 ```{r, echo=T, eval=TRUE} 
 library(glmnet)
@@ -712,7 +708,7 @@ Many Machine learning techniques uses iteration to improve the model estimate in
 
 A common approach to this problem is to use cross-validation. Here you partition the data into three sets, *training*, *validation*, and *test* data sets. The test data is is not used in the iterations. In each iteration, you train the model on the training data and then evaluate it on the validation data using some loss function. You continue the iterations until the  evaluated loss score is not better than the loss score from the previous iteration; this will be your final model, which is evaluated against the test data.
  
-### Norms
+### Norms {#norms}
 
 *Norms* is a concept that commonly pops up when regularization is discussed.
 
@@ -799,6 +795,7 @@ Geometrically, the $L_2$-norm is also the *Euclidean distance* from origo.
 </details>
 
 We note that you already have been working with an $L_2-norm$: since $RSS = ||Y-X\beta||_2^2$ is simply the square of the $L_2$ norm of the residuals.
+Similarly, the sample standard deviation could be written using the $L_2$-norm, $sd(x) = \frac{||x-\bar{x}||_2}{\sqrt{n-1}}.$
 
 For regularization, the $L_2$-norm is used in *ridge regression*. Computationally, regularization with an $L_2$-norm is even more efficient than with an $L_1$-norm. It works well to pevent over-fitting, but because it is bad at shrinking $\beta_i$'s all the way to zero, it is not so good for feature selection.
 
