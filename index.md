@@ -3,35 +3,13 @@ layout: default
 title:  'Introduction to biostatistics and machine learning'
 ---
 
-Note: we are building a new website for 2021 course. At the moment, the website contains schedule and materials from 2020.
-
 
 ##### <img border="0" src="icons/info.svg" width="40" height="40"> Introduction to biostatistics and machine learning
-National course open for PhD students, postdocs, researchers and other employees in need of biostatistical skills within all Swedish universities.  The course is geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods. It would also suit those already applying biostatistical methods but have never got a chance to reflect on and truly grasp the basic statistical concepts, such as the commonly misinterpreted p-value.
+This is a generic website containing teaching and learning materials used during the "Introduction to biostatistics and machine learning" course organised by NBIS, National Bioinformatics Infrastructure Sweden. The course is open for PhD students, postdocs, researchers and other employees in need of biostatistical skills within all Swedish universities. The materials are geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods.
 
-<br/>
-##### <img border="0" src="icons/calendar-date.svg" width="40" height="40"> Next course
-- 4th - 8th October, 2021
-- Online
+The course is run via Canvas and is advertised via SciLifeLab website [https://www.scilifelab.se/events/#calendar](https://www.scilifelab.se/events/#calendar) and [NBIS website](https://nbis.se/training/events.html).
 
-
-
-<br/>
-##### <img border="0" src="icons/application.svg" width="40" height="40"> Application & Registration of interest
-- Application is now [open](https://forms.gle/w4WLmuLAX8pUWydm8)
-<!-- - Application is **open**  Apply [here](https://forms.gle/wsjYYuujFMhUc2FV7) -->
-
-
-<!-- >*COVID-19 and our event: we are following [Stockholm](https://www.su.se/english/about/news-and-events/information-for-students-and-staff-about-the-coronavirus-1.483182) and [Uppsala University recommendations](https://www.uu.se/en/students/recommendations-on-coronavirus/), incl. on organising events. We are hoping that the course can run as scheduled in May. In case of cancellations due to COVID-19 no fees will be charged, i.e. we warmly encourage your application at this stage and we will be in touch if any changes were to occur.* -->
-
-
-<br/>
-##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Important dates
-
-- Application opens: now
-- Application deadline: 21st of August, 2021
-- Confirmation to accepted students: 1st of September, 2021
-- Course days: 4th - 8th October, 2021
+The latest Canvas course is here: [https://uppsala.instructure.com/courses/51998](https://uppsala.instructure.com/courses/51998).
 
 
 <br/>
@@ -46,6 +24,9 @@ National course open for PhD students, postdocs, researchers and other employees
 - Unsupervised learning incl. clustering and dimension reduction methods
 - Supervised learning incl. classification
 
+
+##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Generic schedule
+A typical schedule is under [Schedule tab](schedule.md). Times and sessions may vary slightly from one course event to another. 
 
 
 <br/>
@@ -68,9 +49,7 @@ In this course we focus on an active learning approach. The course participants 
 
 <br/>
 ##### <img border="0" src="icons/fees.svg" width="40" height="40"> Fees
-- This online training event has no fee. However, if you accept a position at the workshop and do not participate (no-show) you will be invoiced 2000 SEK.
-- For non-academic participants the fee may vary (VAT)
-- Please note that we cannot invoice individuals.
+- Check Canvas website for the latest information.
 
 
 <br/>
@@ -86,8 +65,6 @@ In this course we focus on an active learning approach. The course participants 
 - [Bengt Sennblad][bengt] <<bengt.sennblad@scilifelab.se>>
 - [Payam Emami][payam] <<payam.emami@nbis.se>>  
 - [Mun-Gwan Hong](mungwan) <<mungwan.hong@nbis.se>>
-- [Nima Rafati][nima] <<nima.rafati@nbis.se>>
-- [Lucile Soler][lucile] <<lucile.soler@nbis.se>>
 
 <br/>
 
@@ -96,8 +73,7 @@ In this course we focus on an active learning approach. The course participants 
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
 [payam]: https://nbis.se/about/staff/payam-emami/
 [mungwan]: https://nbis.se/about/staff/mungwan-hong/
-[nima]: https://nbis.se/about/staff/nima-rafati/
-[lucile]: https://nbis.se/about/staff/lucile-soler/
+
 
 ##### <img border="0" src="icons/email.svg" width="40" height="40"> Contact us
 - **edu.ml-biostats@nbis.se**

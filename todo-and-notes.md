@@ -61,7 +61,6 @@ Content specific
 ## From 2020
 Content
 
-- overall: go through materials with fresh eyes, make sure we have all solutions
 - improve? daily questions? Leave some mistakes on purpose to get the discussion going?
 - Olga: add correct Gini index equation and example to decision tree
 - add binomial to pre-course
@@ -96,3 +95,7 @@ Content adjustments
 - spotlight on host for live streaming
 - find a good annotation tool
 - activate students: get them to answer and ask questions
+
+
+# For 2022
+- add pre-course R exercises tailored for the course
