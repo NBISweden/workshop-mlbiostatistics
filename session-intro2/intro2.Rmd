@@ -787,7 +787,7 @@ layout: false
 layout: true
 # Example: Single cell expression data
 
-### Machine learning - Dimensional reduction
+### Unsupervised Machine Learning - Dimensional reduction
 .pull-left[
 ```{r, pca}
 
@@ -831,58 +831,60 @@ print(p)
 layout: false
 layout: true
 
-# Example: Species classification
+# Example: Breast Cancer classification
 
-## Machine learning -- Random forests
+## Supervised Machine learning -- classification
 
-- **Train** ANN to learn feature selection and model selection to predict the right answer.
+- **Train**, e.g., a *Random forest classifier* as a cell-type classifier in single cell RNAseq.
+
+Training data: Breast Cancer Wisconsin Data 
 
 .pull-left[
 
-{{content}}
+X: measures on
+
+1. Clump Thickness
+2. Uniformity of Cell Size
+3. Uniformity of Cell Shape
+4. Marginal Adhesion
+5. Single Epithelial Cell Size
+6. Bare Nuclei
+7. Bland Chromatin
+8. Normal Nucleoli
+9. Mitoses
 
 ]
 .pull-right[
 
-```{python pyann1, echo=F, out.height="100%", fig.align='center', eval=FALSE}
-import numpy as np
-import matplotlib.pyplot as plt
-from draw_neural_net import draw_neural_net
+Y: Breast Cancer class
 
-#--------[1] Input data
-#dataset = np.mat('-1 -1 -1; -1 1 1; 1 -1 1; 1 1 -1')
-#X_train = dataset
-#y_train = np.mat('0; 1; 1; 0')
-#-----2-2-1
-layer_sizes= (4,5,5,5,3)
+1. Benign tumour
+2. Malign tumour
 
-output = [ "COW=0", "DOG=1", "CAT=0" ]
-
-fig = plt.figure(figsize=(12, 12))
-
-ax = fig.gca()
-ignore=ax.axis('off')
-nodeFontSize = 35
-
-draw_neural_net(ax,
-                layerSizes=layer_sizes, 
-                outPrefix = output,
-                nodePrefix = "",
-                inNodePrefix = "",
-                nodeFontSize=nodeFontSize,
-                hideBias = True)
-plt.show()
-```
-
-
-```{r, ann2, fig.height=4,eval=FALSE, EVAL=FALSE}
-layers =list("I"=4, "H1"=5, "H2"=4,"O"=3)
-ylab=c("cat=0", "dog=1", "cow=0")
-plotAnn(layers, cex=1, withY=T, ylab=ylab)
-```
 ]
 
 ---
+
+```{r test}
+library(DiagrammeR)
+DiagrammeR::grViz("digraph {
+
+graph [layout = dot, rankdir = LR]
+node [shape = rectangle, style = filled, fillcolor = Linen]
+
+# label nodes
+inpout [label = 'Mass Spec Data', shape = folder, fillcolor = Beige]
+RF [label = 'Random Forest \n Classifier', shape = folder, fillcolor = Beige]
+output [label =  'Outcome']
+
+
+input -> RF -> output
+
+}")
+#AnotherThing -> SomethingElse
+#'Text with \n line break' -> Whatever
+
+```
 
 ```{r, ann1, results='asis', eval=FALSE} 
 for(row in 1:2){
