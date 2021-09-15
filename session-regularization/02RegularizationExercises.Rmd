@@ -1,0 +1,507 @@
+
+# Exercises
+
+## Data
+
+We will here use biological experimental data, more specifically a skeletal muscle gene expression subset (randomly sampled 1000 genes) from GTEX Human Tissue Gene Expression Consortium ([Lonsdale et al. 2013](https://www.nature.com/articles/ng.2653)). We will use the approaches we learned above to perform feature selection on this data with respect to a logistic regression analysis.
+
+### Task| `Load the GTEX muscle expression data`
+
+* Load the data from the file `GTEX/GTEX_SkeletalMuscles_157Samples_1000Genes.txt` into a data.frame `X`. 
+* Check the dimensions of `X` 
+* Optionally, you can preview `X` using the function `datatable(X)`:
+
+```{r, echo =T, eval=FALSE}
+X<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_1000Genes.txt", header=TRUE, row.names=1, check.names=FALSE, sep="\t")
+X<-X[,colMeans(X)>=1]
+
+dim(X)
+library(DT)
+datatable(X)
+```
+
+<details>
+<summary> *Show result*</summary>
+```{r, fig.width=10, fig.height=8, echo=FALSE}
+X<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_1000Genes.txt", header=TRUE, row.names=1, check.names=FALSE, sep="\t")
+X<-X[,colMeans(X)>=1]
+
+dim(X)
+library(DT)
+datatable(X)
+```
+</details>
+
+#### Think about
+* What are the dimensions of `X`? What does this mean for multivariate analysis?
+
+<details>
+<summary> Some possible answers </summary>
+<h4>Some possible answers</h4>
+* We can see that the gene expression data set includes p = `r ncol(X)` expressed genes (features) and n = `r nrow(X)` samples, i.e., there are more variables than samples (p >> n). 
+* We do not have power to estimate a multivariate model including all variables; we need to do feature selection.
+
+***
+</details>
+
+<br>
+The phenotype of interest that we address is *Gender*, i.e. we will figure out which of the `r ncol(X)` genes expressed in human skeletal muscles drive the phenotypic difference between Males and Females. 
+
+### Task| `Load the GTEX Gender data`
+
+* Load the Gender data for the GTEX samples from the file `GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt` in to a variable `Y` (Hint: keep only the variable `Gender`)
+* Check that the the number of samples corresponds to `X` and how many women and men there are.
+
+```{r, echo =T, eval=FALSE}
+Y<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt", header=TRUE, sep="\t", stringsAsFactors=TRUE)$GENDER
+
+summary(Y)
+length(Y)
+```
+
+<details>
+<summary> *Show result*</summary>
+```{r, fig.width=10, fig.height=8}
+Y<-read.table("GTEX/GTEX_SkeletalMuscles_157Samples_Gender.txt", header=TRUE, sep="\t", stringsAsFactors=TRUE)$GENDER
+
+summary(Y)
+length(Y)
+```
+The samples includes 99 Males and 58 Females, it is not perfectly balanced but still not too bad. 
+</details>
+
+### Task| `Visualize the data`
+* Do a PCA analysis of `X` and color/group them by `Y`
+* Do a barplot of explained variance per principal component
+
+```{r, echo =T, eval=FALSE}
+pca.gtex <- prcomp(X, scale=TRUE, center=TRUE)
+
+# sample plot
+pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
+ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  scale_color_manual(values=c("red","blue")) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+# barplot prop variation explained
+x = paste0("PC",1:10)
+# calculate variation explained
+y.var <- pca.gtex$sdev ^ 2
+y.pvar <- y.var/sum(y.var)
+y.pvar<-y.pvar*100
+
+pc_plot=0
+pc_plot = data.frame(x = factor(x, levels=x), y = y.pvar[1:10])
+ggplot(data=pc_plot, aes(x=x, y=y)) +
+  geom_bar(stat="identity") +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("Principal Components") +
+  ylab("Variation explained") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+```
+<details>
+<summary> *Show result*</summary>
+```{r, fig.width=10, fig.height=8}
+## TODO: Adjust this so that it fit what they learnt from Paya
+pca.gtex <- prcomp(X, scale=FALSE, center=TRUE)
+
+# sample plot
+pca_plot <- data.frame(x = pca.gtex$x[,"PC1"], y = pca.gtex$x[,"PC2"], Groups = Y)
+ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color=Groups)) +
+  scale_color_manual(values=c("red","blue")) +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+# calculate variation explained
+y.var <- pca.gtex$sdev ^ 2
+y.pvar <- y.var/sum(y.var)
+y.pvar<-y.pvar*100
+# barplot prop variation explained
+x = paste0("PC",1:10)
+y = y.pvar[1:10]
+
+pc_plot=0
+pc_plot = data.frame(x = factor(x, levels=x), y = y)
+ggplot(data=pc_plot, aes(x=x, y=y)) +
+  geom_bar(stat="identity") +
+  ggtitle(label="PCA on GTEX Skeletal Muscles") +
+  xlab("Principal Components") +
+  ylab("Variation explained") +
+  theme_bw() +
+  theme(title=element_text(face="bold")) 
+
+```
+
+
+The PCA plot demonstrates that there is a lot of variation between samples with respect to both PC1 and PC2, but there is no clear segregation of Males and Females based on their skeletal muscle gene expression data.
+
+***
+</details>
+
+We want to investigate if there are a subset of genes that are associated to the phenotype *Gender*, that is, we want to do find optimal multivariate regression analyses. 
+Since *Gender* is a binary variable, it is appropriate to use logistic *GLM* (`glm` with `family=binomial()`) for all analyses.
+However, as suggested by the PCA, the majority of genes are probably not associated to *Gender*. Hence we want to perform *feature selection* to identify a, hopefully, optimal multivariate model to use. 
+
+
+## Model testing
+
+###  AIC and BIC
+
+
+Coming from a _information theory_ base, Hirotugu Akaike came up with a very similar approach for the overfitting problem.
+
+The Akaike information criterion (AIC), for a model $m$ with variables $X$, is defined as
+
+  $$AIC_m = 2\# X - 2\log \max L[{\beta}|X,Y]$$
+The Bayesian information criterion, ($BIC$), differs by the weighting of $L_0$-norm:
+
+ $$BIC_m = \log(n)\# X - 2\log \max L[{\beta}|X,Y],$$
+where $n$ is the sample size (number of observations). The two criteria can be written more general as (scaled) regularized likelihood:
+
+$$-2\left( \log L[Y\beta|X,Y] - \lambda ||\beta||_0\right),$$
+with
+
+\begin{eqnarray*}
+\lambda &=& 
+  \begin{cases}
+    1&\textrm{for $AIC$}\\ 
+    \frac{\log n}{2}&\textrm{for $BIC$}
+  \end{cases}.
+\end{eqnarray*}
+
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+
+As mentioned before, we see that $AIC_m = -2 \left(\log \max L[{\beta}|X,Y] - \#X\right)$, i.e., $-2$ times the the simple $\log rL$, we just looked at in our first regularization example. 
+***
+</details>
+ 
+
+Sometimes, the *relative likelihood* for model $m$ is used, which is
+      $$relL = e^\frac{ AIC_{min} - AIC_{m} }{2}$$
+where $AIC_{min}$ is the minimum AIC among a set of compared models
+      
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+
+* $relL$ can be interpreted as proportional to the probability that the model $m$ minimizes the information loss.
+<!--       and can be interpreted as -->
+<!-- $rL \propto Pr[m\textrm{ minimizes estimated information loss}]$. -->
+
+   * Notice that,  
+$$relL = \frac{\max L[{\beta}_{m}|X_m,Y]}{\max L[{\beta}_{min}|X_{min},Y]} \times e^{-\left(\#X_{m}-\#X_{min}\right)}$$
+
+   we see that $rL$ can be viewed as a  likelihood ratio weighted by a function of the difference in number of $X$ variables.
+* However, AIC are not limited to nested models
+
+***
+</details>
+
+
+<details>
+<summary> <span style="color:gray">Extra Reading</span> </summary>
+
+From a information theory perspective, the difference in $AIC$ between two models is claimed to estimate the information lost by selecting the worse model.
+
+***
+</details>
+
+
+$AIC$ and $BIC$ are implemented in the R base `stat` packages as `AIC(m)` and `BIC(m)`, respectively. In their simplest use, a `lm` or `glm` model is given as argument and the value of its $AIC$ and $BIC$, respectively, is returned.
+Simple example use is:
+
+```
+m = lm(y~x)
+AIC(m)
+```
+
+### Task| `AIC/BIC`
+
+We will first try to use these criteria to determine the best multivariate model. A main decision is to choose the order in which to add variables to models. To help with that, we will first perform univariate regressions. 
+
+
+* Perform separate univariate logistic regression ($logit(Y)\sim\beta X$) analyses for all genes of `X`
+    - Collect the Gene name, P-values and Odds ratios (or alternatively the coefficients) in a data.frame *univariateResults* (one row per gene)
+        - Hint: use `coef(summary(<your glm model>)` to extract P-values and coefficients
+    - Also add a column with adjusted p-values to the data.frame
+    - Optionally show the new data.frame in a `datatable`
+* Write an R function `doAIC` that performs a AIC or BIC (select one) analysis on multivariate GLMs including sequentially more genes from a given matrix `myX` and a fixed outcome `mY` in the models.
+    - Hints:
+        1. Reuse code from the [Naive regularization example task above](#naive), but replace the `logLik` call with calls to `AIC` or `BIC`
+        2. Use `myX[,seq(1, i)]` to get the use only the `i` first columns of `myX`.
+        3. Use `as.matrix` to convert the given subsetted `X` data.frame to a matrix before using it in the GLM.
+* Try to run `doAIC` using different orderings and subsets of `X` as `myX`, e.g.:
+    - ordered by size of odds ratio, by P-value
+    - top 20, top 100 or only significant P-values (unadjusted or adjusted)
+    
+
+<details>
+<summary> *Possible solutions*</summary>
+#### Univariate analysis
+```{r warning=FALSE, echo=TRUE, eval=FALSE}
+coefs<-vector()
+pvals<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+for(i in 1:dim(X)[2])
+{
+  model = glm(Y~X[,i], family=binomial)
+  coefs=append(coefs, exp(coef(summary(model))[,1][2])) #
+  pvals=append(pvals, coef(summary(model))[,4][2]) #
+}
+univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
+univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
+# Optional
+datatable(univariateResults[order(-abs((1-univariateResults$PVALUE))),], rownames=FALSE) 
+```
+
+```{r warning=FALSE, echo=FALSE}
+coefs<-vector()
+pvals<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+for(i in 1:dim(X)[2])
+{
+  model = glm(Y~X[,i], family=binomial)
+  coefs=append(coefs, exp(coef(summary(model))[,1][2])) #
+  pvals=append(pvals, coef(summary(model))[,4][2]) #
+}
+univariateResults<-data.frame(GENE=colnames(X), COEFFICIENTS=coefs, PVALUE=pvals)
+univariateResults$FDR<-p.adjust(univariateResults$PVALUE,method="BH")
+# Optionally uncomment
+univariateResults[order(-abs((1-univariateResults$PVALUE))),]  %>%
+  datatable(rownames=FALSE, 
+            options = list(
+              headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+              ))  %>%
+  formatSignif(columns=c("COEFFICIENTS", "PVALUE","FDR"),digits=3) %>%
+  formatStyle(columns = colnames(univariateResults), fontSize = '75%')
+
+```
+
+
+#### doAIC function
+
+```{r warning=FALSE, echo=TRUE}
+library(stats)
+coef<-vector()
+pval<-vector()
+a<-seq(from=0,to=dim(X)[2],by=100)
+
+doAIC<-function(myX, myY){
+  myX = as.matrix(myX)
+  # dummyentry to be replaced
+  aic=data.frame(models=0, aic=0, isAICmin="-") 
+  for(i in seq(1,ncol(myX))){
+    m <- glm(as.numeric(myY) ~ myX[,seq(1,i)]) #, family=binomial())
+#    fit = AIC(m)
+    fit = BIC(m)
+    aic[i,] = list(paste0(i," first variables"), signif(fit,5), "-") 
+  }
+  minaic=min(aic$aic)
+  aic$rl=format(exp((minaic-aic$aic)/2), digits=4)
+  aic$isAICmin = ifelse(aic$aic==minaic,"Yes","-")
+  
+  print("Best model is:")
+  print(aic[aic$isAICmin == "Yes",])
+  names(aic) = colnames=c("Compared models","AIC","Minimum AIC","rL")
+
+  # Table of all models
+  aic %>%
+    datatable(rownames=FALSE, 
+              options = list(
+                headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+              ))  %>%
+    formatSignif(columns=c("AIC", "rL"),digits=3) %>%
+    formatStyle(columns = colnames(aic), fontSize = '75%')
+}
+```
+
+#### doAIC| `Sorted on *Odds ratio* -- top 20 genes`
+
+```{r warning=FALSE, echo=TRUE}
+# Add variable according to their odds ratio in univariate logistic regression
+# Use top 20 variables 
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[, head(univariateResults$GENE,20)], Y)
+```
+
+#### doAIC| `Sorted on *Odds ratio* -- top 100 genes`
+
+```{r warning=FALSE, echo=TRUE, echo=TRUE}
+# Add variable according to their odds ratio in univariate logistic regression
+# Use top 100 variables 
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[, head(univariateResults$GENE,100)], Y)
+```
+
+#### doAIC| `Sorted on *P-value* -- top 20 genes`
+
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(univariateResults$PVALUE),]
+doAIC(X[, head(univariateResults$GENE,20)], Y)
+```
+
+#### doAIC| `Sorted on *P-value* -- top 100 genes`
+
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(univariateResults$PVALUE),]
+doAIC(X[, head(univariateResults$GENE,100)], Y)
+```
+
+#### doAIC| `Only significant P-value -- Sorted on *P-value*`
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(univariateResults$PVALUE),]
+doAIC(X[,univariateResults[univariateResults$PVALUE <= 0.05, "GENE"]], Y)
+```
+
+#### doAIC| `Only significant P-value -- Sorted on *Odds ratio*`
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[,univariateResults[univariateResults$PVALUE <= 0.05, "GENE"]], Y)
+```
+
+#### doAICX| `Only significant adjusted p-value (FDR) -- Sorted on *Odds ratio*`
+
+```{r warning=FALSE, echo=TRUE}
+univariateResults<-univariateResults[order(-abs((1-univariateResults$COEFFICIENTS))),]
+doAIC(X[,univariateResults[univariateResults$FDR <= 0.05, "GENE"]], Y)
+```
+
+***
+
+</details>
+
+#### Think about:
+
+* Could you find a good order to sequentially add variables to the tested models?
+  - How can one solve this otherwise?
+* What's the relation of the best models to the univariate analysis
+
+<details>
+<summary> Some possible answers </summary>
+<h4>Some possible answers</h4>
+
+* It seems very difficult to outline a general approach to sequentially design that works (i.e., finds a minimal model that optimizes AIC)  "out-of-the-box for" for all cases.
+  - Possible other solutions:
+      - Naive clever: run several variants as above and try to manually hand-pick the most likely  variables based on substantial AIC changes when added... difficult!
+      - Clever step-wise addition: Select the most significant univariate model, take its residuals and use as a new phenotype in a second round of univariate analyses, compare AIC to the previous round, iterate!
+      - Raw force: Create models for all possible combinations of variables in `X`, find the model among these that maximises AIC.
+* The univariate analyses comprised only one model with a significant adjusted P-value, while our AIC analysis suggest that there may exist multivariate models that has lower AIC
+  - What could be the reason for this?
+      + The penalty of multiple testing.
+
+***
+</details>
+
+## Feature Selection
+
+We now turn to feature selection.  We will use `glmnet` to run LASSO/Ridge regression/Elastic net on a logistic GLM `Y` vs `X` and find an optimal value of $\lambda$ via 10-fold cross-validation. 
+
+The same approach as the one used in [the LASSO example](# Regularization | `LASSO and Feature selection`) can also be used for ridge regression and elastic net, by changing `glmnet` elastic net mixing parameter `alpha`:
+
+- `alpha=1` gives LASSO
+- `alpha=0` gives ridge regression
+- `0<alpha<1` gives elastic net
+
+### Task| `LASSO/Ridge Regression/Elastic Net`
+
+* Pick one approach among LASSO, Ridge Regression or Elastic Net and run it  on `X` and `Y` with 100-fold cross-validation (for elastic net, select an arbitrary value of `alpha`)
+  - Identify the optimal $\lambda$
+      - Optionally, plot the result of the cross-validation
+      - Optionally, plot the traces of $\beta$ for the inclusion of variables in the model.
+* Create a table of the genes included in the optimal LASSO model and their $\beta$, e.g., using `datatable`
+* Run `doAIC` on the subset of `X` corresponding to genes in the optimal LASSO model.
+
+<details>
+<summary> *Possible solutions*</summary>
+
+#### Example using Lasso and optimal lambda
+```{r,fig.width=10,fig.height=8, echo =TRUE}
+library(glmnet)
+par(mfrow=c(1,2))
+# run lasso (alpha=1) for linear model (family=binomial)
+#alpha = 1 #LASSO
+#alpha = 0 # Ridge regression
+alpha = 0.75 # Elastic net, arbitrary value alpha, would be optimized in a real analysis
+cvglm=cv.glmnet(as.matrix(X),Y, family=binomial(), alpha=alpha, standardize=T, nfolds=10)
+
+plot(cvglm)
+plot(cvglm$glmnet.fit, xvar="lambda",label=T)
+minlambda=cvglm$lambda.min
+print(paste0("min lambda (logged) = ", signif(minlambda, 3), " (", signif(log(minlambda), 3), ")"))
+```
+
+#### Feature selection
+Once we know the optimal $\lambda$, we can display the names of the most informative features selected by LASSO for that optimal $\lambda$.
+
+```{r , echo=TRUE, eval=FALSE}
+genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
+betas= data.frame(genes = genes, 
+                  betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
+betas<-betas[order(-abs(betas$betas)), ]
+betas %>%
+  datatable(rownames=FALSE, 
+            options = list(
+              headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+            ))  %>%
+  formatSignif(columns=c("betas"),digits=3) %>%
+  formatStyle(columns = colnames(betas), fontSize = '75%')
+```
+
+```{r, echo=FALSE}
+genes<-colnames(X)[unlist(predict(cvglm, s = "lambda.min", type = "nonzero"))]
+betas= data.frame(genes = genes, 
+                  betas=unlist(coef(cvglm, s="lambda.min")[genes,]))
+betas<-betas[order(-abs(betas$betas)), ]
+
+betas %>%
+  datatable(rownames=FALSE, 
+            options = list(
+              headerCallback = JS("function(thead) { $(thead).css('font-size', '75%');}")
+            ))  %>%
+  formatSignif(columns=c("betas"),digits=3) %>%
+  formatStyle(columns = colnames(betas), fontSize = '75%')
+
+```
+
+#### AIC of best model
+
+For simplicity, just use your `doAIX` function
+```{r, warning=FALSE, echo=TRUE}
+doAIC(X[,genes], Y)
+```
+</details>
+
+#### Think about:
+* How does the LASSO/Ridge Regression/Elastic Net result compare to the results form AIC/BIC and univariate analyses?
+* Think about the reasons for similarity/dissimilarity
+
+<details>
+<summary> Some possible answers </summary>
+<h4>Some possible answers</h4>
+
+* The features selected by LASSO/Ridge Regression/Elastic Net includes the gene from the univariate approach, but also several others
+  - This is often the case in practice 
+  - Multiple test correction reduces the power of the univariate approach
+* The optimal LASSO model is different from those obtained from the various AIC/BIC approach (most likely:); moreover, the optimal LASSO model has a lower AIC/BIC than those investigated in the AIC/BIC approach (most likely)
+* The optimal Ridge Regression model may contain many variables, much more than LASSO, and maybe also than the the best AIC/BIC model. This is because Ridge Regression tend to give unimportant variables very low, but still non-zero $beta$ and is therefore, less effective for feature selection.
+* The optimal Elastic Net model will depend on the arbitrarily chosen values of `alpha`, but will somewhere in between LASSO and Ridge Regression
+  - In general, unless we test all models corresponding all possible combinatorial subsets of variables or apply some clever search algorithm (similar to the one LASSO uses), we are unlikely to find the optimal model using AIC/BIC.
+     - Even then, we might get different answers, because the regularization applied in AIC/BIC and LASSO are different.
+  - When applied to the data with features selected by LASSO, `doAIC` choses a model that includes all variables -- this is in line with the notion that LASSO approximates $L_0$-based regularization well.
+  - On the other hand, BIC penalization is more strict than AIC and, hence, BIC applied to the LASSo-selected data selects a model with fewer variables than LASSO.
+      
+
+</details>
+
+<br><br><br>
