@@ -8,7 +8,7 @@ output:
   xaringan::moon_reader:
     encoding: 'UTF-8'
     self_contained: false
-    css: [default, metropolis, metropolis-fonts]
+    css: [default, metropolis, metropolis-fonts, customColumns.css]
     lib_dir: 'libs'
     nature:
       highlightStyle: github
@@ -110,11 +110,14 @@ mean = c(0.55, 0.45)
 stddev = c(0.025, 0.025)
 mice = data.frame(
   prevalence = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
-  model = c(rep("KO", 10), rep("wt", 10))
+  model = c(rep("KO", 10), rep("wt", 10)),
+  names = c(paste0("KO", 1:10), paste0("wt", 1:10))
 )
-row.names(mice)=c(paste0("KO", 1:10), paste0("wt", 1:10))
+row.names(mice)=mice$names
 
-ggplot(mice, aes(y=prevalence, x=sample(row.names(mice))))+
+# to get randomly ordered x-axis
+mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
+ggplot(mice, aes(y=prevalence, x=names))+
   xlab("mice") +
   geom_point() +
   theme_bw()
@@ -383,7 +386,7 @@ p3 = ggplot(df, aes(x=x, y=ylin2)) +
   geom_abline(intercept=alpha, slope=beta, col="red")
 
 p4=ggplot(df, aes(x=x, y=ylog)) +
-  xlab("protein variation") +
+  xlab("RNA variation") +
   ylab("protein-RNA correlation") + 
   geom_point() + 
   stat_function(fun=log, col="red")
@@ -618,7 +621,8 @@ n=5000
 gwas = data.frame(
   P=unlist(lapply(1:(n*m), function(x) runif(1,0,1))),
   BP=unlist(lapply(chromlengths, function(x) sample(1:x, n, replace =FALSE))),
-  CHR = unlist(lapply(seq(1,m), function(x) rep(x, 5000)))
+  CHR = unlist(lapply(seq(1,m), function(x) rep(x, 5000))),
+  SNP =  unlist(lapply(seq(1,m), function(x) "dummy"))
   )
 
 manhattan(gwas, suggestiveline=FALSE, genomewideline=-log10(0.05))
@@ -631,7 +635,7 @@ manhattan(gwas, suggestiveline=FALSE, genomewideline=-log10(0.05))
 
 ## Manhattan plot
 
-- Individual association test for each SNP and disease
+- Individual association test for each SNP to the disease
 - $-log_{10}$ P-value against genomic position
 {{content}}
 ]
@@ -768,7 +772,7 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="age", zlab="[protein]", phi=20
 --
 2. **Overfitting**
     - Risk of modeling random noise in data
-    - Solution: **regularization** or **Bayesian approaches**
+    - Solution: **regularization**
 {{content}}
 --
 ![black box warning](assets/blackbox.jpg) 
@@ -786,7 +790,7 @@ layout: false
 layout: true
 # Example: Single cell expression data
 
-### Machine learning - Dimensional reduction
+### Unsupervised Machine Learning - Dimensional reduction
 .pull-left[
 ```{r, pca}
 
@@ -826,101 +830,152 @@ print(p)
   ![black box warning](assets/blackbox.jpg)
 
 ]
+
 ---
 layout: false
-layout: true
 
-# Example: Species classification
+# Example: Mass spectrometry
+### Supervised Machine Learning -- classification
 
-## Machine learning -- Artificial neural network (ANN)
-
-- **Train** ANN to learn feature selection and model selection to predict the right answer.
-
-.pull-left[
-
-{{content}}
-
+.left-custom[
+- **Data**
+  - *X*: mass spec proteins data
+  - *Y*: disease progression outcome
+- **Random Forest classifier**
+  - Machine Learning algorithm
+- **Training**
+  - Learn to predict *Y* from *X*
 ]
-.pull-right[
+.right-custom[
+```{r RF1a, message=FALSE}
+library(DiagrammeR)
+library(DiagrammeRsvg)
+library(rsvg)
+plotfile = "assets/RF1.png"
+if(!file.exists(plotfile)){
+  DiagrammeR::grViz(paste0("digraph {
 
-```{python pyann1, echo=F, out.height="100%", fig.align='center'}
-import numpy as np
-import matplotlib.pyplot as plt
-from draw_neural_net import draw_neural_net
+graph [layout = dot, rankdir = LR ]
+node [shape = rectangle, style = filled, fontname = 'Helvetica-bold', fontsize = 24]
+edge [ penwidth= 3, fontname = 'Helvetica-bold', fontsize = 32, labeldistance = 2, arrowsize = 2, penwidth = 5, minlen = 2 ] 
 
-#--------[1] Input data
-#dataset = np.mat('-1 -1 -1; -1 1 1; 1 -1 1; 1 1 -1')
-#X_train = dataset
-#y_train = np.mat('0; 1; 1; 0')
-#-----2-2-1
-layer_sizes= (4,5,5,5,3)
+# label nodes
+input [label = 'Training \n Mass Spec Data \n N x P', fillcolor = PaleGreen, height = 5, width= 5 ]
+RF [label = '\n Random Forest \n Classifier', shape = ovale, height = 3, width = 4, fillcolor = Black, fontcolor= White ]
+output [label =  'Known \n outcome \n N x D', height = 5, width = 3, fillcolor = LightSalmon ]
+select [label = 'Selected \n features \n N x Q', height = 5, width = 2, fillcolor = White, color = White, fontcolor = White ] 
 
-output = [ "COW=0", "DOG=1", "CAT=0" ]
+subgraph {
+rank = same; RF; select;
+}
+input -> RF -> output;
+RF -> select [ headlabel = 'Feature Selection \n ', minlen = 6, color = White, fontcolor = White ];
 
-fig = plt.figure(figsize=(12, 12))
+}"))  %>%
+    export_svg %>%
+    charToRaw %>%
+    rsvg_png(plotfile)
+}
 
-ax = fig.gca()
-ignore=ax.axis('off')
-nodeFontSize = 35
-
-draw_neural_net(ax,
-                layerSizes=layer_sizes, 
-                outPrefix = output,
-                nodePrefix = "",
-                inNodePrefix = "",
-                nodeFontSize=nodeFontSize,
-                hideBias = True)
-plt.show()
-```
-
-
-```{r, ann2, fig.height=4,eval=FALSE}
-layers =list("I"=4, "H1"=5, "H2"=4,"O"=3)
-ylab=c("cat=0", "dog=1", "cow=0")
-plotAnn(layers, cex=1, withY=T, ylab=ylab)
+knitr::include_graphics(plotfile)
 ```
 ]
 
 ---
 
-```{r, ann1, results='asis'} 
-for(row in 1:2){
-  cat("<br>")
+# Example: Mass spectrometry
+### Supervised Machine Learning -- classification
+
+.left-custom[
+- **Data**
+  - *X*: mass spec proteins data
+  - *Y*: disease progression outcome
+- **Random Forest classifier**
+  - Machine Learning algorithm
+- **Training**
+  - Learn to predict *Y* from *X*
+- **Feature selection**
+  - most important variables in *X*
+]
+.right-custom[
+```{r RF3}
+plotfile = "assets/RF3.png"
+if(!file.exists(plotfile)){
+  DiagrammeR::grViz(paste0("digraph {
+
+graph [layout = dot, rankdir = LR ]
+node [shape = rectangle, style = filled, fontname = 'Helvetica-bold', fontsize = 24]
+edge [ penwidth= 3, fontname = 'Helvetica-bold', fontsize = 32, labeldistance = 2, arrowsize = 2, penwidth = 5, minlen = 2 ] 
+
+# label nodes
+input [label = 'Training \n Mass Spec Data \n N x P', fillcolor = PaleGreen, height = 5, width= 5 ]
+RF [label = '\n Random Forest \n Classifier', shape = ovale, height = 3, width = 4, fillcolor = Black, fontcolor= White ]
+output [label =  'Known \n outcome \n N x D', height = 5, width = 3, fillcolor = LightSalmon ]
+select [label = 'Selected \n features \n N x Q', height = 5, width = 2, fillcolor = AquaMarine, color = Black, fontcolor = Black ] 
+
+subgraph {
+rank = same; RF; select;
 }
-cat("\n")
-cat('<p style="text-align: center; font-size:2em;">')
-  cat("Some Big Data \nmultivariate input X!\n")
-cat('</p>')
-cat("\n")
-```
+input -> RF -> output;
+RF -> select [ headlabel = 'Feature Selection \n ', minlen = 6, color = Black, fontcolor = red ];
 
----
-##### Training input  could be, e.g., images (pixels)
-```{r, ann3, out.width=200, fig.align='right'} 
-#, out.width="50%", fig.align='center', fig.asp=0.5, dpi=600}
-knitr::include_graphics('assets/Nora.jpeg')
-
-```
-
----
-
-#####  ... or training input could be a genome sequence...
-```{r, ann5, results='asis'} 
-cat(paste0("...", paste0(sample(c("A", "C","G","T"), 27, replace=TRUE), collapse="")))
-cat("\n")
-for(row in 1:7){
-  cat(paste0(sample(c("A", "C","G","T"), 30, replace=TRUE), collapse=""))
-  cat("\n")
+}"))  %>%
+    export_svg %>%
+    charToRaw %>%
+    rsvg_png(plotfile)
 }
-cat(paste0(paste0(sample(c("A", "C","G","T"), 27, replace=TRUE), collapse=""), "..."))
+knitr::include_graphics(plotfile)
 ```
+]
 ---
+# Example: Mass spectrometry
+### Supervised Machine Learning -- classification
 
-#####  This is of course a major...
+.left-custom[
+- **Data**
+  - *X*: mass spec proteins data
+  - *Y*: disease progression outcome
+- **Random Forest classifier**
+  - Machine Learning algorithm
+- **Training**
+  - Learn to predict *Y* from *X*
+- **Feature selection**
+  - most important variables in *X*
+- **Prediction**
+  - outcome from new data X'
+]
+.right-custom[
+```{r RF2}
+plotfile = "assets/RF2.png"
+if(!file.exists(plotfile)){
+  DiagrammeR::grViz(paste0("digraph {
+
+graph [layout = dot, rankdir = LR ]
+node [shape = rectangle, style = filled, fontname = 'Helvetica-bold', fontsize = 24]
+edge [ penwidth= 3, fontname = 'Helvetica-bold', fontsize = 32, labeldistance = 2, arrowsize = 2, penwidth = 5, minlen = 2 ] 
+
+# label nodes
+input [label = 'NEW \n Mass Spec Data \n N x P', fillcolor = Chartreuse, height = 5, width= 5 ]
+RF [label = 'TRAINED\n Random Forest \n Classifier', shape = ovale, height = 3, width = 4, fillcolor = Black, fontcolor= White ]
+output [label =  'PREDICTED \n outcome \n N x D', height = 5, width = 3, fillcolor = Coral ]
+select [label = 'Selected \n features \n N x Q', height = 5, width = 2, fillcolor = White, color = White, fontcolor = White ] 
+
+subgraph {
+rank = same; RF; select;
+}
+input -> RF -> output;
+RF -> select [ headlabel = 'Feature Selection \n ', minlen = 6, color = White, fontcolor = White ];
+
+}"))  %>%
+    export_svg %>%
+    charToRaw %>%
+    rsvg_png(plotfile)
+}
+knitr::include_graphics(plotfile)
+```
+]
+--
 ![black box warning](assets/blackbox.jpg)
-
-???
-This is of course a major black box
 
 ---
 layout: false
