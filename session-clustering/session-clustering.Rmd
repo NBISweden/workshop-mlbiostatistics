@@ -2,9 +2,11 @@
 title: "Clustering"
 output:
   bookdown::gitbook:
-    keep_md: false
+    in_header:
+      style.css
+    keep_md: true
     number_sections: true
-    self_contained: true
+    css: style.css
   toc: false
 ---
 
@@ -15,7 +17,7 @@ require(knitr)
 require(kableExtra)
 require(ggdendro)
 require(tidyverse)
-knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dev="svg", dpi=96)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dev="png", dpi=96)
 options(digits=2)
 ```
 
@@ -144,7 +146,7 @@ $$d_{pear}(x,y) = \sqrt{1-r}$$
 
 Hierarchical clustering does not require the number of clusters to be specified. Instead of creating a single set of clusters it creates a hierarchy of clusterings based on pairwise dissimilarities.
 
-```{r, fig.cap="A hierarchical cluster dendrogram.", fig.width=7, fig.height=3.5}
+```{r dendro, fig.cap="A hierarchical cluster dendrogram.", fig.width=7, fig.height=3.5}
 require(ggdendro)
 h <- hclust(dist(iris[, 1:4]))
 ggdendrogram(h)
@@ -193,7 +195,7 @@ where $m_A, m_B, m_{A \cup B}$ are the center of the clusters $A$, $B$ and $A \c
 
 Note that Ward's linkage method should not be combined with any dissimilarity matrix as it is based on the squared Euclidean distance. In the R function `hclus` either the Euclidean or squared Euclidean distance can be used in combination with the linkage `method='ward.D'` or `method='ward.D2`, respectively.
 
-```{r, fig.cap="Hierarchical clustering of the same data set using Euclidean distance and four different linkage methods.", fig.show="hold", fig.width=7, fig.height=3.5}
+```{r dendro4link, fig.cap="Hierarchical clustering of the same data set using Euclidean distance and four different linkage methods.", fig.show="hold", fig.width=7, fig.height=3.5}
 require(ggdendro)
 hsl <- hclust(dist(iris[, 1:4]), method="single")
 hcl <- hclust(dist(iris[, 1:4]), method="complete")
@@ -209,13 +211,12 @@ ggdendrogram(hwl, labels=FALSE) + ggtitle("Ward's linkage")
 
 # Exercises: Clustering {#clustering-exercises}
 
-```{exercise}
-Download the two-dimensional data set.
+```{exercise, label="kmeans", echo=TRUE}
 
-Based on a two dimensional data set you will investigate K-means clustering.
+Based on a two dimensional data set in the below figure,  you will investigate K-means clustering.
 ```
 
-```{r fiveclusters}
+```{r fiveclusters, fig.cap="A two dimensional data set of five clusters."}
 set.seed(1919)
 x <- c(1,3,1.5,3.5,2)
 y <- c(1,1,3,3,5)
@@ -226,6 +227,9 @@ df <- data.frame(klass=rep(1:5, c(30, 15, 25, 10,18)), stringsAsFactors = FALSE)
 df %>% ggplot(aes(x=x,y=y, color=group)) + geom_point()
 write.csv(df, file="fiveclasses.csv")
 ```
+
+Download the two dimensional [data set](fiveclasses.csv).
+
 a) Try to cluster the data using the k-means algorithm (function `kmeans` in R). Use Forgy's method for initialization and select a value for $k$.
 b) Plot the data and color by cluster id
 c) Run the same analysis again, do you get the same results? (You can compare two vectors of class identities using the function `table`.)
@@ -233,32 +237,8 @@ d) By setting the argument `nstart` to 4 the algorithm will automatically try fo
 e) Try different values for $k$, run the k-means algorithm and collect the WSS ('tot.withinss'). Plot WSS vs k. Thw WSS is always decreasing as k increases, but the curve can still give you a hint of which $k$ to choose. The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
 Which $k$ would you pick based on this?
 
-```{r}
-df <- read.csv("fiveclasses.csv")
+```{exercise, label="clusterNCI60", echo=TRUE}
 
-## K-means with k=5
-df$kmeans <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")$cluster
-
-df %>% ggplot(aes(x=x, y=y, color=factor(kmeans))) + geom_point() + theme_bw() + theme(legend.position = "none")
-
-#X <- read.csv2("../../workshop-mlbiostatistics/session-pca_clustering/data/cpm.csv",row.names = 1)
-#log2X <- log2(X+1)
-set.seed(2871)
-k <- 5
-l <- 10
-X0 <- matrix(rnorm(k*l, runif(l, 2.5,2.5), 0.2), k, l, byrow=TRUE)
-r <- sample(3:15, size=k, replace=TRUE)
-X1 <- do.call("rbind", lapply(1:k, function(i) matrix(X0[i,] + rnorm(r[i]*l, 0, runif(1, 0, 0.2)), r[i], l, byrow=TRUE)))
-
-rownames(X1) <- paste0(rep(toupper(letters[1:5]), r), 1:sum(r))
-
-q <- sample(10:50, size=l, replace=TRUE)
-X <- do.call("cbind", lapply(1:l, function(i) matrix(X1[,i] + rnorm(q[i]*nrow(X1), 0, runif(1, 0, 0.01)), nrow(X1), q[i])))
-
-plot(hclust(dist(X)))
-```
-
-```{exercise}
 The NCI60 data set consists of gene expression values for 6830 genes for 64 cell lines.
 
 Using this data set investigate a few hierarchical clustering distances and linkage methods.
@@ -266,7 +246,7 @@ Using this data set investigate a few hierarchical clustering distances and link
 
 The data can be downloaded in R using the following command
 
-```{r NCI60, eval=FALSE}
+```{r NCI60, eval=FALSE, echo=TRUE}
 nci.data <- read.table(url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"), sep=",",row.names=1,header=TRUE)
 nci.label <-scan(url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label"),what="")
 ```
@@ -285,3 +265,66 @@ Pick the tree resulting from the method you think is 'best'. How many clusters a
 
 You can cut the tree on any level to get between 1 and 64 clusters. The function `cutree` either on a specific height (dissimilarity) or to get a specific number of clusters.
 
+## Solutions
+
+\@ref(exr:kmeans)
+
+First read the data
+
+```{r}
+df <- read.csv("fiveclasses.csv")
+```
+
+a) Try to cluster the data using the k-means algorithm (function `kmeans` in R). Use Forgy's method for initialization and select a value for $k$.
+
+```{r}
+## k-means with k=5 and Forgy's algorithm
+km <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")
+```
+
+b) Plot the data and color by cluster id
+
+```{r}
+## The cluster identities are stored in km$cluster, same order as input 
+df$kmeansclusters <- km$cluster
+## Plot using base R graphics
+plot(df$x, df$y, col=df$kmeansclusters)
+##alternatively, plot using ggplot
+ggplot(df, aes(x=x, y=y, color=factor(kmeansclusters))) + geom_point() + scale_color_discrete("Cluster id") + theme_bw()
+```
+
+c) Run the same analysis again, do you get the same results? (You can compare two vectors of class identities using the function `table`.)
+
+```{r}
+km2 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")
+table(km$cluster, km2$cluster)
+```
+
+d) By setting the argument `nstart` to 4 the algorithm will automatically try four different (random) starting points. Try this out and compare how stable two runs are.
+
+```{r}
+km4.1 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy", nstart=4)
+km4.2 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy", nstart=4)
+table(km4.1$cluster, km4.2$cluster)
+```
+
+e) Try different values for $k$, run the k-means algorithm and collect the WSS ('tot.withinss'). Plot WSS vs k. The WSS is always decreasing as k increases, but the curve can still give you a hint of which $k$ to choose. The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
+Which $k$ would you pick based on this?
+  
+  
+
+```{r tmp, eval=FALSE}
+set.seed(2871)
+k <- 5
+l <- 10
+X0 <- matrix(rnorm(k*l, runif(l, 2.5,2.5), 0.2), k, l, byrow=TRUE)
+r <- sample(3:15, size=k, replace=TRUE)
+X1 <- do.call("rbind", lapply(1:k, function(i) matrix(X0[i,] + rnorm(r[i]*l, 0, runif(1, 0, 0.2)), r[i], l, byrow=TRUE)))
+
+rownames(X1) <- paste0(rep(toupper(letters[1:5]), r), 1:sum(r))
+
+q <- sample(10:50, size=l, replace=TRUE)
+X <- do.call("cbind", lapply(1:l, function(i) matrix(X1[,i] + rnorm(q[i]*nrow(X1), 0, runif(1, 0, 0.01)), nrow(X1), q[i])))
+
+plot(hclust(dist(X)))
+```
