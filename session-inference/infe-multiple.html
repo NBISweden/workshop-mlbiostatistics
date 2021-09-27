@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Page not found | Statistical inference</title>
-  <meta name="description" content="Page not found | Statistical inference" />
+  <title>4 Multiple testing | Statistical inference</title>
+  <meta name="description" content="4 Multiple testing | Statistical inference" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Page not found | Statistical inference" />
+  <meta property="og:title" content="4 Multiple testing | Statistical inference" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Page not found | Statistical inference" />
+  <meta name="twitter:title" content="4 Multiple testing | Statistical inference" />
   
   
   
@@ -30,7 +30,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
+<link rel="prev" href="infe-exercise-interval.html"/>
 
 <script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -199,18 +199,418 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="page-not-found" class="section level1">
-<h1>Page not found</h1>
-<p>The page you requested cannot be found (perhaps it was moved or renamed).</p>
-<p>You may want to try searching to find the page's new location, or use
-the table of contents to find the page you are looking for.</p>
+<div id="infe-multiple" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Multiple testing</h1>
+<div id="error-types" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Error types</h2>
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+Accept H0
+</td>
+<td style="text-align:left;">
+Reject H0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+H0 is true
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+Type I error, false alarm
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+H0 is false
+</td>
+<td style="text-align:left;">
+Type II error, miss
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+Accept H0
+</td>
+<td style="text-align:left;">
+Reject H0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+H0 is true
+</td>
+<td style="text-align:left;">
+TN
+</td>
+<td style="text-align:left;">
+FP
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+H0 is false
+</td>
+<td style="text-align:left;">
+FN
+</td>
+<td style="text-align:left;">
+TP
+</td>
+</tr>
+</tbody>
+</table>
+<p>Significance level</p>
+<p><span class="math display">\[P(\mbox{reject }\,H_0 | H_0 \,\mbox{is true}) = P(\mbox{type I error}) = \alpha\]</span></p>
+<p>Statistical power</p>
+<p><span class="math display">\[P(\mbox{reject } H_0 | H_1 \mbox{ is true}) = P(\mbox{reject } H_0 | H_0 \mbox{ is false}) = 1 - P(\mbox{type II error})\]</span></p>
+</div>
+<div id="perform-one-test" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Perform one test:</h2>
+<ul>
+<li>P(One type I error) = <span class="math inline">\(\alpha\)</span></li>
+<li>P(No type I error) = <span class="math inline">\(1 - \alpha\)</span></li>
+</ul>
+</div>
+<div id="perform-m-independent-tests" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Perform <span class="math inline">\(m\)</span> independent tests:</h2>
+<ul>
+<li>P(No type I errors in <span class="math inline">\(m\)</span> tests) = <span class="math inline">\((1 - \alpha)^m\)</span></li>
+<li>P(At least one type I error in <span class="math inline">\(m\)</span> tests) = <span class="math inline">\(1 - (1 - \alpha)^m\)</span></li>
+</ul>
+<p><img src="figures/multiple-1.png" width="50%" style="display: block; margin: auto;" /></p>
+<ul>
+<li>FWER: family-wise error rate, probability of one or more false positive, e.g. Bonferroni, Holm</li>
+<li>FDR: false discovery rate, proportion of false positives among hits, e.g. Benjamini-Hochberg, Storey</li>
+</ul>
+</div>
+<div id="bonferroni-correction" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> Bonferroni correction</h2>
+<p>To achieve a family-wise error rate of <span class="math inline">\(\leq \alpha\)</span> when performing <span class="math inline">\(m\)</span> tests, declare significance and reject the null hypothesis for any test with <span class="math inline">\(p \leq \alpha/m\)</span>.</p>
+<p>Objections: too conservative</p>
+</div>
+<div id="benjamini-hochbergs-fdr" class="section level2" number="4.5">
+<h2><span class="header-section-number">4.5</span> Benjamini-Hochbergs FDR</h2>
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+H0 is true
+</td>
+<td style="text-align:left;">
+H0 is false
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accept H0
+</td>
+<td style="text-align:left;">
+TN
+</td>
+<td style="text-align:left;">
+FN
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Reject H0
+</td>
+<td style="text-align:left;">
+FP
+</td>
+<td style="text-align:left;">
+TP
+</td>
+</tr>
+</tbody>
+</table>
+<p>The false discovery rate is the proportion of false positives among ‘hits’, i.e. <span class="math inline">\(\frac{FP}{TP+FP}\)</span>.</p>
+<p>Benjamini-Hochberg’s method control the FDR level, <span class="math inline">\(\gamma\)</span>, when performing <span class="math inline">\(m\)</span> <em>independent</em> tests, as follows:</p>
+<ol style="list-style-type: decimal">
+<li>Sort the p-values <span class="math inline">\(p_1 \leq p_2 \leq \dots \leq p_m\)</span>.</li>
+<li>Find the maximum <span class="math inline">\(j\)</span> such that <span class="math inline">\(p_j \leq \gamma \frac{j}{m}\)</span>.</li>
+<li>Declare significance for all tests <span class="math inline">\(1, 2, \dots, j\)</span>.</li>
+</ol>
+</div>
+<div id="adjusted-p-values" class="section level2" number="4.6">
+<h2><span class="header-section-number">4.6</span> ‘Adjusted’ p-values</h2>
+<p>Sometimes an adjusted significance threshold is not reported, but instead ‘adjusted’ p-values are reported.</p>
+<ul>
+<li><p>Using Bonferroni’s method the ‘adjusted’ p-values are:</p>
+<p><span class="math inline">\(\tilde p_i = \min(m p_i, 1)\)</span>.</p></li>
+</ul>
+<p>A feature’s adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.</p>
+<ul>
+<li><p>Benjamini-Hochberg’s ‘adjusted’ p-values are called <span class="math inline">\(q\)</span>-values:</p>
+<p><span class="math inline">\(q_i = \min(\frac{m}{i} p_i, 1)\)</span></p>
+<p>A feature’s <span class="math inline">\(q\)</span>-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.</p></li>
+</ul>
+
+<div class="example">
+<span id="exm:10000" class="example"><strong>Example 4.1  </strong></span><strong>10000 independent tests (e.g. genes)</strong>
+</div>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+p-value
+</th>
+<th style="text-align:right;">
+adj p (Bonferroni)
+</th>
+<th style="text-align:right;">
+q-value (B-H)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+1.7e-08
+</td>
+<td style="text-align:right;">
+0.0002
+</td>
+<td style="text-align:right;">
+0.0002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5.8e-08
+</td>
+<td style="text-align:right;">
+0.0006
+</td>
+<td style="text-align:right;">
+0.0003
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3.4e-07
+</td>
+<td style="text-align:right;">
+0.0034
+</td>
+<td style="text-align:right;">
+0.0011
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9.1e-07
+</td>
+<td style="text-align:right;">
+0.0091
+</td>
+<td style="text-align:right;">
+0.0020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1e-06
+</td>
+<td style="text-align:right;">
+0.0100
+</td>
+<td style="text-align:right;">
+0.0020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2.4e-06
+</td>
+<td style="text-align:right;">
+0.0240
+</td>
+<td style="text-align:right;">
+0.0040
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2.3e-05
+</td>
+<td style="text-align:right;">
+0.2300
+</td>
+<td style="text-align:right;">
+0.0329
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3.6e-05
+</td>
+<td style="text-align:right;">
+0.3600
+</td>
+<td style="text-align:right;">
+0.0450
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.00022
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+0.2300
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.00023
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+0.2300
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.00073
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+0.6636
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.0032
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.0045
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.0087
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.0089
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.012
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.014
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.045
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.08
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.23
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
+<a href="infe-exercise-interval.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>

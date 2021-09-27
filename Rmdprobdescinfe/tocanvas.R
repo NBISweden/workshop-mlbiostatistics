@@ -14,4 +14,3 @@ tocanvas <- function(session, Session, name, id) {
   system2("curl", sprintf("-X POST --header \"Authorization: Bearer 14589~69wK1p5Q9Q8pcn2WFfl7NL5hwbZQdAhFn6V0Bzwiytap4RagAAHZziZ7biWXrbWk\" https://uppsala.instructure.com/api/v1/courses/51998/pages --data-urlencode wiki_page[title]=\"%s: %s\" --data-urlencode wiki_page[body]@tmp.html", Session, name))
 }
 
-apply(sections[1:4,], 1, tocanvas)
