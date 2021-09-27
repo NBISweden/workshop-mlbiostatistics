@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Page not found | Clustering</title>
-  <meta name="description" content="Page not found | Clustering" />
+  <title>2 K-means | Clustering</title>
+  <meta name="description" content="2 K-means | Clustering" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Page not found | Clustering" />
+  <meta property="og:title" content="2 K-means | Clustering" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Page not found | Clustering" />
+  <meta name="twitter:title" content="2 K-means | Clustering" />
   
   
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-
+<link rel="prev" href="clust-01intro.html"/>
+<link rel="next" href="clust-03dissimilarity.html"/>
 <script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -178,19 +178,67 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="page-not-found" class="section level1">
-<h1>Page not found</h1>
-<p>The page you requested cannot be found (perhaps it was moved or renamed).</p>
-<p>You may want to try searching to find the page's new location, or use
-the table of contents to find the page you are looking for.</p>
+<div id="clust-02kmeans" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> K-means</h1>
+<p>The K-means algorith aims to divide all objects into exactly <span class="math inline">\(K\)</span> clusters. <span class="math inline">\(K\)</span> has to be given to the algorithm. The K-means algorithm minimize the variance within clusters, by iteratively assigning each object to the cluster with the closest mean (centroid).</p>
+<p>The centroid of cluster <span class="math inline">\(k\)</span> is the arithmetic mean of all <span class="math inline">\(n_k\)</span> objects in the cluster</p>
+<p><span class="math display">\[
+{\mathbf m}_k = \frac{1}{n_k} \sum_{i=1}^{n_k} {\mathbf x}_{i}
+\]</span></p>
+<p>The algorithm can be performed as follows;</p>
+<ol start="0" style="list-style-type: decimal">
+<li>Initialization. Select <span class="math inline">\(k\)</span> initial centroids.</li>
+<li>Assign each object to the closest centroid (in terms of squared Euclidean distance).
+The squared Euclidean distance between an object (a data point) and a cluster centroid <span class="math inline">\(m_k\)</span> is
+<span class="math inline">\(d_i = \sum_{j=1}^p (x_{ij} - m_{kj})^2\)</span>. By assigning each object to the closest centroid the total within cluster sum of squares (WSS) is minimized.
+<span class="math display">\[WSS = \sum_{k=1}^K\sum_{i \in C_k}\sum_{j=1}^p (x_{ij} - m_{kj})^2\]</span>
+<!-- For every object ${\mathbf x}_i$ assign the object to the cluster $\arg \min_l \sum_j (x_{ij} - c_{lj})^2$ --></li>
+<li>Update the centroids for each of the <span class="math inline">\(k\)</span> clusters by computing the centroid for all the objects in each of the clusters.</li>
+<li>Repeat 1-2 until convergence</li>
+</ol>
+<p>The initial centroids can be selected in several different ways. Two common methods are;</p>
+<ul>
+<li>Forgy’s method: Select <span class="math inline">\(K\)</span> data points as initial centroids</li>
+<li>Randomly assign each data point to one out of <span class="math inline">\(K\)</span> clusters and compute the centroids for these initial clusters.</li>
+</ul>
+<div id="choosing-the-number-of-clusters" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Choosing the number of clusters</h2>
+<p>K-means clustering requires that we specify the number of clusters, <span class="math inline">\(k\)</span>. How do we select such a <span class="math inline">\(k\)</span>?</p>
+<div id="elbow-method" class="section level3" number="2.1.1">
+<h3><span class="header-section-number">2.1.1</span> Elbow method</h3>
+<p>The Elbow method is based on the total within sum of squares, <span class="math inline">\(WSS\)</span>, that the K-means algorithm tries to minimize. By running the algorithm with several different values of <span class="math inline">\(k\)</span>, e.g. 1–10, we can plot WSS as a function of <span class="math inline">\(k\)</span>.</p>
+<pre><code>## Welcome! Want to learn more? See two factoextra-related books at https://goo.gl/ve3WBa</code></pre>
+<p><img src="_main_files/figure-html/elbow-1.png" width="672" /><img src="_main_files/figure-html/elbow-2.png" width="672" /></p>
+<p>WSS is constantly decreasing as <span class="math inline">\(k\)</span> increases. The elbow methods suggests that The inflection (bend, elbow) on the curve indicate an optimal number of clusters. In this case, the elbow method suggests that the optimal number of clusters is <span class="math inline">\(k=3\)</span>.</p>
+</div>
+<div id="gap-statistic" class="section level3" number="2.1.2">
+<h3><span class="header-section-number">2.1.2</span> Gap statistic</h3>
+<p>As WSS is constantly decreasing for increasing <span class="math inline">\(k\)</span>, we can’t use the minimum to find optimal <span class="math inline">\(k\)</span>. Eyeballing as in the elbow method is one option, but another is to use gap</p>
+</div>
+<div id="silhouette-method" class="section level3" number="2.1.3">
+<h3><span class="header-section-number">2.1.3</span> Silhouette method</h3>
+<p>The silhoutette value for a single object <span class="math inline">\(i\)</span> is a value between -1 ans 1 that measure how similar the object is to other objects in the same cluster as compared to how similar it is to objects in other clusters.</p>
+<p>The silhouette value, <span class="math inline">\(s(i)\)</span>, for an object <span class="math inline">\(i\)</span> in cluster <span class="math inline">\(C_a\)</span> is calculated as follows;</p>
+<ol style="list-style-type: decimal">
+<li>Calculate the average distance between object <span class="math inline">\(i\)</span> and all other objects that belong to the same cluster <span class="math inline">\(C_a\)</span>;
+<span class="math display">\[a(i) = \frac{1}{|C_a|-1} \sum_{j \neq i, j \in C_a} d(i, j)\]</span></li>
+<li>Calculate the average distance between object <span class="math inline">\(i\)</span> and all objects that belong to another cluster <span class="math inline">\(C_b\)</span>, <span class="math inline">\(d(i,C_b)\)</span> and define the minimum;
+<span class="math display">\[b(i) = \min_{b \neq a} d(i, C_b)\]</span></li>
+<li>The Silhouette index is defined as;
+<span class="math display">\[s(i) = \frac{b(i) - a(i)}{max(a(i), b(i))}\]</span>
+A silhouette value close to 1 means that the object is very well clustered, a value close to 0 means that the object lies between two clusters. A negative silhouette value means means that the object is incorrectly clustered.</li>
+</ol>
+<p>The average silhouette over all objects is a measure of how good the clustering is, the higher the value the better is the clustering.</p>
+</div>
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-
+<a href="clust-01intro.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="clust-03dissimilarity.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
