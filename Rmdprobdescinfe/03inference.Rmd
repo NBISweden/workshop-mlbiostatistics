@@ -21,7 +21,7 @@ options(digits=4)
 
 Statistical inference is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
 
-# Hypothesis test {#infe-hypothesis}
+# Introduction to hypothesis tests {#infe-hypothesis}
  
 To perform a hypothesis test is to evaluate a hypothesis based on a random sample.
 
@@ -142,7 +142,7 @@ knitr::include_graphics("figures/pollenurn.png")
 
 Using this model, we can simulate taking a sample of size 100 many times.
 
-```{r, echo=TRUE}
+```{r sumpollenurn, echo=TRUE}
 ## Urn
 rep(c(0, 1), c(7, 3))
 ## Sample 100 times with replacement
@@ -165,7 +165,7 @@ ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02)
 
 Compare the observed value, $p_{obs} = 0.42$ to the null distribution.
 
-```{r, out.width="50%", fig.align="center", fig.cap="The sampling distribution. The observed value is marked by a red vertical line."}
+```{r histpollennull, out.width="50%", fig.align="center", fig.cap="The sampling distribution. The observed value is marked by a red vertical line."}
 ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + geom_vline(xintercept=0.42, color="red") + theme_bw()
 ```
 
@@ -173,7 +173,7 @@ The p-value is the probability of getting the observed value or higher, if the n
 
 Use the null distribution to calculate the p-value, $P(P \geq 0.42|H_0)$.
 
-```{r, echo=TRUE}
+```{r pollenp, echo=TRUE}
 ## How many times 
 sum(p >= 0.42)
 ## p-value
@@ -341,7 +341,7 @@ A diet study aims to study how the hemoglobin (Hb) levels in blood are affected 
 The observed Hb levels (in g/L);
 ```
 
-```{r, echo=TRUE}
+```{r irondiet, echo=TRUE}
 ctrl <- c(197, 186, 157, 170, 193, 188, 175, 186, 177, 191, 168, 193, 191, 189, 188, 192, 179, 186, 197, 203)
 iron <- c(187, 218, 196, 210, 206, 178, 181, 193, 172, 202, 169, 221, 183, 222, 185, 174, 192, 192, 162, 211)
 ```
@@ -371,7 +371,7 @@ dobs <- mdiet - mctrl
 
 Compute null distribution
 
-```{r, echo=TRUE}
+```{r histironnull, echo=TRUE}
 ## Under null all observations are equivalent
 allobs <- c(iron, ctrl)
 dnull <- replicate(10000, {
@@ -604,7 +604,7 @@ is $F$-distributed with $n_1-1$ and $n_2-1$ degrees of freedom.
 In R a test of equal variances can be performed using the function `var.test`.
 
 
-# Exercises: Hypothesis tests, parametric {.unnamed #infe-exercise-hypparam}
+# Exercises: Hypothesis tests, parametric {.unnumbered #infe-exercise-hypparam}
 
 ```{exercise, label="Hb", echo=TRUE}
 The hemoglobin value (Hb) in women is  on average 140 g/L. You observe the following Hb values in a set of five male blood donors: 154, 140, 147, 162, 172. Assume that Hb is normally distributed. Is there a reason to believe that the mean Hb value in men differ from that in women? 
@@ -675,6 +675,93 @@ b)
 ```{r ttestuneqvar, echo=TRUE, eval=TRUE}
 ## Unequal variances with Welch approximation to the degrees of freedom (the default)
 t.test(xHF, xN, var.equal=FALSE, alternative="greater")
+```
+
+
+# Multiple testing {#infe-multiple}
+## Error types
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling(font_size=14)
+```
+
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(font_size=14)
+```
+
+Significance level
+
+$$P(\mbox{reject }\,H_0 | H_0 \,\mbox{is true}) = P(\mbox{type I error}) = \alpha$$
+  
+Statistical power
+
+$$P(\mbox{reject } H_0 | H_1 \mbox{ is true}) = P(\mbox{reject } H_0 | H_0 \mbox{ is false}) = 1 - P(\mbox{type II error})$$
+
+## Perform one test:
+  
+- P(One type I error) = $\alpha$
+- P(No type I error) = $1 - \alpha$
+  
+## Perform $m$ independent tests:
+  
+- P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+- P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
+  
+```{r multiple, echo=FALSE, out.width="50%", fig.align="center", fig.width=4, fig.height=4}
+a=0.05
+k <- 1:100
+ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
+```
+
+  - FWER: family-wise error rate, probability of one or more false positive, e.g. Bonferroni, Holm
+  - FDR: false discovery rate, proportion of false positives among hits, e.g. Benjamini-Hochberg, Storey
+
+## Bonferroni correction
+  
+  To achieve a family-wise error rate of $\leq \alpha$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \alpha/m$.
+
+Objections: too conservative
+
+## Benjamini-Hochbergs FDR
+  
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling(font_size=14)
+```
+
+The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
+
+
+Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
+  
+1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
+2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
+3. Declare significance for all tests $1, 2, \dots, j$.
+
+
+## 'Adjusted' p-values
+  
+Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
+  
+- Using Bonferroni's method the 'adjusted' p-values are:
+  
+  $\tilde p_i = \min(m p_i, 1)$.
+
+A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+  
+- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+  
+  $q_i = \min(\frac{m}{i} p_i, 1)$
+  
+  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
+ 
+```{example, label="10000", echo=TRUE}
+**10000 independent tests (e.g. genes)**
+```
+
+```{r padjust, results="asis"}
+p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
+kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
 ```
 
 
@@ -843,7 +930,7 @@ You observe 150 students at BMC of which 25 are smokers.  Compute a 95% confiden
 
 a)
 
-```{r, echo=TRUE}
+```{r histmboot, echo=TRUE}
 obs <- c(145, 165, 134, 167, 158, 176, 156, 189, 143, 123)
 mboot <- replicate(10000, {
   x <- sample(obs, size=10, replace=TRUE)
@@ -943,89 +1030,3 @@ c(p - z*SE, p + z*SE)
 ```
 
 
-
-# Multiple testing {#infe-multiple}
-## Error types
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling(font_size=14)
-```
-
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(font_size=14)
-```
-
-Significance level
-
-$$P(\mbox{reject }\,H_0 | H_0 \,\mbox{is true}) = P(\mbox{type I error}) = \alpha$$
-  
-Statistical power
-
-$$P(\mbox{reject } H_0 | H_1 \mbox{ is true}) = P(\mbox{reject } H_0 | H_0 \mbox{ is false}) = 1 - P(\mbox{type II error})$$
-
-## Perform one test:
-  
-- P(One type I error) = $\alpha$
-- P(No type I error) = $1 - \alpha$
-  
-## Perform $m$ independent tests:
-  
-- P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
-- P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
-  
-```{r multiple, echo=FALSE, out.width="50%", fig.align="center", fig.width=4, fig.height=4}
-a=0.05
-k <- 1:100
-ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
-```
-
-  - FWER: family-wise error rate, probability of one or more false positive, e.g. Bonferroni, Holm
-  - FDR: false discovery rate, proportion of false positives among hits, e.g. Benjamini-Hochberg, Storey
-
-## Bonferroni correction
-  
-  To achieve a family-wise error rate of $\leq \alpha$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \alpha/m$.
-
-Objections: too conservative
-
-## Benjamini-Hochbergs FDR
-  
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling(font_size=14)
-```
-
-The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
-
-
-Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
-  
-1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
-2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
-3. Declare significance for all tests $1, 2, \dots, j$.
-
-
-## 'Adjusted' p-values
-  
-Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
-  
-- Using Bonferroni's method the 'adjusted' p-values are:
-  
-  $\tilde p_i = \min(m p_i, 1)$.
-
-A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
-  
-- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
-  
-  $q_i = \min(\frac{m}{i} p_i, 1)$
-  
-  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
- 
-```{example, label="10000", echo=TRUE}
-**10000 independent tests (e.g. genes)**
-```
-
-```{r padjust, results="asis"}
-p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
-kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
-```
