@@ -64,17 +64,24 @@ library(qqman)
       - tests -- test statistics
       - overfitting
 {{content}}
+
+???
+Go from treating statistical methods as black box to actually understanding what they do...
 --
 - Appreciate theory as a ❤️*friend*❤️
     - help understanding assumptions
     - help when evaluating methods
 {{content}}
+
+
 --
 - Provide a _#framework#_ for learning
     - statistical thinking
     - basic math language
       - not afraid of equations
       - know some basic terminology
+
+???
 
 ---
 class: inverse, middle, center
@@ -83,6 +90,9 @@ class: inverse, middle, center
 # Why Statistics?
 ## Examples
 
+???
+- So, why do we need statistics?
+- We will illustrate with some examples
 
 ---
 
@@ -98,7 +108,9 @@ Measure plasma concentration of total cholesterol at one time point after feeedi
 
 ???
 
-low-density lipoprotein
+- low-density lipoprotein 
+- cholesterol -> vascular plaques -> cardiovascualr disease (CVD)
+- experiment design using mice  model
 ---
 layout: true
 # Example: Mouse knockout experiment
@@ -165,6 +177,10 @@ ggplot(mice, aes(y=prevalence, x=model, fill=model))+
   ![black box warning](assets/blackbox.jpg)
 ]
 
+???
+
+- Whooa! Black box right there -- what is hiding behind "boxplot"
+
 ---
 .pull-right[
 
@@ -174,6 +190,13 @@ ggplot(mice, aes(y=prevalence, x=model, fill=model))+
       - *mean* 
       - *quartiles*
 ]
+
+???
+
+- black line = mean
+- box = quartiles -- indicate variation in data
+- More about descriptive statistics in the course
+
 ---
 .pull-right[
 
@@ -181,14 +204,17 @@ ggplot(mice, aes(y=prevalence, x=model, fill=model))+
 
 Intuitively, there is a clear difference between KO and wt in this plot...
 ]
-???
-- 
 
 -- 
 .pull-right[
 What if the result had looked different?
 
 ]
+
+???
+
+- but...
+
 ---
 layout: false
 # Example: Mouse knockout experiment
@@ -264,15 +290,20 @@ ggplot(mice, aes(y=prevalence, x=model, fill=model))+
 
 {{content}}
 --
-  ![black box warning](assets/blackbox.jpg)
-]
+  ![black box warning](assets/blackbox.jpg)]
+
+???
+- Another black box
+- What do we mean by that?
+
 
 ---
 .pull-right[
 ### Statistical tests
 
 #### Model
-- Abstractions of reality  probabilities
+- Abstraction of reality
+  - computation of  probabilities 
 - Simplifying assumptions
   - Variation approximately $N(\mu,\sigma)$
     
@@ -284,6 +315,19 @@ ggplot(mice, aes(y=prevalence, x=model, fill=model))+
 - **P-value** $(p)$ =  probability of the observed or more extreme difference  under H0
 - **significance level** $p\leq \alpha$
 ]
+
+???
+
+- We will go through this in the course, but briefly...
+- We set up statistical models, 
+  - making simplifying assumptions
+  - allowing us to compute probabilities
+  - Here, we could make the simplifying assumption 
+- Based on the model, we can set up hypotheses relating to the problem at hand, here that variation is normally distributed with given mean and variance
+  - particularly NULL model H0
+- Using the model, we can compute probabilities under the NULL model and test this
+- P-value
+- significance
 
 ---
 layout: false 
@@ -329,6 +373,9 @@ This might require testing hypotheses that also look at the difference in  *vari
 
 ]
 
+???
+
+- Another example...
 
 ---
 layout: false
@@ -342,7 +389,9 @@ layout: false
     + measure RNA expression
     + measure protein expression
 
+???
 
+- biopsies from patients
 
 ```{r, regression1}
 alpha = 1.5
@@ -354,13 +403,13 @@ rlin<-function(x, n=1, a=alpha, b=beta, s=stddev){
   return(rnorm(n, m, s))
 }
 
-rlog<-function(x, n=1, a=alpha, b=beta, p){
+rlog<-function(x, n=1, a=alpha, b=beta){
   p = exp(-(a+b*x))
   return(rnorm(n, 1/(1+p), 0.2))
 #  return(rbinom(n, 1, 1/(1+p)))
 }
 
-log<-function(x, n=1, a=alpha, b=beta, p){
+log<-function(x, n=1, a=alpha, b=beta){
   p = exp(-(a+b*x))
   return(1/(1+p))
 }
@@ -445,7 +494,7 @@ p1
 
 ???
 
-Actually, not going to through this here .. have to wait until the session on this
+Actually, not going to through what correlation is here .. have to wait until the course session on this
 ---
 
 .pull-right[
@@ -457,6 +506,12 @@ Actually, not going to through this here .. have to wait until the session on th
 
 {{content}}
 ]
+
+???
+
+- Common hypothesis that you don't need to measure protein expr because it just follows RNA expr
+- These researchers work with proteomics and want to investigate this further
+
 --
 
 ### Test
@@ -467,6 +522,9 @@ Actually, not going to through this here .. have to wait until the session on th
 --
   ![black box warning](assets/blackbox.jpg)
 
+???
+
+- another black box -- what's a linea model
 ---
 layout: false
 layout: true
@@ -489,7 +547,9 @@ p2
 ]
 
 ???
-Maybe this can suffice as hierarchical model example instead...?
+- recognize the equation for a straight line
+  - $\beta$ is the slope of the line
+  - $\alpha$ is intercept (where the line crosses the y-axis)
 --
 - Uses
   1. Simulation
@@ -536,7 +596,7 @@ p3
 ???
 More realistic
 
-These researchers found that there were a portion of genes low correlation RNA  and protein expression
+These researchers found that there were indeed a portion of genes with consistently low correlation RNA  and protein expression
 
 
 
@@ -560,6 +620,15 @@ p4
 
 {{content}}
 ]
+
+???
+
+- another common hypothesis is that low correlation is just an effect of low RNA variation
+- investigate 
+- This is the plot
+- But that's not a strainght line
+- can't fit linear model
+
 --
 ### Non-linear dependencies
 - **Generalized linear models (GLMs)**
@@ -569,18 +638,27 @@ p4
 
 ]
 
+??? 
+
+- Another black box, which we leave to the the course session on this.
+- Turn to yet another example
+
 ---
 layout: false
 # Example: GWAS
 
 ## Setup: 
 
-Aim: Elucidate the genetic setup of IMD condition
+Aim: Elucidate the genetic setup of IED condition
 
 - Case-control cohort (N = 1000)
 - Genome-wide SNP assay (P= 5000)
 
+???
 
+- [IED = Invented example disease .. revealed below]
+- genome-wide association analysis
+- setup...
 
 ---
 layout: true
@@ -641,8 +719,9 @@ manhattan(gwas, suggestiveline=FALSE, genomewideline=-log10(0.05))
 ]
 
 ???
--log(0.05) = 1.30103 (line)
-- several houndred or even thousand associations
+- individual association tests, e.g.,  using linear models, 
+- standard significance level log(0.05) = 1.30103 (line)
+- several hundred or even thousand associations
 --
 
 
@@ -654,7 +733,9 @@ manhattan(gwas, suggestiveline=FALSE, genomewideline=-log10(0.05))
 ???
 
 - Discuss repeated dice throws
+  - Getting a Yatzy on one throw vs getting it on a 1000 throws
 - This manhattan plot is actually generated under the null model
+- IED = invented example disease
 --
 
 #### Multiple test correction
@@ -667,6 +748,11 @@ manhattan(gwas, suggestiveline=FALSE, genomewideline=-log10(0.05))
 
 ]
 
+???
+
+- There we have it a black box
+- more on this in the course
+- Now Go back to protein expression exampe
 
 ---
 layout: false
@@ -676,6 +762,18 @@ layout: false
 ### What other variables affect protein expression?
 
 - How can we investigate that?
+
+???
+
+- Not only protein generation from RNA
+- For example, maybe the breakdown of proteins by proteinases affect protein  expression
+- How can we investigate?
+
+*Comments for coming slides*: 
+
+- We can make a 3-D plot
+- include protease conc in our linear model 
+
 
 ---
 layout: true
@@ -740,6 +838,7 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="[RNA]", ylab="[proteases]", zlab="[prote
 - and write an equation for this:  
 $\begin{cases}[prot] &\sim N(\mu, \sigma) \\\mu = &\alpha+\beta [RNA] \\&\quad + \gamma [proteases] \end{cases}$
 {{content}}
+
 ]
 
 --
@@ -763,7 +862,7 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="age", zlab="[protein]", phi=20
 ```
 ]
 .pull-right[
-#### Issues with multivariate analysis
+#### **Issues with multivariate analysis**
 
 1. **Feature selection**
     - Include only the most relevant variables in out model
@@ -774,16 +873,28 @@ scatter3D(x=df$x, z=df$z, y=df$y, xlab="x", ylab="age", zlab="[protein]", phi=20
     - Risk of modeling random noise in data
     - Solution: **regularization**
 {{content}}
+
 --
 ![black box warning](assets/blackbox.jpg) 
 
 {{content}}
+
+???
+
+- All of this is of course black boxes
+- that will be discussed further in the course
+
 --
 
 #### Really Big Data 
 - **Machine Learning** on all data
 {{content}}
 
+???
+
+- big data, i.e., extremely many variables
+- analyze simultaneously
+- Let's look at an example
 
 ---
 layout: false
@@ -808,6 +919,13 @@ print(p)
 
 ```
 ]
+
+???
+
+** comments for coming black box slide**
+- ML is almost by nature a major black box that we will try to open in the course
+- Another example...
+
 ---
 .pull-right[
 
@@ -818,6 +936,8 @@ print(p)
 ### Clustering
 - identify groups based on hidden variables
 ]
+
+
 ---
 .pull-right[
 
@@ -860,10 +980,10 @@ node [shape = rectangle, style = filled, fontname = 'Helvetica-bold', fontsize =
 edge [ penwidth= 3, fontname = 'Helvetica-bold', fontsize = 32, labeldistance = 2, arrowsize = 2, penwidth = 5, minlen = 2 ] 
 
 # label nodes
-input [label = 'Training \n Mass Spec Data \n N x P', fillcolor = PaleGreen, height = 5, width= 5 ]
+input [label = 'X \n Training \n Mass Spec Data \n N x P', fillcolor = PaleGreen, height = 5, width= 5 ]
 RF [label = '\n Random Forest \n Classifier', shape = ovale, height = 3, width = 4, fillcolor = Black, fontcolor= White ]
-output [label =  'Known \n outcome \n N x D', height = 5, width = 3, fillcolor = LightSalmon ]
-select [label = 'Selected \n features \n N x Q', height = 5, width = 2, fillcolor = White, color = White, fontcolor = White ] 
+output [label =  'Y \n Known \n outcome \n N x D', height = 5, width = 3, fillcolor = LightSalmon ]
+select [label = 'Z \n Selected \n features \n N x Q', height = 5, width = 2, fillcolor = White, color = White, fontcolor = White ] 
 
 subgraph {
 rank = same; RF; select;
@@ -895,7 +1015,7 @@ knitr::include_graphics(plotfile)
 - **Training**
   - Learn to predict *Y* from *X*
 - **Feature selection**
-  - most important variables in *X*
+  - *Z* = most important variables in *X*
 ]
 .right-custom[
 ```{r RF3}
@@ -908,10 +1028,10 @@ node [shape = rectangle, style = filled, fontname = 'Helvetica-bold', fontsize =
 edge [ penwidth= 3, fontname = 'Helvetica-bold', fontsize = 32, labeldistance = 2, arrowsize = 2, penwidth = 5, minlen = 2 ] 
 
 # label nodes
-input [label = 'Training \n Mass Spec Data \n N x P', fillcolor = PaleGreen, height = 5, width= 5 ]
+input [label = 'X \n Training \n Mass Spec Data \n N x P', fillcolor = PaleGreen, height = 5, width= 5 ]
 RF [label = '\n Random Forest \n Classifier', shape = ovale, height = 3, width = 4, fillcolor = Black, fontcolor= White ]
-output [label =  'Known \n outcome \n N x D', height = 5, width = 3, fillcolor = LightSalmon ]
-select [label = 'Selected \n features \n N x Q', height = 5, width = 2, fillcolor = AquaMarine, color = Black, fontcolor = Black ] 
+output [label =  'Y \n Known \n outcome \n N x D', height = 5, width = 3, fillcolor = LightSalmon ]
+select [label = 'Z \n Selected \n features \n N x Q', height = 5, width = 2, fillcolor = AquaMarine, color = Black, fontcolor = Black ] 
 
 subgraph {
 rank = same; RF; select;
@@ -942,7 +1062,7 @@ knitr::include_graphics(plotfile)
 - **Feature selection**
   - most important variables in *X*
 - **Prediction**
-  - outcome from new data X'
+  - outcome Y' from new data X'
 ]
 .right-custom[
 ```{r RF2}
@@ -955,10 +1075,10 @@ node [shape = rectangle, style = filled, fontname = 'Helvetica-bold', fontsize =
 edge [ penwidth= 3, fontname = 'Helvetica-bold', fontsize = 32, labeldistance = 2, arrowsize = 2, penwidth = 5, minlen = 2 ] 
 
 # label nodes
-input [label = 'NEW \n Mass Spec Data \n N x P', fillcolor = Chartreuse, height = 5, width= 5 ]
+input [label = 'X' \n NEW \n Mass Spec Data \n N x P', fillcolor = Chartreuse, height = 5, width= 5 ]
 RF [label = 'TRAINED\n Random Forest \n Classifier', shape = ovale, height = 3, width = 4, fillcolor = Black, fontcolor= White ]
-output [label =  'PREDICTED \n outcome \n N x D', height = 5, width = 3, fillcolor = Coral ]
-select [label = 'Selected \n features \n N x Q', height = 5, width = 2, fillcolor = White, color = White, fontcolor = White ] 
+output [label =  'Y' \n PREDICTED \n outcome \n N x D', height = 5, width = 3, fillcolor = Coral ]
+select [label = 'Z' \n Selected \n features \n N x Q', height = 5, width = 2, fillcolor = White, color = White, fontcolor = White ] 
 
 subgraph {
 rank = same; RF; select;
@@ -974,8 +1094,13 @@ RF -> select [ headlabel = 'Feature Selection \n ', minlen = 6, color = White, f
 knitr::include_graphics(plotfile)
 ```
 ]
+
 --
 ![black box warning](assets/blackbox.jpg)
+
+???
+
+And again this is a black box that you will learn more about in the course
 
 ---
 layout: false
@@ -986,3 +1111,7 @@ layout: false
 
 <center>
 ![black box warning](assets/blackboxgift.png)
+
+???
+
+So, once again, Welcome to the course -- this is our black gift box to you!
