@@ -143,7 +143,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="2.1" data-path="desc-02categorical.html"><a href="desc-02categorical.html#data-summarization-and-plots"><i class="fa fa-check"></i><b>2.1</b> Data summarization and plots</a></li>
 </ul></li>
-<li class="chapter" data-level="3" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html"><i class="fa fa-check"></i><b>3</b> Quantitative data</a></li>
+<li class="chapter" data-level="3" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html"><i class="fa fa-check"></i><b>3</b> Quantitative data</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html#histogram"><i class="fa fa-check"></i><b>3.1</b> Histogram</a></li>
+<li class="chapter" data-level="3.2" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html#density-plot"><i class="fa fa-check"></i><b>3.2</b> Density plot</a></li>
+<li class="chapter" data-level="3.3" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html#boxplot"><i class="fa fa-check"></i><b>3.3</b> Boxplot</a></li>
+<li class="chapter" data-level="3.4" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html#beeswarm-plot"><i class="fa fa-check"></i><b>3.4</b> Beeswarm plot</a></li>
+<li class="chapter" data-level="3.5" data-path="desc-03quantitative.html"><a href="desc-03quantitative.html#scatter-plot"><i class="fa fa-check"></i><b>3.5</b> Scatter plot</a></li>
+</ul></li>
 <li class="chapter" data-level="4" data-path="desc-04location.html"><a href="desc-04location.html"><i class="fa fa-check"></i><b>4</b> Measures of location</a></li>
 <li class="chapter" data-level="5" data-path="desc-05spread.html"><a href="desc-05spread.html"><i class="fa fa-check"></i><b>5</b> Measures of spread</a>
 <ul>
@@ -172,59 +179,93 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="desc-03quantitative" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Quantitative data</h1>
-<p>Quantitative data (both discrete and continuous) can be visualized in a histogram;</p>
+<p>Quantitative data (both discrete and continuous) can be visualized and summarized in many ways. Common plots include histograms, density plots, boxplots and scatter plots. summary statistics include mean, median, quartile, variance, standard deviation and median absolute deviation.</p>
+<div id="histogram" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Histogram</h2>
+<p>A histogram bins the data and counts the number of observations that fall into each bin.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="desc-03quantitative.html#cb5-1" aria-hidden="true" tabindex="-1"></a>sum10dice <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>, <span class="fu">sum</span>(<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">10</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)))</span>
+<span id="cb5-2"><a href="desc-03quantitative.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(sum10dice)</span>
+<span id="cb5-3"><a href="desc-03quantitative.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(sum10dice), <span class="fu">aes</span>(<span class="at">x=</span>sum10dice)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">5</span>, <span class="at">center=</span><span class="fl">32.5</span>, <span class="at">color=</span><span class="st">&quot;white&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:sum10dice"></span>
 <img src="figures/sum10dice-1.png" alt="Throw 10 dice and count the total number of dots. Repeat the experiment 1000 times. This histogram summarize the results, i.e. the total number of dots when throwing 10 dice." width="50%" /><img src="figures/sum10dice-2.png" alt="Throw 10 dice and count the total number of dots. Repeat the experiment 1000 times. This histogram summarize the results, i.e. the total number of dots when throwing 10 dice." width="50%" />
 <p class="caption">
 Figure 3.1: Throw 10 dice and count the total number of dots. Repeat the experiment 1000 times. This histogram summarize the results, i.e. the total number of dots when throwing 10 dice.
 </p>
 </div>
-<p>or a density plot;</p>
-<div class="figure"><span style="display:block;" id="fig:dicedens"></span>
-<img src="figures/dicedens-1.png" alt="Density plot over the total number of dots when throwing 10 dice." width="50%" />
-<p class="caption">
-Figure 3.2: Density plot over the total number of dots when throwing 10 dice.
-</p>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="desc-03quantitative.html#cb6-1" aria-hidden="true" tabindex="-1"></a>micew5 <span class="ot">&lt;-</span> mice <span class="sc">%&gt;%</span> <span class="fu">filter</span>(week<span class="sc">==</span><span class="dv">5</span>)</span>
+<span id="cb6-2"><a href="desc-03quantitative.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(micew5, <span class="fu">aes</span>(<span class="at">x=</span>weight, <span class="at">fill=</span>gender)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">15</span>, <span class="at">color=</span><span class="st">&quot;white&quot;</span>)</span>
+<span id="cb6-3"><a href="desc-03quantitative.html#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(micew5<span class="sc">$</span>weight[micew5<span class="sc">$</span>gender<span class="sc">==</span><span class="st">&quot;female&quot;</span>], <span class="at">col=</span><span class="st">&quot;orange&quot;</span>, <span class="at">breaks=</span><span class="dv">15</span>, <span class="at">main=</span><span class="st">&quot;Weight of mice at 5 weeks&quot;</span>, <span class="at">xlab=</span><span class="st">&quot;Weight (g)&quot;</span>)</span>
+<span id="cb6-4"><a href="desc-03quantitative.html#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(micew5<span class="sc">$</span>weight[micew5<span class="sc">$</span>gender<span class="sc">==</span><span class="st">&quot;male&quot;</span>], <span class="at">col=</span><span class="st">&quot;cornflowerblue&quot;</span>, <span class="at">breaks=</span><span class="dv">15</span>, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:hist"></span>
 <img src="figures/hist-1.png" alt="Histogram over weight of 2000 5 weeks old mice, colored according to gender." width="50%" /><img src="figures/hist-2.png" alt="Histogram over weight of 2000 5 weeks old mice, colored according to gender." width="50%" />
 <p class="caption">
-Figure 3.3: Histogram over weight of 2000 5 weeks old mice, colored according to gender.
+Figure 3.2: Histogram over weight of 2000 5 weeks old mice, colored according to gender.
 </p>
 </div>
-<p>Other useful plots are boxplots and beeswarm plots;</p>
+</div>
+<div id="density-plot" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Density plot</h2>
+<p>A density plot is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="desc-03quantitative.html#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(sum10dice), <span class="fu">aes</span>(<span class="at">x=</span>sum10dice)) <span class="sc">+</span> <span class="fu">geom_density</span>()</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:dicedens"></span>
+<img src="figures/dicedens-1.png" alt="Density plot over the total number of dots when throwing 10 dice." width="50%" />
+<p class="caption">
+Figure 3.3: Density plot over the total number of dots when throwing 10 dice.
+</p>
+</div>
+</div>
+<div id="boxplot" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Boxplot</h2>
+<p>A boxplot, also called a box-and-whisker plot, shows a box covering 50% of the data and the center line is located at the <strong>median</strong>. The median value is a value such that 50% of the measurements are below the median.</p>
+<p>The whiskers extend to the most extreme data point or at most 1.5 times the length of the box. (Note that 1.5 is the default in both ggplot and basic R graphics, but it is also a number that can be changed.) Any measurements further out are shown as outliers. A boxplot is based on both measures of location and of spread, more about this in the following chapters.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="desc-03quantitative.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(weight<span class="sc">~</span>gender, <span class="at">data=</span>micew5)</span>
+<span id="cb8-2"><a href="desc-03quantitative.html#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(micew5, <span class="fu">aes</span>(<span class="at">x=</span>gender, <span class="at">y=</span>weight)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() </span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:boxplot"></span>
-<img src="figures/boxplot-1.png" alt="Boxplot over weight of 100 5 weeks old mice, divided according to gender." width="50%" />
+<img src="figures/boxplot-1.png" alt="Boxplot over weight of 100 5 weeks old mice, divided according to gender." width="50%" /><img src="figures/boxplot-2.png" alt="Boxplot over weight of 100 5 weeks old mice, divided according to gender." width="50%" />
 <p class="caption">
 Figure 3.4: Boxplot over weight of 100 5 weeks old mice, divided according to gender.
 </p>
 </div>
-<div class="figure"><span style="display:block;" id="fig:beeswarm"></span>
-<img src="figures/beeswarm-1.png" alt="Boxplot over weight of 20 5 weeks old mice, divided according to gender." width="50%" />
+</div>
+<div id="beeswarm-plot" class="section level2" number="3.4">
+<h2><span class="header-section-number">3.4</span> Beeswarm plot</h2>
+<p>Instead of, or in addition to, a boxplot, it might be useful to actually show all the measurements.</p>
+<p>This can be done in a 1D scatter plot, a so called strip plot.</p>
+<div class="figure"><span style="display:block;" id="fig:stripplot"></span>
+<img src="figures/stripplot-1.png" alt="Strip plot over weight of 20 5 weeks old mice, divided according to gender." width="50%" />
 <p class="caption">
-Figure 3.5: Boxplot over weight of 20 5 weeks old mice, divided according to gender.
+Figure 3.5: Strip plot over weight of 20 5 weeks old mice, divided according to gender.
 </p>
 </div>
-<p>To study the relationship between two variables scatterplots are useful;</p>
+<p>As some measurements are close to each other it can be difficult to interpret such a plot, in a beeswarm plot the data points are scattered a bit along the x-axis. In a beeswarm plot the x-position is not meaningful, it is just there to make more data points visible.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="desc-03quantitative.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beeswarm)</span>
+<span id="cb9-2"><a href="desc-03quantitative.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">beeswarm</span>(weight<span class="sc">~</span>gender, <span class="at">data=</span>micew5)</span>
+<span id="cb9-3"><a href="desc-03quantitative.html#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(micew5, <span class="fu">aes</span>(<span class="at">x=</span>gender, <span class="at">y=</span>weight)) <span class="sc">+</span> <span class="fu">geom_beeswarm</span>(<span class="at">cex=</span><span class="fl">2.5</span>) </span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:beeswarm"></span>
+<img src="figures/beeswarm-1.png" alt="Beeswarm plot over weight of 20 5 weeks old mice, divided according to gender. Plot to the left generated using the function beeswarm in the R-package beeswarm, figure to the right generated using ggplot and the R-package ggbeeswarm." width="50%" /><img src="figures/beeswarm-2.png" alt="Beeswarm plot over weight of 20 5 weeks old mice, divided according to gender. Plot to the left generated using the function beeswarm in the R-package beeswarm, figure to the right generated using ggplot and the R-package ggbeeswarm." width="50%" />
+<p class="caption">
+Figure 3.6: Beeswarm plot over weight of 20 5 weeks old mice, divided according to gender. Plot to the left generated using the function beeswarm in the R-package beeswarm, figure to the right generated using ggplot and the R-package ggbeeswarm.
+</p>
+</div>
+</div>
+<div id="scatter-plot" class="section level2" number="3.5">
+<h2><span class="header-section-number">3.5</span> Scatter plot</h2>
+<p>To study the relationship between two variables scatter plots are useful;</p>
 <div class="figure"><span style="display:block;" id="fig:scatter"></span>
 <img src="figures/scatter-1.png" alt="Scatter plot over length of mouse vs weight (g)." width="50%" />
 <p class="caption">
-Figure 3.6: Scatter plot over length of mouse vs weight (g).
+Figure 3.7: Scatter plot over length of mouse vs weight (g).
 </p>
 </div>
 <p>For a time series or similar line graphs are useful.</p>
 <div class="figure"><span style="display:block;" id="fig:lineplot"></span>
 <img src="figures/lineplot-1.png" alt="Line plot over age of mouse vs weight (g) for three mice." width="50%" />
 <p class="caption">
-Figure 3.7: Line plot over age of mouse vs weight (g) for three mice.
+Figure 3.8: Line plot over age of mouse vs weight (g) for three mice.
 </p>
 </div>
 <p>Summary statistics for numeric data are usually divided into measures of location and spread.</p>
-<!--   - Interval: no absolute zero, meaningful to compute interval ratios. -->
-<!--     Ex: time, temperature -->
-<!--   - Ratio: absolute zero, meaningful to compute ratios. Ex. height, -->
-<!--     weight, concentration -->
-<!-- Often not necessary to distinguish between interval and ratio scale, can be more useful to divide the quantitative scales into -->
+</div>
 </div>
             </section>
 
