@@ -12,7 +12,6 @@ knitr::opts_chunk$set(fig.pos = 'H')
 knitr::opts_chunk$set(cache.path = "tmp")
 knitr::opts_chunk$set(cache = FALSE)
 
-
 ```
 
 
@@ -22,20 +21,37 @@ knitr::opts_chunk$set(cache = FALSE)
 
 <br/><br/>
 
-### Getting to know each other
-<br/>
 
-##### Teaching team
+### About us
+
 - [Olga Dethlefsen][olga] 
 - [Eva Freyhult][eva] 
 - [Bengt Sennblad][bengt] 
 - [Payam Emami][payam] 
+
+<br/>
+
+- [Mun-Gwan Hong][mungwan]
+- [Per Unneberg][per]
+- [Julie Lorent][julie]
+- [Vincent van Hoef][vincent]
 
 
 [eva]: https://nbis.se/about/staff/eva-freyhult/
 [olga]: https://nbis.se/about/staff/olga-dethlefsen/
 [bengt]: https://nbis.se/about/staff/bengt-sennblad/
 [payam]: https://nbis.se/about/staff/payam-emami/
+
+[mungwan]: https://nbis.se/about/staff/mungwan-hong/
+[per]: https://nbis.se/about/staff/per-unneberg/
+[julie]: https://nbis.se/about/staff/julie-lorent/
+[vincent]: https://nbis.se/about/staff/vincent-vanhoef/
+
+<br/>
+
+- NBIS: National Bioinformatics Infrastructure Sweden https://www.scilifelab.se/units/nbis/
+- SciLifeLab Bioinformatics Platform
+
 
 
 <br/><br/>
@@ -51,29 +67,62 @@ library(ggplot2)
 library(RColorBrewer)
 library(ggpubr)
 library(scales)
+library(tidyverse)
 
-data.inp <- read.delim("background.csv", sep=";")
-data.inp <- data.inp[1:22, ]
+data.input <- read_csv("background-2021.csv")
+
+data.inp <- data.input %>%
+  mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced")))
+
 #head(data.inp)
 
 ```
 
 
-```{r, echo=F, message=F, warning=F, fig.align="center"}
+```{r, echo=F, message=F, warning=F, fig.align="center", fig.keep="all", fig.height=4.5}
 
 colornames <- brewer.pal(n=4, "Set1")
 
-data.inp$R <- factor(data.inp$R.experience, levels = c("None", "Beginner", "Intermediate", "Advanced"))
+data.inp$R <- factor(data.inp$R, levels = c("None", "Beginner", "Intermediate", "Advanced"))
 data.inp$Position <- factor(data.inp$Position)
 data.inp$University <- factor(data.inp$University)
 
 bar.width <- 0.7
-g1 <- ggplot(data.inp, aes(y=Position)) + geom_bar(fill=colornames[2], alpha=0.5) + ylab("") + theme_classic2() + scale_x_continuous(breaks= pretty_breaks())
-g2 <- ggplot(data.inp, aes(y=University)) + geom_bar(fill=colornames[3], alpha=0.5) + ylab("") + theme_classic2()  + scale_x_continuous(breaks= pretty_breaks())
-g3 <- ggplot(data.inp, aes(y=R)) + geom_bar(fill=colornames[4], alpha=0.5) + ylab("") + ylab("")+ theme_classic2() + scale_x_continuous(breaks= pretty_breaks())
-g4 <- ggplot(data.inp, aes(y=R, fill=Position)) + geom_bar(alpha = 0.5) + ylab("")
+g1 <- ggplot(data.inp, aes(x=Position, group = 1)) + 
+  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+  geom_text(aes(label = scales::percent(..prop..), y= ..prop.. ), stat= "count", vjust = -.5) +
+  xlab("") + 
+  ylab("%") + 
+  theme_classic2() + 
+  scale_y_continuous(labels = scales::percent) + 
+  theme(legend.position = "None") + 
+  ggtitle("Position")
 
-ggarrange(g2, g1, g3, ncol=3)
+
+g2 <- ggplot(data.inp, aes(x=University, group = 1)) + 
+  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+  geom_text(aes(label = scales::percent(..prop..), y= ..prop.. ), stat= "count", vjust = -.5) +
+  xlab("") + 
+  ylab("%") + 
+  theme_classic2() + 
+  scale_y_continuous(labels = scales::percent) + 
+  theme(legend.position = "None") + 
+  ggtitle("University")
+
+g3 <- ggplot(data.inp, aes(x=R, group = 1)) + 
+  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+  geom_text(aes(label = scales::percent(..prop..), y= ..prop.. ), stat= "count", vjust = -.5) +
+  xlab("") + 
+  ylab("%") + 
+  theme_classic2() + 
+  scale_y_continuous(labels = scales::percent) + 
+  theme(legend.position = "None") + 
+  ggtitle("R experience")
+
+
+ggarrange(g1, g3, ncol=2)
+g2
+
 
 ```
 
@@ -81,25 +130,40 @@ ggarrange(g2, g1, g3, ncol=3)
 <br/><br/>
 
 ### Teaching approach
+- we try to focus on fundamentals, thinking that if you get the basics right you will have no problems reading up more advanced things
 - we try to focus on active learning with us talking less and you doing more
-- we try to focus on fundamentals, thinking that if you get the basics right you will have no problems reading up the more advanced things
+- **help us to build a stimulating learning environment** by asking questions on Zoom and Canvas
+
+<br/><br/>
+
+### Online classroom
 - we believe that you know how to study best ([Online Classroom](https://nbisweden.github.io/workshop-mlbiostatistics/classroom))
-- **be brave**: help us to build a **stimulating learning environment** by asking questions in public on Zoom and Zulip. 
+
+<br/><br/>
+
+### Canvas Demo
+- Schedule
+- Modules 
+- Chat
+- Discussion
+- Files 
+- Announcements
+
+*please change your name under the Profile*
 
 <br/><br/>
 
 ### Certificate requirements
 - active participation during the week
 - online presence in live streams and group sessions
-- completing "Daily challenge" session: opens daily at 16.00
-- please email us your address that we can send the certificate to
+- completing "Daily challenge" quiz: opens daily at 15.00, closes at 09:00 the following day
+
 
 <br/><br/>
 
-### Course website:
-https://uppsala.instructure.com/courses/51998
-
-https://nbisweden.github.io/workshop-biostatistics/
+### Course website
+- https://uppsala.instructure.com/courses/51998 (current)
+- https://nbisweden.github.io/workshop-biostatistics/ (generic)
 
 
 
