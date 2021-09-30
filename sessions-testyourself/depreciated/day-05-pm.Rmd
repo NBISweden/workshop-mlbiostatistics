@@ -1,0 +1,185 @@
+---
+title: "Test yourself 05"
+output:
+  bookdown::html_document2:
+    number_sections: false
+  pdf_print: paged
+  pdf_document: default
+  word_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+Rate your confidence of being able to answer the below questions saying A, B or C, where:
+
+- A. I am confident that I know the answer to this question
+- B. I know at least 50% of the answer to this question, within 20 minutes I could find the required resources to enable a complete answer
+- C. I am not confident that I can answer the question at this time.
+
+### Part I (Rating confidence)
+
+1. Could you broadly explain the concept and application of likelihood?
+2. In Bayesian approach, could you broadly explain the difference between the prior and posterior distribution?
+3. Can you broadly explain the concept of AIC and relative Likelihood?
+4. In feature selection, could you explain the concept of Lasso?
+5. In ANN, could you explain what an activation function is?
+6. In ANN, could you explain gradient descent?
+7. Do you understand the forward pass in a (very) simple ANN?
+8. Would you be able to explain the structure of a given feedforward neural network? 
+
+### Part II (Answer questions: matching the confidence questions above)
+
+1. What is not correct about likelihood?
+    a. likelihood is a generative model
+    b. likelihood can be used to estimate how likely it is that a certain model parameter values are true
+    c. in linear models, the maximum likelihood estimates are the same least squares estimates
+    d. maximum likelihood equates the conditional probability of model parameters given the observed data
+
+2. In Bayesian approach, what is true about the prior and posterior distribution?
+    a. prior distribution reflects what we already know about the value of the parameter of interest, the posterior distribution captures our prior knowledge and knowledge coming from observing the data
+    b. posterior distribution reflects what we know about the value of the parameter of interest, the prior distribution captures our prior knowledge and knowledge coming from observing the data
+    c. prior distribution and posterior distributions are completely unrelated, the prior is used to capture a hypothetical distribution of the model parameter, the posterior captures the knowledge after getting to know the data
+    d. none of the above is true
+
+3. For AIC, which of the following statements is *not* true
+    a. the relative likelihood, $relL$, can be used to compare models
+    b. AIC is a method to address over-fitting
+    c. AIC for a model penalizes the maximum logLikelihood with the number of variables in the model
+    d. AIC for a model penalizes the maximum likelihood with the number of variables in the model
+
+4. In feature selection, what is *not* true about Lasso?
+    a. LASSO stands for least absolute shrinkage and selection operator 
+    b. LASSO can be viewed as least squares model parameters estimation that includes a penalty criterion
+    c. LASSO can be viewed as a (un-normalized) Bayesian posterior probability
+    d. LASSO results in an overfitted model
+
+5. In ANN, what is *not* true about the activation function?
+    a. activation function determines the output of neuron in a neural network
+    b. the sigmoid activation function normalizes the output of each neuron to 0 - 1 range
+    c. the logistic function is an example of an activation function
+    d. activation function activates learning in ANN
+
+6. In ANN, what is true about gradient descent?
+    a. gradient descent is used during the back-propagation step to compute partial derivatives
+    b. gradient descent is calculated based on partial derivatives of the loss function
+    c. gradient descent is used in forward pass to update model parameters
+    d. gradient descent depends on the learning rate
+
+7. In the ANN below, what is true about the result of a forward pass?
+    a. $y = 0.61$
+    b. $\hat{y} = 0.61$
+    c. $\hat{y} = a_1$
+    d. $x = 0.61$
+
+```{r, echo=FALSE}
+library(reticulate)
+library(knitr)
+knit_engines$set(python = reticulate::eng_python) 
+```
+
+```{python, echo=FALSE, out.width="50%", out.height="50%"}
+import numpy as np
+import matplotlib.pyplot as plt
+from draw_neural_net import draw_neural_net
+
+def sigma(z):
+    return 1/(1+np.exp(-z))
+
+#-----1-1-1
+layer_sizes = [1,1,1]
+
+x= 1
+y = 0
+i1 = x
+w1 = 0.5
+w2 = 0.4
+b1 = 0
+b2 = 0.2
+z1 = w1*i1+b1
+a1 = sigma(z1)
+z2 = w2*a1+b2
+a2 = sigma(z2)
+C = 0.5 * (y-a2)**2
+z1 = round(z1, 2)
+a1 = round(a1, 2)
+z2 = round(z2, 2)
+a2 = round(a2, 2)
+C = round(C,2)
+weights = [
+        np.array(
+                [
+                        ["w_1="+"{}".format(w1)]
+                 ]
+        ),
+        np.array(
+                [
+                        [ "w_2="+"{}".format(w2)]
+                ]
+        )
+]
+biases = [
+        np.array(
+                ["{}".format(b1)]
+        ), 
+        np.array(
+                ["{}".format(b2)]
+        )
+]
+
+hidden = [
+                np.array(
+                [ r"$i_1$"]
+                ),
+                np.array(
+                [ r"$z_1\rightarrow a_1$"]
+                ),
+                np.array(
+                [ r"$z_2\rightarrow a_2$"]
+                ),
+]
+fig = plt.figure(figsize=(12, 12))
+ax = fig.gca()
+ignore=ax.axis('off')
+
+draw_neural_net(ax, 
+                layerSizes = layer_sizes, 
+                weights = weights, 
+                biases=biases, 
+                nodePrefix = hidden,
+                inPrefix = ["{}".format(x)], 
+                outPrefix = [ r"$\hat{y}$" ],
+                nodeFontSize=25, edgeFontSize = 20, edgeWidth = 3
+)
+plt.show()
+```
+
+8. What is true about the structure of the below neural network?
+    a. there are 2 hidden layers containing 5 neurons and 2 neurons respectively and 9 neurons in the input layer
+    b. there are 2 hidden layers containing 2 neurons and 5 neurons respectively and 9 neurons in the input layer
+    c. there are 3 hidden layers containing 5, 2 and 2 neurons respectively 
+    d. there is one hidden layer with 5 neurons and 2 output layers
+
+```{python, echo=FALSE, out.width="75%", out.height="75%"}
+
+layer_sizes = [9,5,2,2] # Change number of neurons in each layer, here
+
+fig = plt.figure(figsize=(12, 12))
+ax = fig.gca()
+ignore=ax.axis('off')
+draw_neural_net(ax, 
+                inNodePrefix = "",
+                outNodePrefix = "",
+                hiddenNodePrefix = "",
+                layerSizes = layer_sizes
+                )
+plt.show()
+```
+
+
+
+
+ 
+
+
+
