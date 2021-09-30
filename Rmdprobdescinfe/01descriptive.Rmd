@@ -83,7 +83,7 @@ m10 <- subset(mice, subset=week==5 & id %in% 1:10, select = c(id, gender, weight
 In this example we have only ten observations (mice) and the full data can actually be shown in a table.
 
 ```{r m10}
-m10  %>% kable(caption="Gender and weight of 10 mice.") %>% kable_styling(full_width = FALSE)
+m10  %>% kable(caption="Gender and weight of 10 mice.", row.names = FALSE) %>% kable_styling(full_width = FALSE)
 ```
 
 We are interested in the gender distribution in our group of mice. Count the frequency of male/female mice and summarize in a table. Also, the fraction or percentage can be useful.
@@ -149,39 +149,73 @@ tabperc[,2] <- 100*tab[,2]/sum(tab[,2])
 barplot(tabperc)
 ```
 
+Sometimes a barplot is plotted using polar coordinates, i.e. a pie chart.
+
+```{r pie, fig.cap="A pie chart over he number of controls that are left/right handed."}
+ggplot(hand %>% filter(group=="control"), aes(x="", fill=handedness)) + geom_bar(width=1) + coord_polar("y", start=0)
+```
+
 
 # Quantitative data {#desc-03quantitative}
 
-Quantitative data (both discrete and continuous) can be visualized in a histogram;
+Quantitative data (both discrete and continuous) can be visualized and summarized in many ways. Common plots include histograms, density plots, boxplots and scatter plots. summary statistics include mean, median, quartile, variance, standard deviation and median absolute deviation.
 
-```{r sum10dice, fig.show="hold", out.width="50%", fig.cap="Throw 10 dice and count the total number of dots. Repeat the experiment 1000 times. This histogram summarize the results, i.e. the total number of dots when throwing 10 dice."}
+## Histogram
+
+A histogram bins the data and counts the number of observations that fall into each bin.
+
+```{r sum10dice, fig.show="hold", out.width="50%", fig.cap="Throw 10 dice and count the total number of dots. Repeat the experiment 1000 times. This histogram summarize the results, i.e. the total number of dots when throwing 10 dice.", echo=TRUE}
 sum10dice <- replicate(1000, sum(sample(1:6, 10, replace=TRUE)))
 hist(sum10dice)
-ggplot(data.frame(sum10dice), aes(x=sum10dice)) + geom_histogram(bins=25, color="white")
+ggplot(data.frame(sum10dice), aes(x=sum10dice)) + geom_histogram(binwidth = 5, center=32.5, color="white")
 ```
 
-or a density plot;
-
-```{r dicedens, fig.cap="Density plot over the total number of dots when throwing 10 dice.", out.width="50%"}
-ggplot(data.frame(sum10dice), aes(x=sum10dice)) + geom_density()
-```
-
-```{r hist, fig.cap="Histogram over weight of 2000 5 weeks old mice, colored according to gender.", out.width="50%", fig.show="hold"}
+```{r hist, fig.cap="Histogram over weight of 2000 5 weeks old mice, colored according to gender.", out.width="50%", fig.show="hold", echo=TRUE}
 micew5 <- mice %>% filter(week==5)
 ggplot(micew5, aes(x=weight, fill=gender)) + geom_histogram(bins=15, color="white")
 hist(micew5$weight[micew5$gender=="female"], col="orange", breaks=15, main="Weight of mice at 5 weeks", xlab="Weight (g)")
 hist(micew5$weight[micew5$gender=="male"], col="cornflowerblue", breaks=15, add=TRUE)
 ```
 
-Other useful plots are boxplots and beeswarm plots;
+## Density plot
 
-```{r boxplot, fig.cap="Boxplot over weight of 100 5 weeks old mice, divided according to gender.", out.width="50%", fig.show="hold"}
+A density plot is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.
+
+```{r dicedens, fig.cap="Density plot over the total number of dots when throwing 10 dice.", out.width="50%", echo=TRUE}
+ggplot(data.frame(sum10dice), aes(x=sum10dice)) + geom_density()
+```
+
+## Boxplot
+
+A boxplot, also called a box-and-whisker plot, shows a box covering 50% of the data and the center line is located at the **median**. The median value is a value such that 50% of the measurements are below the median.
+
+The whiskers extend to the most extreme data point or at most 1.5 times the length of the box. (Note that 1.5 is the default in both ggplot and basic R graphics, but it is also a number that can be changed.) Any measurements further out are shown as outliers. A boxplot is based on both measures of location and of spread, more about this in the following chapters.
+
+```{r boxplot, fig.cap="Boxplot over weight of 100 5 weeks old mice, divided according to gender.", out.width="50%", fig.show="hold", echo=TRUE}
+boxplot(weight~gender, data=micew5)
 ggplot(micew5, aes(x=gender, y=weight)) + geom_boxplot() 
 ```
-```{r beeswarm, fig.cap="Boxplot over weight of 20 5 weeks old mice, divided according to gender.", out.width="50%", fig.show="hold"}
-ggplot(micew5, aes(x=gender, y=weight)) + geom_beeswarm() 
+
+## Beeswarm plot
+
+Instead of, or in addition to, a boxplot, it might be useful to actually show all the measurements.
+
+This can be done in a 1D scatter plot, a so called strip plot.
+
+```{r stripplot, fig.cap="Strip plot over weight of 20 5 weeks old mice, divided according to gender.", out.width="50%", fig.show="hold"}
+ggplot(micew5, aes(x=gender, y=weight)) + geom_point() 
 ```
-To study the relationship between two variables scatterplots are useful;
+As some measurements are close to each other it can be difficult to interpret such a plot, in a beeswarm plot the data points are scattered a bit along the x-axis. In a beeswarm plot the x-position is not meaningful, it is just there to make more data points visible.
+
+```{r beeswarm, fig.cap="Beeswarm plot over weight of 20 5 weeks old mice, divided according to gender. Plot to the left generated using the function beeswarm in the R-package beeswarm, figure to the right generated using ggplot and the R-package ggbeeswarm.", out.width="50%", fig.show="hold", echo=TRUE}
+library(beeswarm)
+beeswarm(weight~gender, data=micew5)
+ggplot(micew5, aes(x=gender, y=weight)) + geom_beeswarm(cex=2.5) 
+```
+
+## Scatter plot
+
+To study the relationship between two variables scatter plots are useful;
 
 ```{r scatter, fig.cap="Scatter plot over length of mouse vs weight (g).", out.width="50%", fig.show="hold"}
 ggplot(subset(mice, week==10), aes(x=7.3+weight/20+rnorm(100,0,0.1), y=weight, group=id)) + geom_point() + xlab("length (cm)") + ylab("weight (g)")
@@ -198,17 +232,11 @@ ggplot(subset(mice, id %in% 17:19), aes(x=week, y=weight, group=id)) + geom_poin
 
 Summary statistics for numeric data are usually divided into measures of location and spread.
 
-<!--   - Interval: no absolute zero, meaningful to compute interval ratios. -->
-<!--     Ex: time, temperature -->
-<!--   - Ratio: absolute zero, meaningful to compute ratios. Ex. height, -->
-<!--     weight, concentration -->
-<!-- Often not necessary to distinguish between interval and ratio scale, can be more useful to divide the quantitative scales into -->
-
-
 # Measures of location {#desc-04location}
 
 - Mode: the most common value, can be computed also for categorical data
 - Median: The value that divide the ordered data values into two equally sized groups. 50% of the values are below the median.
+
 
 ```{r normpdf, fig.width=2, out.width="20%"}
 df <- data.frame(x=rnorm(200, 3.5, 2))
@@ -270,11 +298,22 @@ $$\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2}$$
 The denominator $n$ is commonly replaced by $n-1$ and the **sample standard deviation** is calculated instead;
 
 $$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$
+
+
 The latter formula is used if we regard the collection of observations $x_1, \dots, x_n$ as a **sample** drawn from a large **population** of possible observations.
 
-I we want to describe the variance/standard deviation only of our set of observations, the former formula should be used, calculation of a population standard deviation $\sigma$ (i.e. we consider the set of observations to be the full population).
+If we want to describe the variance/standard deviation only of our set of observations, the former formula should be used, calculation of a population standard deviation $\sigma$ (i.e. we consider the set of observations to be the full population).
 
 If instead, we want to estimate the variance of a larger population from which our smaller sample is drawn, we should calculate the sample standard deviation, $s$.
+
+
+
+<!--   - Interval: no absolute zero, meaningful to compute interval ratios. -->
+<!--     Ex: time, temperature -->
+<!--   - Ratio: absolute zero, meaningful to compute ratios. Ex. height, -->
+<!--     weight, concentration -->
+<!-- Often not necessary to distinguish between interval and ratio scale, can be more useful to divide the quantitative scales into -->
+
 
 # Exercises: Descriptive statistics {.unnumbered #desc-exercises}
 
@@ -300,6 +339,7 @@ baby %>% kable() %>% kable_styling("striped", full_width = FALSE)
 ``` 
 
 
+
 ```{exercise, label="pill2", echo=TRUE}
 **Amount of active substance**
   
@@ -321,6 +361,24 @@ Useful commands in R include `subset, hist, density`
 c) Summarize the entire data set using boxplots.
 d) Can you think of another way to visualize the data set?
 ```
+
+```{exercise, label="PBC", echo=TRUE}
+**Mayo Clinic Primary Biliary Cholangitis Data**
+  
+Start by loading the dataset pbc, from the survival package. To read more about the data set you can read the help text.
+```
+
+```{r}
+library(survival)
+data(pbc)
+?pbc
+```
+
+a) Take a first look at the data, e.g. using `summary`. All variables, excep sex, are coded numerically. Is this correct? If not, which variables are really categorical? Use `factor` to change them into categorical variables. Run `summary` on the dataset again.
+b) There are packages available for easily summarizing a data set, one of them is `tableone`. Install the package, load it and apply it to the pbc data set.
+Hint: the main function is called `CreateTableOne`
+c) Plot the copper and bili values, both separately using an appropriate plot and together in a scatter plot. 
+
 
 ## Solutions: Descriptive statistics {-}  
 

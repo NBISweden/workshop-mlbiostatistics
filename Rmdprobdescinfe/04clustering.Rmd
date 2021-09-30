@@ -74,19 +74,19 @@ K-means clustering requires that we specify the number of clusters, $k$. How do 
 
 The Elbow method is based on the total within sum of squares, $WSS$, that the K-means algorithm tries to minimize. By running the algorithm with several different values of $k$, e.g. 1--10, we can plot WSS as a function of $k$.
 
-```{r elbow, fig.height=4, fig.width=7, fig.caption="WSS as a function of the number of clusters, $k$."}
+```{r elbow, fig.height=4, fig.width=7, fig.caption="WSS as a function of the number of clusters, $k$.", warning=FALSE}
 library(factoextra)
 fviz_nbclust(df[, c("x", "y")], kmeans, method="wss")
 
-wss <- sapply(1:10, function(k) kmeans(df[, c('x','y')], centers=k)$tot.withinss)
-data.frame(k=1:10, WSS=wss) %>% ggplot(aes(k, WSS)) + geom_point() + geom_line() + theme_bw() + scale_x_continuous(breaks=1:10)
+# wss <- sapply(1:10, function(k) kmeans(df[, c('x','y')], centers=k)$tot.withinss)
+# data.frame(k=1:10, WSS=wss) %>% ggplot(aes(k, WSS)) + geom_point() + geom_line() + theme_bw() + scale_x_continuous(breaks=1:10)
 ```
 
 WSS is constantly decreasing as $k$ increases. The elbow methods suggests that The inflection (bend, elbow) on the curve indicate an optimal number of clusters. In this case, the elbow method suggests that the optimal number of clusters is $k=3$.
 
 ### Gap statistic
 
-As WSS is constantly decreasing for increasing $k$, we can't use the minimum to find optimal $k$. Eyeballing as in the elbow method is one option, but another is to use gap 
+As WSS is constantly decreasing for increasing $k$, we can't use the minimum to find optimal $k$. Eyeballing as in the elbow method is one option, but another is to use the gap statistic that measure the difference between the observed $WSS$ and an expected $WSS$ under a reference (null) model.
 
 ### Silhouette method
 
