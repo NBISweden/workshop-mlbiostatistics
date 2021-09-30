@@ -21,7 +21,7 @@ title:  'Schedule'
 
 *14.30 - 15.00 break*
 
-**15:00 - 15:30** [Probability: Introduction and discrete distributions](sessions-probability)
+**15:00 - 15:30** [Probability: Introduction and discrete distributions](session-probability)
 
 **13.30 - 16.30** [Exercises](session-probability/prob-exercise-discrv.html)
 
@@ -32,7 +32,7 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09:30 - 10.00** [Probability: continuous distributions](session-probability/prob-conrv.html)
+**09:30 - 10.00** [Probability: continuous distributions](session-probability/prob-contrv.html)
 
 **10:00 - 10.45** [Exercises](session-probability/prob-exercise-contrv.html) and [Exercises](session-probability/prob-exercise-sample.html)
 
@@ -92,7 +92,7 @@ title:  'Schedule'
 
 **13.00 - 13.30** [Clustering: k-means and hierarchical clustering](session-clustering)
 
-**13.30-14.30** [Exercises](sessions-probdescinfe/session-clustering.html#exercises-clustering)
+**13.30-14.30** [Exercises](session-clustering/clust-exercises.html)
 
 *14.30 - 15.00 break*
 
