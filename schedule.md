@@ -107,7 +107,7 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09.30 - 12.00** [Feature selection & model evaluation](session-regularization/lecture-regularization)
+**09.30 - 12.00** [Feature selection & model evaluation](session-regularization/lecture-regularization.html)
 
 *12:00 - 13:00 lunch*
 
