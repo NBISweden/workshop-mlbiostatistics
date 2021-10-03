@@ -107,13 +107,13 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09.30 - 12.00** [Feature selection & model evaluation](session-regularization/session-regularization)
+**09.30 - 12.00** [Feature selection & model evaluation](session-regularization/lecture-regularization.html)
 
 *12:00 - 13:00 lunch*
 
 **13.00 - 13.30** Random Forest
 
-**13.30 - 14.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/ann-regression-and-classification.html)
+**13.30 - 14.30** Exercises
 
 **16.30 - 17.00** Daily challenge
 

@@ -1,0 +1,137 @@
+---
+title: "Daily challenge III"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+
+1. Given a linear model $y_i=\alpha + \beta x_i + \epsilon_i$ what terminology is used for $y$ and $x$?
+- $y$ is called outcome, response and independent variable
+- $x$ is called exposure, predictor or dependent variable
+- $y$ is called outcome, response, dependent variable
+- $x$ is called outcome, response, dependent variable
+
+
+2. Given a linear model $Y_i=\beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i$ what is the design matrix ?
+
+a) $\begin{bmatrix} 1 & x_1  \\ 1 & x_2  \\ \vdots & \vdots \\ 1 & x_{n} \end{bmatrix}$ 
+
+b) $\begin{bmatrix} 1 & x_1 & x_2  \\ 1 & x_2 & x_2 \\ \vdots & \vdots & \vdots \\1 & x_n & x_{n}\end{bmatrix}$ 
+
+b) $\begin{bmatrix} 1 & x_1 & x_2^2  \\ 1 & x_2 & x_2^2 \\ \vdots & \vdots & \vdots \\1 & x_n & x_{n}^2\end{bmatrix}$ 
+
+d) $\begin{bmatrix} y_1  \\ y_2  \\ \vdots  \\ y_{n} \end{bmatrix}$ 
+
+
+3. Given output of lm() regression  what is true based on the slope coefficient?
+```{r, echo=F}
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0, 80) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12, 4) # plasma volume (liters)
+gender <- c("Female", "Male", "Female", "Female", "Male", "Male", "Female", "Male", "Male")
+
+#summary(lm(plasma ~ weight))
+```
+
+```{r}
+# Call:
+# lm(formula = plasma ~ weight)
+# 
+# Residuals:
+#      Min       1Q   Median       3Q      Max 
+# -0.34908 -0.12950 -0.06887  0.21644  0.25220 
+# 
+# Coefficients:
+#             Estimate Std. Error t value Pr(>|t|)   
+# (Intercept) -0.81226    0.84364  -0.963  0.36772   
+# weight       0.05745    0.01229   _____  ______ **
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# Residual standard error: 0.2328 on 7 degrees of freedom
+# Multiple R-squared:  0.7573,	Adjusted R-squared:  0.7226 
+# F-statistic: 21.84 on 1 and 7 DF,  p-value: 0.002279
+```
+
+a) for every unit increase in weight plasma increases by 0.05
+b) for every unit increase in weight plasma decreases by 0.81
+c) for every unit increase in weight plasma increases 0.012
+d) for every 100 unit increase in weight plasma increases by 0.05
+
+4. Given the output of the linear regression to model plasma volume given weight we would like to check whether we can reject the null hypothesis that $H_0: \beta = 0$ if favour of the alternative $H_0: \beta \ne 0$ . What is t-value and the associated p-value? Is there enough evidence to reject the null hypothesis?
+
+a) t-value = 4.673, p-value = 0.01229: there is enough evidence reject the null hypothesis and conclude that there is a significant association between weight and plasma volume
+b) t-value = 4.673, p-value = 0.00228: there is enough evidence reject the null hypothesis and conclude that there is a significant association between weight and plasma volume
+c) t-value = 4.673, p-value = 0.00228: there is not enough evidence reject the null hypothesis and conclude that there is a significant association between weight and plasma volume
+d) t-value = 0.05745, p-value = 0.01229: there is enough evidence reject the null hypothesis and conclude that there is a significant association between weight and plasma volume
+
+5. Given the output of lm() with categorical gender variable what is the expected value of plasma for a man that weights 80 kg? 
+```{r, echo=F}
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0, 80) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12, 4) # plasma volume (liters)
+gender <- c("Female", "Male", "Female", "Female", "Male", "Male", "Female", "Male", "Male")
+
+summary(lm(plasma ~ weight + gender))
+```
+
+a) 3.8
+b) 3.74
+c) 5.27
+d) 5.33
+
+
+6. In simple linear regression model, what is $R^2$ given the response and fitted response values
+```{r}
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62)
+plasma.hat <- c(2.60, 3.04, 3.19, 2.78, 2.74)
+
+```
+
+a) 0.69
+b) 2.87
+c) 0.10
+d) 0.34
+
+```{r, echo = F, include = F}
+weight <- c(58, 70, 74, 63, 62) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62) # plasma volume (liters)
+m1 <- lm(plasma ~ weight)
+summary(m1)
+
+yhat <- round(m1$fitted.values, 2)
+
+RSS <- sum((plasma - m1$fitted.values)^2)
+TSS <- sum((plasma- mean(plasma))^2)
+R2 = 1-RSS/TSS
+round(R2, 2)
+
+```
+
+
+7. Which of the below residuals plot does not check any assumptions of the linear model?
+a) histogram of residuals
+b) residuals vs. fitted values
+c) residuals vs. model coefficients
+d) residuals vs. explanatory variable
+
+8. Given the logistic regression output of Healthy/Unhealthy (1/0) vs. plasma and weight model by much are odds of being healthy multiplied with unit increase of plasma volume? 
+```{r, echo=F}
+
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0, 80, 81) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12, 4, 4) # plasma volume (liters)
+gender <- c("Female", "Male", "Female", "Female", "Male", "Male", "Female", "Male", "Male", "Male")
+gender <- as.factor(gender)
+healthy <- as.factor(c("H", "Male", "H", "H", "Male", "Male", "H", "Male", "Male", "Male"))
+
+m1 <- glm(healthy ~ plasma + weight, family = binomial(link="logit"))
+summary(m1)
+```
+
+a) 1.00
+b) 6.79
+c) 31.26
+d) 1.75
+ 
