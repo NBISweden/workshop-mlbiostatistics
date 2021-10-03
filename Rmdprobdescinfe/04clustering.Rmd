@@ -88,6 +88,16 @@ WSS is constantly decreasing as $k$ increases. The elbow methods suggests that T
 
 As WSS is constantly decreasing for increasing $k$, we can't use the minimum to find optimal $k$. Eyeballing as in the elbow method is one option, but another is to use the gap statistic that measure the difference between the observed $WSS$ and an expected $WSS$ under a reference (null) model.
 
+The gap statistic measures the distance between the observed $WSS$ and an expected $WSS$ under a reference (null) model.
+
+$$
+G(k) = E[\ln{(WSS_{unif}(k))}} - \ln{(WSS(k))}
+$$
+Choose $k$ as the smallest $k$ such that 
+$$
+G(k) \geq G(k+1) - s_{k+1}
+$$
+
 ### Silhouette method
 
 The silhoutette value for a single object $i$ is a value between -1 ans 1 that measure how similar the object is to other objects in the same cluster as compared to how similar it is to objects in other clusters.
@@ -108,6 +118,9 @@ The average silhouette over all objects is a measure of how good the clustering 
 asil <- sapply(2:10, function(k) kmeans(df[, c('x','y')], centers=k)$tot.withinss)
 #data.frame(k=1:10, WSS=wss) %>% ggplot(aes(k, WSS)) + geom_point() + geom_line() + theme_bw() + scale_x_continuous(breaks=1:10)
 ```
+### Compute optimal $k$ in R
+
+Several packages in R implement metjhods for choosing optimal number of clusters, one of them is `factorextra`and the `fviz_nbclust` function.
 
 
 # Dissimilarity matrix {#clust-03dissimilarity}
@@ -233,6 +246,7 @@ c) Run the same analysis again, do you get the same results? (You can compare tw
 d) By setting the argument `nstart` to 4 the algorithm will automatically try four different (random) starting points.
 e) Try different values for $k$, run the k-means algorithm and collect the WSS ('tot.withinss'). Plot WSS vs k. Thw WSS is always decreasing as k increases, but the curve can still give you a hint of which $k$ to choose. The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
 Which $k$ would you pick based on this?
+f) Download the R-package `factoextra` and use the function `fviz_nbclust` to compute gap statistic and silhouette width and choose optimal $k$.
 
 ```{exercise, label="clusterNCI60", echo=TRUE}
 
@@ -308,7 +322,16 @@ table(km4.1$cluster, km4.2$cluster)
 e) Try different values for $k$, run the k-means algorithm and collect the WSS ('tot.withinss'). Plot WSS vs k. The WSS is always decreasing as k increases, but the curve can still give you a hint of which $k$ to choose. The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
 Which $k$ would you pick based on this?
   
-  
+```{r}
+wss <- sapply(1:10, function(k) kmeans(df[, c('x','y')], centers=k, algorithm ="Forgy", nstart=4)$tot.withinss)
+plot(1:10, wss, type="b")
+```
+
+```{r, echo=TRUE}
+library(factoextra)
+fviz_nbclust(df[, c("x", "y")], kmeans, method="gap")
+fviz_nbclust(df[, c("x", "y")], kmeans, method="sil")
+```
 
 ```{r tmp, eval=FALSE}
 set.seed(2871)

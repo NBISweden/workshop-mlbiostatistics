@@ -180,7 +180,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="" data-path="infe-exercise-interval.html"><a href="infe-exercise-interval.html"><i class="fa fa-check"></i>Exercises: Interval estimates</a>
 <ul>
-<li class="chapter" data-level="4.3" data-path="infe-exercise-interval.html"><a href="infe-exercise-interval.html#solutions"><i class="fa fa-check"></i><b>4.3</b> Solutions</a></li>
+<li class="chapter" data-level="" data-path="infe-exercise-interval.html"><a href="infe-exercise-interval.html#solutions"><i class="fa fa-check"></i>Solutions</a></li>
 </ul></li>
 </ul>
 
@@ -216,29 +216,42 @@ The observed Hb levels (in g/L);
 <p>Perform a hypothesis test to investigate if the Hb level is affected (increased or decreased) by the iron-rich diet.</p>
 <div id="solution" class="section level2 unnumbered">
 <h2>Solution</h2>
+<p><a href="infe-exercises-hypresamp.html#exr:pollentest">1.1</a>
+<span class="math inline">\(H_0: \pi=0.3\)</span>
+<span class="math inline">\(H_1: \pi&gt;0.3\)</span></p>
+<p>Test statistic, <span class="math inline">\(P\)</span> fraction of allergic people in a sample of size 20</p>
+<p><span class="math inline">\(p_{obs} = 9/20 = 0.45\)</span></p>
+<p>Will use significance level <span class="math inline">\(\alpha=0.05\)</span></p>
+<p>Simulate null distribution</p>
+<p><img src="figures/unnamed-chunk-5-1.png" width="2100" />
+p-value, if null is true what is the probability to observe <span class="math inline">\(p_{obs}\)</span> or higher?</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="infe-exercises-hypresamp.html#cb26-1" aria-hidden="true" tabindex="-1"></a>(p <span class="ot">&lt;-</span> <span class="fu">mean</span>(pnull<span class="sc">&gt;=</span><span class="fl">0.45</span>))</span></code></pre></div>
+<pre><code>## [1] 0.1219</code></pre>
+<p>As <span class="math inline">\(p&gt;\alpha\)</span> we will accept the null hypothesis.</p>
+<p>Problems with the study: Discuss in your group! Is it reasonable to select 20 students at BMC to answer a question about all students in Sweden?</p>
 <p><a href="infe-exercises-hypresamp.html#exr:diet">1.2</a></p>
 <p>Define <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span></p>
 <p><span class="math inline">\(H_0: \mu_{diet} = \mu_{ctrl}\)</span> No difference in mean iron level between control group and iron rich group</p>
 <p><span class="math inline">\(H_1: \mu_{diet} \neq \mu_{ctrl}\)</span></p>
 <p>Select test statistic <span class="math inline">\(D = \bar X_d - \bar X_c\)</span>, where <span class="math inline">\(\bar X_c\)</span> is the mean iron level in a control group of 20 people and <span class="math inline">\(\ bar X_d\)</span> is the mean iro level in a diet group of 20 people.</p>
 <p>The observed value; <span class="math inline">\(d_{obs}\)</span></p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="infe-exercises-hypresamp.html#cb26-1" aria-hidden="true" tabindex="-1"></a>mdiet <span class="ot">&lt;-</span> <span class="fu">mean</span>(iron)</span>
-<span id="cb26-2"><a href="infe-exercises-hypresamp.html#cb26-2" aria-hidden="true" tabindex="-1"></a>mctrl <span class="ot">&lt;-</span> <span class="fu">mean</span>(ctrl)</span>
-<span id="cb26-3"><a href="infe-exercises-hypresamp.html#cb26-3" aria-hidden="true" tabindex="-1"></a>dobs <span class="ot">&lt;-</span> mdiet <span class="sc">-</span> mctrl</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="infe-exercises-hypresamp.html#cb28-1" aria-hidden="true" tabindex="-1"></a>mdiet <span class="ot">&lt;-</span> <span class="fu">mean</span>(iron)</span>
+<span id="cb28-2"><a href="infe-exercises-hypresamp.html#cb28-2" aria-hidden="true" tabindex="-1"></a>mctrl <span class="ot">&lt;-</span> <span class="fu">mean</span>(ctrl)</span>
+<span id="cb28-3"><a href="infe-exercises-hypresamp.html#cb28-3" aria-hidden="true" tabindex="-1"></a>dobs <span class="ot">&lt;-</span> mdiet <span class="sc">-</span> mctrl</span></code></pre></div>
 <p>Compute null distribution</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="infe-exercises-hypresamp.html#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Under null all observations are equivalent</span></span>
-<span id="cb27-2"><a href="infe-exercises-hypresamp.html#cb27-2" aria-hidden="true" tabindex="-1"></a>allobs <span class="ot">&lt;-</span> <span class="fu">c</span>(iron, ctrl)</span>
-<span id="cb27-3"><a href="infe-exercises-hypresamp.html#cb27-3" aria-hidden="true" tabindex="-1"></a>dnull <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, {</span>
-<span id="cb27-4"><a href="infe-exercises-hypresamp.html#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">##Permute the 40 observations and assign the 20 first to the iron group</span></span>
-<span id="cb27-5"><a href="infe-exercises-hypresamp.html#cb27-5" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">sample</span>(allobs)</span>
-<span id="cb27-6"><a href="infe-exercises-hypresamp.html#cb27-6" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>]) <span class="sc">-</span> <span class="fu">mean</span>(x[<span class="dv">21</span><span class="sc">:</span><span class="dv">40</span>])</span>
-<span id="cb27-7"><a href="infe-exercises-hypresamp.html#cb27-7" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb27-8"><a href="infe-exercises-hypresamp.html#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(dnull)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="infe-exercises-hypresamp.html#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Under null all observations are equivalent</span></span>
+<span id="cb29-2"><a href="infe-exercises-hypresamp.html#cb29-2" aria-hidden="true" tabindex="-1"></a>allobs <span class="ot">&lt;-</span> <span class="fu">c</span>(iron, ctrl)</span>
+<span id="cb29-3"><a href="infe-exercises-hypresamp.html#cb29-3" aria-hidden="true" tabindex="-1"></a>dnull <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, {</span>
+<span id="cb29-4"><a href="infe-exercises-hypresamp.html#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">##Permute the 40 observations and assign the 20 first to the iron group</span></span>
+<span id="cb29-5"><a href="infe-exercises-hypresamp.html#cb29-5" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">sample</span>(allobs)</span>
+<span id="cb29-6"><a href="infe-exercises-hypresamp.html#cb29-6" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>]) <span class="sc">-</span> <span class="fu">mean</span>(x[<span class="dv">21</span><span class="sc">:</span><span class="dv">40</span>])</span>
+<span id="cb29-7"><a href="infe-exercises-hypresamp.html#cb29-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb29-8"><a href="infe-exercises-hypresamp.html#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(dnull)</span></code></pre></div>
 <p><img src="figures/histironnull-1.png" width="2100" /></p>
 <p>Will use the significance level, <span class="math inline">\(\alpha=0.05\)</span></p>
 <p>Compute p-value;</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="infe-exercises-hypresamp.html#cb28-1" aria-hidden="true" tabindex="-1"></a>(p <span class="ot">&lt;-</span> <span class="fu">mean</span>(dnull <span class="sc">&gt;=</span> <span class="fu">abs</span>(dobs)))</span></code></pre></div>
-<pre><code>## [1] 0.0642</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="infe-exercises-hypresamp.html#cb30-1" aria-hidden="true" tabindex="-1"></a>(p <span class="ot">&lt;-</span> <span class="fu">mean</span>(dnull <span class="sc">&gt;=</span> <span class="fu">abs</span>(dobs)))</span></code></pre></div>
+<pre><code>## [1] 0.0629</code></pre>
 <p>As <span class="math inline">\(p&gt;\alpha\)</span>, the null hypothesis is accepted, i.e. there is no reason to believe that the iron-rich diet affects the iron level.</p>
 </div>
 </div>
