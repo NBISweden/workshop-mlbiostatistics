@@ -144,6 +144,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.1.1" data-path="clust-02kmeans.html"><a href="clust-02kmeans.html#elbow-method"><i class="fa fa-check"></i><b>2.1.1</b> Elbow method</a></li>
 <li class="chapter" data-level="2.1.2" data-path="clust-02kmeans.html"><a href="clust-02kmeans.html#gap-statistic"><i class="fa fa-check"></i><b>2.1.2</b> Gap statistic</a></li>
 <li class="chapter" data-level="2.1.3" data-path="clust-02kmeans.html"><a href="clust-02kmeans.html#silhouette-method"><i class="fa fa-check"></i><b>2.1.3</b> Silhouette method</a></li>
+<li class="chapter" data-level="2.1.4" data-path="clust-02kmeans.html"><a href="clust-02kmeans.html#compute-optimal-k-in-r"><i class="fa fa-check"></i><b>2.1.4</b> Compute optimal <span class="math inline">\(k\)</span> in R</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="clust-03dissimilarity.html"><a href="clust-03dissimilarity.html"><i class="fa fa-check"></i><b>3</b> Dissimilarity matrix</a></li>
@@ -207,13 +208,20 @@ The squared Euclidean distance between an object (a data point) and a cluster ce
 <div id="elbow-method" class="section level3" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> Elbow method</h3>
 <p>The Elbow method is based on the total within sum of squares, <span class="math inline">\(WSS\)</span>, that the K-means algorithm tries to minimize. By running the algorithm with several different values of <span class="math inline">\(k\)</span>, e.g. 1–10, we can plot WSS as a function of <span class="math inline">\(k\)</span>.</p>
-<pre><code>## Welcome! Want to learn more? See two factoextra-related books at https://goo.gl/ve3WBa</code></pre>
 <p><img src="figures/elbow-1.png" width="4200" /></p>
 <p>WSS is constantly decreasing as <span class="math inline">\(k\)</span> increases. The elbow methods suggests that The inflection (bend, elbow) on the curve indicate an optimal number of clusters. In this case, the elbow method suggests that the optimal number of clusters is <span class="math inline">\(k=3\)</span>.</p>
 </div>
 <div id="gap-statistic" class="section level3" number="2.1.2">
 <h3><span class="header-section-number">2.1.2</span> Gap statistic</h3>
 <p>As WSS is constantly decreasing for increasing <span class="math inline">\(k\)</span>, we can’t use the minimum to find optimal <span class="math inline">\(k\)</span>. Eyeballing as in the elbow method is one option, but another is to use the gap statistic that measure the difference between the observed <span class="math inline">\(WSS\)</span> and an expected <span class="math inline">\(WSS\)</span> under a reference (null) model.</p>
+<p>The gap statistic measures the distance between the observed <span class="math inline">\(WSS\)</span> and an expected <span class="math inline">\(WSS\)</span> under a reference (null) model.</p>
+<p><span class="math display">\[
+G(k) = E[\ln{(WSS_{unif}(k))}} - \ln{(WSS(k))}
+\]</span>
+Choose <span class="math inline">\(k\)</span> as the smallest <span class="math inline">\(k\)</span> such that
+<span class="math display">\[
+G(k) \geq G(k+1) - s_{k+1}
+\]</span></p>
 </div>
 <div id="silhouette-method" class="section level3" number="2.1.3">
 <h3><span class="header-section-number">2.1.3</span> Silhouette method</h3>
@@ -229,6 +237,10 @@ The squared Euclidean distance between an object (a data point) and a cluster ce
 A silhouette value close to 1 means that the object is very well clustered, a value close to 0 means that the object lies between two clusters. A negative silhouette value means means that the object is incorrectly clustered.</li>
 </ol>
 <p>The average silhouette over all objects is a measure of how good the clustering is, the higher the value the better is the clustering.</p>
+</div>
+<div id="compute-optimal-k-in-r" class="section level3" number="2.1.4">
+<h3><span class="header-section-number">2.1.4</span> Compute optimal <span class="math inline">\(k\)</span> in R</h3>
+<p>Several packages in R implement metjhods for choosing optimal number of clusters, one of them is <code>factorextra</code>and the <code>fviz_nbclust</code> function.</p>
 </div>
 </div>
 </div>
