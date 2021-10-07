@@ -160,7 +160,7 @@ Likelihood and maximum likelihood estimation are central concepts in statistics.
 
 ---
 
-## Likelihood | `Likelihood and OLS for linear models`
+## Likelihood | Likelihood and OLS for linear models
 
 
 - Why have we used ordinary least squares (OLS), `\(\min_\theta RSS\)` when estimating linear model parameters
@@ -171,7 +171,7 @@ Likelihood and maximum likelihood estimation are central concepts in statistics.
 
 --
 
-Consider a simple linear regression model, $$ y = \beta x + \epsilon, \epsilon\sim N(0,\sigma^2).$$ 
+- Consider a simple linear regression model, $$ y = \beta x + \epsilon, \epsilon\sim N(0,\sigma^2).$$ 
 
 ???
 
@@ -179,7 +179,7 @@ Consider a simple linear regression model, $$ y = \beta x + \epsilon, \epsilon\s
 
 --
 
-- The maximum likelihood estimates of both `\(\beta\)` and `\(\sigma^2\)` are functions of the  RSS, and `$$\log L[\beta, \sigma^2|Y,X] \approx -\frac{N}{2} \log RSS$$`
+- The maximum likelihood estimates of both `\(\beta\)` and `\(\sigma^2\)` are functions of the  RSS, and `$$\max\log L[\beta, \sigma^2|Y,X] \approx -\frac{N}{2} \log RSS$$`
 
   - This means that `$$\widehat{\beta}_{ML} = \widehat{\beta}_{OLS}$$`
 
@@ -240,8 +240,8 @@ Y = b0 + X[,1] * b[1] + X[,2] * b[2] + X[,3] * b[3] + rnorm(N)
 #### Think about: What can simulated data be used for?
 --
 
-* Estimating probabilities and probability distributions of, e.g., data and summary statistics of data
-* Oracle knowledge when evaluating performance of methods, e.g., Type I and II errors 
+* Estimating probabilities and probability distributions of, e.g., data and summary statistics of data,. under the model
+* *Oracle knowledge* when evaluating performance of methods, e.g., Type I and II errors 
 
 ???
 
@@ -517,8 +517,14 @@ plot(fit, xvar="lambda",label=T)
 --
 
 * The order appears to be `\((2,1,3,6,4,10,5,8,9,7)\)`
+{{content}}
+--
 * `\(\beta_i &gt; 0, i\in \{1,2,3,4,78\}\)`, while `\(\beta_i&lt;0, i\in \{5,6,9,10\}\)`
+{{content}}
+--
 * Given *oracle knowledge*, the correct `\(\lambda\)` appears lie somewhere in the interval `\([\approx \exp(-1).1, \approx\exp(-2.5)]\)`
+{{content}}
+--
 * In the normal case, we do not have *oracle knowledge*.
 {{content}}
 
@@ -558,11 +564,12 @@ How to decide the optimal `\(\lambda\)` to use.
 
 ???
 
-- Classsical/Optimal way of validation
+- Classical/Optimal way of validation
 - The ultimate way of testing an estimated model (with parameters) would be to apply it to new data and evaluate how well it performs, e.g., by measuring the *mean squared error*, `\(MSE\)` `\((=RSS/N)\)`.
 Naturally, we want to minimize `\(MSE\)`, i.e., the error of the model. In our LASSO application, this means that we want to select the `\(\lambda\)` that minimizes the `\(MSE\)`
 
 --
+
 #### Cross-validation
 
 * Split data into _training_ and _validation_ data
@@ -577,6 +584,7 @@ Naturally, we want to minimize `\(MSE\)`, i.e., the error of the model. In our L
 - By chance, this may fail if the partitioning is 'non-representative'. A solution is to repeat the cross-validation procedure with another partitioning.
 
 --
+
 #### `\(k\)`-fold cross validation
 
 * Split data, `\(D\)`,  into `\(k\)` partitions `\((1,...,k)\)`
@@ -585,7 +593,8 @@ Naturally, we want to minimize `\(MSE\)`, i.e., the error of the model. In our L
   - validate on `\(i\)`
 * Error distribution
 
-??? 
+???
+
 - In `\(k\)`-fold cross validation, the original data is split into `\(k\)` sub-datasets `\(\{D_1,D_2,\ldots, D_k\}\)`.
 - For `\(i \in \{1,2,\ldots, k\}\)`, set `\(D_i\)` as the validation data set and the union of the other datasets be the training data. Perform cross validation as above.
 
@@ -763,33 +772,6 @@ layout: true
 
 ---
 
-### General cost function
-
-- Regularization can be generalized to apply not only to linear models, for example, GLMs
-
-???
-
-- (as in glmnet).
---
-
-- Regularization can be formulated for a general (Machine Learning) loss function, `\(\mathcal{L}(Y|X, \beta).\)`
-- The modified loss function (including the regularization) can be written `$$\mathcal{L}(Y|\beta, X, \lambda) = \mathcal{L}(Y|\beta, X) + \lambda f(\beta).$$`
-    - This formulation allows application to various regresssion and classification problems.
-
---
-
-- Examples of loss functions:
-    - `\(RSS\)` (least squares method)
-    - mean square error (MSE) = `\(RSS/N\)`
-    - cross entropy `\(\sum_i y_i \times Pr[y_i|\beta, x]\)`
-
-???
-
-- Here, for consistency, I use `\(\beta\)` for the parameters of the model, but other notation is commonly also used, e.g., `\(w\)` (for weights). In fact, `\(\beta\)` is often associated with regression parameters; when more types of parameters are used, it is common to use, e.g., `\(\theta\)` as a collective notation for all those parameters.
-    
-
----
-
 ### Reasons for regularizing
 
 --
@@ -833,32 +815,6 @@ layout: true
 
 ---
 
-### Cross validation as "regularization"
-
-- Iterative ML approaches
-  - Number of iterations balance between
-      - suboptimal model (too few)
-      - risk of overfitting (too many)
-      
-???
-
-- Many Machine learning techniques uses iteration to improve the model estimates incrementally. 
-- The number of iterations then becomes an important parameter 
-    - enough to get a good model, 
-    - but avoid overfitting. 
-    
---
-
-##### Cross-validation as regularization
-- Partition the data into three sets, *training*, *validation*, and *test* data sets. 
-- In each iteration, 
-  - train/improve model using _training_ data
-  - validate on _validation_ data. 
-  - continue until the _validation_ loss score does not get better
-- Evaluate final model against the _test_ data.
-
----
-
 ### Norms 
 
 - Norms are a kind of summary statistic over vectors 
@@ -879,7 +835,7 @@ layout: true
 
 #### The `\(L_0\)` "norm"
 
-- the number of non-zero `\(\beta\)` `$$||\beta||_0 = \sum_i I(\beta_i=0),$$` where `\(I(expr)\)` equals 1 if `\(expr\)` is true and 0 otherwise. 
+- the number of non-zero `\(\beta\)` `$$||\beta||_0 = \sum_i I(\beta_i\neq 0),$$` where `\(I(expr)\)` equals 1 if `\(expr\)` is true and 0 otherwise. 
   - corresponds to `\(\#X\)` in our initial simple naive regularization approach
 
 --
@@ -982,6 +938,59 @@ Norms can also have a geometry interpretation:
 ???
 - Hamming dist would be 2 here
 - In formal mathematics, the `\(L_0\)` "norm" does not properly fulfill all criteria for a norm; hence it is often, as here, written within quotation marks.
+
+---
+
+### General cost function
+
+- Regularization can be generalized to apply not only to linear models, for example, GLMs
+
+???
+
+- (as in glmnet).
+--
+
+- Regularization can be formulated for a general (Machine Learning) loss function, `\(\mathcal{L}(Y|X, \beta).\)`
+- The modified loss function (including the regularization) can be written `$$\mathcal{L}(Y|\beta, X, \lambda) = \mathcal{L}(Y|\beta, X) + \lambda f(\beta).$$`
+    - This formulation allows application to various regresssion and classification problems.
+
+--
+
+- Examples of loss functions:
+    - `\(RSS\)` (least squares method)
+    - mean square error (MSE) = `\(RSS/N\)`
+    - cross entropy `\(\sum_i y_i \times Pr[y_i|\beta, x]\)`
+
+???
+
+- Here, for consistency, I use `\(\beta\)` for the parameters of the model, but other notation is commonly also used, e.g., `\(w\)` (for weights). In fact, `\(\beta\)` is often associated with regression parameters; when more types of parameters are used, it is common to use, e.g., `\(\theta\)` as a collective notation for all those parameters.
+    
+
+---
+
+### Cross validation as "regularization"
+
+- Iterative ML approaches
+  - Number of iterations balance between
+      - suboptimal model (too few)
+      - risk of overfitting (too many)
+      
+???
+
+- Many Machine learning techniques uses iteration to improve the model estimates incrementally. 
+- The number of iterations then becomes an important parameter 
+    - enough to get a good model, 
+    - but avoid overfitting. 
+    
+--
+
+##### Cross-validation as regularization
+- Partition the data into three sets, *training*, *validation*, and *test* data sets. 
+- In each iteration, 
+  - train/improve model using _training_ data
+  - validate on _validation_ data. 
+  - continue until the _validation_ loss score does not get better
+- Evaluate final model against the _test_ data.
 
 ---
 layout: false
