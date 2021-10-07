@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 Overfitting | Session Regularization</title>
+  <meta name="description" content="3 Overfitting | Session Regularization" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 Overfitting | Session Regularization" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 Overfitting | Session Regularization" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="likelihood.html"/>
+<link rel="next" href="regularization.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+
+  
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.js');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+</script>
+<style type="text/css">
+ .code-folding-btn { margin-bottom: 4px; }
+ .row { display: flex; }
+ .collapse { display: none; }
+ .in { display:block }
+# .pull-right > .dropdown-menu {
+#     right: 0;
+#     left: auto;
+# }
+# .open > .dropdown-menu {
+#     display: block;
+# }
+# .dropdown-menu {
+#     position: absolute;
+#     top: 100%;
+#     left: 0;
+#     z-index: 1000;
+#     display: none;
+#     float: left;
+#     min-width: 160px;
+#     padding: 5px 0;
+#     margin: 2px 0 0;
+#     font-size: 14px;
+#     text-align: left;
+#     list-style: none;
+#     background-color: #fff;
+#     -webkit-background-clip: padding-box;
+#     background-clip: padding-box;
+#     border: 1px solid #ccc;
+#     border: 1px solid rgba(0,0,0,.15);
+#     border-radius: 4px;
+#     -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+#     box-shadow: 0 6px 12px rgba(0,0,0,.175);
+# }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="learning-outcomes.html"><a href="learning-outcomes.html"><i class="fa fa-check"></i><b>1</b> Learning outcomes</a></li>
+<li class="chapter" data-level="2" data-path="likelihood.html"><a href="likelihood.html"><i class="fa fa-check"></i><b>2</b> Likelihood</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="likelihood.html"><a href="likelihood.html#likelihood-likelihood-and-ols-for-linear-models"><i class="fa fa-check"></i><b>2.1</b> Likelihood | <code>Likelihood and OLS for linear models</code></a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="overfitting.html"><a href="overfitting.html"><i class="fa fa-check"></i><b>3</b> Overfitting</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="overfitting.html"><a href="overfitting.html#overfitting-example-data"><i class="fa fa-check"></i><b>3.1</b> Overfitting | <code>Example data</code></a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="overfitting.html"><a href="overfitting.html#task-simulation-of-example-data"><i class="fa fa-check"></i><b>3.1.1</b> Task | <code>simulation of example data</code></a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="overfitting.html"><a href="overfitting.html#overfitting-model-comparison"><i class="fa fa-check"></i><b>3.2</b> Overfitting | <code>Model comparison</code></a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="overfitting.html"><a href="overfitting.html#task-plot-two-likelihoods"><i class="fa fa-check"></i><b>3.2.1</b> Task | <code>plot two likelihoods</code></a></li>
+<li class="chapter" data-level="3.2.2" data-path="overfitting.html"><a href="overfitting.html#task-plot-all-likelihoods"><i class="fa fa-check"></i><b>3.2.2</b> Task | <code>plot all likelihoods</code></a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="regularization.html"><a href="regularization.html"><i class="fa fa-check"></i><b>4</b> Regularization</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="regularization.html"><a href="regularization.html#naive"><i class="fa fa-check"></i><b>4.1</b> Example | <code>A naive regularization model</code></a>
+<ul>
+<li class="chapter" data-level="4.1.1" data-path="regularization.html"><a href="regularization.html#mini-task-think-about"><i class="fa fa-check"></i><b>4.1.1</b> Mini-task: Think about:</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="regularization.html"><a href="regularization.html#regularization-lasso-and-feature-selection"><i class="fa fa-check"></i><b>4.2</b> Regularization | <code>LASSO and Feature selection</code></a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="regularization.html"><a href="regularization.html#example-lasso-using-the-glmnet-r-package"><i class="fa fa-check"></i><b>4.2.1</b> Example | <code>Lasso using the glmnet R-package</code></a></li>
+<li class="chapter" data-level="4.2.2" data-path="regularization.html"><a href="regularization.html#cross-validation"><i class="fa fa-check"></i><b>4.2.2</b> Cross-validation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="regularization.html"><a href="regularization.html#more-about-regularization"><i class="fa fa-check"></i><b>4.3</b> More about regularization</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="regularization.html"><a href="regularization.html#general-cost-function"><i class="fa fa-check"></i><b>4.3.1</b> General cost function</a></li>
+<li class="chapter" data-level="4.3.2" data-path="regularization.html"><a href="regularization.html#reasons-for-regularizing"><i class="fa fa-check"></i><b>4.3.2</b> Reasons for regularizing</a></li>
+<li class="chapter" data-level="4.3.3" data-path="regularization.html"><a href="regularization.html#more-about-cross-validation-regularization-and-model-evaluation"><i class="fa fa-check"></i><b>4.3.3</b> More about cross validation – “regularization” and model evaluation</a></li>
+<li class="chapter" data-level="4.3.4" data-path="regularization.html"><a href="regularization.html#norms"><i class="fa fa-check"></i><b>4.3.4</b> Norms</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>5</b> Exercises</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="exercises.html"><a href="exercises.html#data"><i class="fa fa-check"></i><b>5.1</b> Data</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="exercises.html"><a href="exercises.html#task-load-the-gtex-muscle-expression-data"><i class="fa fa-check"></i><b>5.1.1</b> Task| <code>Load the GTEX muscle expression data</code></a></li>
+<li class="chapter" data-level="5.1.2" data-path="exercises.html"><a href="exercises.html#task-load-the-gtex-gender-data"><i class="fa fa-check"></i><b>5.1.2</b> Task| <code>Load the GTEX Gender data</code></a></li>
+<li class="chapter" data-level="5.1.3" data-path="exercises.html"><a href="exercises.html#task-visualize-the-data"><i class="fa fa-check"></i><b>5.1.3</b> Task| <code>Visualize the data</code></a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="exercises.html"><a href="exercises.html#model-testing"><i class="fa fa-check"></i><b>5.2</b> Model testing</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="exercises.html"><a href="exercises.html#aic-and-bic"><i class="fa fa-check"></i><b>5.2.1</b> AIC and BIC</a></li>
+<li class="chapter" data-level="5.2.2" data-path="exercises.html"><a href="exercises.html#task-aicbic"><i class="fa fa-check"></i><b>5.2.2</b> Task| <code>AIC/BIC</code></a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises.html"><a href="exercises.html#feature-selection"><i class="fa fa-check"></i><b>5.3</b> Feature Selection</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="exercises.html"><a href="exercises.html#task-lassoridge-regressionelastic-net"><i class="fa fa-check"></i><b>5.3.1</b> Task| <code>LASSO/Ridge Regression/Elastic Net</code></a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Session Regularization</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="overfitting" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Overfitting</h1>
+<p>We will now look at a general problem in statistical modeling that can be visualized quite well with Likelihoods. We will later look at some solutions to this problem.</p>
+<div id="overfitting-example-data" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Overfitting | <code>Example data</code></h2>
+<p>First, you need some test data to play around with. For simplicity and convenience, you will simulate a toy data from a linear model and use this in the exercises. The advantage for us using simulated data is that we know the ‘truth’, i.e., how the data was simulated and we therefore have <em>oracle knowledge</em> about the true parameter values, e.g., for <span class="math inline">\(\beta\)</span>.</p>
+<div id="task-simulation-of-example-data" class="section level3" number="3.1.1">
+<h3><span class="header-section-number">3.1.1</span> Task | <code>simulation of example data</code></h3>
+<ul>
+<li>The data should comprise 100 samples.</li>
+<li>First generate 10 variables <span class="math inline">\((x_1,x_2,\ldots, x_{0})\)</span> from a uniform distribution (use the function <code>runif</code>) and store them in a Matrix <span class="math inline">\(X\)</span>.</li>
+<li>Use an intercept <span class="math inline">\(\beta_0=3\)</span></li>
+<li>Generate effect sizes <span class="math inline">\(\beta_1, \beta_2, \beta_3\)</span> from a Uniform distribution in the interval <span class="math inline">\((0.5, 1.0)\)</span> for the 3 first <span class="math inline">\(X\)</span> variable (use the function <code>runif</code>); record the ‘true’ effect sizes for reference.</li>
+<li>Finally generate outcome variable <span class="math inline">\(Y\)</span> using a linear model <span class="math inline">\(Y = \beta_0 + \beta_1 x_i + \beta_2 x_2 + \beta_3 x_3 + \epsilon\)</span>, with <span class="math inline">\(\epsilon\sim N(0,\sigma^2=1)\)</span> (i.e., the residuals are drawn from a Normal distribution with mean=0 and standard deviation=1, <em>Tip:</em> use the R function <code>rnorm</code>).</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="overfitting.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To obtain exactly the same result as in the demo, set seed to 85</span></span>
+<span id="cb1-2"><a href="overfitting.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">85</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="overfitting.html#cb2-1" aria-hidden="true" tabindex="-1"></a>N<span class="ot">=</span><span class="dv">100</span> <span class="co"># number of samples</span></span>
+<span id="cb2-2"><a href="overfitting.html#cb2-2" aria-hidden="true" tabindex="-1"></a>P<span class="ot">=</span><span class="dv">10</span> <span class="co"># number of variables</span></span>
+<span id="cb2-3"><a href="overfitting.html#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="overfitting.html#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw variables, x_{i,1},...,x_{i,P} for all N individuals, from a uniform distribution in interval (0,1) (this is the default interval for runif)</span></span>
+<span id="cb2-5"><a href="overfitting.html#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. runif generates N*P+1 values, round them off to 2 decimals</span></span>
+<span id="cb2-6"><a href="overfitting.html#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Put values into a matrix with N rows and P columns</span></span>
+<span id="cb2-7"><a href="overfitting.html#cb2-7" aria-hidden="true" tabindex="-1"></a>X<span class="ot">=</span><span class="fu">matrix</span>(<span class="fu">round</span>(<span class="fu">runif</span>(N<span class="sc">*</span>(P<span class="sc">+</span><span class="dv">1</span>),<span class="at">min=</span><span class="dv">0</span>, <span class="at">max=</span><span class="dv">2</span>)), <span class="at">nrow=</span>N, <span class="at">ncol=</span>P)</span>
+<span id="cb2-8"><a href="overfitting.html#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="overfitting.html#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># generate a y variable from a multivariate lm of 3 first X variables only</span></span>
+<span id="cb2-10"><a href="overfitting.html#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># intercept</span></span>
+<span id="cb2-11"><a href="overfitting.html#cb2-11" aria-hidden="true" tabindex="-1"></a>b0<span class="ot">=</span><span class="dv">3</span></span>
+<span id="cb2-12"><a href="overfitting.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># effect sizes for first three variables</span></span>
+<span id="cb2-13"><a href="overfitting.html#cb2-13" aria-hidden="true" tabindex="-1"></a>b<span class="ot">=</span><span class="fu">c</span>(<span class="fu">runif</span>(<span class="dv">3</span>, <span class="at">min=</span><span class="fl">0.5</span>, <span class="at">max=</span><span class="fl">1.0</span>))</span>
+<span id="cb2-14"><a href="overfitting.html#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># print the true parameter values </span></span>
+<span id="cb2-15"><a href="overfitting.html#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#print(paste(&quot;True effect sizes b_1 =&quot;, b[1], &quot;b_2 =&quot;, b[2], &quot;b_3 =&quot;, b[3], &quot;; intercept =&quot;, b0))</span></span>
+<span id="cb2-16"><a href="overfitting.html#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="overfitting.html#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># generate y for all samples (=rows in X) using only the 3 first variables (columns) of X</span></span>
+<span id="cb2-18"><a href="overfitting.html#cb2-18" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> b0 <span class="sc">+</span> X[,<span class="dv">1</span>] <span class="sc">*</span> b[<span class="dv">1</span>] <span class="sc">+</span> X[,<span class="dv">2</span>] <span class="sc">*</span> b[<span class="dv">2</span>] <span class="sc">+</span> X[,<span class="dv">3</span>] <span class="sc">*</span> b[<span class="dv">3</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(N)</span></code></pre></div>
+<div id="think-about" class="section level4" number="3.1.1.1">
+<h4><span class="header-section-number">3.1.1.1</span> Think about:</h4>
+<ul>
+<li>What can simulation be used for?</li>
+</ul>
+<details>
+<summary>
+Some possible answers
+</summary>
+<h4>
+Some possible answers
+</h4>
+<ul>
+<li>Oracle knowledge when evaluating performance of methods, e.g., Type I and II errors</li>
+<li>Estimating probabilities and probability distributions of, e.g., data and summary statistics of data</li>
+</ul>
+<hr />
+</details>
+</div>
+</div>
+</div>
+<div id="overfitting-model-comparison" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Overfitting | <code>Model comparison</code></h2>
+<p>Now consider the following two models for our data</p>
+<p><span class="math display">\[\begin{eqnarray}
+y &amp; \sim &amp; \beta_0 + \beta_1 x_1 &amp; (1) \\
+y &amp; \sim &amp;  \beta_0 + \beta_1 x_1 + \beta_2 x_2 &amp; (2)
+\end{eqnarray}\]</span></p>
+<p>What are the max Likelihood estimates of the two models? (we can use the R function <code>logLik</code> in the <code>stats</code> package)</p>
+<div id="task-plot-two-likelihoods" class="section level3" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> Task | <code>plot two likelihoods</code></h3>
+<ul>
+<li>Create <code>lm</code> models for the two models, and</li>
+<li>store the likelihood (use <code>logLik</code>) in a vector</li>
+<li>plot the likelihoods</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="overfitting.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stats)</span>
+<span id="cb3-2"><a href="overfitting.html#cb3-2" aria-hidden="true" tabindex="-1"></a>ll<span class="ot">=</span> <span class="fu">vector</span>()</span>
+<span id="cb3-3"><a href="overfitting.html#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,<span class="dv">2</span>)){</span>
+<span id="cb3-4"><a href="overfitting.html#cb3-4" aria-hidden="true" tabindex="-1"></a>  Xi<span class="ot">=</span>X[,<span class="fu">seq</span>(<span class="dv">1</span>,i)] <span class="co"># use variables 1..i</span></span>
+<span id="cb3-5"><a href="overfitting.html#cb3-5" aria-hidden="true" tabindex="-1"></a>  ll[i] <span class="ot">&lt;-</span> <span class="fu">logLik</span>(<span class="fu">lm</span>(Y<span class="sc">~</span>Xi)) <span class="co"># logLik extract loglikelihood from lm </span></span>
+<span id="cb3-6"><a href="overfitting.html#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-7"><a href="overfitting.html#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot likelihoods for models with 1 and 2 variables</span></span>
+<span id="cb3-8"><a href="overfitting.html#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ll, <span class="at">ylab=</span><span class="st">&quot;log L&quot;</span>, <span class="at">xlab=</span><span class="st">&quot;model #&quot;</span>, <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">1</span>,P), <span class="at">ylim=</span><span class="fu">c</span>(<span class="fu">floor</span>(<span class="fu">min</span>(ll)),<span class="fu">ceiling</span>(<span class="fu">max</span>(ll)))) </span>
+<span id="cb3-9"><a href="overfitting.html#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># xlim and ylim not really necessary here, but I can reuse the plot statement below, so the plots look similar</span></span></code></pre></div>
+<details>
+<summary>
+<em>Show result</em>
+</summary>
+<p><img src="session-regularization_files/figure-html/unnamed-chunk-6-1.png" width="100%" /></p>
+<hr />
+</details>
+<p>… 2 variables are clearly better than 1 variable – What if we add more variables?</p>
+</div>
+<div id="task-plot-all-likelihoods" class="section level3" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> Task | <code>plot all likelihoods</code></h3>
+<ul>
+<li>Now repeat this for the sequence of models obtained by creating the next model by simply adding the next <span class="math inline">\(X\)</span> variable in order.</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="overfitting.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute loglikelihood (ll) for all models including variables</span></span>
+<span id="cb4-2"><a href="overfitting.html#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1-i, for i &lt;= P; store results in vector ll</span></span>
+<span id="cb4-3"><a href="overfitting.html#cb4-3" aria-hidden="true" tabindex="-1"></a>ll<span class="ot">=</span> <span class="fu">vector</span>()</span>
+<span id="cb4-4"><a href="overfitting.html#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,P)){</span>
+<span id="cb4-5"><a href="overfitting.html#cb4-5" aria-hidden="true" tabindex="-1"></a>  Xi<span class="ot">=</span>X[,<span class="fu">seq</span>(<span class="dv">1</span>,i)]</span>
+<span id="cb4-6"><a href="overfitting.html#cb4-6" aria-hidden="true" tabindex="-1"></a>  ll[i] <span class="ot">&lt;-</span> <span class="fu">logLik</span>(<span class="fu">lm</span>(Y<span class="sc">~</span>Xi))</span>
+<span id="cb4-7"><a href="overfitting.html#cb4-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-8"><a href="overfitting.html#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="overfitting.html#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot ll for all models</span></span>
+<span id="cb4-10"><a href="overfitting.html#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ll, <span class="at">ylab=</span><span class="st">&quot;log L&quot;</span>, <span class="at">xlab=</span><span class="st">&quot;model #&quot;</span>, <span class="at">type =</span> <span class="st">&quot;b&quot;</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">1</span>,P), <span class="at">ylim=</span><span class="fu">c</span>(<span class="fu">floor</span>(<span class="fu">min</span>(ll)),<span class="fu">ceiling</span>(<span class="fu">max</span>(ll)))) </span></code></pre></div>
+<details>
+<summary>
+<em>Show result</em>
+</summary>
+<p><img src="session-regularization_files/figure-html/unnamed-chunk-8-1.png" width="100%" /></p>
+<hr />
+</details>
+<div id="think-about-1" class="section level4" number="3.2.2.1">
+<h4><span class="header-section-number">3.2.2.1</span> Think about:</h4>
+<ul>
+<li><p>How does the Likelihood behave as more variables are added?</p></li>
+<li><p>Which is the maximum likelihood model? Is this correct given our <em>oracle knowledge</em>?</p></li>
+<li><p>What could be the problem with this behaviour? How would we like it to behave?</p></li>
+<li><p>How can we obtain the desired behaviour?</p></li>
+</ul>
+<details>
+<summary>
+Some possible answers
+</summary>
+<h4>
+Some possible answers
+</h4>
+<p><em>Nested models</em></p>
+<ul>
+<li><p>Model (1) can be described as a special case of Model (2) with the constraints on <span class="math inline">\(\beta_2=0\)</span></p></li>
+<li><p>Therefore Model (2) will always have equal or better ML than Model (1)</p></li>
+</ul>
+<p><em>Overfitting</em></p>
+<ul>
+<li><p>Using our <em>oracle knowledge</em>, we know that the simulated data was generated from the 3 first variables</p>
+<ul>
+<li>thus, the subsequent variables increase ML by modeling noise in data</li>
+</ul></li>
+<li><p>This is difficult to detect by just looking at the likelihoods</p></li>
+<li><p>Solutions</p>
+<ul>
+<li>Seek the simplest model that is “good enough” -&gt; Regularization</li>
+</ul></li>
+</ul>
+<hr />
+</details>
+<details>
+<summary>
+<span style="color:gray">Extra Reading</span>
+</summary>
+<h2>
+Model comparison | <code>Likelihood ratio test</code>
+</h1>
+<p>For nested models <span class="math inline">\(-2 \max \frac{L[\theta_1|Y,X]}{L[\theta_0|Y,X]}\)</span> is <span class="math inline">\(\chi^2(d)\)</span>-distributed, with <span class="math inline">\(d=\)</span> the difference in free parameters in the two models.
+This fors the basis of the <em>likelihood ratio test</em>. This is very frequently used with in statistics, but does not perform any regularization. Applying a likelihood ratio test to our data yields the following result:</p>
+<table class="table table-striped" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Compared models
+</th>
+<th style="text-align:right;">
+logL 1st model
+</th>
+<th style="text-align:right;">
+logL 2nd model
+</th>
+<th style="text-align:left;">
+logLR
+</th>
+<th style="text-align:left;">
+P-value
+</th>
+<th style="text-align:left;">
+Sign at 0.05
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+1 vs 2 variables
+</td>
+<td style="text-align:right;">
+-155.80
+</td>
+<td style="text-align:right;">
+-146.90
+</td>
+<td style="text-align:left;">
+-8.9
+</td>
+<td style="text-align:left;">
+2.45e-05
+</td>
+<td style="text-align:left;">
+yes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2 vs 3 variables
+</td>
+<td style="text-align:right;">
+-146.90
+</td>
+<td style="text-align:right;">
+-136.73
+</td>
+<td style="text-align:left;">
+-10.17
+</td>
+<td style="text-align:left;">
+6.48e-06
+</td>
+<td style="text-align:left;">
+yes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+3 vs 4 variables
+</td>
+<td style="text-align:right;">
+-136.73
+</td>
+<td style="text-align:right;">
+-136.69
+</td>
+<td style="text-align:left;">
+-0.04215
+</td>
+<td style="text-align:left;">
+0.772
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+4 vs 5 variables
+</td>
+<td style="text-align:right;">
+-136.69
+</td>
+<td style="text-align:right;">
+-136.23
+</td>
+<td style="text-align:left;">
+-0.4601
+</td>
+<td style="text-align:left;">
+0.337
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5 vs 6 variables
+</td>
+<td style="text-align:right;">
+-136.23
+</td>
+<td style="text-align:right;">
+-135.83
+</td>
+<td style="text-align:left;">
+-0.4016
+</td>
+<td style="text-align:left;">
+0.37
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+6 vs 7 variables
+</td>
+<td style="text-align:right;">
+-135.83
+</td>
+<td style="text-align:right;">
+-135.35
+</td>
+<td style="text-align:left;">
+-0.4803
+</td>
+<td style="text-align:left;">
+0.327
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+7 vs 8 variables
+</td>
+<td style="text-align:right;">
+-135.35
+</td>
+<td style="text-align:right;">
+-135.31
+</td>
+<td style="text-align:left;">
+-0.04266
+</td>
+<td style="text-align:left;">
+0.77
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+8 vs 9 variables
+</td>
+<td style="text-align:right;">
+-135.31
+</td>
+<td style="text-align:right;">
+-135.30
+</td>
+<td style="text-align:left;">
+-0.0002981
+</td>
+<td style="text-align:left;">
+0.981
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+9 vs 10 variables
+</td>
+<td style="text-align:right;">
+-135.30
+</td>
+<td style="text-align:right;">
+-134.55
+</td>
+<td style="text-align:left;">
+-0.7536
+</td>
+<td style="text-align:left;">
+0.22
+</td>
+<td style="text-align:left;">
+no
+</td>
+</tr>
+</tbody>
+</table>
+<p>In our simple test case, the LRT also succeed in picking the correct model. It should be noted that certain issues, such as <em>linkage disequilibrium</em>, may cause problems for LRT (<em>the example is not optimized to show this</em>).</p>
+<hr />
+</details>
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="likelihood.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="regularization.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
