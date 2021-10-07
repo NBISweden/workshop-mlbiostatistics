@@ -288,14 +288,14 @@ df <- read.csv("fiveclasses.csv")
 
 a) Try to cluster the data using the k-means algorithm (function `kmeans` in R). Use Forgy's method for initialization and select a value for $k$.
 
-```{r}
+```{r, echo=TRUE}
 ## k-means with k=5 and Forgy's algorithm
 km <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")
 ```
 
 b) Plot the data and color by cluster id
 
-```{r}
+```{r, echo=TRUE}
 ## The cluster identities are stored in km$cluster, same order as input 
 df$kmeansclusters <- km$cluster
 ## Plot using base R graphics
@@ -306,14 +306,14 @@ ggplot(df, aes(x=x, y=y, color=factor(kmeansclusters))) + geom_point() + scale_c
 
 c) Run the same analysis again, do you get the same results? (You can compare two vectors of class identities using the function `table`.)
 
-```{r}
+```{r, echo=TRUE}
 km2 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy")
 table(km$cluster, km2$cluster)
 ```
 
 d) By setting the argument `nstart` to 4 the algorithm will automatically try four different (random) starting points. Try this out and compare how stable two runs are.
 
-```{r}
+```{r, echo=TRUE}
 km4.1 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy", nstart=4)
 km4.2 <- kmeans(df[, c('x','y')], centers=5, algorithm ="Forgy", nstart=4)
 table(km4.1$cluster, km4.2$cluster)
@@ -322,7 +322,7 @@ table(km4.1$cluster, km4.2$cluster)
 e) Try different values for $k$, run the k-means algorithm and collect the WSS ('tot.withinss'). Plot WSS vs k. The WSS is always decreasing as k increases, but the curve can still give you a hint of which $k$ to choose. The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
 Which $k$ would you pick based on this?
   
-```{r}
+```{r, echo=TRUE}
 wss <- sapply(1:10, function(k) kmeans(df[, c('x','y')], centers=k, algorithm ="Forgy", nstart=4)$tot.withinss)
 plot(1:10, wss, type="b")
 ```

@@ -232,14 +232,25 @@ This can be accomplished using the function <code>dist</code>. Read the help tex
 <ol style="list-style-type: lower-alpha">
 <li>Try to cluster the data using the k-means algorithm (function <code>kmeans</code> in R). Use Forgy’s method for initialization and select a value for <span class="math inline">\(k\)</span>.</li>
 </ol>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="clust-exercises.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## k-means with k=5 and Forgy&#39;s algorithm</span></span>
+<span id="cb2-2"><a href="clust-exercises.html#cb2-2" aria-hidden="true" tabindex="-1"></a>km <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(df[, <span class="fu">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="at">centers=</span><span class="dv">5</span>, <span class="at">algorithm =</span><span class="st">&quot;Forgy&quot;</span>)</span></code></pre></div>
 <pre><code>## Warning: did not converge in 10 iterations</code></pre>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Plot the data and color by cluster id</li>
 </ol>
-<p><img src="figures/unnamed-chunk-4-1.png" width="2100" /><img src="figures/unnamed-chunk-4-2.png" width="2100" /></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="clust-exercises.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">## The cluster identities are stored in km$cluster, same order as input </span></span>
+<span id="cb4-2"><a href="clust-exercises.html#cb4-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>kmeansclusters <span class="ot">&lt;-</span> km<span class="sc">$</span>cluster</span>
+<span id="cb4-3"><a href="clust-exercises.html#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot using base R graphics</span></span>
+<span id="cb4-4"><a href="clust-exercises.html#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(df<span class="sc">$</span>x, df<span class="sc">$</span>y, <span class="at">col=</span>df<span class="sc">$</span>kmeansclusters)</span></code></pre></div>
+<p><img src="figures/unnamed-chunk-4-1.png" width="2100" /></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="clust-exercises.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">##alternatively, plot using ggplot</span></span>
+<span id="cb5-2"><a href="clust-exercises.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>y, <span class="at">color=</span><span class="fu">factor</span>(kmeansclusters))) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">scale_color_discrete</span>(<span class="st">&quot;Cluster id&quot;</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span></code></pre></div>
+<p><img src="figures/unnamed-chunk-4-2.png" width="2100" /></p>
 <ol start="3" style="list-style-type: lower-alpha">
 <li>Run the same analysis again, do you get the same results? (You can compare two vectors of class identities using the function <code>table</code>.)</li>
 </ol>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="clust-exercises.html#cb6-1" aria-hidden="true" tabindex="-1"></a>km2 <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(df[, <span class="fu">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="at">centers=</span><span class="dv">5</span>, <span class="at">algorithm =</span><span class="st">&quot;Forgy&quot;</span>)</span>
+<span id="cb6-2"><a href="clust-exercises.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(km<span class="sc">$</span>cluster, km2<span class="sc">$</span>cluster)</span></code></pre></div>
 <pre><code>##    
 ##      1  2  3  4  5
 ##   1  0 16  0  0  0
@@ -250,7 +261,10 @@ This can be accomplished using the function <code>dist</code>. Read the help tex
 <ol start="4" style="list-style-type: lower-alpha">
 <li>By setting the argument <code>nstart</code> to 4 the algorithm will automatically try four different (random) starting points. Try this out and compare how stable two runs are.</li>
 </ol>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="clust-exercises.html#cb8-1" aria-hidden="true" tabindex="-1"></a>km4<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(df[, <span class="fu">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="at">centers=</span><span class="dv">5</span>, <span class="at">algorithm =</span><span class="st">&quot;Forgy&quot;</span>, <span class="at">nstart=</span><span class="dv">4</span>)</span></code></pre></div>
 <pre><code>## Warning: did not converge in 10 iterations</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="clust-exercises.html#cb10-1" aria-hidden="true" tabindex="-1"></a>km4<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(df[, <span class="fu">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="at">centers=</span><span class="dv">5</span>, <span class="at">algorithm =</span><span class="st">&quot;Forgy&quot;</span>, <span class="at">nstart=</span><span class="dv">4</span>)</span>
+<span id="cb10-2"><a href="clust-exercises.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(km4<span class="fl">.1</span><span class="sc">$</span>cluster, km4<span class="fl">.2</span><span class="sc">$</span>cluster)</span></code></pre></div>
 <pre><code>##    
 ##      1  2  3  4  5
 ##   1 17  0  0  0  0
@@ -262,20 +276,22 @@ This can be accomplished using the function <code>dist</code>. Read the help tex
 <li>Try different values for <span class="math inline">\(k\)</span>, run the k-means algorithm and collect the WSS (‘tot.withinss’). Plot WSS vs k. The WSS is always decreasing as k increases, but the curve can still give you a hint of which <span class="math inline">\(k\)</span> to choose. The Elbow method for selecting <span class="math inline">\(k\)</span> is to look at this curve and choose the <span class="math inline">\(k\)</span> that you find at the bend of the curve, at the ‘elbow’.
 Which <span class="math inline">\(k\)</span> would you pick based on this?</li>
 </ol>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="clust-exercises.html#cb12-1" aria-hidden="true" tabindex="-1"></a>wss <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(k) <span class="fu">kmeans</span>(df[, <span class="fu">c</span>(<span class="st">&#39;x&#39;</span>,<span class="st">&#39;y&#39;</span>)], <span class="at">centers=</span>k, <span class="at">algorithm =</span><span class="st">&quot;Forgy&quot;</span>, <span class="at">nstart=</span><span class="dv">4</span>)<span class="sc">$</span>tot.withinss)</span></code></pre></div>
 <pre><code>## Warning: did not converge in 10 iterations
 
 ## Warning: did not converge in 10 iterations
 
 ## Warning: did not converge in 10 iterations</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="clust-exercises.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, wss, <span class="at">type=</span><span class="st">&quot;b&quot;</span>)</span></code></pre></div>
 <p><img src="figures/unnamed-chunk-7-1.png" width="2100" /></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="clust-exercises.html#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
-<span id="cb7-2"><a href="clust-exercises.html#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_nbclust</span>(df[, <span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)], kmeans, <span class="at">method=</span><span class="st">&quot;gap&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="clust-exercises.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb15-2"><a href="clust-exercises.html#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_nbclust</span>(df[, <span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)], kmeans, <span class="at">method=</span><span class="st">&quot;gap&quot;</span>)</span></code></pre></div>
 <pre><code>## Clustering k = 1,2,..., K.max (= 10): .. done
 ## Bootstrapping, b = 1,2,..., B (= 100)  [one &quot;.&quot; per sample]:
 ## .................................................. 50 
 ## .................................................. 100</code></pre>
 <p><img src="figures/unnamed-chunk-8-1.png" width="2100" /></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="clust-exercises.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_nbclust</span>(df[, <span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)], kmeans, <span class="at">method=</span><span class="st">&quot;sil&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="clust-exercises.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_nbclust</span>(df[, <span class="fu">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)], kmeans, <span class="at">method=</span><span class="st">&quot;sil&quot;</span>)</span></code></pre></div>
 <p><img src="figures/unnamed-chunk-8-2.png" width="2100" /></p>
 
 </div>
