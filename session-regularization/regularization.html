@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4 Regularization | Session Regularization</title>
+  <meta name="description" content="4 Regularization | Session Regularization" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4 Regularization | Session Regularization" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4 Regularization | Session Regularization" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="overfitting.html"/>
+<link rel="next" href="exercises.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+
+  
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.js');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: dropdown.js v3.3.7
+ * http://getbootstrap.com/javascript/#dropdowns
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // DROPDOWN CLASS DEFINITION
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle="dropdown"]'
+  var Dropdown = function (element) {
+    $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.VERSION = '3.3.7'
+
+  function getParent($this) {
+    var selector = $this.attr('data-target')
+
+    if (!selector) {
+      selector = $this.attr('href')
+      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
+    }
+
+    var $parent = selector && $(selector)
+
+    return $parent && $parent.length ? $parent : $this.parent()
+  }
+
+  function clearMenus(e) {
+    if (e && e.which === 3) return
+    $(backdrop).remove()
+    $(toggle).each(function () {
+      var $this         = $(this)
+      var $parent       = getParent($this)
+      var relatedTarget = { relatedTarget: this }
+
+      if (!$parent.hasClass('open')) return
+
+      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
+
+      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this.attr('aria-expanded', 'false')
+      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
+    })
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+    var $this = $(this)
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    clearMenus()
+
+    if (!isActive) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we use a backdrop because click events don't delegate
+        $(document.createElement('div'))
+          .addClass('dropdown-backdrop')
+          .insertAfter($(this))
+          .on('click', clearMenus)
+      }
+
+      var relatedTarget = { relatedTarget: this }
+      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      if (e.isDefaultPrevented()) return
+
+      $this
+        .trigger('focus')
+        .attr('aria-expanded', 'true')
+
+      $parent
+        .toggleClass('open')
+        .trigger($.Event('shown.bs.dropdown', relatedTarget))
+    }
+
+    return false
+  }
+
+  Dropdown.prototype.keydown = function (e) {
+    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
+
+    var $this = $(this)
+
+    e.preventDefault()
+    e.stopPropagation()
+
+    if ($this.is('.disabled, :disabled')) return
+
+    var $parent  = getParent($this)
+    var isActive = $parent.hasClass('open')
+
+    if (!isActive && e.which != 27 || isActive && e.which == 27) {
+      if (e.which == 27) $parent.find(toggle).trigger('focus')
+      return $this.trigger('click')
+    }
+
+    var desc = ' li:not(.disabled):visible a'
+    var $items = $parent.find('.dropdown-menu' + desc)
+
+    if (!$items.length) return
+
+    var index = $items.index(e.target)
+
+    if (e.which == 38 && index > 0)                 index--         // up
+    if (e.which == 40 && index < $items.length - 1) index++         // down
+    if (!~index)                                    index = 0
+
+    $items.eq(index).trigger('focus')
+  }
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this = $(this)
+      var data  = $this.data('bs.dropdown')
+
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (typeof option == 'string') data[option].call($this)
+    })
+  }
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown             = Plugin
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+    $.fn.dropdown = old
+    return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+
+}(jQuery);
+</script>
+<style type="text/css">
+ .code-folding-btn { margin-bottom: 4px; }
+ .row { display: flex; }
+ .collapse { display: none; }
+ .in { display:block }
+# .pull-right > .dropdown-menu {
+#     right: 0;
+#     left: auto;
+# }
+# .open > .dropdown-menu {
+#     display: block;
+# }
+# .dropdown-menu {
+#     position: absolute;
+#     top: 100%;
+#     left: 0;
+#     z-index: 1000;
+#     display: none;
+#     float: left;
+#     min-width: 160px;
+#     padding: 5px 0;
+#     margin: 2px 0 0;
+#     font-size: 14px;
+#     text-align: left;
+#     list-style: none;
+#     background-color: #fff;
+#     -webkit-background-clip: padding-box;
+#     background-clip: padding-box;
+#     border: 1px solid #ccc;
+#     border: 1px solid rgba(0,0,0,.15);
+#     border-radius: 4px;
+#     -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+#     box-shadow: 0 6px 12px rgba(0,0,0,.175);
+# }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="learning-outcomes.html"><a href="learning-outcomes.html"><i class="fa fa-check"></i><b>1</b> Learning outcomes</a></li>
+<li class="chapter" data-level="2" data-path="likelihood.html"><a href="likelihood.html"><i class="fa fa-check"></i><b>2</b> Likelihood</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="likelihood.html"><a href="likelihood.html#likelihood-likelihood-and-ols-for-linear-models"><i class="fa fa-check"></i><b>2.1</b> Likelihood | <code>Likelihood and OLS for linear models</code></a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="overfitting.html"><a href="overfitting.html"><i class="fa fa-check"></i><b>3</b> Overfitting</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="overfitting.html"><a href="overfitting.html#overfitting-example-data"><i class="fa fa-check"></i><b>3.1</b> Overfitting | <code>Example data</code></a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="overfitting.html"><a href="overfitting.html#task-simulation-of-example-data"><i class="fa fa-check"></i><b>3.1.1</b> Task | <code>simulation of example data</code></a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="overfitting.html"><a href="overfitting.html#overfitting-model-comparison"><i class="fa fa-check"></i><b>3.2</b> Overfitting | <code>Model comparison</code></a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="overfitting.html"><a href="overfitting.html#task-plot-two-likelihoods"><i class="fa fa-check"></i><b>3.2.1</b> Task | <code>plot two likelihoods</code></a></li>
+<li class="chapter" data-level="3.2.2" data-path="overfitting.html"><a href="overfitting.html#task-plot-all-likelihoods"><i class="fa fa-check"></i><b>3.2.2</b> Task | <code>plot all likelihoods</code></a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="regularization.html"><a href="regularization.html"><i class="fa fa-check"></i><b>4</b> Regularization</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="regularization.html"><a href="regularization.html#naive"><i class="fa fa-check"></i><b>4.1</b> Example | <code>A naive regularization model</code></a>
+<ul>
+<li class="chapter" data-level="4.1.1" data-path="regularization.html"><a href="regularization.html#mini-task-think-about"><i class="fa fa-check"></i><b>4.1.1</b> Mini-task: Think about:</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="regularization.html"><a href="regularization.html#regularization-lasso-and-feature-selection"><i class="fa fa-check"></i><b>4.2</b> Regularization | <code>LASSO and Feature selection</code></a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="regularization.html"><a href="regularization.html#example-lasso-using-the-glmnet-r-package"><i class="fa fa-check"></i><b>4.2.1</b> Example | <code>Lasso using the glmnet R-package</code></a></li>
+<li class="chapter" data-level="4.2.2" data-path="regularization.html"><a href="regularization.html#cross-validation"><i class="fa fa-check"></i><b>4.2.2</b> Cross-validation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="regularization.html"><a href="regularization.html#more-about-regularization"><i class="fa fa-check"></i><b>4.3</b> More about regularization</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="regularization.html"><a href="regularization.html#general-cost-function"><i class="fa fa-check"></i><b>4.3.1</b> General cost function</a></li>
+<li class="chapter" data-level="4.3.2" data-path="regularization.html"><a href="regularization.html#reasons-for-regularizing"><i class="fa fa-check"></i><b>4.3.2</b> Reasons for regularizing</a></li>
+<li class="chapter" data-level="4.3.3" data-path="regularization.html"><a href="regularization.html#more-about-cross-validation-regularization-and-model-evaluation"><i class="fa fa-check"></i><b>4.3.3</b> More about cross validation – “regularization” and model evaluation</a></li>
+<li class="chapter" data-level="4.3.4" data-path="regularization.html"><a href="regularization.html#norms"><i class="fa fa-check"></i><b>4.3.4</b> Norms</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>5</b> Exercises</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="exercises.html"><a href="exercises.html#data"><i class="fa fa-check"></i><b>5.1</b> Data</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="exercises.html"><a href="exercises.html#task-load-the-gtex-muscle-expression-data"><i class="fa fa-check"></i><b>5.1.1</b> Task| <code>Load the GTEX muscle expression data</code></a></li>
+<li class="chapter" data-level="5.1.2" data-path="exercises.html"><a href="exercises.html#task-load-the-gtex-gender-data"><i class="fa fa-check"></i><b>5.1.2</b> Task| <code>Load the GTEX Gender data</code></a></li>
+<li class="chapter" data-level="5.1.3" data-path="exercises.html"><a href="exercises.html#task-visualize-the-data"><i class="fa fa-check"></i><b>5.1.3</b> Task| <code>Visualize the data</code></a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="exercises.html"><a href="exercises.html#model-testing"><i class="fa fa-check"></i><b>5.2</b> Model testing</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="exercises.html"><a href="exercises.html#aic-and-bic"><i class="fa fa-check"></i><b>5.2.1</b> AIC and BIC</a></li>
+<li class="chapter" data-level="5.2.2" data-path="exercises.html"><a href="exercises.html#task-aicbic"><i class="fa fa-check"></i><b>5.2.2</b> Task| <code>AIC/BIC</code></a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises.html"><a href="exercises.html#feature-selection"><i class="fa fa-check"></i><b>5.3</b> Feature Selection</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="exercises.html"><a href="exercises.html#task-lassoridge-regressionelastic-net"><i class="fa fa-check"></i><b>5.3.1</b> Task| <code>LASSO/Ridge Regression/Elastic Net</code></a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Session Regularization</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="regularization" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Regularization</h1>
+<p>Regularization is a concept that adds auxiliary criteria, so-called <em>regularization terms</em>, to probabilistic models. This is called regularized likelihood models or penalized likelihood models. Typically, the regularization term is a function of parameters <span class="math inline">\(\beta\)</span>:</p>
+<p><span class="math display">\[\log rL[\beta | X, Y]  = \log L[\beta | X, Y] - f(\beta).\]</span></p>
+<div id="naive" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Example | <code>A naive regularization model</code></h2>
+<p>A very simple regularized likelihood model uses <span class="math inline">\(f(\beta) = \#\beta = \#X\)</span>, that is the number of <span class="math inline">\(X\)</span> variables.<br />
+<span class="math display">\[\log rL[{\beta} | X, Y]  = \log L[\beta | X, Y] - \#X, \]</span></p>
+<p>Applying this rL to our example data, solves the overfitting problem.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="regularization.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute loglikelihood (ll) for all models including 1-P variables</span></span>
+<span id="cb5-2"><a href="regularization.html#cb5-2" aria-hidden="true" tabindex="-1"></a>rl<span class="ot">=</span> <span class="fu">vector</span>() </span>
+<span id="cb5-3"><a href="regularization.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,P)){</span>
+<span id="cb5-4"><a href="regularization.html#cb5-4" aria-hidden="true" tabindex="-1"></a>  xi<span class="ot">=</span>X[,<span class="fu">seq</span>(<span class="dv">1</span>,i), drop<span class="ot">=</span><span class="cn">FALSE</span>]</span>
+<span id="cb5-5"><a href="regularization.html#cb5-5" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">=</span> <span class="fu">lm</span>(Y<span class="sc">~</span>xi)</span>
+<span id="cb5-6"><a href="regularization.html#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute the regularized Likelihood</span></span>
+<span id="cb5-7"><a href="regularization.html#cb5-7" aria-hidden="true" tabindex="-1"></a>  rl[i] <span class="ot">=</span> <span class="fu">logLik</span>(fit) <span class="sc">-</span> i</span>
+<span id="cb5-8"><a href="regularization.html#cb5-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-9"><a href="regularization.html#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot ll of all models</span></span>
+<span id="cb5-10"><a href="regularization.html#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#plot(rl, xlim=c(1,P), ylim=c(floor(min(rl)),ceiling(max(rl))),ylab=&quot;log rL&quot;, xlab=&quot;model #&quot;, type = &quot;b&quot;)</span></span>
+<span id="cb5-11"><a href="regularization.html#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(rl, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">1</span>,P), <span class="at">ylab=</span><span class="st">&quot;log rL&quot;</span>, <span class="at">xlab=</span><span class="st">&quot;model #&quot;</span>, <span class="at">type =</span> <span class="st">&quot;b&quot;</span>)</span></code></pre></div>
+<p><img src="session-regularization_files/figure-html/test-1.png" width="100%" /></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="regularization.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify maximum rL model and print it</span></span>
+<span id="cb6-2"><a href="regularization.html#cb6-2" aria-hidden="true" tabindex="-1"></a>maxrl<span class="ot">=</span><span class="fu">max</span>(rl)</span>
+<span id="cb6-3"><a href="regularization.html#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Model&quot;</span>,<span class="fu">which</span>(<span class="fu">ifelse</span>(rl<span class="sc">==</span>maxrl,<span class="cn">TRUE</span>,<span class="cn">FALSE</span>)), <span class="st">&quot;has the maximum rL&quot;</span>))</span></code></pre></div>
+<pre><code>## [1] &quot;Model 3 has the maximum rL&quot;</code></pre>
+</details>
+<div id="mini-task-think-about" class="section level3" number="4.1.1">
+<h3><span class="header-section-number">4.1.1</span> Mini-task: Think about:</h3>
+<ul>
+<li>Which is the best model? Is this correct compared to our <em>oracle knowledge</em>?</li>
+<li>What can we say about how good it is compared to the other models?</li>
+<li>Can you see a drawback in our model testing approach above? If so, how can we solve that?</li>
+</ul>
+<details>
+<summary>
+Some possible answers
+</summary>
+<h4>
+Some possible answers
+</h4>
+<ul>
+<li>We see that the best model is the one with the 3 first X-variables (in line with our <em>oracle knowledge</em>) and that the likelihood of second best model (with the first 4 X-variables) is <span class="math inline">\(\approx 40\%\)</span> of the best likelihood.</li>
+</ul>
+<details>
+<summary>
+<span style="color:gray">Extra Reading</span>
+</summary>
+<ul>
+<li>Sometimes it is desirable to compute a significance for rejecting a model in favour of another model. A NULL distribution for the <span class="math inline">\(relL\)</span> statistic is usually obtained through simulation, e.g., using parametric bootstrapping.</li>
+</ul>
+<hr />
+</details>
+<ul>
+<li>Now, In this case we happened to know that the first 3 variables was the right one, so the order we choose to include them was correct. However, in the general case, we do not know this. How solve this?
+<ul>
+<li>Best subset method; involves testing all possible subsets, which is computationally time-consuming and unfeasible for larger sets of models.</li>
+<li>Lasso; see next section</li>
+</ul></li>
+</ul>
+<hr />
+</details>
+</div>
+</div>
+<div id="regularization-lasso-and-feature-selection" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Regularization | <code>LASSO and Feature selection</code></h2>
+<p>LASSO stands for <em>Least absolute shrinkage and selection operator</em> (“shrinkage” is another common term for regularization) and is a method for selecting variables to include in a multivariate model.</p>
+<p>Here, we do not explicitly compare two models with different number of variables. Instead all variables are included and the regularization acts upon the values of <span class="math inline">\(\beta\)</span> so that only important variables have a <span class="math inline">\(\beta_i&gt; 0\)</span>.</p>
+<p>Classical LASSO builds on RSS (residual sum of squares) of a linear regression model <span class="math inline">\(Y \sim X{\beta}\)</span> with regularization</p>
+<p>The regularization term <span class="math inline">\(f(\beta) = \lambda\sum_{\beta_i\in\beta} |\beta_i|\)</span></p>
+<p>The <span class="math inline">\(\lambda\)</span> parameter defines how strong the regularization becomes; a higher <span class="math inline">\(\lambda\)</span> will put a stricter limit on the estimation of individual <span class="math inline">\(\beta_i\)</span> values.</p>
+<p>Lasso is traditionally described as RSS with an auxiliary criterion/constraint:</p>
+<span class="math display">\[min\left\{RSS\right\} + \lambda\sum_{\beta_i\in\beta} |\beta_i|,\]</span>
+but, equivalently, it can be written in terms of the likelihood:
+<span class="math display">\[max \log L[\beta|X,Y] - \lambda\sum_{\beta_i\in\beta} |\beta_i|.\]</span>
+<details>
+<summary>
+<span style="color:gray">Extra Reading</span>
+</summary>
+<p>Other common notation for LASSO:</p>
+<ul>
+<li>You might often see the notation <span class="math display">\[min_{{\beta}}\left\{RSS\right\} \textrm{ subject to } ||{\beta}||_1 &lt;= t\]</span>
+where <span class="math inline">\(t\)</span> is related to <span class="math inline">\(\lambda\)</span>.</li>
+</ul>
+<hr />
+</details>
+<p>The optimal values of <span class="math inline">\(\beta\)</span> are then estimated, using some algorithm (<em>lars</em> or <em>coordinate descent</em>).</p>
+<details>
+<summary>
+<span style="color:gray">Extra Reading</span>
+</summary>
+<p>The <em>coordinate descent</em> algorithm is used in the R package <code>glmnet</code>:</p>
+<ol style="list-style-type: decimal">
+<li>Over a grid of <span class="math inline">\(\lambda\in [0, \infty]\)</span>, do
+<ol style="list-style-type: decimal">
+<li>Start with all <span class="math inline">\(\beta=0\)</span></li>
+<li>until convergence repeat for each <span class="math inline">\(\beta_i\)</span>
+<ol style="list-style-type: decimal">
+<li>while keeping all other <span class="math inline">\(\beta\)</span> fixed and <span class="math inline">\(\beta_i=0\)</span>, compute partial residuals</li>
+<li>estimate <span class="math inline">\(\beta_i\)</span> by RSS on the partial residuals</li>
+<li>update <span class="math inline">\(\beta_i\)</span> using the RSS estimate and <span class="math inline">\(\lambda\)</span>.</li>
+</ol></li>
+</ol></li>
+</ol>
+<hr />
+</details>
+<div id="example-lasso-using-the-glmnet-r-package" class="section level3" number="4.2.1">
+<h3><span class="header-section-number">4.2.1</span> Example | <code>Lasso using the glmnet R-package</code></h3>
+<ul>
+<li>Use function <code>glmnet</code> to perform LASSO analysis on our example data; relevant arguments of the function:
+<ul>
+<li>preprocessing
+<ul>
+<li>Standardization in <code>glmnet</code>:
+<span class="math inline">\(x&#39; = \frac{x-\bar{x}}{\sqrt{\frac{1}{n}\sum_i(x_i-\bar{x})^2}},\)</span>
+where <span class="math inline">\(\sqrt{\frac{1}{n}\sum_i(x_i-\bar{x})^2}\)</span> is the uncorrected sample standard deviation.
+<ul>
+<li>The variables Y and X must be centered and standardized to ensure that all variables are given equal weight in the model selection.</li>
+<li>standardization of <span class="math inline">\(X\)</span> to unit variance in <code>glmnet</code> is obtained by setting the argument <code>standardize=TRUE</code> which is the default</li>
+<li>the values of <span class="math inline">\(Y\)</span> is always standardized (?) for <code>family=gaussian</code> (LASSO)
+<ul>
+<li>and the coefficients are back-standardized before reported</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>linear regression (<code>family='gaussian'</code> = default)</li>
+<li>LASSO (<code>alpha=1</code> = default)</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="regularization.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb8-2"><a href="regularization.html#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># run lasso (alpha=1) for linear model (family=gaussian)</span></span>
+<span id="cb8-3"><a href="regularization.html#cb8-3" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">=</span> <span class="fu">glmnet</span>(X,Y, <span class="at">family=</span><span class="st">&quot;gaussian&quot;</span>, <span class="at">alpha=</span><span class="dv">1</span>, <span class="at">standardize=</span>T)</span></code></pre></div>
+<ul>
+<li>A graphical way to view the result is to <code>plot</code> the paths of <span class="math inline">\(\beta\)</span> for increasing values of <span class="math inline">\(\lambda\)</span>. This plot shows how the <span class="math inline">\(\beta_i\)</span> for different variables <span class="math inline">\(i\)</span> changes with <span class="math inline">\(\lambda\)</span>. The plot is perhaps best read from right to left, going from higher and thereby stricter, <span class="math inline">\(\lambda\)</span> values to lower <span class="math inline">\(\lambda\)</span> values including more and more variables/non-zero <span class="math inline">\(\beta_i\)</span>.</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="regularization.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb9-2"><a href="regularization.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="at">xvar=</span><span class="st">&quot;lambda&quot;</span>,<span class="at">label=</span>T)</span></code></pre></div>
+<details>
+<summary>
+<em>Show result</em>
+</summary>
+<p><img src="session-regularization_files/figure-html/unnamed-chunk-11-1.png" width="100%" /></p>
+<hr />
+</details>
+<div id="mini-task-think-about-1" class="section level4" number="4.2.1.1">
+<h4><span class="header-section-number">4.2.1.1</span> Mini-task | <code>Think about</code></h4>
+<ul>
+<li>In which order are variables included (i.e., their <span class="math inline">\(\beta\)</span> becomes non-zero?</li>
+<li>In which direction is the effect</li>
+<li>Which lambda should we select?
+<ul>
+<li>Given our <em>oracle knowledge</em>, where would an appropriate <span class="math inline">\(\lambda\)</span> be?</li>
+<li>Can we use that in the general case?</li>
+</ul></li>
+</ul>
+<details>
+<summary>
+Some possible answers
+</summary>
+<h4>
+Some possible answers
+</h4>
+<ul>
+<li>The order appears to be <span class="math inline">\((1,2,3,7,6,5,10,9,4,8)\)</span></li>
+<li><span class="math inline">\(\beta_i &gt; 0, i\in \{1,2,3,4,7,9\}\)</span>, while <span class="math inline">\(\beta_i&lt;0, i\in \{5,6,8,10\}\)</span></li>
+<li>Given <em>oracle knowledge</em>, the correct <span class="math inline">\(\lambda\)</span> appears lie somewhere in the interval <span class="math inline">\([\approx \exp(-1), \approx\exp(-2.5)]\)</span></li>
+<li>In the normal case, we do not have <em>oracle knowledge</em>.</li>
+</ul>
+<hr />
+</details>
+</div>
+</div>
+<div id="cross-validation" class="section level3" number="4.2.2">
+<h3><span class="header-section-number">4.2.2</span> Cross-validation</h3>
+<p>The LASSO model will be different depending on how we set <span class="math inline">\(\lambda\)</span>. A problem is to decide the optimal <span class="math inline">\(\lambda\)</span> to use.</p>
+<ul>
+<li><span class="math inline">\(\lambda\)</span> too <em>high</em>: risk of missing relevant variables</li>
+<li><span class="math inline">\(\lambda\)</span> too <em>low</em>: risk of overfitting</li>
+</ul>
+<p><code>glmnet</code> addresses this using <em><span class="math inline">\(k\)</span>-fold cross-validation</em> – what is that?</p>
+<div id="cross-validation-how-to-test-for-overfitting" class="section level4" number="4.2.2.1">
+<h4><span class="header-section-number">4.2.2.1</span> Cross-validation | <code>How to test for overfitting</code></h4>
+<p>The ultimate way of testing an estimated model (with parameters) would be to apply it to new data and evaluate how well it performs, e.g., by measuring the <em>mean squared error</em>, <span class="math inline">\(MSE\)</span> (<span class="math inline">\(=RSS/N\)</span>).
+Naturally, we want to minimize <span class="math inline">\(MSE\)</span>, i.e., the error of the model. In our LASSO application, this means that we want to select the <span class="math inline">\(\lambda\)</span> that minimizes the <span class="math inline">\(MSE\)</span></p>
+<p>In cross validation, this approach is emulated by partitioning the data at hand into a <em>training</em> and <em>validation</em> data set. The model parameters are estimated (‘trained’) on the the training data and the validated on the validation data. (Optionally, a <em>test</em> partition can be assigned in cross-validation on which the final, selected model is evaluated; this is not employed here).</p>
+<p>By chance, this may fail if the partitioning is ‘non-representative’. A solution is to repeat the cross-validation procedure with another partitioning.</p>
+<p>In <span class="math inline">\(k\)</span>-fold cross validation, the original data is split into <span class="math inline">\(k\)</span> sub-datasets <span class="math inline">\(\{D_1,D_2,\ldots, D_k\}\)</span>.
+For <span class="math inline">\(i \in \{1,2,\ldots, k\}\)</span>, set <span class="math inline">\(D_i\)</span> as the validation data set and the union of the other datasets be the training data. Perform cross validation as above.</p>
+<p>This gives a distribution of <span class="math inline">\(MSE\)</span> from which we can estimate, e.g., mean and standard deviation.</p>
+<details>
+<summary>
+<span style="color:gray">Extra Reading</span>
+</summary>
+<p>This distribution allows us to use more elaborate means to select <span class="math inline">\(\lambda\)</span>. One common suggestion is to use the largest <span class="math inline">\(\lambda\)</span> whose <span class="math inline">\(MSE\)</span> is within 1 standard error from the minimum value (called <code>lambda.1se</code> in <code>glmnet</code>). The motivation argued for this choice is <em>parsimony</em>, in the sense that larger <span class="math inline">\(\lambda\)</span> will include fewer variables (hence it is parsimonious in terms of number of included variables).</p>
+<p>Here we will limit ourselves to finding the minimum <span class="math inline">\(\lambda\)</span>, called <code>lambda.min</code> in <code>glmnet</code>, but anyone is free to test if <code>lambda.1se</code> gives a different result.</p>
+<hr />
+</details>
+</div>
+<div id="example-determine-optimal-lassolambdausing-cross-validation" class="section level4" number="4.2.2.2">
+<h4><span class="header-section-number">4.2.2.2</span> Example | <code>Determine optimal LASSO</code><span class="math inline">\(\lambda\)</span><code>using cross-validation</code></h4>
+<ul>
+<li>Use the function <code>cv.glmnet</code> to perform cross validation (same options as for <code>glmnet</code>), store it in a R variable, e.g., <code>cvglm</code>,</li>
+<li><code>plot</code> the cross-validation results</li>
+<li>Compare with the plot of estimated <span class="math inline">\(\beta_i\)</span> under different <span class="math inline">\(\lambda\)</span> (these can be accessed from the result as <code>cvglm$glmnet.fix</code>).</li>
+<li>Determine the optimal <span class="math inline">\(\lambda\)</span> (the one with minimal error, can be found in <code>cvglm$lambda.min</code>)</li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="regularization.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb10-2"><a href="regularization.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb10-3"><a href="regularization.html#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># run lasso (alpha=1) for linear model (family=gaussian)</span></span>
+<span id="cb10-4"><a href="regularization.html#cb10-4" aria-hidden="true" tabindex="-1"></a>cvglm<span class="ot">=</span><span class="fu">cv.glmnet</span>(X,Y, <span class="at">family=</span><span class="st">&quot;gaussian&quot;</span>, <span class="at">alpha=</span><span class="dv">1</span>, <span class="at">standardize=</span>T, <span class="at">nfolds=</span><span class="dv">100</span>)</span>
+<span id="cb10-5"><a href="regularization.html#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="regularization.html#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cvglm)</span>
+<span id="cb10-7"><a href="regularization.html#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cvglm<span class="sc">$</span>glmnet.fit, <span class="at">xvar=</span><span class="st">&quot;lambda&quot;</span>,<span class="at">label=</span>T)</span>
+<span id="cb10-8"><a href="regularization.html#cb10-8" aria-hidden="true" tabindex="-1"></a>minlambda<span class="ot">=</span>cvglm<span class="sc">$</span>lambda.min</span>
+<span id="cb10-9"><a href="regularization.html#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(minlambda)</span></code></pre></div>
+<details>
+<summary>
+<em>Show result</em>
+</summary>
+<p><img src="session-regularization_files/figure-html/unnamed-chunk-13-1.png" width="100%" /><img src="session-regularization_files/figure-html/unnamed-chunk-13-2.png" width="100%" /></p>
+<pre><code>## [1] 0.1064891</code></pre>
+<hr />
+</details>
+<div id="think-about-2" class="section level5" number="4.2.2.2.1">
+<h5><span class="header-section-number">4.2.2.2.1</span> Think about</h5>
+<ul>
+<li>Which is the <span class="math inline">\(\lambda\)</span> selected by <code>cv.glmnet</code>?</li>
+<li>Does this make sense given our <em>oracle knowledge</em>?</li>
+</ul>
+<details>
+<summary>
+Some possible answers
+</summary>
+<h4>
+Some possible answers
+</h4>
+<ul>
+<li>Cross-validation-selected optimal lambda is 0.1064891</li>
+<li>Yes, this includes only the <em>oracle knowledge</em> correct variables <span class="math inline">\(X_1, X_2, X_3\)</span></li>
+</ul>
+<hr />
+</details>
+</div>
+</div>
+<div id="example-final-lasso-effect-sizes" class="section level4" number="4.2.2.3">
+<h4><span class="header-section-number">4.2.2.3</span> Example| <code>Final LASSO effect sizes</code></h4>
+<ul>
+<li>Finally print a table with the <span class="math inline">\(\beta\)</span> coefficients (including the intercept, <span class="math inline">\(\beta_0\)</span>) for the optimal model (i.e., at minimum <span class="math inline">\(\lambda\)</span>); compare with oracle knowledge. (Hint: see <code>? coef.cv.glmnet</code>).</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="regularization.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Actually the following suffice for output on console</span></span>
+<span id="cb12-2"><a href="regularization.html#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#coef(cvglm, s=&quot;lambda.min&quot;)</span></span>
+<span id="cb12-3"><a href="regularization.html#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="regularization.html#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># But to get a nice table:</span></span>
+<span id="cb12-5"><a href="regularization.html#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)      <span class="co"># for nice table</span></span>
+<span id="cb12-6"><a href="regularization.html#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra) <span class="co">#for nice table</span></span>
+<span id="cb12-7"><a href="regularization.html#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="regularization.html#cb12-8" aria-hidden="true" tabindex="-1"></a>coefglm<span class="ot">=</span><span class="fu">as.data.frame</span>(<span class="fu">as.matrix</span>(<span class="fu">coef</span>(cvglm, <span class="at">s=</span><span class="st">&quot;lambda.min&quot;</span>)))</span>
+<span id="cb12-9"><a href="regularization.html#cb12-9" aria-hidden="true" tabindex="-1"></a>coefglm<span class="ot">=</span><span class="fu">cbind</span>(<span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">10</span>),<span class="fu">c</span>(b0, b, <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">7</span>)),coefglm)</span>
+<span id="cb12-10"><a href="regularization.html#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(coefglm)<span class="ot">=</span><span class="fu">c</span>(<span class="st">&quot;beta&quot;</span>,<span class="st">&quot;value (oracle)&quot;</span>, <span class="fu">paste0</span>(<span class="st">&quot;estimate(lambda=&quot;</span>,<span class="fu">signif</span>(minlambda,<span class="dv">3</span>),<span class="st">&quot;)&quot;</span>))</span>
+<span id="cb12-11"><a href="regularization.html#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(coefglm, <span class="at">row.names=</span>F) <span class="sc">%&gt;%</span>   <span class="fu">kable_styling</span>( <span class="at">font_size =</span> <span class="dv">14</span>)</span></code></pre></div>
+<details>
+<summary>
+<em>Show result</em>
+</summary>
+<table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+beta
+</th>
+<th style="text-align:right;">
+value (oracle)
+</th>
+<th style="text-align:right;">
+estimate(lambda=0.106)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3.0000000
+</td>
+<td style="text-align:right;">
+3.6046135
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.8125118
+</td>
+<td style="text-align:right;">
+0.5905522
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.6009469
+</td>
+<td style="text-align:right;">
+0.4631531
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.7232911
+</td>
+<td style="text-align:right;">
+0.5204561
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</details>
+<div id="think-about-3" class="section level5" number="4.2.2.3.1">
+<h5><span class="header-section-number">4.2.2.3.1</span> Think about</h5>
+<ul>
+<li>Does the effect sizes make sense – if not can you think of why?</li>
+</ul>
+<details>
+<summary>
+Some possible answers
+</summary>
+<h4>
+Some possible answers
+</h4>
+<ul>
+<li>Well…yes!
+<ul>
+<li><span class="math inline">\(\beta_i\)</span> is non-zero only for <em>oracle</em>-known variables <span class="math inline">\(X_1, X_2, X_3\)</span></li>
+<li>they don’t exactly equate our <em>oracle knowledge</em> parameter values – they appear to be scaled.</li>
+<li>but their relative order of amplitude is right.</li>
+</ul></li>
+<li>Perhaps the normalization affected scaling.</li>
+</ul>
+<hr />
+</details>
+</div>
+</div>
+</div>
+</div>
+<div id="more-about-regularization" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> More about regularization</h2>
+<div id="general-cost-function" class="section level3" number="4.3.1">
+<h3><span class="header-section-number">4.3.1</span> General cost function</h3>
+<p>Regularization can be generalized to apply not only to linear models. For example <code>glmnet</code> allows using regularized likelihood expression for generalized linear models, GLMs.</p>
+<p>Even more general, regularization can be formulated to apply some general loss (or cost or error) function, <span class="math inline">\(\mathcal{L}(Y|X, \beta),\)</span> commonly used in Machine learning. The modified loss function (including the regularization) can be written</p>
+<p><span class="math display">\[\mathcal{L}(Y|\beta, X, \lambda) = \mathcal{L}(Y|\beta, X) + \lambda f(\beta).\]</span>
+This formulation allows application to various regresssi0on and classification problems.</p>
+<p>Examples of loss functions:</p>
+<ul>
+<li><span class="math inline">\(RSS\)</span> (least squares method)</li>
+<li>mean square error (MSE) = <span class="math inline">\(RSS/N\)</span></li>
+<li>cross entropy <span class="math inline">\(\sum_i y_i \times Pr[y_i|\beta, x]\)</span></li>
+</ul>
+<details>
+<summary>
+<span style="color:gray">A note on notation</span>
+</summary>
+<p>Here, for consistency, I use <span class="math inline">\(\beta\)</span> for the parameters of the model, but other notation is commonly also used, e.g., <span class="math inline">\(w\)</span> (for weights). In fact, <span class="math inline">\(\beta\)</span> is often associated with regression parameters; when more types of parameters are used, it is common to use, e.g., <span class="math inline">\(\theta\)</span> as a collective notation for all those parameters.</p>
+<hr />
+</details>
+</div>
+<div id="reasons-for-regularizing" class="section level3" number="4.3.2">
+<h3><span class="header-section-number">4.3.2</span> Reasons for regularizing</h3>
+<div id="avoid-false-positives-dues-to-overfitting" class="section level4" number="4.3.2.1">
+<h4><span class="header-section-number">4.3.2.1</span> Avoid false positives dues to overfitting</h4>
+<p>In inference, where you want to identify the causative variables that contribute to the outcome. overfitting may cause false positives, that is, variables that simply explains random noise in the training data.</p>
+<p>Applying regularization reduces these kinds of false positives.</p>
+</div>
+<div id="model-selection" class="section level4" number="4.3.2.2">
+<h4><span class="header-section-number">4.3.2.2</span> Model selection</h4>
+<p>Compare competing models, how much better is the best model.</p>
+</div>
+<div id="generalization" class="section level4" number="4.3.2.3">
+<h4><span class="header-section-number">4.3.2.3</span> Generalization</h4>
+<p>In Machine learning the goal is often prediction, i.e., using the estimated model to predict outcomes <span class="math inline">\(Y&#39;\)</span> from a completely new set of predictors, <span class="math inline">\(X&#39;\)</span>. Overfitting will make the estimated model to specialized to prediction of the training outcomes including the noise it contains.</p>
+<p>Regularization can therefore be motivated as a technique to improve the generalizability of a learned model by reducing its overfitting to the training data..</p>
+</div>
+<div id="feature-selectionsparsity" class="section level4" number="4.3.2.4">
+<h4><span class="header-section-number">4.3.2.4</span> Feature selection/sparsity</h4>
+<p>In many applications, e.g., for clinical diagnosis, a small model with few variables explaining the bulk of the outcome is preferred over a detailed model that explains as much of the outcome as possible. In these applications, regularization can be used for selecting the most important features and ignoring the other variables.</p>
+<p>More generally, sparsity may also lead to more easily interpreted models, e.g., for biological questions.</p>
+</div>
+</div>
+<div id="more-about-cross-validation-regularization-and-model-evaluation" class="section level3" number="4.3.3">
+<h3><span class="header-section-number">4.3.3</span> More about cross validation – “regularization” and model evaluation</h3>
+<p>Many Machine learning techniques uses iteration to improve the model estimate incrementally. The number of iterations then becomes an important parameter – you want enough iterations to get a good model, but not so many that you get overfitting.</p>
+<p>A common approach to this problem is to use cross-validation. Here you partition the data into three sets, <em>training</em>, <em>validation</em>, and <em>test</em> data sets. The test data is is not used in the iterations. In each iteration, you train the model on the training data and then evaluate it on the validation data using some loss function. You continue the iterations until the evaluated loss score is not better than the loss score from the previous iteration; this will be your final model, which is evaluated against the test data.</p>
+</div>
+<div id="norms" class="section level3" number="4.3.4">
+<h3><span class="header-section-number">4.3.4</span> Norms</h3>
+<p><em>Norms</em> is a concept that commonly pops up when regularization is discussed.</p>
+<p>Norms are a kind of summary statistic over vectors – a functions that has a vector as input and a (non-negative) number as output. The most common notation for norms (in this case for parameter vector $) is</p>
+<p><span class="math inline">\(||\beta||_p,\)</span></p>
+<p>where <span class="math inline">\(p\)</span> is the “degree” of the norm.</p>
+<p>Since this special notation is used for norms, they can at first look very incomprehensible, but we have already used a number of them!</p>
+<div id="the-l_0-norm" class="section level4" number="4.3.4.1">
+<h4><span class="header-section-number">4.3.4.1</span> The <span class="math inline">\(L_0\)</span> “norm”</h4>
+<p>Our initial simple naive regularization approach actually used the <span class="math inline">\(L_0\)</span>-“norm”, which is the number of non-zero <span class="math inline">\(beta\)</span>, which can be written mathematically as</p>
+<p><span class="math display">\[||beta||_0 = \sum_i I(\beta_i=0),\]</span>
+where <span class="math inline">\(I(expr)\)</span> equals 1 if <span class="math inline">\(expr\)</span> is true and 0 otherwise.</p>
+<details>
+<summary>
+<em>Geometry</em>
+</summary>
+<p>Geometrically, the <span class="math inline">\(L_0\)</span>-norm is also the <em>Hamming distance</em> from origo. the Hamming distance between two vectors is the number of places they disagree.</p>
+<p>In formal mathematics, the <span class="math inline">\(L_0\)</span>-“norm” does not properly fulfill all criteria for a norm; hence it is often, as here, written within quotation marks.</p>
+<hr />
+</details>
+<p>Our naive regularization can then instead be written</p>
+<p><span class="math display">\[\log rL[\beta | X, Y]  = \log L[\beta | X, Y] - ||\beta||_0.\]</span>
+Here, the <span class="math inline">\(L_0\)</span>-norm can also be viewed as the number of variables, <span class="math inline">\(\#X\)</span>, included in the model (if <span class="math inline">\(\beta_i=0\)</span>, then the variable <span class="math inline">\(X_i\)</span> is not included in the model).</p>
+<p>The <em>Akaike Information Criterion</em>, <span class="math inline">\(AIC\)</span>, as well as the <em>Bayesian Information Criterion</em>, <span class="math inline">\(BIC\)</span>, for model selection use a logLikelihood penalized with an <span class="math inline">\(L_0\)</span> “norm”, with different values of <span class="math inline">\(\lambda\)</span> (<span class="math inline">\(1\)</span> and <span class="math inline">\(ln(n)/2\)</span>, respectively).</p>
+<p>In fact, regularization with the <span class="math inline">\(L_0\)</span>-norm would be the desired approaching most cases. However, as we have seen, finding the optimal model is really hard; in fact this is an <em>NP-hard</em> problem. Hence, alternative approaches using other norms has been investigated.</p>
+</div>
+<div id="the-l_1-norm" class="section level4" number="4.3.4.2">
+<h4><span class="header-section-number">4.3.4.2</span> The <span class="math inline">\(L_1\)</span> norm</h4>
+<p>LASSO regularization uses the <span class="math inline">\(L-1\)</span>-norm, which is simply the sum of the absolute values of <span class="math inline">\(\beta_i\)</span>,</p>
+<span class="math display">\[ ||\beta||_1 = \sum_{\beta_i\in\beta} |\beta_i|.\]</span>
+<details>
+<summary>
+<em>Geometry</em>
+</summary>
+<p>Geometrically, the <span class="math inline">\(L_1\)</span>-norm is also the <em>Manhattan distance</em> from origo.</p>
+<div class="figure">
+<img src="images/manhattan_distance.jpg" alt="" />
+<p class="caption">manhattan distance</p>
+</div>
+<hr />
+</details>
+<p>So another way of writing LASSO is</p>
+<p><span class="math display">\[min\left\{RSS\right\} + \lambda ||\beta||_1.\]</span>
+As we have seen, LASSO is an effective algorithm for regularization with the <span class="math inline">\(L_1\)</span>-norm. It also does a decent job of mimicking the <span class="math inline">\(L_0\)</span>-“norm”, i.e., setting <span class="math inline">\(\beta_i=0\)</span> for certain variables <span class="math inline">\(i\)</span>. However, it has been shown that it can occasionally produce non-unique solutions.</p>
+<details>
+<summary>
+<em>Extra reading</em>
+</summary>
+<p>The absolute value <span class="math inline">\(|x|\)</span> is not differentiable at <span class="math inline">\(x=0\)</span>, so neither is the <span class="math inline">\(L_1\)</span>-norm. This is a drawback in some Machine Learning approaches, e.g., those using so-called <em>gradient descent</em>.</p>
+<hr />
+</details>
+</div>
+<div id="the-l_2-norm" class="section level4" number="4.3.4.3">
+<h4><span class="header-section-number">4.3.4.3</span> The <span class="math inline">\(L_2\)</span> norm</h4>
+There is also a <span class="math inline">\(L_2\)</span>-norm:
+<span class="math display">\[ ||\beta||_2 = \sqrt{\sum_{\beta_i\in{\beta}} \beta_i^2}.\]</span>
+<details>
+<summary>
+<em>Geometry</em>
+</summary>
+<p>Geometrically, the <span class="math inline">\(L_2\)</span>-norm is also the <em>Euclidean distance</em> from origo.</p>
+<div class="figure">
+<img src="images/manhattan_distance.jpg" alt="" />
+<p class="caption">Euclidean distance</p>
+</div>
+<hr />
+</details>
+<p>We note that you already have been working with an <span class="math inline">\(L_2-norm\)</span>: since <span class="math inline">\(RSS = ||Y-X\beta||_2^2\)</span> is simply the square of the <span class="math inline">\(L_2\)</span> norm of the residuals.
+Similarly, the sample standard deviation could be written using the <span class="math inline">\(L_2\)</span>-norm, <span class="math inline">\(sd(x) = \frac{||x-\bar{x}||_2}{\sqrt{n-1}}.\)</span></p>
+<p>For regularization, the <span class="math inline">\(L_2\)</span>-norm is used in <em>ridge regression</em>. Computationally, regularization with an <span class="math inline">\(L_2\)</span>-norm is even more efficient than with an <span class="math inline">\(L_1\)</span>-norm. It works well to prevent over-fitting, but because it is bad at shrinking <span class="math inline">\(\beta_i\)</span>’s all the way to zero, it is not so good for feature selection.</p>
+<details>
+<summary>
+<em>Extra reading</em>
+</summary>
+<p>The <span class="math inline">\(L_2\)</span>-norm is differentiable at all values, making it usable in Machine Learning approaches using so-called <em>gradient descent</em>.</p>
+<hr />
+</details>
+</div>
+<div id="combination-of-norms" class="section level4" number="4.3.4.4">
+<h4><span class="header-section-number">4.3.4.4</span> Combination of norms</h4>
+<p><em>Elastic net</em> regularization uses a mixed model combination of the <span class="math inline">\(L_1\)</span> norm and the <span class="math inline">\(L_2\)</span> norm,</p>
+<p><span class="math display">\[RSS+\lambda_1 ||\beta||_1 + \lambda_2 ||\beta||_2.\]</span>
+The aim is to avoid some drawbacks of LASSO.</p>
+<p>Elastic net regularization is closely related to the Machine Learning approach (linear) <em>Support Vector Machines</em>, <span class="math inline">\(SVN\)</span>s</p>
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="overfitting.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exercises.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": false,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
