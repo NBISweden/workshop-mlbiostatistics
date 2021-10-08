@@ -165,7 +165,7 @@ P=10 # number of variables
 # Draw variables, x_{i,1},...,x_{i,P} for all N individuals, from a uniform distribution in interval (0,1) (this is the default interval for runif)
 # 1. runif generates N*P+1 values, round them off to 2 decimals
 # 2. Put values into a matrix with N rows and P columns
-X=matrix(round(runif(N*(P+1),min=0, max=2)), nrow=N, ncol=P)
+X=matrix(round(runif(N*(P+1),min=0, max=2),2), nrow=N, ncol=P)
 
 # generate a y variable from a multivariate lm of 3 first X variables only
 # intercept
@@ -173,7 +173,7 @@ b0=3
 # effect sizes for first three variables
 b=c(runif(3, min=0.5, max=1.0))
 # print the true parameter values 
-#print(paste("True effect sizes b_1 =", b[1], "b_2 =", b[2], "b_3 =", b[3], "; intercept =", b0))
+#print(paste("True effect sizes b_1 =", b[1], "b_2 =", b[2], "b_3 =", b[3], "; intercpt =", b0))
 
 # generate y for all samples (=rows in X) using only the 3 first variables (columns) of X
 Y <- b0 + X[,1] * b[1] + X[,2] * b[2] + X[,3] * b[3] + rnorm(N)
@@ -295,13 +295,13 @@ _Nested models_
 
 * Model (1) can be described as a special case of Model (2) with the constraints on $\beta_2=0$
 
-* Therefore Model (2) will always have equal or better ML than Model (1)
+* Therefore Model (2) will always have equal or better Maximum Likelihood than Model (1)
 
 
 _Overfitting_
 
 * Using our *oracle knowledge*, we know that the simulated data was generated from the 3 first variables
-  + thus, the subsequent variables increase ML by modeling noise in data
+  + thus, the subsequent variables increase the Maximum Likelihood by modeling noise in data
   
 * This is difficult to detect by just looking at the likelihoods
 
@@ -406,7 +406,7 @@ print(paste("Model",which(ifelse(rl==maxrl,TRUE,FALSE)), "has the maximum rL"))
 </details>
 
 
-##  Regularization | `LASSO and Feature selection`
+##  Regularization | `LASSO and Feature selection` {#lasso}
 
 LASSO  stands for *Least absolute shrinkage and selection operator* ("shrinkage" is another common term for regularization) and is a method for selecting variables to include in a multivariate model.
 
@@ -503,9 +503,12 @@ plot(fit, xvar="lambda",label=T)
 <summary> Some possible answers </summary>
 
 <h4>Some possible answers</h4>
-* The order appears to be $(1,2,3,7,6,5,10,9,4,8)$
-* $\beta_i > 0, i\in \{1,2,3,4,7,9\}$, while $\beta_i<0, i\in \{5,6,8,10\}$
-* Given *oracle knowledge*, the correct $\lambda$ appears lie somewhere in the interval $[\approx \exp(-1), \approx\exp(-2.5)]$
+* The order appears to be $(2,1,3,6,4,10,5,8,9,7)$
+{{content}}
+* $\beta_i > 0, i\in \{1,2,3,4,7,8\}$, while $\beta_i<0, i\in \{5,6,9,10\}$
+{{content}}
+* Given *oracle knowledge*, the correct $\lambda$ appears lie somewhere in the interval $[\approx \exp(-1.1), \approx\exp(-2.5)]$
+{{content}}
 * In the normal case, we do not have *oracle knowledge*.
 
 ***
@@ -637,9 +640,9 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 
 * Well...yes!
   + $\beta_i$ is non-zero only for _oracle_-known variables $X_1, X_2, X_3$
-  + they don't exactly equate our *oracle knowledge* parameter values -- they appear to be scaled.
-  + but their relative order of amplitude is right.
-* Perhaps the normalization affected scaling.
+  + but they don't exactly equate our *oracle knowledge* parameter values.
+* The regularization imposes constraints also on the estimation accuracy of the parameter values.
+  + It is common practice to re-estimate effect sizes in an `lm` including only the features selected by LASSO.
 
 ***
 </details>

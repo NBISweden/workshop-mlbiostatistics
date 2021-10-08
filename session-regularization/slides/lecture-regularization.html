@@ -181,7 +181,7 @@ Likelihood and maximum likelihood estimation are central concepts in statistics.
 
 - The maximum likelihood estimates of both `\(\beta\)` and `\(\sigma^2\)` are functions of the  RSS, and `$$\max\log L[\beta, \sigma^2|Y,X] \approx -\frac{N}{2} \log RSS$$`
 
-  - This means that `$$\widehat{\beta}_{ML} = \widehat{\beta}_{OLS}$$`
+  - This means that `$$\widehat{\beta}_{MLE} = \widehat{\beta}_{OLS}$$`
 
 ???
 
@@ -220,7 +220,7 @@ set.seed(85)
 N=100 # number of samples
 P=10 # number of variables
 # Generate X from uniform distribution
-X=matrix(round(runif(N*(P+1),min=0, max=2), 2), nrow=N, ncol=P)
+X=matrix(round(runif(N*(P+1),min=0, max=2),2), nrow=N, ncol=P)
 # generate Y from a multivariate lm of 3 first X variables only
 b0=3 #intercept
 b=c(runif(3, min=0.5, max=1.0)) # effect sizes for 3 first X variables
@@ -299,7 +299,7 @@ plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P),
 #### Think about:
 
 * How does the Likelihood behave as more variables are added? Why?
-* Which is the ML model? Is this correct?
+* Which is the Maximum Likelihood model? Is this correct?
 * How would we like it to behave?
 * How can this be obtained?
 
@@ -309,24 +309,24 @@ plot(ll, ylab="log L", xlab="model #", type = "b", xlim=c(1,P),
 _Nested models_
 
 * Model (1) is a special case of Model (2) with constraints that `\(\beta_2=0\)`
-* Therefore Model (2) will always have equal or better ML than Model (1)
+* Therefore Model (2) will always have equal or better Maximum Likelihood than Model (1)
 {{content}}
 ]
 
 ???
 
-- ML increases the more variables we add
+- Maximum Likelihood increases the more variables we add
 --
 
 _Overfitting_
 * Since the simulated data was generated from the 3 first variables...
-  + ...thus, the subsequent variables increase ML by modeling noise in data
+  + ...thus, the subsequent variables increase Maximum Likelihood by modeling noise in data
   
 {{content}}  
 
 ???
 
-- The ML model is the one with all variables
+- The Maximum Likelihood model is the one with all variables
 
 --
   
@@ -519,10 +519,10 @@ plot(fit, xvar="lambda",label=T)
 * The order appears to be `\((2,1,3,6,4,10,5,8,9,7)\)`
 {{content}}
 --
-* `\(\beta_i &gt; 0, i\in \{1,2,3,4,78\}\)`, while `\(\beta_i&lt;0, i\in \{5,6,9,10\}\)`
+* `\(\beta_i &gt; 0, i\in \{1,2,3,4,7,8\}\)`, while `\(\beta_i&lt;0, i\in \{5,6,9,10\}\)`
 {{content}}
 --
-* Given *oracle knowledge*, the correct `\(\lambda\)` appears lie somewhere in the interval `\([\approx \exp(-1).1, \approx\exp(-2.5)]\)`
+* Given *oracle knowledge*, the correct `\(\lambda\)` appears lie somewhere in the interval `\([\approx \exp(-1.1), \approx\exp(-2.5)]\)`
 {{content}}
 --
 * In the normal case, we do not have *oracle knowledge*.
@@ -684,7 +684,7 @@ coef(cvglm, s="lambda.min")
   &lt;tr&gt;
    &lt;th style="text-align:right;"&gt; beta &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; value (oracle) &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; estimate(lambda=0.0842) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; estimate(lambda=0.084) &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
@@ -749,18 +749,16 @@ coef(cvglm, s="lambda.min")
 .pull-right[
 ##### Think about
 * Does the effect sizes make sense -- if not can you think of why?
-
 {{content}}
 ]
 --
- 
-##### Some possible answers
 
-* Well...yes!
+##### Some possible answers
+* Well...
   + `\(\beta_i\)` is non-zero only for _oracle_-known variables `\(X_1, X_2, X_3\)`
-  + they don't exactly equate our *oracle knowledge* parameter values -- they appear to be scaled.
-  + but their relative order of amplitude is right.
-* Perhaps the normalization affected scaling.
+  + but they don't exactly equate our *oracle knowledge* parameter values.
+* Regularization imposes constraints  on parameter estimation accuracy.
+  + Re-estimate effect sizes of selected features in an `lm`
 
 
 ???
@@ -970,7 +968,7 @@ Norms can also have a geometry interpretation:
 
 ### Cross validation as "regularization"
 
-- Iterative ML approaches
+- Iterative Machine Learning approaches
   - Number of iterations balance between
       - suboptimal model (too few)
       - risk of overfitting (too many)
