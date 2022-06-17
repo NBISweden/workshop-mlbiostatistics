@@ -1,0 +1,543 @@
+---
+title: "Clustering"
+author: "Eva Freyhult"
+date: "2019-10-07"
+institute: NBIS, SciLifeLab
+output:
+  xaringan::moon_reader:
+    css: ["default", "metropolis"]
+    encoding: 'UTF-8'
+    self_contained: false
+    # lib_dir: libs
+    nature:
+      ratio: '4:3'
+      highlightLanguage: r
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+    # slideNumberFormat: "Biostatistics. %current%/%total%"
+---
+class: spaced
+
+
+```{r, include=FALSE}
+require(tidyverse)
+require(ggplot2)
+require(reshape2)
+require(knitr)
+require(kableExtra)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=2)
+```
+
+# Clustering
+
+```{r clusters, out.width="70%", fig.width=7, fig.height=5, fig.align="center"}
+df <- data.frame(klass=rep(c("A", "B", "C"), c(30, 15, 25)), stringsAsFactors = FALSE) %>% mutate(x=rnorm(n(),c(A=1, B=3, C= 2)[klass], sd=.4), y=rnorm(n(), c(A=1, B=1, C= 2)[klass], sd=.4))
+cl <- kmeans(df[, c('x','y')], centers=3)$cluster
+df$kmeans=cl
+#df %>% ggplot(aes(x=x, y=y, color=klass)) + geom_point() + theme(legend.position = "none")
+df %>% ggplot(aes(x=x, y=y, color=factor(kmeans))) + geom_point() + theme_bw() + theme(legend.position = "none")
+```
+
+Clustering is about grouping objects together according to similarity. The objects are grouped into clusters so that objectes within the same cluster are more similar to one another than to objects in other clusters.
+
+---
+
+# Clustering
+
+.pull-left[
+Clustering is usually performed based on a set of $n$ objects each with $p$ measurements. A single object $i$ can thus be described by the vector ${\mathbf x}_i = [x_{i1}, x_{i2}, \dots, x_{ip}]$.
+
+With only $p=2$ measurements these measurements can easily be plotted and we could illustrate clusters by colors.
+
+Clustering is commonly used for data exploration and to identify substructures in a data set.
+
+There are many types of clustering algorithms, here we will only discuss *K-means* and *hierarchical clustering*. 
+]
+.pull-right[
+```{r}
+df %>% ggplot(aes(x=x, y=y, color=factor(kmeans))) + geom_point() + theme_bw() + theme(legend.position = "none")
+```
+]
+
+---
+layout: true
+
+# K-means
+
+---
+
+The K-means algorithm aims to divide all objects into exactly $K$ clusters. $K$ has to be given to the algorithm. The K-means algorithm minimize the variance within clusters, by iteratively assigning each object to the cluster with the closest mean (centroid).
+
+The centroid of cluster $k$ is the arithmetic mean of all $n_k$ objects in the cluster
+
+$${\mathbf m}_k = \frac{1}{n_k} \sum_{i=1}^{n_k} {\mathbf x}_{i}$$
+
+---
+
+The algorithm can be performed as follows;
+
+0. Initialization. Select $k$ initial centroids.
+1. Assign each object to the closest centroid (in terms of squared Euclidean distance).
+The squared Euclidean distance between an object (a data point) and a cluster centroid $m_k$ is
+$d_i = \sum_{j=1}^p (x_{ij} - m_{kj})^2$. By assigning each object to closest centroid the total within cluster sum of squares (WSS) is minimized.
+$$WSS = \sum_{k=1}^K\sum_{i \in C_k}\sum_{j=1}^p (x_{ij} - m_{kj})^2$$
+<!-- For every object ${\mathbf x}_i$ assign the object to the cluster $\arg \min_l \sum_j (x_{ij} - c_{lj})^2$ -->
+2. Update the centroids for each of the $k$ clusters by computing the centroid for all the objects in each of the clusters.
+3. Repeat 1-2 until convergence
+
+---
+
+The initial centroids can be selected in several different ways. Two common methods are;
+
+* Select $K$ data points as initial centroids
+* Randomly assign each data point to one out of $K$ clusters and compute the centroids for these initial clusters.
+
+---
+layout:false
+layout:true
+
+# K-means
+```{r}
+df3 <- df
+```
+
+---
+
+```{r sampleani, fig.show='animate', fig.width=4, fig.height=4, out.width="50%", cache=FALSE, warning=FALSE, interval=0.5, aniopts="controls,loop", eval=FALSE}
+set.seed(191)
+#df <- data.frame(x=rnorm(30), y=rnorm(30), cl=NA)
+df$cl[sample(1:10, 3)] <- LETTERS[1:3]
+initcenter <- df[!is.na(df$cl), c('x','y')]
+iter <- 10
+k <- 0
+while (k <= iter) {
+  iter.max <- 10
+  if (k==0)
+    plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + ggtitle(sprintf("k = %i", k)))
+  else {
+    km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm ="Forgy")
+    df$cl <- LETTERS[km$cluster]
+    iter <- km$iter
+    plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + ggtitle(sprintf("k = %i", k)))
+  }
+  k <- k+1
+}
+```
+
+---
+```{r km0, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+set.seed(191)
+# dfr <- data.frame(x=rnorm(30), y=rnorm(30), cl=NA)
+df$cltrue<-df$cl
+df$cl <- NA
+#df$cl[sample(1:10, 3)] <- LETTERS[c(1, 3, 2)]
+df$cl[order(rowSums((df[, c('x','y')]-matrix(c(1,1), ncol=2, nrow=70, byrow = TRUE))^2))[1:3]] <- LETTERS[c(1, 3, 2)]
+initcenter <- df[!is.na(df$cl), c('x','y')]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + ggtitle(sprintf("Initial")))
+# dfr$cl[sample(1:10, 3)] <- LETTERS[c(1, 3, 2)]
+# initcenterr <- dfr[!is.na(df$cl), c('x','y')]
+# plot(dfr %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + ggtitle(sprintf("Initial")))
+```
+---
+
+```{r km1, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 1
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+# km <- kmeans(dfr[, c('x','y')], centers=initcenterr, iter.max = k, algorithm="Forgy")
+# dfr$cl <- LETTERS[km$cluster]
+# plot(dfr %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+---
+
+```{r km2, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 2
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+
+---
+
+```{r km3, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 3
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+---
+
+```{r km4, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 4
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+
+---
+
+```{r km5, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 5
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+
+---
+
+```{r km6, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 6
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+
+---
+
+```{r km7, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 7
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+
+---
+
+```{r km8, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 8
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+
+---
+
+```{r km9, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 9
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+---
+```{r km10, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 10
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+---
+```{r km11, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 11
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+---
+```{r km12, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 12
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", k)))
+```
+---
+```{r km20, fig.width=5, fig.height=5, warning=FALSE, out.width="70%"}
+k <- 20
+km <- kmeans(df[, c('x','y')], centers=initcenter, iter.max = k, algorithm="Forgy")
+df$cl <- LETTERS[km$cluster]
+plot(df %>% ggplot(aes(x, y, color=cl)) + geom_point() + theme_bw() + geom_point(data=data.frame(km$centers, cl=LETTERS[1:3]), pch=2) + ggtitle(sprintf("k = %i", km$iter)))
+```
+---
+layout: true
+# Choosing the number of clusters
+
+---
+
+K-means clustering requires that we specify the number of clusters, $k$. How do we select such a $k$?
+
+---
+### Elbow method
+
+<!-- The Elbow method is based on the total within sum of squares, $WSS$, that the K-means algorithm tries to minimize. By running the algorithm with several different values of $k$, e.g. 1--10, we can plot WSS as a function of $k$. -->
+
+```{r elbow, fig.height=4, fig.width=7, fig.caption="WSS as a function of the number of clusters, $k$.", message=FALSE, warning=FALSE, fig.height=4, fig.width=7}
+library(factoextra)
+fviz_nbclust(df[, c("x", "y")], kmeans, method="wss")
+# wss <- sapply(1:10, function(k) kmeans(df[, c('x','y')], centers=k)$tot.withinss)
+# data.frame(k=1:10, WSS=wss) %>% ggplot(aes(k, WSS)) + geom_point() + geom_line() + theme_bw() + scale_x_continuous(breaks=1:10)
+```
+
+<!-- WSS is constantly decreasing as $k$ increases. The elbow methods suggests that The inflection (bend, elbow) on the curve indicate an optimal number of clusters. In this case, the elbow method suggests that the optimal number of clusters is $k=3$. -->
+
+---
+
+### Gap statistic
+
+The gap statistic measures the distance between the observed $WSS$ and an expected $WSS$ under a reference (null) model.
+
+$G(k) = E[\ln(WSS_{unif}(k))] - \ln(WSS(k))$
+
+--
+
+Choose $k$ as the smallest $k$ such that $G(k) \geq G(k+1) - s_{k+1}$.
+
+--
+
+```{r gap, warning=FALSE, message=FALSE, fig.height=4, fig.width=7, out.width="70%"}
+library(factoextra)
+fviz_nbclust(df[, c("x", "y")], kmeans, method="gap")
+```
+
+---
+
+
+### Silhouette method
+
+The silhouette value for a single object $i$ is a value between -1 ans 1 that measure how similar the object is to other objects in the same cluster as compared to how similar it is to objects in other clusters.
+
+The average silhouette over all objects is a measure of how good the clustering is, the higher the value the better is the clustering.
+
+```{r silhouette, warning=FALSE, message=FALSE, fig.height=4, fig.width=7, out.width="70%"}
+library(factoextra)
+fviz_nbclust(df[, c("x", "y")], kmeans, method="sil")
+```
+
+---
+
+### Silhouette method
+
+.small[
+The silhouette value, $s(i)$, for an object $i$ in cluster $C_a$ is calculated as follows;
+
+1. Average distance between $i$ and all other objects in the same cluster $C_a$;
+$$a(i) = \frac{1}{|C_a|-1} \sum_{j \neq i, j \in C_a} d(i, j)$$
+2. Average distance between $i$ and all objects in another cluster $C_b$, $d(i,C_b)$ and define the minimum;
+$$b(i) = \min_{b \neq a} d(i, C_b)$$
+3. The Silhouette index is defined as;
+$$s(i) = \frac{b(i) - a(i)}{max(a(i), b(i))}$$
+A silhouette value close to 1 means that the object is very well clustered, a value close to 0 means that the object lies between two clusters. A negative silhouette value means that the object is incorrectly clustered.
+]
+
+
+---
+layout: false
+name: diss
+layout: true
+
+# Dissimilarity matrix
+
+---
+
+<!-- All clustering algorithms need a measure of similarity or dissimilarity between objects. As a similarity can be transformed to a dissimilarity, we will here focus on dissimilaities. -->
+
+<!-- Dissimilarities between all pairs of objects can be described in a dissimilarity matrix. Most algorithms are based on symmetric dissimilarities, i.e. when the dissimilarity between a and b is the same as between b and a. Also, most algorithm require non-negative dissimilarities. -->
+
+K-means uses the squared Euclidean distance as a dissimilarity measure, but there  of course other ways to measure the dissimilarity between two objects (data points).
+
+<!-- An objects can usually be described by a set of $p$ measurements, for $n$ objects we have the measurements $x_{ij},$ where $i=1,\dots,n$ and $j=1,\dots,p$. -->
+
+---
+
+Common dissimilarity measures include;
+
+*Euclidean distance*
+$$d_{euc} (x, y) = \sqrt{\sum_{j=1}^{p} (x_j - y_j)^2}$$
+--
+
+*Squared Euclidean distance*
+$$d_{eucsq} (x, y) = \sum_{j=1}^{p} (x_j - y_j)^2$$
+---
+
+*Manhattan distance*
+$$d_{man} (x, y) = \sqrt{\sum_{j=1}^{p} |x_j - y_j|}$$
+---
+
+*Pearson correlation distance*
+
+Pearson's correlation is a similarity measure
+
+$$r = \frac{\sum_{j=1}^p(x_j-\bar x)(y_i-\bar y)}{\sqrt{\sum_{j=1}^p(x_j-\bar x)^2\sum_{j=1}^p(y_j-\bar y)^2}}$$
+
+Using a transformation we can compute a Pearson's correlation distance
+
+$$d_{pear}(x,y) = \sqrt{1-r}$$
+---
+layout: false
+layout: true
+
+# Hierarchical clustering
+
+---
+
+Hierarchical clustering does not require the number of clusters to be specified. Instead of creating a single set of clusters it creates a hierarchy of clusterings based on pairwise dissimilarities.
+
+```{r hclust0, fig.width=7, fig.height=3.5, warning=FALSE,  out.width="80%"}
+require(ggdendro)
+h <- hclust(dist(iris[, 1:4]))
+ggdendrogram(h)
+```
+---
+
+There are two strategies for hierarchical clustering *agglomerative* (bottom-up) and *divisive* (top-down).
+
+---
+
+## Agglomerative
+
+```{r agglomerative, warning=FALSE, message=FALSE, fig.show="hold", fig.width=4, fig.height=4, out.width="20%"}
+library(cluster)
+library(ggalt)
+set.seed(19)
+df <- data.frame(i=1:10, x=rnorm(10), y=rnorm(10))
+h <- hclust(dist(df[, c("x", "y")]))
+ct <- sapply(10:1, function(x) cutree(h, x))
+colnames(ct) <- paste0("n", 10:1)
+df <- cbind(df, ct)
+for (n in paste0("n", 10:1)){
+  dup <- df[[n]][duplicated(df[[n]])]
+  df$kl <- factor(df[[n]])
+  pl <- df %>% ggplot(aes(x=x, y=y, color=kl)) + geom_point() + theme_bw() + theme(legend.position = "none")
+  if (length(dup)>0)
+    plot(pl + geom_encircle(data=df[df$kl %in% dup,]))
+  else
+    pl
+}
+```
+
+---
+
+## Divisive
+
+```{r divisive, warning=FALSE, message=FALSE, fig.show="hold", fig.width=4, fig.height=4, out.width="20%"}
+set.seed(19)
+df <- data.frame(i=1:10, x=rnorm(10), y=rnorm(10))
+d <- diana(dist(df[, c("x", "y")]))
+cl <- matrix(-(1:10), 10, 10)
+for (i in 1:9){
+  obj <- d$merge[i,]
+  cl[, i+1] <- cl[, i]
+  cl[cl[, i] %in% obj, i+1] <- i
+}
+colnames(cl) <- paste0("k", 10:1)
+df <- cbind(df, cl)
+pl <- df %>% ggplot(aes(x=x, y=y)) + geom_point() + theme_bw()
+for (n in paste0("k", 1:10)){
+  dup <- df[[n]][duplicated(df[[n]])]
+  plot(pl + geom_encircle(data=pl$data[pl$data[[n]] %in% dup,], aes_string(group=n)))
+}
+```
+
+---
+layout: false
+name: agglo
+layout: true
+
+# Agglomerative clustering
+
+---
+
+* Starts with all objects in separate clusters
+* Merge based on smallest dissmiliarity
+* Dissimilarity between clusters is defined using a **linkage method**
+
+The dissimilarity between two clusters A and B with objects $a_1, \dots, a_{n_A}$ and $b_1, \dots, b_{n_B}$, respectively, can be computed using one of several linkage methods.
+
+
+
+```{r}
+require(ggdendro)
+hsl <- hclust(dist(iris[, 1:4]), method="single")
+hcl <- hclust(dist(iris[, 1:4]), method="complete")
+hal <- hclust(dist(iris[, 1:4]), method="average")
+hwl <- hclust(dist(iris[, 1:4]), method="ward.D")
+```
+
+---
+
+### Single linkage
+
+.pull-left[
+Single linkage takes as a cluster dissimilarity the distance between the two closest objects in the two clusters.]
+.pull-right[
+$$d_{sl}(A, B) = \min_{i,j} d(a_i, b_j)$$
+]
+
+```{r single, fig.show="hold", fig.width=7, fig.height=3.5}
+plot(ggdendrogram(hsl, labels=FALSE))
+```
+
+
+---
+### Complete linkage
+
+.pull-left[Complete linkage takes as a cluster dissimilarity the distance between the two objects furthest apart in the two clusters.]
+.pull-right[
+$$d_{cl}(A, B) = \max_{i,j} d(a_i, b_j)$$
+]
+
+```{r complete, fig.show="hold", fig.width=7, fig.height=3.5}
+ggdendrogram(hcl, labels=FALSE)
+```
+---
+
+### Average linkage
+
+.pull-left[Average linkage takes as a cluster dissimilarity the average distance between the objects in the two clusters.]
+.pull-right[
+$$d_{al}(A, B) = \frac{1}{n_A n_B}\sum_i\sum_j d(a_i, b_j)$$
+]
+
+```{r average, fig.show="hold", fig.width=7, fig.height=3.5}
+ggdendrogram(hal, labels=FALSE)
+```
+---
+
+### Ward's linkage 
+
+Ward's linkage method minimize the within variance, by merging clusters with the minimum increase in within sum of squares.
+
+$$d_{wl}(A, B) = \sum_{i=1}^{n_A} (a_i - m_{A \cup B})^2 + \sum_{i=1}^{n_B} (b_i - m_{A \cup B})^2 - \sum_{i=1}^{n_A} (a_i - m_{A})^2 - \sum_{i=1}^{n_B} (b_i - m_{B})^2$$
+where $m_A, m_B, m_{A \cup B}$ are the center of the clusters $A$, $B$ and $A \cup B$, respectively. 
+
+Note that Ward's linkage method should not be combined with any dissimilarity matrix as it is based on the squared Euclidean distance. In the R function `hclust` either the Euclidean or squared Euclidean distance can be used in combination with the linkage `method='ward.D'` or `method='ward.D2`, respectively.
+
+---
+#### Ward's linkage
+```{r ward, fig.show="hold", fig.width=7, fig.height=3.5}
+ggdendrogram(hwl, labels=FALSE)
+```
+
+```{r, fig.cap="Hierarchical clustering of the same data set using Euclidean distance and four different linkage methods.", fig.show="hold", fig.width=7, fig.height=3.5, eval=FALSE}
+require(ggdendro)
+hsl <- hclust(dist(iris[, 1:4]), method="single")
+hcl <- hclust(dist(iris[, 1:4]), method="complete")
+hal <- hclust(dist(iris[, 1:4]), method="average")
+hwl <- hclust(dist(iris[, 1:4]), method="ward.D")
+
+plot(ggdendrogram(hsl, labels=FALSE) + ggtitle("Single linkage"))
+ggdendrogram(hcl, labels=FALSE) + ggtitle("Complete linkage")
+ggdendrogram(hal, labels=FALSE) + ggtitle("Average linkage")
+ggdendrogram(hwl, labels=FALSE) + ggtitle("Ward's linkage")
+```
+
+---
+layout: false
+
+# Heatmap
+
+```{r heatmap, fig.width=6, fig.height=6, out.width="65%", fig.align="center"}
+library(pheatmap)
+# Create test matrix
+test = matrix(rnorm(200), 20, 10)
+test[1:10, seq(1, 10, 2)] = test[1:10, seq(1, 10, 2)] + 3
+test[11:20, seq(2, 10, 2)] = test[11:20, seq(2, 10, 2)] + 2
+test[15:20, seq(2, 10, 2)] = test[15:20, seq(2, 10, 2)] + 4
+colnames(test) = paste("Test", 1:10, sep = "")
+rownames(test) = paste("Gene", 1:20, sep = "")
+
+# Draw heatmaps
+pheatmap(test)
+```
+This heatmap was created using the `pheatmap` package in R.

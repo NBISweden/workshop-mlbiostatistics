@@ -1,0 +1,411 @@
+---
+title: "Descriptive statistics"
+author: "Eva Freyhult"
+date: "2019-10-04"
+institute: NBIS, SciLifeLab
+output:
+  xaringan::moon_reader:
+    css: ["default", "metropolis"]
+    encoding: 'UTF-8'
+    self_contained: false
+    # lib_dir: libs
+    nature:
+      ratio: '4:3'
+      highlightLanguage: r
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      # slideNumberFormat: "Biostatistics. %current%/%total%"
+---
+class: spaced
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+require(kableExtra)
+library(reshape2)
+library(ggplot2)
+require(knitr)
+require(UsingR)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=2)
+```
+
+# Descriptive statistics
+
+.pull-left[
+```{r table1_0, results="asis"}
+library(tableone)
+data(pbc)
+
+## Vector of variables to summarize
+myVars <- c("status", "age", "sex", "hepato",
+          "edema", "bili", "chol", "albumin", "copper")
+## Vector of categorical variables that need transformation
+catVars <- c("status", "trt", "ascites", "hepato",
+             "spiders", "edema", "stage")
+## Create a TableOne object
+tab <- CreateTableOne(vars = myVars, data = pbc %>% filter(!is.na(trt)) %>% mutate(treat=paste("Treatment", trt)), strata = "treat", factorVars = catVars, test=FALSE) %>% print(quote=TRUE, printToggle=FALSE)
+rownames(tab) = gsub('\\"', '', rownames(tab))
+colnames(tab) = gsub('\\"', '', colnames(tab))
+tab %>% kable(caption="Table 1. Summary statistics for the Mayo Clinic Primary Biliary Cholangitis Data (data(pbc) from the R-package survival).") %>% kable_styling(font_size=10) %>% gsub("font-size: initial !important;", "font-size: inherited !important;", .)
+```
+]
+
+.pull-right[
+```{r pbc0, out.width="45%", warning=FALSE}
+library(ggbeeswarm)
+pbc <- pbc %>% mutate(hepato=factor(hepato), trt=factor(trt), status=factor(c("censored", "transplant", "dead")[status+1], levels=c("censored", "transplant", "dead")))
+#pbc %>% ggplot(aes(x=copper)) + geom_histogram(bins=20, color="white")
+pbc %>% ggplot(aes(x=bili)) + geom_histogram(bins=20, color="white")
+pbc %>% mutate(hepato=factor(hepato)) %>% ggplot(aes(x=copper, y=bili, color=hepato)) + geom_point() + scale_x_log10() + scale_y_log10() + theme(legend.position = c(0,1), legend.justification = c(0,1))
+pbc %>% ggplot(aes(x=bili, color=status)) + geom_density() + scale_x_log10() + theme(legend.position = c(1,1), legend.justification = c(1,1))
+pbc %>% ggplot(aes(x=trt, fill=status)) + geom_bar() + theme(legend.position = c(1,1), legend.justification = c(1,1))
+pbc %>% filter(!is.na(trt)) %>% ggplot(aes(x=factor(trt), y=bili, fill=sex)) + geom_boxplot() + scale_y_log10() + xlab("Treatment") + theme(legend.position = c(0,1), legend.justification = c(0,1))
+pbc  %>% ggplot(aes(x=status, y=bili, color=sex)) + geom_beeswarm() + scale_y_log10() + theme(legend.position = c(0.25,1), legend.justification = c(0,1))
+```
+]
+
+---
+
+# Data types
+
+- Categorical
+  - Nominal: named.
+Ex: dead/alive, healthy/sick, WT/mutant, AA/Aa/aa, male/female, red/green/blue
+  - Ordinal: named and ordered. Ex: pain (weak, moderate, severe), AA/Aa/aa, very young/young/middle age/old/very old, grade I, II, III, IV
+
+Reported as frequencies, proportions, summarized using mode
+
+--
+
+- Quantitative (numeric)
+<!--   - Interval: no absolute zero, meaningful to compute interval ratios. -->
+<!--     Ex: time, temperature -->
+<!--   - Ratio: absolute zero, meaningful to compute ratios. Ex. height, -->
+<!--     weight, concentration -->
+<!-- Often not necessary to distinguish between interval and ratio scale, can be more useful to divide the quantitative scales into -->
+  - Discrete: finite or countable infinite values. Ex. counts, number of cells, number of reads
+  - Continuous: infinitely many uncountable values.  Ex. height, weight, concentration
+
+Useful summary statistics include mean, median, variance, standard deviation.
+
+---
+layout: false
+# Data summations and plots
+
+.pull-left[
+```{r table1, results="asis"}
+library(tableone)
+data(pbc)
+
+## Vector of variables to summarize
+myVars <- c("status", "age", "sex", "hepato",
+          "edema", "bili", "chol", "albumin", "copper")
+## Vector of categorical variables that need transformation
+catVars <- c("status", "trt", "ascites", "hepato",
+             "spiders", "edema", "stage")
+## Create a TableOne object
+tab <- CreateTableOne(vars = myVars, data = pbc %>% filter(!is.na(trt)) %>% mutate(treat=paste("Treatment", trt)), strata = "treat", factorVars = catVars, test=FALSE) %>% print(quote=TRUE, printToggle=FALSE)
+rownames(tab) = gsub('\\"', '', rownames(tab))
+colnames(tab) = gsub('\\"', '', colnames(tab))
+tab %>% kable(caption="Table 1. Summary statistics for the Mayo Clinic Primary Biliary Cholangitis Data (data(pbc) from the R-package survival).") %>% kable_styling(font_size=10) %>% gsub("font-size: initial !important;", "font-size: inherited !important;", .)
+```
+]
+
+.pull-right[
+```{r pbc, out.width="45%", warning=FALSE}
+library(ggbeeswarm)
+pbc <- pbc %>% mutate(hepato=factor(hepato), trt=factor(trt), status=factor(c("censored", "transplant", "dead")[status+1], levels=c("censored", "transplant", "dead")))
+#pbc %>% ggplot(aes(x=copper)) + geom_histogram(bins=20, color="white")
+pbc %>% ggplot(aes(x=bili)) + geom_histogram(bins=20, color="white")
+pbc %>% mutate(hepato=factor(hepato)) %>% ggplot(aes(x=copper, y=bili, color=hepato)) + geom_point() + scale_x_log10() + scale_y_log10() + theme(legend.position = c(0,1), legend.justification = c(0,1))
+pbc %>% ggplot(aes(x=bili, color=status)) + geom_density() + scale_x_log10() + theme(legend.position = c(1,1), legend.justification = c(1,1))
+pbc %>% ggplot(aes(x=trt, fill=status)) + geom_bar() + theme(legend.position = c(1,1), legend.justification = c(1,1))
+pbc %>% filter(!is.na(trt)) %>% ggplot(aes(x=factor(trt), y=bili, fill=sex)) + geom_boxplot() + scale_y_log10() + xlab("Treatment") + theme(legend.position = c(0,1), legend.justification = c(0,1))
+pbc  %>% ggplot(aes(x=status, y=bili, color=sex)) + geom_beeswarm() + scale_y_log10() + theme(legend.position = c(0.25,1), legend.justification = c(0,1))
+```
+]
+
+---
+layout: true
+# Categorical data
+---
+
+Categorical data can be summarized by counting the number of observations of each category and summarizing in a frequency table or bar plot.
+
+Alternatively, the proportions (or percentages) of each category can be calculated.
+
+---
+
+## Example: left-handedness
+
+Is left-handedness associated to a disease you study? Observe left-handedness among 30 patients as well as among 40 healthy controls;
+
+```{r lefthand, echo=FALSE}
+set.seed(1123)
+patients <- sample(c("L", "R"), 30, prob=c(0.3, 0.7), replace=TRUE)
+controls <- sample(c("L", "R"), 40, prob=c(0.1, 0.9), replace=TRUE)
+hand <- rbind(data.frame(group="patient", handedness=patients),
+              data.frame(group="control", handedness=controls))
+```
+
+patients: {`r patients`}
+
+controls: {`r controls`}
+
+--
+
+.pull-left[
+```{r table1hand}
+hand %>% group_by(group) %>% dplyr::summarize(Total=n(), n = sum(handedness=="L"),  f=100*mean(handedness=="L")) %>% transmute(group, "Total n"=Total, "Left handed (%)"=sprintf("%i (%d%%)", n, f)) %>% kable(caption="Summarize using counts or percentages.")
+```
+]
+
+--
+
+.pull-right[
+```{r}
+addmargins(table(hand$group, hand$handedness)) %>% kable(caption="Cross table or contingency table.")
+```
+]
+
+---
+
+Data can be summarized in barplots in several ways;
+
+```{r barlefthand1, out.width="32%"}
+## Using ggplot to create barplots
+ggplot(hand, aes(x=group, fill=handedness)) + geom_bar()
+```
+--
+
+```{r barlefthand2, out.width="32%"}
+ggplot(hand, aes(x=group, fill=handedness)) + geom_bar(position="dodge")
+```
+--
+
+```{r barlefthand3, out.width="32%"}
+ggplot(hand, aes(x=group, fill=handedness)) + geom_bar(position="fill") + ylab("Fraction")
+```
+
+---
+layout: true
+# Quantitative data
+
+---
+
+
+Quantitative data (both discrete and continuous) can be visualized in many ways!
+
+---
+
+
+## Histogram
+
+```{r simulatemice}
+set.seed(101)
+n <- 100
+week <- 5:24
+m <- length(week)
+
+mice0 <- data.frame(id=1:n, gender=sample(c('male', 'female'), n, replace = TRUE)) %>% mutate(male=1*(gender=="male"), b0=rnorm(n, 15.5, 1), b1=rnorm(n, 0.5, 0.1), b2=rnorm(n, 1.5,0.5), b3=rnorm(n, 0.3, 0.1), a0 = rnorm(n, 44, 4))
+mice <- mice0 %>% slice(rep(1:n(), each=m)) %>% mutate(week=rep(week, n))
+mice <- mice %>% mutate(s=rnorm(n*m, 0, 0.2)) %>% mutate(weight=b0+b1*week+b2*male+b3*male*week+s)
+
+##mice <- data.frame(id=factor(rep(1:n, each=m)), week=rep(week, n), gender=rep(sample(c('male', 'female'), n, replace = TRUE), each=m)) %>% mutate(male=1*(gender=="male"), b0=rep(rnorm(n, 15.5, 1), each=m), b1=rep(rnorm(n, 0.5, 0.1), each=m), b2=rep(rnorm(n, 1.5,0.5), each=m), b3=rep(rnorm(n, 0.3, 0.1), each=m), s=rnorm(n*m, 0, 0.2)) %>% mutate(weight=b0+b1*week+b2*male+b3*male*week+s)
+mice0 <- mice 
+mice <- mice %>% dplyr::select(id, gender, male, week, weight)
+```
+
+
+```{r hist, out.width="50%", fig.show="hold"}
+micew5 <- mice %>% filter(week==5)
+
+ggplot(micew5, aes(x=weight)) + geom_histogram(bins=15, color="white")
+```
+---
+
+## Histogram
+
+```{r histcol, out.width="50%", fig.show="hold"}
+ggplot(micew5, aes(x=weight, fill=gender)) + geom_histogram(bins=15, color="white") + theme(legend.position = c(1,1), legend.justification = c(1,1))
+```
+---
+
+## Density plot
+
+```{r dens, out.width="50%", fig.show="hold"}
+ggplot(micew5, aes(x=weight)) + geom_density()
+```
+
+---
+
+## Boxplot
+
+```{r boxplot, out.width="50%", fig.show="hold"}
+ggplot(micew5, aes(x=gender, y=weight)) + geom_boxplot()
+```
+---
+
+## Boxplot
+
+```{r boxplotq, out.width="50%", fig.show="hold"}
+q <- quantile(micew5 %>% filter(gender=="male") %>% pull("weight"), c(0.25,0.5,0.75))
+bp <- ggplot(micew5, aes(x=gender, y=weight)) + geom_boxplot() 
+bp + annotate("text", x=2, y=q[3], label="3rd quartile", hjust=0.5, vjust=-0.5) + 
+  annotate("text", x=2, y=q[1], label="1st quartile", hjust=0.5, vjust=-0.5) + 
+  annotate("text", x=2, y=q[2], label="median", hjust=0.5, vjust=-0.5) + 
+  annotate("text", x=1.5, y=q[2], label="IQR", hjust=0.5, vjust=1, angle=90)
+```
+
+---
+
+## Strip plot
+
+```{r stripplot, out.width="50%", fig.show="hold"}
+ggplot(micew5, aes(x=gender, y=weight)) + geom_point() 
+```
+
+---
+
+## Beeswarm plot
+
+```{r beeswarm, out.width="50%", fig.show="hold"}
+ggplot(micew5, aes(x=gender, y=weight)) + geom_beeswarm(cex=2.5) 
+```
+
+---
+
+## Scatter plot
+
+Relationship between two variables
+
+```{r scatter, out.width="50%", fig.show="hold"}
+ggplot(subset(mice, week==10), aes(x=7.3+weight/20+rnorm(100,0,0.1), y=weight, group=id)) + geom_point() + xlab("length (cm)") + ylab("weight (g)")
+```
+
+---
+
+## Line graph
+
+```{r lineplot,  out.width="50%", fig.show="hold"}
+ggplot(subset(mice, id %in% 17:19), aes(x=week, y=weight, group=id)) + geom_point() + geom_line()
+```
+
+---
+
+Summary statistics for numeric data are usually divided into measures of location and spread.
+
+```{r hist2, out.width="50%", fig.show="hold"}
+micew5 <- mice %>% filter(week==5)
+
+ggplot(micew5, aes(x=weight)) + geom_histogram(bins=15, color="white")
+```
+
+---
+layout: true
+# Measures of location
+
+---
+
+- **Mode**: the most common value, can be computed also for categorical data
+- **Median**: The value that divide the ordered data values into two equally sized groups. 50% of the values are below the median.
+
+```{r normpdf, fig.width=2, out.width="20%"}
+df <- data.frame(x=rnorm(200, 3.5, 2))
+ggplot(df, aes(y=x)) + geom_boxplot() + theme_bw()
+```
+
+- **Mean**: the arithmetic mean, also called the average
+
+For $n$ onservations $x_1, x_2, \dots, x_n$, the mean value is calculated as;
+  
+$$\bar x = \frac{x_1+x_2+\dots+x_n}{n} = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$
+
+Note, several very different distributions can still have the same mean value.
+
+
+---
+layout: false
+
+# Mean value 3.50
+
+Note, several very different distributions can still have the same mean value!
+
+```{r mean35, warning=FALSE, message=FALSE, fig.width=7, fig.height=4, fig.cap="All these distributions have the same mean value, 3.50."}
+#df <- data.frame(x=rnorm(200, 3.5, 2))
+df$x <- df$x - mean(df$x) + 3.5
+y <- exp(rnorm(200, 0, 1))
+y <- y+3.5 - mean(y)
+df$y=y
+
+df$z <- rep(c(0,10), c(200*.65, 200*.35))
+
+df$a <- rnorm(200, 3.5, 8)
+df$a <- df$a - mean(df$a) + 3.5
+b <- exp(rnorm(200, 2, 1))
+df$b <- b+3.5 - mean(b)
+c <- c(rnorm(150, 10, 3), rnorm(50,0,1))
+c <- c + 3.5 - mean(c)
+df$c <- c
+
+plot(ggplot(melt(df), aes(x=value)) + geom_histogram(color="white", bins=30)  + facet_wrap(~variable, scale="free") + theme_bw())#+ geom_text(data=data.frame(variable=colnames(df), label=sprintf("mean: %.2f", colMeans(df))), aes(x=8,y=20,label=label))
+``` 
+
+---
+layout: true
+class: left
+
+# Measures of spread
+
+---
+**Quartiles** - the three values that divide the data values into four equally sized groups.
+
+.left-column[
+  ```{r boxplot1, fig.width=2, out.width="80%"}
+ggplot(df, aes(y=x)) + geom_boxplot() + theme_bw()
+```
+]
+.right-column[
+* Q1. First quartile. 25% of the values are below Q1. Divides the values below the median into equally sized groups.
+* Q2. Second quartile. 50% of the values are below Q2. Q2 is the median.
+* Q3. Third quartile. 75% of the values are below Q3. Divides the values above the median into equally sized groups.
+]
+
+--
+
+**IQR** interquartile range: Q3 - Q1
+
+**Variance** $\sigma^2$.
+The variance is the mean squared distance from the mean value.
+
+**Standard deviation** $\sigma = \sqrt{\sigma^2}$.
+
+
+
+---
+
+## Variance and standard deviation
+
+The **variance** of a set of observations is their mean squared distance from the mean value;
+
+$$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2.$$
+
+--
+<!-- the variance is measured in the square of the unit in which $x$ was measured. a commonly used measured on the same unit as $x$ is t -->
+
+The  **standard deviation**, defined as the square root of the variance;
+
+$$\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2}$$
+--
+
+The denominator $n$ is commonly replaced by $n-1$ and the **sample standard deviation** is calculated instead;
+
+$$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$
+
+The latter formula is used if we regard the collection of observations $x_1, \dots, x_n$ as a **sample** drawn from a large **population** of possible observations.
+
+<!-- If we want to describe the variance/standard deviation only of our set of observations, the former formula should be used, calculation of a population standard deviation $\sigma$ (i.e. we consider the set of observations to be the full population). -->
+
+<!-- If instead, we want to estimate the variance of a larger population from which our smaller sample is drawn, we should calculate the sample standard deviation, $s$. -->
