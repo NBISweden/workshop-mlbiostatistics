@@ -25,7 +25,7 @@ Statistical inference is to draw conclusions regarding properties of a populatio
  
 To perform a hypothesis test is to evaluate a hypothesis based on a random sample.
 
-Typicaly, the hypotheses that are tested are assumptions about properties of the population, such as proportion, mean, mean difference, variance etc.
+Typically, the hypotheses that are tested are assumptions about properties of the population, such as proportion, mean, mean difference, variance etc.
 
 
 ## The null and alternative hypothesis
@@ -40,22 +40,14 @@ The alternative hypothesis expresses what the researcher is interested in "the t
 
 1. Define $H_0$ and $H_1$
 2. Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
-3. Assume that the $H_0$ is true and compute the sampling distribution of $T$.
+3. Assume that the $H_0$ is true and compute the **sampling distribution** of $T$.
 4. Select an appropriate significance level, $\alpha$
-5. Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+5. Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ (the so called **null distribution**) and compute a **p-value**. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
 6. Based on the p-value either accept or reject $H_0$.
 
-```{definition, label="samplingdistribution", echo=TRUE}
-**Sampling distribution**
+The **sampling distribution** is the distribution of a sample statistic (e.g mean or proportion). The sampling distribution can be obtained by drawing a large number of samples from a population.
 
-A **sampling distribution** is the distribution of a sample statistic. The samplling distribution can be obtained by drawing a large number of samples from a specific population.
-```
-
-```{definition, label="nulldistribution", echo=TRUE}
-**Null distribution**
-
-The null distribution is a sampling distribution when the null hypothesis is true.
-```
+A **null distribution** is a sampling distribution when the null hypothesis is true.
 
 ```{r examplenull, out.width="70%", fig.show="hold", fig.width=5, fig.align="center", fig.cap="A null distribution"}
 x<-seq(-3,3,0.01)
@@ -63,13 +55,9 @@ df <- data.frame(x=x, f=dnorm(x, 0, 1))
 plot(ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)"))
 ```
 
-```{definition, label="pvalue", echo=TRUE}
-**p-value**
-  
-The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
-```
+The **p-value** is the probability of the observed value, or something more extreme, if the null hypothesis is true.
 
-```{r examplepval, out.width="70%", fig.align="center", fig.show="hold", fig.cap="The p-value is the probability to observe $x_{obs}$ or something more extreme, if the null hypothesis is true.", fig.width=5, warning=FALSE}
+```{r examplepval, out.width="70%", fig.align="center", fig.show="hold", fig.cap="The p-value is the probability to observe $x_{obs}$ or something more extreme, if the null hypothesis is true. The p-value is illustrated for a one-tailed test (left) and for a two-tailed test (right).", fig.width=5, warning=FALSE, out.width="50%"}
 pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("P(X$\\geq$x_{obs})"), x=1.8, y=0.11, hjust=0)
 plot(pl + scale_x_continuous(breaks=c(-2,0,1.5,2), labels=c("-2","0","xobs", "2")) + theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_line(color = c("grey92", "grey92", NA, "grey92"))))
 
@@ -81,13 +69,19 @@ plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","
 
 ## Significance level and error types
 
+A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong, there are two types of erros;
+
+**Type I error** is a false positive, a false alarm that occurs when $H_0$ is rejected when it is actually true. *"The test says that you are covid-19 positive, when you actually are not", "The test says that the drug has a positive effect on patient symptoms, but it actually has not"*
+
+**Type II error** is a false negative, a miss that occurs when $H_0$ is rejects, when it is actually false. *The test says that you are covid-19 negative, when you actually have covid-19", "The test says that the drug has not effect on patient symptoms, when it actually has"*
+
 ```{r}
 kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
 ```
 
 The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$|$H_0$ is true).
 
-The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is control by setting the significance level to a disired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want to many missed hits (type II error).
+The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controlld by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want many missed hits (type II error).
 
 The significance level should be set before the hypothesis test is performed. Common values to use are 0.05 or 0.01.
 
@@ -419,7 +413,7 @@ As $p>\alpha$, the null hypothesis is accepted, i.e. there is no reason to belie
 
 # Parametric tests {#infe-hypparam}
 
-In previous chapters we have computed the sampling distribution using resampling techniques to be able to perform hypothesis tests or compute interval estimates. If the null distribution was already known (or could be computed based on a few assumptions) resampling would not be necessary.
+In the previous chapter we computed the sampling distribution using resampling techniques to be able to perform hypothesis tests or compute interval estimates. If the null distribution was already known, or could be computed based on a few assumptions, resampling would not be necessary.
 
 We can follow the same steps as before to perform a hypothesis test:
 
@@ -439,7 +433,7 @@ We can follow the same steps as before to perform a hypothesis test:
 Assume that the proportion of pollen allergy in Sweden is known to be $0.3$. Observe 100 people from Uppsala, 42 of these were allergic to pollen. Is there a reason to believe that the proportion of pollen allergic in Uppsala $\pi > 0.3$?
 ```
 
-The number of allergic individuals in a sample of size $n$ is $X$ and the proportion of allergic persons is $P = X/n$. $X$ is binomially distributed, but here we can use the Central limit theorem, see \@ref(thm:CLT).
+The number of allergic individuals in a sample of size $n$ is $X$ and the proportion of allergic persons is $P = X/n$. $X$ is binomially distributed, but here we can use the Central limit theorem, see \@ref(thm:CLTrep).
 
 ```{theorem, label="CLTrep", echo=TRUE}
 The sum of $n$ independent and equally distributed random variables
@@ -453,38 +447,42 @@ Here, the sample size is 100!
 
 The normal distribution has two parameters, mean and standard deviation.
 
-From the binomial distribution we know that $E[X] = \pi$ and $var(X) = n\pi(1-\pi)$. Hence $E[P] = \pi$ and $var(P) = \frac{\pi(1-\pi)}{n}$. 
+From the binomial distribution we know that $E[X] = n\pi$ and $var(X) = n\pi(1-\pi)$. Hence $E[P] = \pi$ and $var(P) = \frac{\pi(1-\pi)}{n}$. 
 
-The standard error is thus
+Here, we will continue to work with the number of allergic, $X$. The standard error of $X$ is 
 
-$$SE=\sqrt{\frac{\pi(1-\pi)}{n}}$$
+$$SE=\sqrt{n\pi(1-\pi)}$$
 
 
 When the null hypothesis is true $\pi$ is known and $\pi=0.3$.
 
-Actually these calculations are true in general when a proportion in one sample is compared to a known value.
+<!-- Actually these calculations are true in general when a proportion in one sample is compared to a known value. -->
+
+Define the null and alternative hypotheses:
 
 $$H_0: \pi=\pi_0 \\
 H_1: \pi>\pi_0 $$
 
-Ather potential alternative hypothesis are $H_1: \pi<\pi_0$ or $H_1:\pi \neq \pi_0$, but in this particular example we are only interested in the alternative that $\pi > \pi_0$.
+Other potential alternative hypothesis are $H_1: \pi<\pi_0$ or $H_1:\pi \neq \pi_0$, but in this particular example we are only interested in the alternative that $\pi > \pi_0$.
 
 If $H_0$ is true $\pi=\pi_0$ and
 
-$$P \sim N\left(\pi_0, \sqrt{\frac{\pi_0(1-\pi_0)}{n}}\right)$$
-An appropriate test statistic is
+$$X \sim N\left(n\pi_0, \sqrt{n\pi_0(1-\pi_0)}\right)$$
+<!-- An appropriate test statistic is -->
+<!-- $$Z = \frac{X-n\pi_0}{\sqrt{n\pi_0(1-\pi_0)}}$$ -->
+<!-- $Z \in N(0,1)$ which makes probabilities easy to compute. -->
 
-$$Z = \frac{P-\pi_0}{\sqrt{\frac{\pi_0(1-\pi_0)}{n}}}$$
+Back to our example, $n=100$ and when $H_0$ is true $\pi_0=0.3$. Our observed value of $X$ is $x_{obs} = 42$. 
 
-$Z \in N(0,1)$ which makes probabilities easy to compute.
+With these numbers we can compute a p-value, i.e. the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed p-value is below $\alpha=0.05$ our significance threshold, $H_0$, will be rejected.
 
-Back to our example, replace $P$ with our observed value $p=0.42$ and $\pi_0=0.3$ and compute our observed
-
-$$Z_{obs} = \frac{0.42-0.3}{\sqrt{\frac{0.3(1-0.3)}{100}}} = `r zobs <- (.42-.3)/sqrt(.3*.7/100);format(zobs, digits=3)`$$
+$$p = P(X \geq 42) = [continuity \; correction] = \\
+P(X \geq 41.5) = P\left(Z \geq \frac{41.5 - n\pi_0}{\sqrt{n\pi_0(1-\pi_0)}}\right) = \\
+P\left(Z \geq \frac{41.5-30}{\sqrt{100*0.3*(1-0.3)}}\right) = P(Z \geq 2.51) = 1 - P(Z \leq 2.51) = [Z-table] = 0.0060$$
 
 The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed probability is below $\alpha=0.05$ our significance threshold, $H_0$ will be rejected.
 
-$$p = P(P \geq \pi_0) = P(Z \geq Z_{obs}) = P(Z \geq `r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$
+$$p = P(P \geq \pi_0) = P(Z \geq Z_{obs}) = P(Z \geq` `r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$
 
 As `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`<0.05 we reject $H_0$ and conclude that there is reason to believe that the proportion of allergic in Uppsala is greater than 0.3.
 
