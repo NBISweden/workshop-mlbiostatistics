@@ -16,7 +16,7 @@ require(knitr)
 require(kableExtra)
 require(tidyverse)
 
-knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/")
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/prob_")
 options(digits=2)
 ```
 
@@ -132,7 +132,7 @@ When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, eac
 
 The probability mass function of a fair six-sided die can be summarized in a table;
 
-```{r}
+```{r pmfdie}
 kable(matrix(c(1:6,rep(1/6,6)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
 ```
 
@@ -160,7 +160,7 @@ data.frame(p) %>% rownames_to_column("x") %>% ggplot(aes(x=x, y=p)) + geom_bar(s
 The random variable has two possible outcomes; non-smoker (0) and smoker (1). The probability of a random mother being a smoker is 0.39.
 ```
 
-```{r}
+```{r pmfsmoker}
 kable(matrix(c("0","0.61","1","0.39"),ncol=2, dimnames=list(c('x','p(x)'), c('non-smoker','smoker')))) %>% kable_styling(full_width = FALSE)
 ```
 
@@ -256,7 +256,7 @@ The argument `size` tells the function how many balls we want to draw from the u
 
 How many heads did we get in the 20 random draws?
 
-```{r, echo=TRUE}
+```{r coinsH, echo=TRUE}
 ## How many heads?
 sum(coins == "H")
 ```
@@ -563,7 +563,7 @@ Your boss comes in to the office three days per week. You do also come in to wor
   
 ```
 
-```{r}
+```{r solmeetboss}
 x <- replicate(100000, {x<-sample(1:5, 3); y<-sample(1:5,3); length(intersect(x,y))})
 table(x)
 
@@ -579,7 +579,7 @@ phyper(0:3, 3, 2, 3)
 ```
 
 A study of a method for cancer prediction is evaluated. Based on the results in the below table estimate;  
-```{r}
+```{r soldiagnostictests}
 kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("not cancer", "cancer", "total"), c("pos", "neg", "tot")))) %>% kable_styling("striped", full_width = FALSE)
 ```
 
@@ -656,7 +656,7 @@ Nheads <- replicate(10000, {
 ```
 
 a. Probability of exactly 15 heads
-```{r echo=TRUE}
+```{r solcointossa, echo=TRUE}
 ## Numer of times of the 10000 with exactly 15 heads
 sum(Nheads==15)
 ## divide by 10000 to get the probability
@@ -666,20 +666,17 @@ mean(Nheads==15)
 ```
 
 b. Probability of less than 7 heads
-```{r echo=TRUE}
+```{r solcointossb, echo=TRUE}
 mean(Nheads<7)
 ```
 
 
 c. What is the most probable number of heads?
 
-```{r echo=TRUE}
+```{r solcointossc, echo=TRUE}
 ## plot the distribution and read the graph
 hist(Nheads, breaks=0:20-0.5)
-```
 
-
-```{r echo=TRUE}
 ## or tabulate
 table(Nheads)
 ```
@@ -688,14 +685,14 @@ d. What is the probability of 5 tails or less?
 
 To get five or less tails out of 20 throws is equal to getting 15 or more heads out of 20.
 
-```{r echo=TRUE}
+```{r colcointossd, echo=TRUE}
 ## probability of 15 heads or more
 mean(Nheads>=15)
 ```
 
 e. what is the probability of 2 heads or less?
 
-```{r echo=TRUE}
+```{r solcointosse, echo=TRUE}
 mean(Nheads<=2)
 sum(Nheads<=2)
 ## with this low number of observations, more repeats is required to get a more accurate answer
@@ -729,7 +726,7 @@ hist(N, breaks=(0:11)-0.5)
  f) What is the probability to get exactly 2 sixes?
  g) On average how many sixes do you get when throwing ten dice?
 d) 0.015
-```{r}
+```{r diced}
 sum(N>=5)
 sum(N>=5)/length(N)
 mean(N>=5)
@@ -743,7 +740,7 @@ mean(N==2)
 
 
 g) 1.7
-```{r, echo=TRUE}
+```{r diceg, echo=TRUE}
 mean(N)
 10*1/6
 ```
@@ -764,7 +761,7 @@ mean(N==5)
 
 \@ref(exr:Pollen)
 
-```{r, eval=TRUE, echo=TRUE}
+```{r solpollen, eval=TRUE, echo=TRUE}
 ## Solution using 100 replicates
 x <- replicate(100, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
 table(x)
@@ -780,7 +777,7 @@ mean(x==0)
 ```
 
 \@ref(exr:Pollen2)
-```{r, eval=TRUE, echo=TRUE}
+```{r solpollen2, eval=TRUE, echo=TRUE}
 ## Solution using 100000 replicates
 x <- replicate(100000, sum(sample(rep(c(0, 1), c(14, 6)), size=3, replace=FALSE)))
 table(x)
@@ -789,7 +786,7 @@ mean(x==0)
 
 \@ref(exr:Pollen3)
 
-```{r, eval=TRUE, echo=TRUE}
+```{r solpollen3, eval=TRUE, echo=TRUE}
 ## Solution using 100000 replicates
 x <- replicate(100000, sum(sample(rep(c(0, 1), c(140, 60)), size=3, replace=FALSE)))
 table(x)
@@ -799,7 +796,7 @@ mean(x==0)
 ### Parametric discrete distributions {-}
 \@ref(exr:pollenparam)
 
-```{r, echo=TRUE}
+```{r solpollenparam, echo=TRUE}
 ## 1.6 Solution using the Binomial distribution
 pbinom(0, 3, 0.3)
 
@@ -814,7 +811,7 @@ phyper(0, 66, 200-60, 3)
 
 \@ref(exr:GSEA)
 
-```{r, echo=TRUE}
+```{r solgsea, echo=TRUE}
 phyper(20, 200, 20000-200, 1000, lower.tail=FALSE)
 ```
 
@@ -836,7 +833,7 @@ Examples: weight, height, speed, intensity, ...
 
 A continuous random variable can be described by its **probability density function**, pdf.
 
-```{r, fig.show="hold", fig.cap="Probability density function of the weight of a newborn baby.", fig.height=4, fig.width=7}
+```{r pdfnewborn, fig.show="hold", fig.cap="Probability density function of the weight of a newborn baby.", fig.height=4, fig.width=7}
 ## ounce <- 0.0283495231
 ## pound <- 0.45359237
 ## ggplot(babies, aes(x=wt*ounce)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() #+ ggtitle("Weight (kg) of a newborn baby"))
@@ -941,7 +938,7 @@ The bell-shaped normal distributions is symmetric around $\mu$ and $f(x) \righta
 
 As $f(x)$ is well defined, values for the cumulative distribution function $F(x) = \int_{- \infty}^x f(x) dx$ can be computed.
 
-```{r out.width="45%", fig.show="hold"}
+```{r cdfnorm, out.width="45%", fig.show="hold"}
 dN$Fx <- pnorm(x)
 ggplot(dN, aes(x=x, y=fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("f(x)") + theme_bw() + ggtitle("Probability density function")
 ggplot(dN, aes(x=x, y=Fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("F(x)") + theme_bw() + ggtitle("Cumulative distribution function")
@@ -966,7 +963,7 @@ plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab
 ```
 
 
-```{r}
+```{r FZtab}
 z <- sapply(seq(-3.4, -3.49, -0.01), function(x) seq(x,0,0.1))
 z <- -z[nrow(z):1,]
 z <- sapply(seq(0, 0.09, 0.01), function(x) seq(x,3.49,0.1))
@@ -1192,7 +1189,7 @@ c. $P(X \geq 7) = P\left(\frac{X-3}{2} \geq \frac{7-3}{2}) = P(Z \geq 2) = 1 - P
 
 a) $P(Hb<158) = P(Z<\frac{158-188}{14}) = P(Z<-2.14) = [table] = 0.016$
 or use R
-```{r, echo=TRUE}
+```{r sumdistra, echo=TRUE}
 pnorm(158, mean=188, sd=14)
 ```
 
@@ -1201,7 +1198,7 @@ b) Probability of one man not being anemic; $1-0.016 = 0.984$. Probability of 10
 
 \@ref(exr:poisson)
 a)
-```{r, echo=TRUE}
+```{r poissona, echo=TRUE}
 n <- 10000
 p <- 3/100000
 ppois(0, n*p)
@@ -1209,7 +1206,7 @@ ppois(0, n*p)
 
 b)
 
-```{r, echo=TRUE}
+```{r poissonb, echo=TRUE}
 ppois(1, n*p, lower.tail=FALSE)
 ```
 

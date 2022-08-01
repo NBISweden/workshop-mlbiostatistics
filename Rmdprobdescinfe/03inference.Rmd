@@ -15,7 +15,7 @@ require(reshape2)
 require(knitr)
 require(kableExtra)
 require(latex2exp)
-knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "figures/")
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/infe_")
 options(digits=4)
 ```
 
@@ -311,11 +311,13 @@ What is the probability to get an at least as extreme mean difference as our obs
 
 ```{r micepval, echo=TRUE}
 ## Compute the p-value
-sum(dnull.perm>dobs)/length(dnull.perm)
-mean(dnull.perm>dobs)
+## either using sum and divide by length (number of permutations)
+sum(dnull.perm>=dobs)/length(dnull.perm)
+## or using mean
+mean(dnull.perm>=dobs)
 ```
 
-$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = $ `r sprintf("%.3g",mean(dnull.perm>=dobs))`
+$$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = `r sprintf("%.3g",mean(dnull.perm>=dobs))`$$
 
 Conclusion?
 
@@ -356,7 +358,7 @@ Will use significance level $\alpha=0.05$
 
 Simulate null distribution
 
-```{r, eval=TRUE}
+```{r histpnull, eval=TRUE}
 urn <- c(1,1,1,0,0,0,0,0,0,0)
 pnull <- replicate(10000, mean(sample(urn, 20, replace=TRUE)))
 hist(pnull)
@@ -476,15 +478,17 @@ Back to our example, $n=100$ and when $H_0$ is true $\pi_0=0.3$. Our observed va
 
 With these numbers we can compute a p-value, i.e. the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed p-value is below $\alpha=0.05$ our significance threshold, $H_0$, will be rejected.
 
+`r zobs <- (41.5-30)/sqrt(100*0.3*(1-0.3))`
+
 $$p = P(X \geq 42) = [continuity \; correction] = \\
 P(X \geq 41.5) = P\left(Z \geq \frac{41.5 - n\pi_0}{\sqrt{n\pi_0(1-\pi_0)}}\right) = \\
 P\left(Z \geq \frac{41.5-30}{\sqrt{100*0.3*(1-0.3)}}\right) = P(Z \geq 2.51) = 1 - P(Z \leq 2.51) = [Z-table] = 0.0060$$
 
-The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed probability is below $\alpha=0.05$ our significance threshold, $H_0$ will be rejected.
+<!-- The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed probability is below $\alpha=0.05$ our significance threshold, $H_0$ will be rejected. -->
 
-$$p = P(P \geq \pi_0) = P(Z \geq Z_{obs}) = P(Z \geq` `r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$
+<!-- $$p = P(P \geq \pi_0) = P(Z \geq Z_{obs}) = P(Z \geq` `r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$ -->
 
-As `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`<0.05 we reject $H_0$ and conclude that there is reason to believe that the proportion of allergic in Uppsala is greater than 0.3.
+As `r format(pnorm(zobs, lower.tail=FALSE), digits=3)`<0.05 we reject $H_0$ and conclude that there is reason to believe that the proportion of allergic in Uppsala is greater than 0.3.
 
 ## One sample, mean
 
