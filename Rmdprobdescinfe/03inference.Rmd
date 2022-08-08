@@ -1,3 +1,13 @@
+---
+title: "Statistical inference"
+date: "2022-09-13"
+output: bookdown::html_document2
+---
+
+# (PART) Statistical Inference {-}
+
+Statistical inference is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
+
 ## Learning outcomes {-}
 
 - to define null and alternative hypothesis
@@ -19,30 +29,54 @@ knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, 
 options(digits=4)
 ```
 
-Statistical inference is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
 
 # Introduction to hypothesis tests {#infe-hypothesis}
- 
-To perform a hypothesis test is to evaluate a hypothesis based on a random sample.
+
+To perform a **hypothesis test** is to evaluate a hypothesis based on a random sample.
 
 Typically, the hypotheses that are tested are assumptions about properties of the population, such as proportion, mean, mean difference, variance etc.
 
 
 ## The null and alternative hypothesis
 
-There are two hypotheses involved in a hypothesis test, the null hypothesis, $H_0$, and the alternative hypothesis, $H_1$.
+There are two hypotheses involved in a hypothesis test, the **null hypothesis, $H_0$**, and the **alternative hypothesis, $H_1$**.
 
-The null hypothesis is in general neutral, "no change", "no difference between groups", "no association". In general we want to show that $H_0$ is false.
+The null hypothesis is in general neutral; "no change", "no difference between the groups", "no association". In general we want to show that $H_0$ is false.
 
-The alternative hypothesis expresses what the researcher is interested in "the treatment has an effect", "there is a difference between groups", "there is an association". The alternative hypothesis can also be directional "the treatment has a positive effect".
+The alternative hypothesis expresses what the researcher is interested in, such as "the treatment has an effect", "there is a difference between the groups", "there is an association". The alternative hypothesis can also be directional, e.g. "the treatment has a positive effect".
+
+## Significance level and error types
+
+A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong. There are two types of errors;
+
+**Type I error** is a false positive, a false alarm that occurs when $H_0$ is rejected when it is actually true. Examples: *"The test says that you are covid-19 positive, when you actually are not", "The test says that the drug has a positive effect on patient symptoms, but it actually has not"*.
+
+**Type II error** is a false negative, a miss that occurs when $H_0$ is accepted, when it is actually false. Examples: *The test says that you are covid-19 negative, when you actually have covid-19", "The test says that the drug has no effect on patient symptoms, when it actually has"*.
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
+```
+
+The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$|$H_0$ is true).
+
+The significance level is the risk of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controlled by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want many missed hits (type II error).
+
+The significance level should be set before the hypothesis test is performed. Common values to use are 0.05 or 0.01.
+
+If the p-value is above the significance level, $p>\alpha$, $H_0$ is accepted. 
+
+If the p-value is below the significance level, $p \leq \alpha$, $H_0$ is rejected.
+
+Another property of a statistical test is the **statistical power**, defined as power = P(Refect H0|H0 is false).
+
 
 ## To perform a hypothesis test
 
 1. Define $H_0$ and $H_1$
-2. Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
-3. Assume that the $H_0$ is true and compute the **sampling distribution** of $T$.
-4. Select an appropriate significance level, $\alpha$
-5. Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ (the so called **null distribution**) and compute a **p-value**. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+2. Select an appropriate **significance level**, $\alpha$
+3. Select an appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+4. Assume that the $H_0$ is true and compute the **sampling distribution** of $T$.
+5. Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ (the so called **null distribution**) and compute a **p-value**.
 6. Based on the p-value either accept or reject $H_0$.
 
 The **sampling distribution** is the distribution of a sample statistic (e.g mean or proportion). The sampling distribution can be obtained by drawing a large number of samples from a population.
@@ -55,7 +89,7 @@ df <- data.frame(x=x, f=dnorm(x, 0, 1))
 plot(ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)"))
 ```
 
-The **p-value** is the probability of the observed value, or something more extreme, if the null hypothesis is true.
+The **p-value** is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
 
 ```{r examplepval, out.width="70%", fig.align="center", fig.show="hold", fig.cap="The p-value is the probability to observe $x_{obs}$ or something more extreme, if the null hypothesis is true. The p-value is illustrated for a one-tailed test (left) and for a two-tailed test (right).", fig.width=5, warning=FALSE, out.width="50%"}
 pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("P(X$\\geq$x_{obs})"), x=1.8, y=0.11, hjust=0)
@@ -67,54 +101,28 @@ plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","
               panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92"))))
 ```
 
-## Significance level and error types
+## Hypothesis test using resampling
 
-A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong, there are two types of erros;
+The sampling distribution of a test statistic under the null hypothesis is sometimes known or can be approximated. When the null distribution is unknown, another option is to simulate the null distribution using resampling. This is done by simulating a model under the null hypothesis and drawing random samples from this model repeatedly. Let's take a look at a few examples;
 
-**Type I error** is a false positive, a false alarm that occurs when $H_0$ is rejected when it is actually true. *"The test says that you are covid-19 positive, when you actually are not", "The test says that the drug has a positive effect on patient symptoms, but it actually has not"*
-
-**Type II error** is a false negative, a miss that occurs when $H_0$ is rejects, when it is actually false. *The test says that you are covid-19 negative, when you actually have covid-19", "The test says that the drug has not effect on patient symptoms, when it actually has"*
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
-```
-
-The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$|$H_0$ is true).
-
-The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controlld by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want many missed hits (type II error).
-
-The significance level should be set before the hypothesis test is performed. Common values to use are 0.05 or 0.01.
-
-If the p-value is above the significance level, $H_0$ is accepted. 
-
-If the p-value is below the significance level, $H_0$ is rejected.
-
-<!-- Power = P(Refect H0|H0 is false) -->
-
-## Hypothesis test, simulation examples
-
-In these examples the significance level is set to 0.05.
-
-```{example, label="simpollentest", echo=TRUE}
-**Pollen allergy**
+### Proportions, pollen allergy example
 
 Let's assume we know that the proportion of pollen allergy in Sweden is $0.3$. We suspect that the number of pollen allergic has increased in Uppsala in the last couple of years and want to investigate this.
 
 Observe 100 people from Uppsala, 42 of these were allergic to pollen. Is there a reason to believe that the proportion of pollen allergic in Uppsala $\pi > 0.3$?
-```
 
 ##### Null and alternative hypotheses {-}
 
 $H_0:$ The proportion of pollen allergy in Uppsala is the same as in Sweden as a whole.
 
-$H_1:$ The proportion of pollen allergy in Uppsala is not the same as in Sweden as a whole.
+$H_1:$ The proportion of pollen allergy in Uppsala is greater than in Sweden as a whole.
 
 or expressed differently;
 
 $$H_0:\, \pi=\pi_0$$
 
 $$H_1:\, \pi>\pi_0$$
-where $\pi$ is the unknown proportion of pollen allergy in the Uppsala population that. $\pi_0 = 0.3$ is the proportion of pollen allergy in Sweden.
+where $\pi$ is the unknown proportion of pollen allergy in the Uppsala population and $\pi_0 = 0.3$ is the proportion of pollen allergy in Sweden.
 
 ##### Test statistic {-}
 
@@ -122,7 +130,7 @@ Here we are interested in the proportion of pollen allergic in Uppsala. An appro
 
 $$P = \frac{X}{n}$$
 
-Let's use $P$ as our test statistic and compute the observed value, $p_{obs}$. In our sample of 100 people from Uppsala the proportion allergic to pollen is $p=42/100=0.42$.
+Let's use $P$ as our test statistic and compute the observed value, $p_{obs}$. In our sample of 100 people from Uppsala, the proportion allergic to pollen is $p=42/100=0.42$.
 
 ##### Null distribution {-}
 
@@ -136,22 +144,22 @@ knitr::include_graphics("figures/pollenurn.png")
 
 Using this model, we can simulate taking a sample of size 100 many times.
 
-```{r sumpollenurn, echo=TRUE}
+```{r sumpollenurn, echo=TRUE, message=FALSE}
 ## Urn
-rep(c(0, 1), c(7, 3))
+urn <- rep(c(0, 1), c(7, 3))
 ## Sample 100 times with replacement
-sample(rep(c(0, 1), c(7, 3)), 100, replace=TRUE)
+x <- sample(urn, 100, replace=TRUE)
 ## Compute proportion of samples that are allergic (1)
-sum(sample(rep(c(0, 1), c(7, 3)), 100, replace=TRUE))/100
-## Draw samples of size 100 and compute proporion allergic 100000 times
+mean(x)
+## Set the seed to get the same result if we redo the analysis
+set.seed(13)
+## Repeat drawing sample of size 100 and computing proporion allergic 100000 times
 p <- replicate(100000, mean(sample(rep(c(0, 1), c(7, 3)), 100, replace=TRUE)))
 ```
 
-Finally plot the distribution
+Plot the distribution
 
 ```{r pollensampledistr, out.width="45%", fig.align="center", fig.cap="The sampling distribution."}
-#set.seed(13)
-#p <- replicate(100000, mean(sample(rep(c(0, 1), c(7, 3)), 100, replace=TRUE)))
 ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + theme_bw()
 ```   
 
@@ -167,28 +175,30 @@ The p-value is the probability of getting the observed value or higher, if the n
 
 Use the null distribution to calculate the p-value, $P(P \geq 0.42|H_0)$.
 
-```{r pollenp, echo=TRUE}
+```{r pollenp, echo=TRUE, message=FALSE}
 ## How many times 
 sum(p >= 0.42)
 ## p-value
-sum(p >= 0.42)/length(p)
+pval <- mean(p >= 0.42)
 ```
 
-p = $P(P \geq 0.42|H_0)$ = `r format(mean(p>=0.42), digits=4)` 
+p = $P(P \geq 0.42|H_0)$ = `r format(pval, digits=4)` 
 
 
 ##### Accept or reject $H_0$? {-}
 
-```{example, label="permutationtest", echo=TRUE}
-**Permutation test: Do high fat diet lead to increased body weight?**
+As the p-value is $< \alpha = 0.05$ the null hypotheis is rejected. This means that we can conclude that there is reason to belive that the porportion of pollen allergic in Uppsala is greater than 30%.
 
-Study setup:
+### Mean values, permutation test example
 
-1. Order 24 female mice from a lab.
-2. Randomly assign 12 of the 24 mice to receive high-fat diet, the
+**Do high fat diet lead to increased body weight?**
+
+The effect of high-fat diet on the body weight of mice is tudied in an experiment. The study setup is as follows:
+
+1. 24 female mice are ordered from a lab.
+2. Randomly, 12 of the 24 mice are assigned to receive high-fat diet, the
   remaining 12 are controls (ordinary diet).
-3. Measure body weight after one week.
-```
+3. Body weight is measured after one week.
 
 ```{r mice, echo=FALSE, eval=FALSE}
 ## Full mouse population can be downloaded from
@@ -224,46 +234,45 @@ kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_siz
 ##### Null and alternative hypotheses {-}
 $$
 \begin{aligned}
-H_0: \mu_2 = \mu_1 \iff \mu_2 - \mu_1 = 0\\
-H_1: \mu_2>\mu_1 \iff \mu_2-\mu_1 > 0
+H_0: \mu_d = \mu_c \iff \mu_d - \mu_c = 0\\
+H_1: \mu_d>\mu_c \iff \mu_d-\mu_c > 0
 \end{aligned}
 $$
 
-where $\mu_2$ is the (unknown) mean body weight of the high-fat mouse population and $\mu_1$ is the mean body-weight of the control mouse population.
+where $\mu_d$ is the (unknown) mean body weight of the high-fat mouse population and $\mu_c$ is the mean body-weight of the control mouse population.
 
 Studied population: Female mice that can be ordered from a lab.
 
 
 ##### Test statistic {-}
 
-Here we are interested in the mean difference between high-fat and control mice.
+Here we are interested in the mean difference between high-fat and control mice and an appropriate test statistic can be the mean diffrence, $D = \bar X_d - \bar X_c$, where 
 
-Mean weight of 12 (randomly selected) mice on ordinary diet, $\bar X_1$. $E[\bar X_1] = E[X_1] = \mu_1$
-  
-Mean weight of 12 (randomly selected) mice on high-fat diet, $\bar X_2$. $E[\bar X_2] = E[X_2] = \mu_2$
+* $\bar X_d$ is a random variable describing the mean weight of 12 (randomly selected) mice on high-fat diet. $E[\bar X_d] = E[X_d] = \mu_d$
+* $\bar X_c$ is a random variable describing the Mean weight of 12 (randomly selected) mice on ordinary diet. $E[\bar X_c] = E[X_c] = \mu_c$
 
-The mean difference is also a random variable: $D = \bar X_2 - \bar X_1$
+The mean difference $D = \bar X_d - \bar X_c$ is also a random variable.
 
 Observed values;
 
 ```{r, echo=TRUE}
 ## 12 HF mice
-xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+xD <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
 ## 12 control mice
-xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+xC <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
 
 ##Compute mean body weights of the two samples
-mHF <- mean(xHF)
-mN <- mean(xN) 
+mD <- mean(xD)
+mC <- mean(xC) 
 ## Compute mean difference
-dobs <- mHF - mN
+dobs <- mD - mC
 ```
 
-Mean weight of control mice (ordinary diet): $\bar x_1 = `r sprintf("%.2f", mN)`$
+Mean weight of sample control mice (ordinary diet): $\bar x_c = `r sprintf("%.2f", mC)`$
 
-Mean weight of mice on high-fat diet: $\bar x_2 = `r sprintf("%.2f", mHF)`$
+Mean weight of sample mice on high-fat diet: $\bar x_d = `r sprintf("%.2f", mD)`$
 
-Difference in mean weights: $d_{obs} = \bar x_2 - \bar x_1 = `r dobs`$
+Difference in sample mean weights: $d_{obs} = \bar x_d - \bar x_c = `r dobs`$
 
 ##### Null distribution {-}
 
@@ -278,24 +287,28 @@ Assume $H_0$ is true, i.e. assume all mice are equivalent and
 1. Randomly reassign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control'.
 2. Compute difference in mean weights
 
-If we repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
+If we repeat 1-2 many times we get the null distribution of difference in mean weights.
 
-
-```{r permtest, echo=TRUE, out.width="50%"}
+```{r permtest, echo=TRUE, message=FALSE}
 ## All 24 body weights in a vector
 x <- c(xHF, xN)
 ## Mean difference
-(dobs <- mean(x[1:12]) - mean(x[13:24]))
-
+dobs <- mean(x[1:12]) - mean(x[13:24])
 ## Permute once
-(y <- sample(x))
+y <- sample(x)
 ##Compute mean difference
 mean(y[1:12]) - mean(y[13:24])
+##Repeat the above many times
 dnull.perm <- replicate(n = 100000, {
   y <- sample(x)
   ##Mean difference
   mean(y[1:12]) - mean(y[13:24])
 })
+```
+
+Plot the null distribution and the observed difference.
+
+```{r permtest, fig.cap="Null distribution of the mean difference $D$.", out.width="50%"}
 ggplot(data.frame(d=dnull.perm), aes(x=d)) +
   geom_histogram(bins=25, color="white") +
   theme_bw() +
@@ -309,123 +322,45 @@ ggplot(data.frame(d=dnull.perm), aes(x=d)) +
 
 What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
 
-```{r micepval, echo=TRUE}
+```{r micepval, echo=TRUE, message=FALSE}
 ## Compute the p-value
-## either using sum and divide by length (number of permutations)
-sum(dnull.perm>=dobs)/length(dnull.perm)
-## or using mean
-mean(dnull.perm>=dobs)
+pval <- mean(dnull.perm>=dobs)
 ```
 
-$$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = `r sprintf("%.3g",mean(dnull.perm>=dobs))`$$
+$$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = `r sprintf("%.3g",pval)`$$
 
-Conclusion?
+##### Accept or reject $H_0$? {-}
+
+As $`r format(pval, digits=3)`>0.05$ the null hypothesis is accepted, there is no evidence that the high-fat diet increase body weight in mice.
 
 <!-- ## Parametric hypothesis tests -->
 
-# Exercises: Hypothesis tests, resampling {.unnumbered #infe-exercises-hypresamp}
+# Exercises: Hypothesis tests, resampling {.unnumbered #infe-exercise1-hypresamp}
 
-```{exercise, label="pollentest", echo=TRUE}
-You believe that the proportion of Swedish students allergic to pollen is greater than 0.3 (the proportion allergic to pollen in Sweden). To test this you observe 20 people in a student group at BMC in Uppsala, 9 or them are allergic to pollen. Is this reason to believe that the proportion of Swedish students allergic to pollen i greater than 0.3?
+```{r hyporesamplingexercises, child="infe_exr_1_hyporesampling.Rmd"}
 
-Can you identify any problems with this study setup?
 ```
 
-```{exercise, label="diet", echo=TRUE}
-A diet study aims to study how the hemoglobin (Hb) levels in blood are affected by an iron-rich diet consisting of tofu, soybeans, broccoli, lentils and peas. To perform the study the dietician has recruited 40 male participants, who are randomly assigned to the iron-rich diet or control group (no change in participants diet), 20 participant in each group.
+<!-- # Exercises with solutions: Hypothesis tests, resampling {.unnumbered #infe-exercise1-solutions-hypresamp} -->
+  
+```{r hyporesamplingsolutions, child="infe_exr_1_hyporesampling_solutions.Rmd", eval=FALSE}
 
-The observed Hb levels (in g/L);
 ```
-
-```{r irondiet, echo=TRUE}
-ctrl <- c(197, 186, 157, 170, 193, 188, 175, 186, 177, 191, 168, 193, 191, 189, 188, 192, 179, 186, 197, 203)
-iron <- c(187, 218, 196, 210, 206, 178, 181, 193, 172, 202, 169, 221, 183, 222, 185, 174, 192, 192, 162, 211)
-```
-
-Perform a hypothesis test to investigate if the Hb level is affected (increased or decreased) by the iron-rich diet.
-
-
-## Solution {-}
-\@ref(exr:pollentest)
-$H_0: \pi=0.3$
-$H_1: \pi>0.3$
-
-Test statistic, $P$ fraction of allergic people in a sample of size 20
-
-$p_{obs} = 9/20 = 0.45$
-
-Will use significance level $\alpha=0.05$
-
-Simulate null distribution
-
-```{r histpnull, eval=TRUE}
-urn <- c(1,1,1,0,0,0,0,0,0,0)
-pnull <- replicate(10000, mean(sample(urn, 20, replace=TRUE)))
-hist(pnull)
-```
-p-value, if null is true what is the probability to observe $p_{obs}$ or higher?
-
-```{r, echo=TRUE}
-(p <- mean(pnull>=0.45))
-```
-As $p>\alpha$ we will accept the null hypothesis.
-
-Problems with the study: Discuss in your group! Is it reasonable to select 20 students at BMC to answer a question about all students in Sweden?
-
-\@ref(exr:diet)
-
-Define $H_0$ and $H_1$
-
-$H_0: \mu_{diet} = \mu_{ctrl}$ No difference in mean iron level between control group and iron rich group
-
-$H_1: \mu_{diet} \neq \mu_{ctrl}$
-
-Select test statistic $D = \bar X_d - \bar X_c$, where $\bar X_c$ is the mean Hb level in a control group of 20 people and $\ bar X_d$ is the mean Hb level in a diet group of 20 people.
-
-The observed value; $d_{obs}$
-
-```{r, echo=TRUE}
-mdiet <- mean(iron)
-mctrl <- mean(ctrl)
-dobs <- mdiet - mctrl
-```
-
-Compute null distribution
-
-```{r histironnull, echo=TRUE}
-## Under null all observations are equivalent
-allobs <- c(iron, ctrl)
-dnull <- replicate(10000, {
-  ##Permute the 40 observations and assign the 20 first to the iron group
-  x <- sample(allobs)
-  d <- mean(x[1:20]) - mean(x[21:40])
-})
-hist(dnull)
-```
-
-Will use the significance level, $\alpha=0.05$
-
-Compute p-value;
-
-```{r, echo=TRUE}
-(p <- mean(dnull >= abs(dobs)))
-```
-As $p>\alpha$, the null hypothesis is accepted, i.e. there is no reason to believe that the iron-rich diet affects the iron level.
-
 
 # Parametric tests {#infe-hypparam}
 
-In the previous chapter we computed the sampling distribution using resampling techniques to be able to perform hypothesis tests or compute interval estimates. If the null distribution was already known, or could be computed based on a few assumptions, resampling would not be necessary.
+In the previous chapter we computed the sampling distribution using resampling techniques to be able to perform hypothesis tests. If the null distribution was already known, or could be computed based on a few assumptions, resampling would not be necessary.
 
 We can follow the same steps as before to perform a hypothesis test:
 
 1. Define $H_0$ and $H_1$
-2. Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
-3. Assume that the $H_0$ and derive the null distribution of the test statistic based on appropriate assumptions.
-4. Select an appropriate significance level, $\alpha$
+2. Select an appropriate significance level, $\alpha$
+3. Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+4. Assume that the $H_0$ and derive the null distribution of the test statistic based on appropriate assumptions.
 5. Compare the observed value, $t_{obs}$, with the null distribution and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
 6. Based on the p-value either accept or reject $H_0$.
 
+In this section we will present a few common situation in which the null distribution can be described parametrically.
 
 ## One sample, proportions
 
@@ -435,37 +370,70 @@ We can follow the same steps as before to perform a hypothesis test:
 Assume that the proportion of pollen allergy in Sweden is known to be $0.3$. Observe 100 people from Uppsala, 42 of these were allergic to pollen. Is there a reason to believe that the proportion of pollen allergic in Uppsala $\pi > 0.3$?
 ```
 
-The number of allergic individuals in a sample of size $n$ is $X$ and the proportion of allergic persons is $P = X/n$. $X$ is binomially distributed, but here we can use the Central limit theorem, see \@ref(thm:CLTrep).
+##### Null and alternative hypotheses {-}
+
+$$H_0:\, \pi=\pi_0$$
+
+$$H_1:\, \pi>\pi_0$$,
+
+where $\pi_0=0.30$ in this example. Other potential alternative hypothesis are $H_1: \pi<\pi_0$ or $H_1:\pi \neq \pi_0$, but in this particular example we are only interested in the alternative that $\pi > \pi_0$.
+
+##### Significance level
+
+Set the signifgicance level to $\alpha=0.05$.
+
+##### Test statistic {-}
+
+Here, we will use $X$, the number of allergic persons in a random sample of size $n=100$. The observed value is $x_{obs} = 42$.
+
+##### Null distribution {-}
+
+$X$ is binomially distributed, so there is no need to use resampling here, we can use the binomial distribution to answer the question.
+
+##### p-value {-}
+
+The probaility of $x_{obs}$ or something higher,
+
+$P(X \geq 42) = 1 - P(X \leq 41)$ [`1-pbinom(41,100,0.3)`} = `r `1-pbinom(41,100,0.3)`
+
+##### Accept or recject $H_0$?
+
+As $p<0.05$ $H_0$ is rejected and we conclude that there is reason to believe that the proportion of pollen allergic in Uppsala is higher than 0.3.
+
+
+This p-value can also be computed using the exact binomial test;
+
+```{r}
+binom.test(42, 100, 0.3, alternative="greater")
+```
+
+An alternative approach is to use the Central limit theorem, see \@ref(thm:CLTrep), and use the normal approximation.
 
 ```{theorem, label="CLTrep", echo=TRUE}
 The sum of $n$ independent and equally distributed random variables
 is normally distributed, if $n$ is large enough.
 ```
 
-As a result of the central limit theorem, the distribution of number or proportion of allergic 
-individuals in a sample of size $n$ is approximately normal. At least if the sample is large enough. A rule of thumb is that the sample size should be $n>30$.
+As a result of the central limit theorem, the distribution of number or proportion of allergic  individuals in a sample of size $n$ is approximately normal. At least if the sample is large enough. A rule of thumb is that the sample size should be $n>30$.
 
 Here, the sample size is 100!
 
+This test of proportions using the normal approximation is implemented in in the r-function `prop.test`.
+
+```{r}
+prop.test(42, 100, 0.3, alternative="greater")
+```
+
+But can of course also be calculated using only the normal distribution table.
+
 The normal distribution has two parameters, mean and standard deviation.
 
-From the binomial distribution we know that $E[X] = n\pi$ and $var(X) = n\pi(1-\pi)$. Hence $E[P] = \pi$ and $var(P) = \frac{\pi(1-\pi)}{n}$. 
+From the binomial distribution we know that $E[X] = n\pi$ and $var(X) = n\pi(1-\pi)$. 
 
-Here, we will continue to work with the number of allergic, $X$. The standard error of $X$ is 
+The standard error of $X$ is 
 
 $$SE=\sqrt{n\pi(1-\pi)}$$
 
-
-When the null hypothesis is true $\pi$ is known and $\pi=0.3$.
-
-<!-- Actually these calculations are true in general when a proportion in one sample is compared to a known value. -->
-
-Define the null and alternative hypotheses:
-
-$$H_0: \pi=\pi_0 \\
-H_1: \pi>\pi_0 $$
-
-Other potential alternative hypothesis are $H_1: \pi<\pi_0$ or $H_1:\pi \neq \pi_0$, but in this particular example we are only interested in the alternative that $\pi > \pi_0$.
 
 If $H_0$ is true $\pi=\pi_0$ and
 
@@ -474,9 +442,11 @@ $$X \sim N\left(n\pi_0, \sqrt{n\pi_0(1-\pi_0)}\right)$$
 <!-- $$Z = \frac{X-n\pi_0}{\sqrt{n\pi_0(1-\pi_0)}}$$ -->
 <!-- $Z \in N(0,1)$ which makes probabilities easy to compute. -->
 
-Back to our example, $n=100$ and when $H_0$ is true $\pi_0=0.3$. Our observed value of $X$ is $x_{obs} = 42$. 
+With this null distribution and ur observed value $x_{obs} = 42$, the p-value can be computed.
 
-With these numbers we can compute a p-value, i.e. the probability of the observed value, or something more extreme, if the null hypothesis is true. If the computed p-value is below $\alpha=0.05$ our significance threshold, $H_0$, will be rejected.
+$p = P(X \geq 42)$
+
+As we are now approximating a discrete distribution using a continuous distribution we need to use a trick called *continuiuty correction*, which simply means that we let each integer be represented by y a region $\pm 0.5$ from its value. Hence,
 
 `r zobs <- (41.5-30)/sqrt(100*0.3*(1-0.3))`
 
@@ -489,6 +459,7 @@ P\left(Z \geq \frac{41.5-30}{\sqrt{100*0.3*(1-0.3)}}\right) = P(Z \geq 2.51) = 1
 <!-- $$p = P(P \geq \pi_0) = P(Z \geq Z_{obs}) = P(Z \geq` `r format(zobs, digits=3)`) = 1 - P(Z \leq `r format(zobs, digits=3)`) = [table] = 1 - `r format(pnorm(2.62), digits=3)` = `r format(pnorm(2.62, lower.tail=FALSE), digits=3)`$$ -->
 
 As `r format(pnorm(zobs, lower.tail=FALSE), digits=3)`<0.05 we reject $H_0$ and conclude that there is reason to believe that the proportion of allergic in Uppsala is greater than 0.3.
+
 
 ## One sample, mean
 
@@ -505,16 +476,29 @@ The alternative hypothesis, $H_1,$ above is for the two sided hypothesis test. O
 
 If $$X \sim N(\mu, \sigma)$$ (this could for example be the weight of a mouse on high-fat diet) then the sample mean $$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
 
-If $\sigma$ is known the test statistic
+If $\sigma$ is known under the null hypothesis, then the test statistic
 
-$$Z = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}}$$
+$$Z = \frac{\bar X - \mu_0}{\frac{\sigma}{\sqrt{n}}}$$
 is normally distributed, $\sim N(0,1)$.
 
-For small $n$ and unknown $\sigma$, the test statistic
+In many situations the the population standard deviation is not known, but can instead be estimated from the sample. For small $n$ and unknown $\sigma$, we can use the **one-sample t-test**, that uses the test statistic
 
-$$t = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$
+$$T = \frac{\bar X - \mu_0}{\frac{s}{\sqrt{n}}},$$
 
-is t-distributed with $df=n-1$ degrees of freedom.
+which is t-distributed with $df=n-1$ degrees of freedom.
+
+Once we have an appropriate test statistic, $T$ with known distribution, we can compute the observed value, $t_{obs}$ and use the null distribution to compute the p-value, $P(|T| \geq |t_{obs}|)$.
+
+In R, the functions `pnorm` and `pt` are useful for computing these probabilities. The **one-sample t-test** can also be performed using the function `t.test`like this;
+
+```{r, echo=TRUE}
+##The observed 10 mouse weights;
+x <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## Under the null hypothesis mu=24
+##Perform the t-test to investigate if the null hypotheis can be accepted, i.e. if the sample comes from a normal distribution with expected value 24.
+t.test(x, mu=24)
+```
+
 
 ## Two samples, proportions
 
@@ -527,11 +511,13 @@ Alternatively, a one sided alternative hypothesis can be used; $H_1: \pi_1 - \pi
 <!-- $$P_1 - P_2 \sim N\left(0, \sqrt{\pi(1-\pi)\left (\frac{1}{n_1} + \frac{1}{n_2}\right)} \right)$$ -->
 <!-- where $\pi$ is the  -->
 
-Test statistic
+If n is large the normal approximation can be used and an appropriate test statistic is
 
-$$Z = \frac{P_1 - P_2}{\sqrt{P(1-P)\left (\frac{1}{n_1} + \frac{1}{n_2}\right)}}$$
+$$Z = \frac{P_1 - P_2}{\sqrt{P(1-P)\left (\frac{1}{n_1} + \frac{1}{n_2}\right)}},$$
 
 where $P$ is the proportion in the merged sample of size $n_1 + n_2$. $Z \in N(0,1)$ and p-value can be computed using the standard normal distribution.
+
+Also the two sample proportions test is implemented in the function `prop.test`.
 
 ## Two samples, mean
 
@@ -547,10 +533,7 @@ The alternative hypothesis can either be two sided
 $$H_1: \mu_2 \neq \mu_1$$
 or one sided
 
-$$H_1: \mu_2 > \mu_1$$
-or 
-
-$$H_1: \mu_2 < \mu_1$$
+$H_1: \mu_2 > \mu_1$ or $H_1: \mu_2 < \mu_1$
 
 Assume that observations from both populations are normally distributed;
 
@@ -616,7 +599,7 @@ The test of equal variance in two groups is based on the null hypothesis
 
 $$H_0: \sigma_1^2 = \sigma_2^2$$
 
-If the two samples both come from two populations with normal distributions, the sample variances
+If the two samples both come from populations with normal distributions, the sample variances (also random variables) are
 
 $$S_1^2 = \frac{1}{n_1-1} \sum_{i=1}^{n_1} (X_{1i}-\bar X_1)^2\\
 S_2^2 = \frac{1}{n_2-1} \sum_{i=1}^{n_2} (X_{2i}-\bar X_2)^2$$
@@ -631,79 +614,17 @@ is $F$-distributed with $n_1-1$ and $n_2-1$ degrees of freedom.
 In R a test of equal variances can be performed using the function `var.test`.
 
 
-# Exercises: Hypothesis tests, parametric {.unnumbered #infe-exercise-hypparam}
+# Exercises: Hypothesis tests, parametric {.unnumbered #infe-exercise2-hypparam}
 
-```{exercise, label="Hb", echo=TRUE}
-The hemoglobin value (Hb) in women is  on average 140 g/L. You observe the following Hb values in a set of five male blood donors: 154, 140, 147, 162, 172. Assume that Hb is normally distributed. Is there a reason to believe that the mean Hb value in men differ from that in women? 
+```{r hypoparamexercises, child="infe_exr_2_hypoparam.Rmd"}
+
 ```
 
-```{exercise, label="Hb2", echo=TRUE}
-The hemoglobin value (Hb) in men is on average 188 g/L. The Hb values in \@ref(exr:Hb2) were actually measured after the men had donated blood. Is there a reason to believe that the mean Hb level after blood donation is less than 188 g/L?
+<!-- # Exercises with solutions: Hypothesis tests, parametric {.unnumbered #infe-exercise2-solutions-hypparam} -->
+  
+```{r hypoparamsolutions, child="infe_exr_2_hypoparam_solutions.Rmd", eval=FALSE}
+
 ```
-
-```{exercise, label="Hb3", echo=TRUE}
-By observing the Hb values in 5 male blood donors; 154, 140, 147, 162, 172 g/L, and 5 female blood donors: 123, 140, 137, 132, 127 g/L, is there a reason to believe that the Hb level is higher in men than in women?
-```
-
-```{exercise, label="mice12", echo=TRUE}
-In order to study the effect of high-fat diet 12 mice are fed normal diet (control group) and 12 mice are fed high-fat diet. After a couple of weeks the mouse weights in gram are recorded;
-```
-
-```{r}
-kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_size=14)
-```
-
-Does high fat diet increase body weight in mice?
-
-a) Assume equal variances.
-b) Don't assume equal variances.
-
-
-<!-- Exercise, known $\sigma$ -->
-<!-- If the means of the populations are unknown, but the standard variations are known -->
-<!-- Let's assume that both mouse body weights in control and treatment groups are independent and normally distributed, with unknown mean, but known standard deviations, $\sigma_1=3.4$ and $\sigma_2=5.1$. -->
-
-<!-- ```{r echo=F, eval=FALSE} -->
-<!-- ## Our observed value -->
-<!-- dobs -->
-<!-- ## The p-value -->
-<!-- 1-pnorm(dobs, mean=0, sd=sqrt(5.1^2/12 + 3.4^2/12)) -->
-<!-- 1-pnorm((dobs-0)/sqrt(5.1^2/12 + 3.4^2/12)) -->
-<!-- pnorm(dobs, mean=0, sd=sqrt(5.1^2/12 + 3.4^2/12), lower.tail=FALSE) -->
-<!-- pnorm((dobs-0)/sqrt(5.1^2/12 + 3.4^2/12), lower.tail=FALSE) -->
-<!-- ``` -->
-
-## Solutions: Hypothesis tests, parametric {-}
-
-\@ref(exr:Hb)
-
-```{r, echo=TRUE}
-x <- c(154, 140, 147, 162, 172)
-## sample mean
-m <- mean(x)
-## standard error of mean
-SE <- sd(x)/sqrt(5)
-## Observed value of test statistic
-tobs <- (m-140)/SE
-## P(t>tobs)
-pt(tobs, df=4, lower.tail=FALSE)
-## p = P(t>tobs) + P(t<-tobs) = 2 * P(t>tobs)
-p <- 2*pt(tobs, df=4, lower.tail=FALSE)
-p
-```
-
-\@ref(exr:mice12)
-a) 
-```{r ttesteqvar, echo=TRUE, eval=TRUE}
-## Student's t-test with pooled variances
-t.test(xHF, xN, var.equal=TRUE, alternative="greater")
-```
-b) 
-```{r ttestuneqvar, echo=TRUE, eval=TRUE}
-## Unequal variances with Welch approximation to the degrees of freedom (the default)
-t.test(xHF, xN, var.equal=FALSE, alternative="greater")
-```
-
 
 # Multiple testing {#infe-multiple}
 ## Error types
@@ -794,51 +715,80 @@ kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p
 
 # Point and interval estimates {#infe-interval}
 
-As seen in previous chapter, the sample proportion or mean is an unbiased estimate of the population values. When we only have a sample, the sample estimate will be our best guess of the population value, but it will not be without error.
-  
-If we are interested in how large proportion of the Uppsala population is allergic to pollen, we can investigate this by studying a random sample. Randomly select 100 persons in Uppsala. It is important to actually sample randomly, ideally every individual should have the same probability of being sampled.
+## Point estimate
 
-In our sample, we observe that 42 of the 100 has a pollen allergy. Hence, the observed sample proportion is $p=0.42$.
+As seen in previous chapter, the sample proportion and sample mean are unbiased estimates of the corresponding population statistics. When we only have a sample, the sample estimate will be our best guess, a **point estimate**, of the population value, but it will not be without error, but the larger the sample, the smaller the error.
+  
+If we are interested in how large proportion of the Uppsala population is allergic to pollen, we can investigate this by studying a random sample, e.g.  randomly select 100 persons in Uppsala. It is important to actually sample randomly, ideally every individual in the population should have the same probability of being sampled.
+
+In our sample, we observed that 42 of the 100 has a pollen allergy. Hence, the observed sample proportion is $p=0.42$.
 
 <!-- What does this say about the population proportion $\pi$? -->
-Based on this observation our point estimate of the Uppsla popultation proportion $\pi$ is $\pi \approx p = 0.42$. We know that there is a certain uncertainty in this measurement, if the experiment is repeated we would select 100 other persons and our point estimate would be slightly different.
-
-## Bootstrap interval
-  
-Using bootstrap we can sample with replacement from our sample to estimate the uncertainty.
-
-Bootstrap is to use the data we have (our sample) and sample repeatedly with replacement from this data.
-
-Put the entire sample in an urn!
-
-```{r pollenurn42, echo=FALSE, fig.cap="An urn model with 42 allergy (black) and 58 non-allergy (white). The black balls represent allergic and the white balls non-allergic.", out.width = "20%", fig.align="center"}
-knitr::include_graphics("figures/pollenurn42.png")
-```
-
-Sample from the urn with replacement to compute the bootstrap distribution.
-
-```{r CIboot, out.width="45%", fig.align="center"}
-x <- rep(0:1, c(58, 42))
-pboot <- replicate(100000, mean(sample(x, replace=TRUE)))
-ciboot <- quantile(pboot, c(0.025, 0.975))
-ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=5000), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=5000, label="95%")
-```   
-  
-Using the bootstrap distribution the uncertainty of our estimate of $\pi$ can be estimated.
-
-The 95% bootstrap interval is [`r ciboot`].
-
-The bootstrap is very useful if you do not know the distribution of our sampled propery. But in our example we actually do.
+Based on this observation our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$. We know that there is an uncertainty in this measurement, if the experiment is repeated we would select 100 other persons and our point estimate would be slightly different.
 
 ## Confidence interval
 
 A confidence interval is a type of interval estimate associated with a confidence level. 
 
 ```{definition, label="CI"}
-An interval that with probability $1 - \alpha$ cover the population parameter $\theta$ is called a confidence interval for $\theta$ with confidence level $1 - \alpha$.
+**Confidence interval** An interval that with probability $1 - \alpha$ cover the population parameter $\theta$ is called a confidence interval for $\theta$ with confidence level $1 - \alpha$.
 ```
 
+
+```{r CI95, fig.width=7, fig.height=3, fig.cap="A 95% confidence interval will have 95% chance to cover the true value."}
+set.seed(13)
+p <- replicate(100, mean(sample(0:1, 100, p=c(.7,.3), replace=TRUE)))
+ggplot(data.frame(x=1:40, p=p[61:100]) %>% mutate(ymin=p-1.96*sqrt((p*(1-p))/100), ymax=p+1.96*sqrt((p*(1-p))/100)), aes(x=x, ymin=ymin, ymax=ymax, color=0.3>ymin & 0.3<ymax)) + geom_errorbar() + geom_hline(yintercept=0.3) + xlab("") + ylab("p") + theme_bw() + theme(legend.position="none")
+```
+
+### Bootstrap interval
+
+If the distribution of the random variable of interest is unknown, a bootstrap confidence interval can be computed instead.
+
+Bootstraping is performed by resampling with replacement from the available random sample. The resampling distribution can then be used to calculate e.g. a 95% bootstrap interval.
+
+This can be done as follows;
+
+1. Put the entire sample in an urn!
+
+```{r pollenurn42, echo=FALSE, fig.cap="An urn model with 42 allergy (black) and 58 non-allergy (white). The black balls represent allergic and the white balls non-allergic.", out.width = "20%", fig.align="center"}
+knitr::include_graphics("figures/pollenurn42.png")
+```
+
+In R; 
+
+```{r}
+## the sample consists of 50 non-allergic (0) and 42 allergic (1).
+x <- rep(0:1, c(58, 42))
+```
+
+
+2. Sample from the urn with replacement to compute the bootstrap distribution.
+
+```{r }
+pboot <- replicate(1000, mean(sample(x, replace=TRUE)))
+```
+
+
+```{r boot, fig.cap="Bootstrap resampling distribution.", out.width="45%", fig.align="center"}
+ggplot(data.frame(x=pboot), aes(x=x)) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + xlab("p")
+```
+
+3. Compute the 95% bootstrap interval. This can be done using the percentile method by calculating the 2.5 and 97.5 percentiles, i.e. the values in the resampling distribution for which 2.5% and 97.5%, respectively, of all the values lie to the left of.
+
+```{r CIboot}
+ciboot <- quantile(pboot, c(0.025, 0.975))
+```
+
+```{r CIboot, fig.cap="Bootstrap resampling distribution and the 95% bootstrap confidence interval.", out.width="45%", fig.align="center"}
+ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=50), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=50, label="95%")
+```
+  
+The 95% bootstrap confidence interval of $\pi$; [`r ciboot`].
+
 ### Confidence interval of proportions
+
+The bootstrap is very useful if you do not know the distribution of our sampled property, but in our proportions example we actually do.
 
 Remember that we can use the central limit theorem to show that 
 
@@ -849,24 +799,37 @@ It follows that
 $$Z = \frac{P - \pi}{SE} \sim N(0,1)$$
 Based on what we know of the standard normal distribution, we can compute an interval around the population property $\pi$ such that the probability that a sample property $p$ fall within this interval is $1-\alpha$.
 
-$$P(-z < \frac{P - \pi}{SE} < z) = 1 - \alpha$$ 
-For a 95% confidence interval z=1.96 (from a table of the standard normal distribution). Other confidence levels of interest include 90% (z=1.64) and 99% (z=2.58).
+$$P(-z_{\alpha/2} < \frac{P - \pi}{SE} < z_{\alpha/2}) = 1 - \alpha$$ 
 
-$$P\left(-z < \frac{P-\pi}{SE}<z\right) = \left(-z < Z <z\right) = 1-\alpha$$
-We can rewrite this to
+For a 95% confidence interval $z_{0.025}=1.96$ (from a table of the standard normal distribution). Other confidence levels of interest include 90% ($z_{0.05}=1.64$) and 99% ($z_{0.005}=2.58$). In R, the function ´qnorm` is used to compute $z_{\alpha/2}$,
 
-$$P\left(\pi-z SE < P < \pi + z SE\right) = 1-\alpha$$
-in other words sample fraction $p$ will fall between $\pi \pm 1.96 SE$ with 95% probability.
+```{r, echo=TRUE}
+## 95% confidence interval, alpha=0.05
+qnorm(1-0.05/2)
+## 90% confidence interval, alpha=0.10
+qnorm(1-0.10/2)
+## 99% confidence interval, alpha=0.01
+qnorm(1-0.01/2)
+```
 
-The equation can also be rewritten to 
+The unequality can be rewritten;
+
+
+$$-z_{\alpha/2} < \frac{P-\pi}{SE}<z_{\alpha/2} \iff P-z_{\alpha/2}SE \leq \pi \leq P + z_{\alpha/2}SE$$
+Hence,
+
 $$P\left(P-z SE < \pi < P + z SE\right) = 1 - \alpha$$
-The observed confidence interval is what we get when we replace the random variable $P$ with our observed fraction,
+In words, the population proportion $\pi$ will lie within $\pm z_{\alpha/2}SE$ from the the sample proportion $P$.
 
-$$p-z SE < \pi < p + z SE$$
-$$\pi = p \pm z SE = p \pm z \sqrt{\frac{p(1-p)}{n}}$$
-The 95% confidence interval $$\pi = p \pm 1.96 \sqrt{\frac{p(1-p)}{n}}$$
+To get the observed confidence interval, replace the random variable $P$ with the observed value $p$ (in our example 0.42).
 
-A 95% confidence interval will have 95% chance to cover the true value.
+The confidence interval can be expressed in different was; 
+
+$$p-z_{\alpha/2} SE < \pi < p + z_{\alpha/2} SE$$
+$$\pi = p \pm z_{\alpha/2} SE$$
+$$(p - z_{\alpha/2} SE, p + z_{\alpha/2} SE)$$
+
+The 95% confidence interval $$\pi = p \pm 1.96 \sqrt{\frac{p(1-p)}{n}}$$ will have 95% chance to cover the true value.
 
 ```{r CIallergy, fig.width=7, fig.height=3}
 set.seed(13)
@@ -892,8 +855,9 @@ $$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
 
 If $\sigma$ is unknown the statistic
 
-$$\frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \sim t(n-1)$$
-is t-distributed with $n-1$ degrees of freedom.
+$$T = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$
+
+is t-distributed with $n-1$ degrees of freedom, in short $T \sim t(n-1)$.
 
 It follows that 
 
@@ -908,9 +872,9 @@ The confidence interval with confidence level $1-\alpha$ is thus;
 
 $$\mu = \bar x \pm t \frac{s}{\sqrt{n}}$$
   
-For a 95% confidence interval and $n=5$ $t$ is `r qt(.975, df=4)`.
-
 The $t$ values for different values of $\alpha$ and degrees of freedom are tabulated and can be computed in R using the function `qt`.
+
+For a 95% confidence interval, i.e. $\alpha=0.05$, and $n=5$, $t$ is `r qt(.975, df=4)` and can be computed using 
 
 ```{r, echo=TRUE}
 n=5
@@ -921,139 +885,12 @@ qt(1-alpha/2, df=n-1)
 
 # Exercises: Interval estimates {.unnumbered #infe-exercise-interval}
 
-```{exercise, label="CIHb", echo=TRUE}
-You measure the Hb value in 10 50-year old men and get the following observations; 145, 165, 134, 167, 158, 176, 156, 189, 143, 123 g/L.
+```{r hypoparamexercises, child="infe_exr_3_interval.Rmd"}
 
-a) Compute a 95% bootstrap interval for the mean Hb value.
-b) Compute the sample mean Hb value
-c) Compute the sample variance
-d) Compute the sample standard deviation
-b) Assume that Hb is normally distributed and compute a 95% confidence interval for the mean Hb value.
 ```
 
+<!-- # Exercises and solutions: Interval estimates {.unnumbered #infe-exercise-solutions-interval} -->
 
-```{exercise, label="CIprop", echo=TRUE}
-In the pollen example we calculated a 95% confidence interval.
+```{r hypoparamsolutions, child="infe_exr_3_interval_solutions.Rmd", eval=FALSE}
 
-a) How can we get a narrower confidence interval?
-b) We computed a 95% interval, what if we want a 90% confidence interval?
-c) or a 99% confidence interval?
 ```
-
-```{exercise, label="CIscale", echo=TRUE}
-A scale has a normally distributed error with mean 0 and standard deviation 2.3 g. You measure a sample 10 times and observe the mean weight 43 g.
-
-a) Compute a 95% confidence interval of the sample weight
-b) Compute a 90% confidence interval of the sample weight
-```
-
-```{exercise, label="BMCsmokers"}
-You observe 150 students at BMC of which 25 are smokers.  Compute a 95% confidence interval for the proportion of smokers among BMC students.
-```
-
-## Solutions {.unnumbered}
-
-\@ref(exr:CIHb)
-
-a)
-
-```{r histmboot, echo=TRUE}
-obs <- c(145, 165, 134, 167, 158, 176, 156, 189, 143, 123)
-mboot <- replicate(10000, {
-  x <- sample(obs, size=10, replace=TRUE)
-  mean(x)
-})
-hist(mboot)
-## 05% confidence interval
-quantile(mboot, c(0.025, 0.975))
-```
-
-b)
-```{r, echo=TRUE}
-(m <- mean(obs))
-```
-
-c)
-```{r, echo=TRUE}
-(v <- var(obs))
-```
-
-d) 
-```{r, echo=TRUE}
-(s <- sd(obs))
-```
-
-e) Assume that Hb is normally distributed and compute a 95% confidence interval for the mean Hb value.
-```{r, echo=TRUE}
-n <- length(obs)
-t <- qt(0.975, df=9)
-##95% confidence interval 
-c(m - t*s/sqrt(n), m + t*s/sqrt(n))
-```
-
-
-\@ref(exr:CIprop)
-
-a) Calculate a 90% confidence interval instead. Or sample more people than 100.
-
-b) Change the z number,
-
-$$p \pm z * SE$$
-  
-For a 90% confidence interval use z=1.64
-
-```{r, echo=TRUE}
-p <- 0.42
-n <- 100
-SE <- sqrt(p*(1-p)/n)
-z <- qnorm(0.95)
-c(p - z*SE, p + z*SE)
-```
-
-c) or a 99% confidence interval?
-
-```{r, echo=TRUE}
-z <- qnorm(0.995)
-c(p - z*SE, p + z*SE)
-```
-
-
-\@(ref:CIscale)
-
-The measured weight is a random variable $X \sim N(\mu, \sigma)$. You know that $\sigma = 2.3$, $\mu$ is the weight of the smaple.
-
-a) Compute a 95% confidence interval of the sample weight
-
-```{r, echo=TRUE}
-## 95% ciónfidence interval
-m <- 42
-sigma <- 2.3
-n <- 10
-z <- qnorm(0.975)
-c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
-```
-
-
-b) Compute a 90% confidence interval of the sample weight
-
-```{r, echo=TRUE}
-z <- qnorm(0.95)
-c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
-```
-
-
-\@(ref:BMCsmokers)
-
-
-You observe 150 students at BMC of which 25 are smokers.  Compute a 95% confidence interval for the proportion of smokers among BMC students.
-
-```{r, echo=TRUE}
-p <- 25/150
-n <- 150
-z <-qnorm(0.975)
-SE <- sqrt(p*(1-p)/n)
-## 95% CI
-c(p - z*SE, p + z*SE)
-```
-
-
