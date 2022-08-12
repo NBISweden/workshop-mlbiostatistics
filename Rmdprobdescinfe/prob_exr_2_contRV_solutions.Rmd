@@ -1,0 +1,119 @@
+---
+title: "Exercises: Continuous random variables"
+date: "2022-09-12"
+output: bookdown::html_document2
+---
+
+```{exercise, label="normtable", echo=TRUE}
+**Exercise on using the normal table**
+  
+  Let $Z \sim N(0,1)$ be a standard normal random variable, and compute;
+
+  a. $P(Z<1.64)$
+  b. $P(Z>-1.64)$
+  c. $P(-1.96<Z)$
+  d. $P(Z<2.36)$
+  e. An $a$ such that $P(Z<a) = 0.95$
+  f. A $b$ such that $P(Z>b) = 0.975$
+      
+Note, this ecercise can be solved using the standard normal table or using the R functions `pnorm`and `qnorm`.
+```
+
+*Solution*
+
+a. $P(Z<1.64) = P(Z \leq 1.64) = [\textrm{from table}] = 0.9495$
+  b. $P(Z>-1.64) = [\textrm{symmetry}] = P(Z<1.64) = 0.9495$
+  c. $P(-1.96<Z) = [\textrm{symmetry}] = P(Z<1.96) = [\textrm{from table}] = 0.975$
+  d. $P(Z<2.36) = [\textrm{from table}] = 0.9909$
+  e. Standard normal table gives that $a=1.64$
+  f. $P(Z>b) = 0.975$, symmetry gives that $P(Z<-b)=0.975$. Look-up in the standard normal table gives that $-b=1.96$, hence $b=-1.96$.
+
+<!-- End solution -->
+
+```{exercise, label="ztransform", echo=TRUE}
+**Exercise in standardization/transformation**
+  
+  If $X \sim N(3,2)$, compute the probabilities
+
+  a. $P(X<5)$
+  b. $P(3<X<5)$
+  c. $P(X \geq 7)$
+```
+
+*Solution*
+
+  a. $P(X<5) = P\left(\frac{X-3}{2} < \frac{5-3}{2}\right) = P(Z<1) = [\textrm{from table}] = 0.8413$
+  b. $P(3<X<5) = P\left(\frac{3-3}{2} < \frac{X-3}{2} < \frac{5-3}{2}\right) = P(0<Z<1) = P(Z<1) - P(Z<0) = 0.8413 - 0.5000 = 0.3413$
+  c. $P(X \geq 7) = P\left(\frac{X-3}{2} \geq \frac{7-3}{2}) = P(Z \geq 2) = 1 - P(Z < 2) = 1 - 0.9772 = 0.0228$
+  
+<!-- End solution -->
+
+```{exercise, label="sumdistr", echo=TRUE}
+The hemoglobin (Hb) value in a male population is normally distributed with mean 188 g/L and standard deviation 14 g/L.
+  
+  a) Men with Hb below 158 g/L are considered anemic. What is the probability of a random man being anemic?
+  b) When randomly selecting 10 men from the population, what is the probability that none of them are anemic?
+```
+
+*Solution*
+
+a) $P(Hb<158) = P(Z<\frac{158-188}{14}) = P(Z<-2.14) = [table] = 0.016$
+  or use R
+```{r sumdistra, echo=TRUE}
+pnorm(158, mean=188, sd=14)
+```
+
+b) Probability of one man not being anemic; $1-0.016 = 0.984$. Probability of 10 selected men not being anemic (binomial distribution) $0.984^{10} = 0.95$
+
+<!-- End solution -->
+
+```{exercise, label="poisson", echo=TRUE}
+A rare disease affects 3 in 100000 in a large population. If 10000 people are randomly selected from the population, what is the probability
+
+  a) that no one in the sample is affected?
+  b) that at least two in the sample are affected?
+```
+
+*Solution*
+
+a)
+```{r poissona, echo=TRUE}
+n <- 10000
+p <- 3/100000
+ppois(0, n*p)
+```
+
+b)
+
+```{r poissonb, echo=TRUE}
+ppois(1, n*p, lower.tail=FALSE)
+```
+
+<!-- End solution -->
+
+
+```{exercise, label="pill", echo=TRUE}
+A drug company is producing a pill, with on average 12 mg of active substance. The amount of active substance is normally distributed with mean 12 mg and standard deviation 0.5 mg, if the production is without problems. Sometimes there is a problem with the production and the amount of active substance will be too high or too low, in which case the pill has to be discarded. What should the upper and lower critical values (limits for when a pill is acceptable) be in order not to discard more than 1/20 pills from a problem free production?
+```
+
+*Solution*
+
+$H_0: \mu=12$
+$H_1: \mu \neq 12$
+
+Search $x_{low}$ and $x_{up}$ such that $P(x_{low} < X < x_{up}) = 0.05$
+
+From table we know that $P(-1.96 < Z < 1.96) = 0.05$
+
+$Z = \frac{X - \mu_0}{\sigma_0} = \frac{X-12}{0.5}$, hence
+
+$-1.96 < Z < 1.96 \iff -1.96 < \frac{X-12}{0.5} < 1.96 \iff 12-1.96*0.5 < X < 12+1.96*0.5 \iff 11.02 < X < 12.98$
+
+The lower and upper critical values of active substance should be 11.02 and 12.98 mg.
+
+<!-- End solution -->
+
+
+
+
+

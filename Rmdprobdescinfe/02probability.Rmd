@@ -1,4 +1,12 @@
-## Learning outcomes {-}
+---
+title: "Probability Theory"
+date: "2022-09-12"
+output: bookdown::html_document2
+---
+
+# (PART) Probability Theory {-}
+
+# Learning outcomes {-}
 
 - understand the concept of random variables
 - understand the concept of probability
@@ -16,8 +24,20 @@ require(knitr)
 require(kableExtra)
 require(tidyverse)
 
-knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "figures/")
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/prob_")
 options(digits=2)
+##Allow duplicate chunk labels in child documents
+options(knitr.duplicate.label = "allow")
+```
+
+```{css, echo=FALSE}
+.toggle {
+  height: 1.55em;
+  overflow-y: hidden;
+}
+.toggle.open {
+  height: auto;
+}
 ```
 
 
@@ -26,7 +46,7 @@ options(digits=2)
 Some things are more likely to occur than others. Compare:
 
 - the chance of the sun rising tomorrow with the chance that no-one is infected with COVID-19 tomorrow
-- the chance of a cold dark winter in Stockholm with the chance of no rainy days over the summer months in Stockholm
+- the chance of a dark winter in Stockholm with the chance of no rainy days over the summer months in Stockholm
 
 We intuitively believe that the chance of sun rising or dark winter occurring are enormously higher than COVID-19 disappearing over night or having no rain over the entire summer. **Probability** gives us a scale for measuring the likeliness of events to occur. **Probability rules** enable us to reason about uncertain events. The probability rules are expressed in terms of [sets](https://en.wikipedia.org/wiki/Set_(mathematics)), a well-defined collection of distinct objects.
 
@@ -60,7 +80,7 @@ Let $E,F \subseteq S$ be two events that $P(E)>0$ then the conditional probabili
 
 ## The urn model
 
-The urn model is a simple model commonly used in statistics and probability. In the urn model, real objects (such as people, mice, cells, genes, molecules, etc) are represented by balls of different colors. A fair coin can be represented by an urn with two balls representing the coins two sides. A group of people can be modelled in an urn model, if age is the variable of interest, we write the age of each person on the balls. If we instead are interested in if the people are allergic to pollen or not, we color the balls according to allergy status.
+The urn model is a simple model commonly used in statistics and probability. In the urn model, real objects (such as people, mice, cells, genes, molecules, etc) are represented by balls of different colors or labels. A fair coin can be represented by an urn with two balls representing the coin's two sides; H and T. A group of people can be modelled in an urn model, if age is the variable of interest, we write the age of each person on the balls. If we instead are interested in if the people are allergic to pollen or not, we color the balls according to allergy status.
 
 ```{r urns, echo=FALSE, fig.cap="Urn models of a fair coin, age of a group of people, pollen allergy status of a group of people.", out.width = '20%', fig.align="center", fig.show="hold"}
 knitr::include_graphics("figures/coinurn.png")
@@ -68,7 +88,7 @@ knitr::include_graphics("figures/ageurn.png")
 knitr::include_graphics("figures/pollenageurn.png")
 ```
 
-In the urn model every unit (ball) is equally likely of being selected. This means that the urn model us well suited to represent flipping a fair coin. However, a biased coin can also be modelled using an urn model, by changing the number of balls that represent each side of the coin.
+In the urn model every unit (ball) is equally likely of being selected. This means that the urn model is well suited to represent flipping a fair coin. However, a biased coin can also be modelled using an urn model, by changing the number of balls that represent each side of the coin.
 
 By drawing balls from the urn with (or without) replacement, probabilities and other properties of the model can be inferred.
 
@@ -99,12 +119,15 @@ Example random variables and probabilites:
 
 Conditional probability can be written for example $P(W \geq 3.5 | S = 1)$, which is the probability that $X \geq 3.5$ if $S = 1$, in words "the probability that a smoking mother has a baby with birth weight of 3.5 kg or more".
 
+Random variables are divided based on their data type, categorical (nominal or ordinal) or numeric (discrete or continuous).
 
 # Discrete random variables {#prob-02discrv}
 
-A discrete random number has countable number of outcome values, such as {1,2,3,4,5,6}; {red, blue, green}; {tiny, small, average, large, huge} or all integers.
+A categorical random variable has nominal or ordinal outcomes such as; {red, blue, green} or {tiny, small, average, large, huge}.
 
-A discrete random variable can be described by its *probability mass function*, pmf.
+A discrete random number is usually counts and has a countable number of outcome values, such as {1,2,3,4,5,6}; {0,2,4,6,8} or all integers.
+
+A discrete or categorical random variable can be described by its **probability mass function (PMF)**.
 
 The probability that the random variable, $X$, takes the value $x$ is denoted $P(X=x) = p(x)$. Note that:
   
@@ -119,7 +142,7 @@ When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, eac
 
 The probability mass function of a fair six-sided die can be summarized in a table;
 
-```{r}
+```{r pmfdie}
 kable(matrix(c(1:6,rep(1/6,6)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
 ```
 
@@ -129,14 +152,25 @@ or in a barplot;
 plot(data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)) + scale_x_continuous(breaks = 1:6))
 ``` 
 
+```{example, label="nuclsite", echo=TRUE}
+**Nucleotide in a given site**
+  
+The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike a die the four nulceotides are ususlly not equally likely. Thenucleotide in the site can be described by a random variable, $X$. The probability mass function can be summarized in a table or a bar plot.
+```
 
-```{example, label="moke"}
+```{r nucl, fig.height=3, fig.width=7, fig.cap="Probability mass function of a nucleotide site.", out.width="45%", fig.align='center'}
+p <- c(A=0.4, C=0.2, T=0.1, G=0.3)
+kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
+data.frame(p) %>% rownames_to_column("x") %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw()
+``` 
+
+```{example, label="smoke"}
 **The smoking status of a random mother**
 
 The random variable has two possible outcomes; non-smoker (0) and smoker (1). The probability of a random mother being a smoker is 0.39.
 ```
 
-```{r}
+```{r pmfsmoker}
 kable(matrix(c("0","0.61","1","0.39"),ncol=2, dimnames=list(c('x','p(x)'), c('non-smoker','smoker')))) %>% kable_styling(full_width = FALSE)
 ```
 
@@ -151,28 +185,35 @@ x=1:50
 ggplot(data.frame(x=x, fx=dpois(x, lambda=25)), aes(x,fx)) + geom_bar(stat="identity") + theme_bw() + ylab("p(x)")
 ```
 
-## Expected value
+The probability mass function can be used to compute the probability of an event, such as the events 
 
-When the probability mass function is know the *expected value* of the random variable can be computed.
+* *get an even number when rolling a die* - sum up the probabiliy for 2, 4, and 6, p(even)=p(2)+p(4)+p(6)=0.5
+* *less than 15 bacterial colonies on the agar plate* - sum upp the probabilities $P(X<15) = \sum_{k=0}^{14} p(k) = $ `r ppois(14, 25)`. 
+
+The **cumulative distribution function (CDF)** is defined for numeric discrete random variables as $F(x) = P(X<=x)$.
+<!-- For common distributions there are functions in R for computing CDFs (we will get back to this). -->
+
+## Expected value and variance
+
+For a numeric discrete random variable, the **expected value** of the random variable can be computed, when the probability mass function is know. The expected value is the mean of a random variable and is denoted $E[X]$ or $\mu$ and can be computed by summing up all possible outcome values weighted by their probability;
 
 $$E[X] = \mu = \sum_{i=1}^N x_i p(x_i)$$
-For a *uniform distribution*, where every object has the same probability (in the urn model, every object is represented by one ball), the expected value can be computed as the sum of all objects divided by the total number of objects;
+For a **uniform distribution**, where every outcome has the same probability (in the urn model, every outcome is represented by one ball), the expected value can be computed as the sum of all outcome values divided by the total number of outcome values;
 
 $$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i$$
-**Linear transformations and combinations**
-  
+### Linear transformations and combinations
+
   $$E(aX) = a E(X)$$
   
   $$E(X + Y) = E(X) + E(Y)$$
   
-  $$E[aX + bY] = aE[X] + bE[Y]$$
+  $$E[aX + bY] = aE[X] + bE[Y],$$
+where $a$ and $b$ are constants.
 
-## Variance
-
-The variance is a measure of spread and is defined as the expected value of the squared distance from the expected value;
+The **variance** is a measure of spread and the variance of a random variable is defined as the expected value of the squared difference of the random variable and its mean. The 
 
 $$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i)$$
-**Linear transformations and combinations**
+### Linear transformations and combinations
   
   $$var(aX) = a^2 var(X)$$
       
@@ -192,6 +233,9 @@ Once the distribution is known, we can compute probabilities, such as $P(X=x), P
 In a single coin toss the probabity of heads is 0.5. In 20 coin tosses, what is the probability of at least 15 heads?
 ```
 
+<!-- Biological example. Randomize patients into control and treatment group, 50 % In a bacterial sample, every single bacteria can either be antibiotic resistant or not. In a sample 50% of the bacteria are antibiotic resistant, grow them on an agar plat and pick 20 colonies  -->
+
+
 The outcome of a single coin toss is a random variable, $X$ with two possible outcomes $\{H, T\}$. We know that $P(X=H) = 0.5$. The random variable of interest is the number of heads in 20 coin tosses, $Y$. The probability that we need to compute is $P(Y \geq 15)$.
 
 ```{r coinurn, echo=FALSE, fig.cap="A coin toss. Urn model with one black ball (heads) and one white ball (tails).", out.width = '20%', fig.align="lecenter"}
@@ -199,8 +243,6 @@ knitr::include_graphics("figures/coinurn.png")
 ```
 
 A single coin toss can be modelled by an urn with two balls. When a ball is drawn randomly from the urn, the probability to get the black ball (heads) is $P(X=H) = 0.5$.
-
-If we want to simulate tossing 20 coins (or one coin 20 times) we can use the same urn model, if the ball is replaced after each draw.
 
 In R we can simulate random draws from an urn model using the function `sample`.
 
@@ -213,6 +255,8 @@ sample(c("H", "T"), size=1)
 
 Every time you run `sample` a new coin toss is simulated. 
 
+If we want to simulate tossing 20 coins (or one coin 20 times) we can use the same urn model, if the ball is replaced after each draw.
+
 The argument `size` tells the function how many balls we want to draw from the urn. To draw 20 balls from the urn, set `size=20,` remember to replace the ball after each draw!
 
 ```{r coins, echo=TRUE}
@@ -222,7 +266,7 @@ The argument `size` tells the function how many balls we want to draw from the u
 
 How many heads did we get in the 20 random draws?
 
-```{r, echo=TRUE}
+```{r coinsH, echo=TRUE}
 ## How many heads?
 sum(coins == "H")
 ```
@@ -240,7 +284,7 @@ Nheads <- replicate(10000, {
 })
 ```
 
-Plot distribution of the number of heads in a histogram.
+Plot the distribution of the number of heads in a histogram.
 
 ```{r histNheads, out.width="70%", echo=TRUE}
 hist(Nheads, breaks=0:20-0.5)
@@ -250,9 +294,9 @@ Now, let's get back to the question; when tossing 20 coins, what is the probabil
 
 $P(X \geq 15)$
 
-Count how many times out of our `r length(Nheads)` exeriments the number is 15 or greater
+Count how many times out of our `r length(Nheads)` experiments the number is 15 or greater
 
-```{r, echo=TRUE}
+```{r sumNheads15, echo=TRUE}
 sum(Nheads >= 15)
 ```
 
@@ -260,7 +304,19 @@ From this we conclude that
 
 $P(X \geq 15) =$ `r sum(Nheads>=15)`/`r length(Nheads)` = `r sum(Nheads>=15)/length(Nheads)`
 
+Resampling can also be used to compute other properties of a random variable, such as the expected variable.
 
+The **law of large numbers** states that if the same experiment is performed many times the average of the result will be close to the expected value.
+
+
+The coin flip is a common example in statistics, but many situations with two outcomes can be modeled using similar models. If we consider the outcome of interest succes (like heads in the coin example) and the alternative outcome failure we can for example model;
+
+* Drug effect: A patient can respond to  drug treatment (success) or not (failure)
+* Side effect: After a treatment a patient might experience a side effect (success) or not (failure)
+* Treatment or placebo: Randomly assign a study participant into treatment or placebo group
+* Antibiotic resistance: A bacteria is either resistant to an antibiotic or not
+
+The probability of success and failure can be equal, like in the coin example, but they don't have to be equal. If the probability of a patient responding to a treatment is $p=0.80$, we know that the probability of the patient not responding is $1-p=0.20$, this can be modelled using an urn model with 4 black balls (cured) and 1 white ball (not cured).
 
 ## Parametric discrete distributions
 
@@ -279,7 +335,7 @@ p & \mathrm{if}\,x=1\mathrm,\,success\\
 \end{array}
 \right.$$
 
-```{r, eval=FALSE}
+```{r pbernoulli, eval=FALSE}
 kable(matrix(c('x','0','1','p(x)','1-p','p'), byrow=TRUE, ncol=3)) %>% kable_styling("striped", full_width = FALSE)
 ```
 
@@ -288,17 +344,19 @@ Using the definitions of expected value and variance it can be shown that;
 $$E[X] = p\\
 var(X) = p(1-p)$$
 
+A Bernoulli trial can be simulated, as seen in previous section, using the function `sample`.
+
 ### Binomial distribution
 
-The number of successes in a series of independent and identical Bernoulli trials is a discrete random variable, $X$.
+The number of successes in a series of independent and identical Bernoulli trials is a **binomial** random variable, $X$.
 
 $X = \sum_{i=0}^n Z_i,$
 
-where all $Z_i$ describe the outcome of independent and identical Bernoilli trials with probability $p$ for *success* ($P(Z_i=1) = p$).
+where all $Z_i$ describe the outcome of independent and identical Bernoulli trials with probability $p$ for *success* ($P(Z_i=1) = p$).
 
 The probability mass function of $X$ is called the binomial distribution. In short we use the notation;
 
-$$X \in Bin(n, p)$$
+$$X \sim Bin(n, p)$$
 
 The probability mass function is
 
@@ -308,19 +366,30 @@ It can be shown that
 $$E[X] = np\\
 var(X) = np(1-p)$$
 
-The binomial distribution occurs when sampling $n$ objects **with** replacement from an urn with objects of two types, of which the interesting type has probability $p$.
+A binomial random variableis the number of successes when sampling $n$ objects *with* replacement from an urn with objects of two types, of which the interesting type (success) has probability $p$.
 
 The probability mass function, $P(X=k)$ can be computed using the R function `dbinom` and the cumulative distribution function $P(X \leq k)$ can be computed using `pbinom`.
 
+Examples fo binomial random variables;
+
+* The number of patients responding to a treatment out of $n$ patients in a study, if the probability of a patient responding to treatment is $p$.
+* The number of patients experiencing a side effect out of $n$ patients in a study, if the probability of a side effect is $p$.
+* the number of mutations in a gene of length $n$, if the mutations are independent and identically distributed and the probability of a mutation at every single position is $p$.
+
 ### Hypergeometric distribution
 
-The hypergeometric distribution occurs when sampling $n$ objects **without** replacement from an urn with $N$ objects of two types, of which the interesting type has probability $p$.
+The hypergeometric distribution occurs when sampling $n$ objects *without* replacement from an urn with $N$ objects of two types, of which the interesting type has probability $p$.
 
 The probability mass function
 
 $$P(X=k) = \frac{{Np \choose x} {N-Np \choose n-x}}{N \choose n}$$
 can be computed in R using `dhyper` and the cumulative distribution function $P(X \leq k)$ can be computed using `phyper`.
 
+Examples of hypergeometric random variables;
+
+* In a student group of 25 individuals, 10 are R beginners. If 5 individuals are randomly choosen to belong to group A, the number of R beginners in group A is a hypergeometric random variable.
+* A drug company is producing 1000 pills per day, 5% have an amount of active substance below a threshold. In a random sample of 10 pill, how many contain to little active substance? The number of pills with to little active substance is a hypergeometric random variable.
+* You investigate the differential expression of 10000 genes, 150 of these genes blong to the superinteresting pathway XXX. You run a black-box algorithm that report 80 differentially expressed (DE) genes. If the black-box algorithm choose DE genes at random, the number of DE genes that blong to pathway XXX is a hypergeometric random variable.
 
 ### Poisson distribution
 
@@ -335,6 +404,11 @@ where $\mu$ is the expected value, which is $\mu = n \pi$, where $n$ is the numb
 
 The Poisson distribution can approximate the binomial distribution if $n$ is large ($n>10$) and $\pi$ is small ($\pi < 0.1$).
 
+
+Examples of Poisson random variables;
+* A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period is a Poisson random variable.
+* Number of reads aligned to a gene region
+
 ### Distributions in R
 
 Probability mass functions, $P(X=x)$, for the binomial, hypergeometric and Poisson distributions can in R can be computed using functions `dbinom`, `dhyper`, and `dpois`, respectively.
@@ -343,344 +417,19 @@ Cumulative distribution functions, $P(X \leq x)$ can be computed using `pbinom`,
 
 Also, functions for computing an $x$ such that $P(X \leq x) = q$, where $q$ is a probability of interest are available using `qbinom`, `qhyper`, and `qpois`.
 
+# Exercises: Discrete random variables {.unnumbered #prob-exercise1-discrv}
+
+The exercise Rmd can be downloaded from the [probability exercise files](https://uppsala.instructure.com/courses/70535/files/folder/Exercises/probability) directory, also solutions (both Rmd and html) can be downloaded from the same directory (but with a time restriction).
+
+```{r discreteexercises, child="prob_exr_1_discreteRV.Rmd"}
+
+```
+
+<!-- # Exercises with solutions: Discrete random variables {.unnumbered #prob-exercise1-solutions-discrv} -->
   
-  
-  
-# Exercises: Discrete random variables {.unnumbered #prob-exercise-discrv}
+```{r discretesolutions, child="prob_exr_1_discreteRV_solutions.Rmd", eval=FALSE}
 
-#### Introduction to probability {-}
-
-```{exercise, probcoin, echo=TRUE}
-When tossing a fair coin
-  a) what is the probability of heads?
-  b) what is the probability of tails?
 ```
-
-```{exercise, probdie, echo=TRUE}
-When tossing a fair six-sided die
-
-  a) what is the probability of getting 6?
-  b) what is the probability of an even number?
-  c) what is the probability of getting 3 or more?
-  d) what is the expected value of dots on the die?
-```
-
-#### Simulation {-}
-
-```{exercise, "Cointoss", echo=TRUE}
-In a single coin toss the probability of heads is 0.5.
-
-In 20 coin tosses,   
-
-  a) what is the probability of exactly 15 heads?
-  b) what is the probability of less than 7 heads?
-  c) What is the most probable number of heads?
-  d) what is the probability of 5 tails or less?
-  e) what is the probability of 2 heads or less?
-```
-  
-```{exercise, "Dice", echo=TRUE}
-When rolling 10 six-sided dice, study the number of sixes.
-
- a) Define the random variable of interest
- b) What are the possible outcomes?
- c) Using simulation, estimate the probability mass function
- d) what is the probability to get at least 5 sixes?
- e) Which is the most likely number of sixes?
- f) What is the probability to get exactly 2 sixes?
- g) On average how many sixes do you get when throwing ten dice?
-  <!-- The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. -->
-```
-
-```{exercise, "Cards", echo=TRUE}
-A deck of cards consists of 52 cards; 13 diamonds, 13 spades, 13 hearts and 13 clubs. When five cards are randomly selected (a poker hand), what is the probability of getting all hearts?
-```
-
-```{exercise, label="Pollen", echo=TRUE}
-30% of a large population is allergic to pollen. If you randomly select 3 people to participate in your study, what is the probability than none of them will be allergic to pollen?
-```
-
-```{r, eval=FALSE}
-## Solution using 100 replicates
-x <- replicate(100, sum(sample(0:1, size=3, replace=TRUE, prob=c(0.7,0.3))))
-table(x)
-mean(x==0)
-## Solution using 1000 replicates
-x <- replicate(1000, sum(sample(0:1, size=3, replace=TRUE, prob=c(0.7,0.3))))
-table(x)
-mean(x==0)
-## Solution using 100000 replicates
-x <- replicate(100000, sum(sample(0:1, size=3, replace=TRUE, prob=c(0.7,0.3))))
-table(x)
-mean(x==0)
-## Solution using the Binomial distribution
-pbinom(0, 3, 0.3)
-```
-
-```{exercise, label="Pollen2", echo=TRUE}
-In a class of 20 students, 6 are allergic to pollen. If you randomly select 3 of the students to participate in your study, what is the probability than none of them will be allergic to pollen?
-```
-
-```{exercise, label="Pollen3", echo=TRUE}
-Of the 200 persons working at a company, 60 are allergic to pollen. If you randomly select 3 people to participate in your study, what is the probability that none of them are allergic to pollen?
-```
-
-```{exercise, label="Pollen4", echo=TRUE}
-Compare your results in \@ref(exr:Pollen), \@ref(exr:Pollen2) and \@ref(exr:Pollen3). Did you get the same results? Why/why not?
-```
-
-#### Parametric discrete distributions {-}
-
-```{exercise, label="pollenparam", echo=TRUE}
-Do exercises \@ref(exr:Pollen), \@ref(exr:Pollen2) and \@ref(exr:Pollen3) again, but using parametric distributions. Compare your results.
-```
-
-```{exercise, label="GSEA", echo=TRUE}
-**Gene set enrichment analysis**
-
-You have analyzed 20000 genes and a bioinformatician you are collaborating with has sent you a list of 1000 genes that she says are important. You are interested in a particular pathway A. 200 genes in pathway A are represented among the 20000 genes, 20 of these are in the bioinformaticians important list.
-
-If the bioinformatician selected the 1000 genes at random, what is the probability to see 20 or more genes from pathway A in this list?
-```
-
-
-#### Conditional probability {-}
-
-```{exercise, label="diagnostictests", echo=TRUE}
-**Diagnostic tests**
-```
-
-A study of a method for cancer prediction is evaluated. Based on the results in the below table estimate;  
-```{r}
-kable(matrix(c(98,882,980, 16, 4, 20, 114, 886, 1000), byrow = TRUE, ncol=3, dimnames=list(c("not cancer", "cancer", "total"), c("pos", "neg", "tot")))) %>% kable_styling("striped", full_width = FALSE)
-```
-
-a) the probability of a positive test result from a person with cancer?
-b) the probability of a negative test result from a person without cancer?
-c) the probability of having cancer, if the test is positive?
-d) the probability of not having cancer, if the test is negative?
-
-e) Connect the four computed probabilities with the following four terms;
-
-- Sensitivity
-- Specificity
-- Positive predictive value (PPV)
-- Negative predictive value (NPV)
-
-## Solutions: Discrete random variables {-}
-
-\@ref(exr:probcoin)
-
-a) 0.5
-b) 0.5
-
-\@ref(exr:probdie)
-
- a) $\frac{1}{6}$
-  b) $\frac{3}{6} = \frac{1}{2}$
-  c) $\frac{4}{6} = \frac{2}{3}$
-  d)  $1*\frac{1}{6} +
-  2*\frac{1}{6} +
-  3*\frac{1}{6} +
-  4*\frac{1}{6} +
-  5*\frac{1}{6} +
-  6*\frac{1}{6} = 
-    3.5$
-  
-\@ref(exr:Cointoss)
-
-Simulate as in the lecture;
-
-```{r echo=TRUE}
-## A single coin toss
-sample(c("H", "T"), size=1)
-## Another coin toss
-sample(c("H", "T"), size=1)
-
-## 20 independent coin tosses
-(coins <- sample(c("H", "T"), size=20, replace=TRUE))
-## How many heads did we get in these particular 20 draws?
-sum(coins == "H")
-
-## The simulation is about repeating this (20 random draws and summing up the number of heads) many times. To do it 10000 times;
-Nheads <- replicate(10000, {
-  coins <- sample(c("H", "T"), size=20, replace=TRUE)
-  sum(coins == "H")
-})
-```
-
-a. Probability of exactly 15 heads
-```{r echo=TRUE}
-## Numer of times of the 10000 with exactly 15 heads
-sum(Nheads==15)
-## divide by 10000 to get the probability
-sum(Nheads==15)/10000
-## or compute using mean (why does this work?)
-mean(Nheads==15)
-```
-
-b. Probability of less than 7 heads
-```{r echo=TRUE}
-mean(Nheads<7)
-```
-
-
-c. What is the most probable number of heads?
-
-```{r echo=TRUE}
-## plot the distribution and read the graph
-hist(Nheads, breaks=0:20-0.5)
-```
-
-
-```{r echo=TRUE}
-## or tabulate
-table(Nheads)
-```
-
-d. What is the probability of 5 tails or less?
-
-To get five or less tails out of 20 throws is equal to getting 15 or more heads out of 20.
-
-```{r echo=TRUE}
-## probability of 15 heads or more
-mean(Nheads>=15)
-```
-
-e. what is the probability of 2 heads or less?
-
-```{r echo=TRUE}
-mean(Nheads<=2)
-sum(Nheads<=2)
-## with this low number of observations, more repeats is required to get a more accurate answer
-
-Nheads <- replicate(1000000, {
-  coins <- sample(c("H", "T"), size=20, replace=TRUE)
-  sum(coins == "H")
-})
-sum(Nheads<=2)
-mean(Nheads<=2)
-```
-
-a) 0.015
-b) 0.058
-c) 10
-d) 0.020
-e) 0.0002
-
-\@ref(exr:Dice)
-
-a) $X$, the number of sixes when rolling 10 dice.
-b) ${0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}$
-c)
-
-```{r, echo=TRUE}
-N <- replicate(100000, sum(sample(1:6, size=10, replace=TRUE)==6))
-table(N)
-hist(N, breaks=(0:11)-0.5)
-```
-
- f) What is the probability to get exactly 2 sixes?
- g) On average how many sixes do you get when throwing ten dice?
-d) 0.015
-```{r}
-sum(N>=5)
-sum(N>=5)/length(N)
-mean(N>=5)
-```
-
-e) 1
-f) 0.29
-```{r, echo=TRUE}
-mean(N==2)
-```
-
-
-g) 1.7
-```{r, echo=TRUE}
-mean(N)
-10*1/6
-```
-
-
-\@ref(exr:Cards)
-
-0.00049
-
-```{r, echo=TRUE}
-N <- replicate(100000, sum(sample(rep(0:1, c(39,13)), size=5)))
-hist(N, breaks=(0:6)-.5)
-## P(N==5)
-mean(N==5)
-```
-
-
-
-\@ref(exr:Pollen)
-
-```{r, eval=TRUE, echo=TRUE}
-## Solution using 100 replicates
-x <- replicate(100, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
-table(x)
-mean(x==0)
-## Solution using 1000 replicates
-x <- replicate(1000, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
-table(x)
-mean(x==0)
-## Solution using 100000 replicates
-x <- replicate(100000, sum(sample(c(0,0,0,0,0,0,0,1,1,1), size=3, replace=TRUE)))
-table(x)
-mean(x==0)
-```
-
-\@ref(exr:Pollen2)
-```{r, eval=TRUE, echo=TRUE}
-## Solution using 100000 replicates
-x <- replicate(100000, sum(sample(rep(c(0, 1), c(14, 6)), size=3, replace=FALSE)))
-table(x)
-mean(x==0)
-```
-
-\@ref(exr:Pollen3)
-
-```{r, eval=TRUE, echo=TRUE}
-## Solution using 100000 replicates
-x <- replicate(100000, sum(sample(rep(c(0, 1), c(140, 60)), size=3, replace=FALSE)))
-table(x)
-mean(x==0)
-```
-
-### Parametric discrete distributions {-}
-\@ref(exr:pollenparam)
-
-```{r, echo=TRUE}
-## 1.6 Solution using the Binomial distribution
-pbinom(0, 3, 0.3)
-
-## 1.7 Solution using the hypergeometric distribution
-phyper(0, 6, 20-6, 3)
-
-## 1.8 Solution using the hypergeometric distribution
-phyper(0, 66, 200-60, 3)
-```
-
-
-
-\@ref(exr:GSEA)
-
-```{r, echo=TRUE}
-phyper(20, 200, 20000-200, 1000, lower.tail=FALSE)
-```
-
-### Conditional probability {-}
-
-\@ref(exr:diagnostictests)
-
-a) $P(pos|cancer) = 16/20$, sensitivity
-b) $P(neg|not cancer) = 882/980$, specificity
-c) $P(cancer|pos) = 16/114$, PPV
-d) $P(not cancer|neg) = 882/886$, NPV
-
 
 # Continuous random variable {#prob-contrv}
 
@@ -688,9 +437,9 @@ A continuous random number is not limited to discrete values, but any continuous
 
 Examples: weight, height, speed, intensity, ...
 
-A continuous random variable can be described by its *probability density function*, pdf.
+A continuous random variable can be described by its **probability density function**, pdf.
 
-```{r, fig.show="hold", fig.cap="Probability density function of the weight of a newborn baby.", fig.height=4, fig.width=7}
+```{r pdfnewborn, fig.show="hold", fig.cap="Probability density function of the weight of a newborn baby.", fig.height=4, fig.width=7}
 ## ounce <- 0.0283495231
 ## pound <- 0.45359237
 ## ggplot(babies, aes(x=wt*ounce)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density() #+ ggtitle("Weight (kg) of a newborn baby"))
@@ -737,7 +486,7 @@ $P(a \leq X \leq b) = \int_a^b f(x) dx$
   
 <!-- #### Cumulative distribution function, cdf -->
   
-The *cumulative distribution function*, cdf, sometimes called just the
+The **cumulative distribution function**, cdf, sometimes called just the
 distribution function, $F(x)$, is defined as:
   
   $$F(x) = P(X \leq x) = \int_{-\infty}^x f(x) dx$$
@@ -795,7 +544,7 @@ The bell-shaped normal distributions is symmetric around $\mu$ and $f(x) \righta
 
 As $f(x)$ is well defined, values for the cumulative distribution function $F(x) = \int_{- \infty}^x f(x) dx$ can be computed.
 
-```{r out.width="45%", fig.show="hold"}
+```{r cdfnorm, out.width="45%", fig.show="hold"}
 dN$Fx <- pnorm(x)
 ggplot(dN, aes(x=x, y=fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("f(x)") + theme_bw() + ggtitle("Probability density function")
 ggplot(dN, aes(x=x, y=Fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("F(x)") + theme_bw() + ggtitle("Cumulative distribution function")
@@ -820,7 +569,7 @@ plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab
 ```
 
 
-```{r}
+```{r FZtab}
 z <- sapply(seq(-3.4, -3.49, -0.01), function(x) seq(x,0,0.1))
 z <- -z[nrow(z):1,]
 z <- sapply(seq(0, 0.09, 0.01), function(x) seq(x,3.49,0.1))
@@ -979,108 +728,19 @@ Cumulative distribution functions can be computed using `pnorm`, `pt`, `pchisq` 
 
 Also, functions for computing an $x$ such that $P(X<x) = q$, where $q$ is a probability of interest are available using `qnorm`, `qt`, `qchisq` and `qf`.
 
-# Exercises: Continuous random variables {.unnumbered #prob-exercise-contrv}
+# Exercises: Continuous random variables {.unnumbered #prob-exercise2-contrv}
 
-```{exercise, label="normtable", echo=TRUE}
-**Exercise on using the normal table**
+The exercise Rmd can be downloaded from the [probability exercise files](https://uppsala.instructure.com/courses/70535/files/folder/Exercises/probability) directory, also solutions (both Rmd and html) can be downloaded from the same directory (but with a time restriction).
+
+```{r contexercises, child="prob_exr_2_contRV.Rmd"}
+
+```
+
+<!-- # Exercises with solutions: Continuous random variables {.unnumbered #prob-exercise2-solutions-contrv} -->
   
-Let $Z \sim N(0,1)$ be a standard normal random variable, and compute;
+```{r contsolutions, child="prob_exr_2_contRV_solutions.Rmd", eval=FALSE}
 
-  a. $P(Z<1.64)$
-  b. $P(Z>-1.64)$
-  c. $P(-1.96<Z)$
-  d. $P(Z<2.36)$
-  e. An $a$ such that $P(Z<a) = 0.95$
-  f. A $b$ such that $P(Z>b) = 0.975$
-  
-Note, this ecercise can be solved using the standard normal table or using the R functions `pnorm`and `qnorm`.
 ```
-
-```{exercise, label="ztransform", echo=TRUE}
-**Exercise in standardization/transformation**
-  
-If $X \sim N(3,2)$, compute the probabilities
-  
-  a. $P(X<5)$
-  b. $P(3<X<5)$
-  c. $P(X \geq 7)$
-```
-
-```{exercise, label="sumdistr", echo=TRUE}
-The hemoglobin (Hb) value in a male population is normally distributed with mean 188 g/L and standard deviation 14 g/L.
-a) Men with Hb below 158 g/L are considered anemic. What is the probability of a random man being anemic?
-b) When randomly selecting 10 men from the population, what is the probability that none of them are anemic?
-```
-
-```{exercise, label="poisson", echo=TRUE}
-A rare disease affects 3 in 100000 in a large population. If 10000 people are randomly selected from the population, what is the probability
-
-a) that no one in the sample is affected?
-b) that at least two in the sample are affected?
-```
-
-```{exercise, label="pill", echo=TRUE}
-A drug company is producing a pill, with on average 12 mg of active substance. The amount of active substance is normally distributed with mean 12 mg and standard deviation 0.5 mg, if the production is without problems. Sometimes there is a problem with the production and the amount of active substance will be too high or too low, in which case the pill has to be discarded. What should the upper and lower critical values (limits for when a pill is acceptable) be in order not to discard more than 1/20 pills from a problem free production?
-```
-
-
-### Solutions {-}
-
-\@ref(exr:normtable)
-
-  a. $P(Z<1.64) = P(Z \leq 1.64) = [\textrm{from table}] = 0.9495$
-  b. $P(Z>-1.64) = [\textrm{symmetry}] = P(Z<1.64) = 0.9495$
-  c. $P(-1.96<Z) = [\textrm{symmetry}] = P(Z<1.96) = [\textrm{from table}] = 0.975$
-  d. $P(Z<2.36) = [\textrm{from table}] = 0.9909$
-  e. Standard normal table gives that $a=1.64$
-  f. $P(Z>b) = 0.975$, symmetry gives that $P(Z<-b)=0.975$. Look-up in the standard normal table gives that $-b=1.96$, hence $b=-1.96$.
-  
-\@ref(exr:ztransform)
-  
-a. $P(X<5) = P\left(\frac{X-3}{2} < \frac{5-3}{2}\right) = P(Z<1) = [\textrm{from table}] = 0.8413$
-b. $P(3<X<5) = P\left(\frac{3-3}{2} < \frac{X-3}{2} < \frac{5-3}{2}\right) = P(0<Z<1) = P(Z<1) - P(Z<0) = 0.8413 - 0.5000 = 0.3413$
-c. $P(X \geq 7) = P\left(\frac{X-3}{2} \geq \frac{7-3}{2}) = P(Z \geq 2) = 1 - P(Z < 2) = 1 - 0.9772 = 0.0228$
-
-
-\@ref(exr:sumdistr)
-
-a) $P(Hb<158) = P(Z<\frac{158-188}{14}) = P(Z<-2.14) = [table] = 0.016$
-or use R
-```{r, echo=TRUE}
-pnorm(158, mean=188, sd=14)
-```
-
-b) Probability of one man not being anemic; $1-0.016 = 0.984$. Probability of 10 selected men not being anemic (binomial distribution) $0.984^{10} = 0.95$
-  
-
-\@ref(exr:poisson)
-a)
-```{r, echo=TRUE}
-n <- 10000
-p <- 3/100000
-ppois(0, n*p)
-```
-
-b)
-
-```{r, echo=TRUE}
-ppois(1, n*p, lower.tail=FALSE)
-```
-
-\@ref(exr:pill)
-
-$H_0: \mu=12$
-$H_1: \mu \neq 12$
-
-Search $x_{low}$ and $x_{up}$ such that $P(x_{low} < X < x_{up}) = 0.05$
-
-From table we know that $P(-1.96 < Z < 1.96) = 0.05$
-
-$Z = \frac{X - \mu_0}{\sigma_0} = \frac{X-12}{0.5}$, hence
-
-$-1.96 < Z < 1.96 \iff -1.96 < \frac{X-12}{0.5} < 1.96 \iff 12-1.96*0.5 < X < 12+1.96*0.5 \iff 11.02 < X < 12.98$
-
-The lower and upper critical values of activbe substance should be 11.02 and 12.98 mg.
 
 # Random sample {#prob-sample}
 
@@ -1143,7 +803,7 @@ Similarly, the sample variance is an unbiased estimate of the population varianc
 
 ## Standard error
 
-Eventhough the sample can be used to calculate unbiased estimates of the population value, the sample estimate will not be perfect. The standard deviation of the sampling distribution (the distribution of sample estimates) is called the standard error.
+Eventhough the sample can be used to calculate unbiased estimates of the population value, the sample estimate will not be perfect. The standard deviation of the sampling distribution (the distribution of sample estimates) is called the **standard error**.
 
 For the sample mean, $\bar X$, the variance is
 
@@ -1151,57 +811,21 @@ $$E[(\bar X - \mu)] = var(\bar X) = var(\frac{1}{n}\sum_i X_i) = \frac{1}{n^2} \
 The standard error of the mean is thus;
 
 $$SEM = \frac{\sigma}{\sqrt{n}}$$
-Replacing $\sigma$ with the sample standard deviation, $s$, we get an estimate of the standard deviation of the mean;
+Replacing $\sigma$ with the sample standard deviation, $s$, we get an estimate of the standard error of the mean;
 
 $$SEM \approx \frac{s}{\sqrt{n}}$$
-An alternative definition of standard error of the mean is actually 
 
-$$SEM = \frac{s}{\sqrt{n}}$$
   
-# Exercises: Random sample {.unnumbered #prob-exercise-sample}
+# Exercises: Random sample {.unnumbered #prob-exercise3-sample}
 
-```{exercise, label="cholesterol", echo=TRUE}
-**Exercise in distribution of sample mean**
+The exercise Rmd can be downloaded from the [probability exercise files](https://uppsala.instructure.com/courses/70535/files/folder/Exercises/probability) directory, also solutions (both Rmd and html) can be downloaded from the same directory (but with a time restriction).
 
-The total cholesterol in population (mg/dL) is normally distributed with $\mu = 202$ and $\sigma = 40$.
+```{r sampleexercises, child="prob_exr_3_randomsample.Rmd"}
 
-a. How is the sample mean of a sample of 4 persons distributed?
-b. What is the probability to see a sample mean of 260 mg/dL or higher?
-c. Is there reason to believe that the four persons with mean 260 mg/dL were sampled from another population with higher population mean?
 ```
 
-```{exercise, label="pill2cont", echo=TRUE}
-**Amount of active substance**
+<!-- # Exercises with solutions: Random sample {.unnumbered #prob-exercise3-solutions-sample} -->
   
-The amount of active substance in a pill is stated by the manufacturer to be normally distributed with mean 12 mg and standard deviation 0.5 mg.
-You take a sample of five pill and measure the amount of active substance to; 13.0, 12.3, 12.6, 12.5, 12.7 mg.
+```{r samplesolutions, child="prob_exr_3_randomsample_solutions.Rmd", eval=FALSE}
 
-[Note: a-c were already computed in the descriptive statistics session.]
-
-a) Compute the sample mean
-b) Compute the sample variance
-c) Compute the sample standard deviation
-d) compute the standard error of mean, $SEM$.
-e) If the manufacturers claim is correct, what is the probability to see a sample mean as high as in a) or higher?
 ```
-
-## Solution {-}
-
-\@ref(exr:cholesterol)
-
-a. $$\bar X = \frac{1}{4}\sum_{i=1}^4 X_i \\
-X_i \sim N(\mu, \sigma) \\
-\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right) = N(202, 20)
-$$
-b. 0.0019
-c. Yes
-
-\@ref(exr:pill2cont)
-
-a. 12.62
-b. 0.067
-c. 0.26
-d. 0.22
-e. 0.0028
-
-
