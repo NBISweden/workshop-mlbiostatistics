@@ -4,9 +4,24 @@ title:  'To Do'
 ---
 
 
-## ToDo
+## ToDo (2022)
 
-From 2021-10
+**Admin**
+- sort out final students list and invoice information (send to JL)
+- add students to Canvas
+- put students in groups (find group names)
+- order lunches and fika
+- make door sign
+- prepare attendance lists
+- prepare certificates
+- prepare short-term feedback survey
+
+**Content**
+- finalise and email out pre-course (make Canvas quiz)
+- finalise schedule and content
+
+
+### From 2021-10
 Suggestions and ideas as collected throughout the course
 
 Mathematical foundations:
@@ -69,7 +84,7 @@ Future best set-up?
 
 
 ## Take with to Uppsala
-- backup conference camera from G7 (booked)
+- backup conference camera from G7 (if run online, book camera ahead)
 - Bose microphone/speaker
 - screen, keyboard, trackpad
 - camera

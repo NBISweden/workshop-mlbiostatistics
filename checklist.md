@@ -2,15 +2,16 @@
 - find date and book rooms
 - calculate and get user fees approved
 - set dates for application open, application closed, notification sent to students
-- prepare course website [https://nbisweden.github.io/workshop-mlbiostatistics/]
+- prepare course website on Canvas
+- update Github website with the latest info [https://nbisweden.github.io/workshop-mlbiostatistics/] (extra)
 - prepare and open course application [e.g. via google forms]
 - prepare .doc for SciLifeLab announcement and email education@scilifelab.uu.se
-- prepare and test Zulip / Slack channel
+- prepare and test Zulip / Slack channel (if online)
+- add students to Canvas (Jessica Lindberg?)
 - prepare feedback survey
 - arrange internet access (guest accounts)
 - door sign
-- pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses, statistical methods experience
-
+- pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses, statistical methods experience (never implemented, probably a bad idea)
 
 #### participants
 ##### finalise participant list
