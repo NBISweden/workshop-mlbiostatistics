@@ -46,7 +46,7 @@ R skills that will be useful during the course are:
 - being able to install CRAN packages e.g. with `install.packages()`
 - being familiar with R Markdown format
 
-Some useful links on installation are under [precourse-R](precourse-R/precourse-R). 
+Some useful links on installation are under [precourse-R](precourse-R/precourse-R).
 
 
 <br/>
@@ -58,4 +58,3 @@ Some useful links on installation are under [precourse-R](precourse-R/precourse-
 - a laptop with R and R-Studio installations (see below)
 - a working web camera and a quiet space to take the course from (if online)
 - solutions (or attempts) to the exercises (see above Pre-course homework)
-- a pen and paper to write on
