@@ -17,6 +17,8 @@ title:  'To Do'
 - prepare short-term feedback survey
 
 **Content**
+- finalise welcome slides (when student list is ready)
+- finalise welcome page on canvas (when welcome slides are ready)
 - finalise and email out pre-course (make Canvas quiz)
 - finalise schedule and content
 
@@ -25,7 +27,6 @@ title:  'To Do'
 Suggestions and ideas as collected throughout the course
 
 Mathematical foundations:
-- fix bugs with preliminary math (per emails)
 - Mathematical foundations: spell out questions and have solutions ready
 - Define better finding subset of D, confusing to some students
 - Solutions to exercises: to show students later on
