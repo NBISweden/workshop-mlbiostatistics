@@ -38,10 +38,17 @@ cap <- function(x) { ##Capitalize
   paste0(toupper(substring(x, 1,1)), substring(x, 2,))
 } 
 
-uploadpage <- function(htmlfile, token, kursid) {
+postpage <- function(htmlfile, token, kursid) {
   h1 <- gsub("[<][/]*h1>", "", system(sprintf("cat %s|grep '<h1>'", htmlfile), intern=TRUE))
   chapter <- cap(gsub("session-", "", basename(dirname(htmlfile))))
-  title <- paste(chapter, h1, sep=": ")
+  ##Numbered sections?
+  if (grepl("header-section-number", h1)) {
+    nh1 <- gsub(".*>", "", gsub("</span>.*", "", h1))
+    h1 <- gsub(".*span>[ ]*", "", h1)
+    title <- paste(paste(chapter, nh1), h1, sep=": ")
+  } else {
+    title <- paste(chapter, h1, sep=": ")
+  }
   figs <- figures(htmlfile)
   path <- dirname(htmlfile)
   #url <- tools::file_path_sans_ext(basename(htmlfile))
@@ -50,17 +57,17 @@ uploadpage <- function(htmlfile, token, kursid) {
     figurls <- sapply(figs, function(f) postfigure(f, path, token, kursid))
     ##Replace figures with canvas links
     canvashtml <- sprintf("%s/%s-canvas.html", path, url)
-    system(sprintf("cat %s | %s > %s", htmlfile, paste(sprintf("sed -e \"s|%s|%s|g\"", names(figurls), figurls), collapse=" | "), canvashtml))
+    system(sprintf("cat %s | %s | grep -v '<button class=\"btn btn-default\">Previous</button>' | grep -v '<button class=\"btn btn-default\">Next</button>' > %s", htmlfile, paste(sprintf("sed -e \"s|%s|%s|g\"", names(figurls), figurls), collapse=" | "), canvashtml))
   } else {
     canvashtml <- htmlfile
   }
   ##Check if page exists
   post1 <- fromJSON(system(sprintf("curl -X GET --header \"Authorization: Bearer %s\" https://uppsala.instructure.com/api/v1/courses/%i/pages/%s",  token, kursid, url), intern = TRUE))
   if (length(post1)<=1) {
-    ##Post to canvas
+    ##Post to canvas, new page
     system(sprintf("curl -X PUT https://uppsala.instructure.com/api/v1/courses/%i/pages/%s --data-urlencode wiki_page[body]=\"$(cat %s|grep -v '<h1>'|grep -v '<title>')\" -d wiki_page[title]=\"%s\" --header \"Authorization: Bearer %s\"", kursid, url, canvashtml, title, token))
   } else {
-    ##Post to canvas
+    ##Post to canvas, update existing page
     system(sprintf("curl -X PUT https://uppsala.instructure.com/api/v1/courses/%i/pages/%s --data-urlencode wiki_page[body]=\"$(cat %s|grep -v '<h1>'|grep -v '<title>')\" --header \"Authorization: Bearer %s\"", kursid, url, canvashtml, token))
   }
   system(sprintf("rm %s/%s-canvas.html", path, url), ignore.stderr=TRUE)
@@ -68,5 +75,5 @@ uploadpage <- function(htmlfile, token, kursid) {
 
 
 ##Do the uploading for probability and inference sessions
-sapply(list.files("session-inference", "infe", full.names = TRUE), uploadpage, token=token, kursid=kursid)
-sapply(list.files("session-probability", "prob", full.names = TRUE), uploadpage, token=token, kursid=kursid)
+sapply(list.files("session-inference", "infe", full.names = TRUE), postpage, token=token, kursid=kursid)
+sapply(list.files("session-probability", "prob", full.names = TRUE), postpage, token=token, kursid=kursid)
