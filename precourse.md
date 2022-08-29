@@ -1,14 +1,13 @@
 ---
 layout: default
-title:  'Pre-course material'
+title:  'Precourse material'
 ---
 
 <br/>
-### <img border="0" src="icons/precourse.svg" width="40" height="40"> Pre-course information
+### <img border="0" src="icons/precourse.svg" width="40" height="40"> Precourse information
 
 
-There are few things **to do** before the course starts. These include both pre-course homework (studying), setting up communication channels and your computer.
-
+There are few things **to do** before the course starts. These include:
 
 - [Pre-course homework](#homework)
 - [Setting-up environment](#R)
@@ -18,7 +17,7 @@ There are few things **to do** before the course starts. These include both pre-
 <br/>
 #### Pre-course homework <a name="homework"></a>
 - Biostatistics and machine learning is based on mathematics so in order to have a good start at the course we need to revise or pick-up the basics.
-- Go to [https://olgadet.github.io/bookdown-mlbiostatistics/](https://olgadet.github.io/bookdown-mlbiostatistics/) and have a look at the Preliminary Mathematics section, 7 chapters covering basics of mathematical notations, sets, functions, differentiation, integration, vectors and matrices.
+- Go to [https://nbisweden.github.io/workshop-mlbiostatistics/session-precourse-math/docs](https://nbisweden.github.io/workshop-mlbiostatistics/session-precourse-math/docs/index.html) and have a look at the Mathematical Foundations, 7 chapters covering basics of mathematical notations, sets, functions, differentiation, integration, vectors and matrices.
 - Find pen and paper and **write down** the solutions (or your best attempt) to the following exercises:
   - Ex. 1.3: f, g, h
   - Ex. 1.4: e, f, g, h
@@ -56,5 +55,5 @@ Some useful links on installation are under [precourse-R](precourse-R/precourse-
 <br/>
 #### What to bring (have) <a name="whattobring"></a>
 - a laptop with R and R-Studio installations (see below)
+- solutions (or attempts) to the exercises (see above precourse homework)
 - a working web camera and a quiet space to take the course from (if online)
-- solutions (or attempts) to the exercises (see above Pre-course homework)
