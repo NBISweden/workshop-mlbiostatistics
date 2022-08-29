@@ -4,11 +4,11 @@ title:  'Schedule'
 ---
 
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Generic schedule
+
+
+[Precourse: mathematical foundations](session-precourse-math/docs/index.html)
+
 <br/>
-
-##### Precourse: mathematical foundations
-[Precourse](session-precourse-math/docs/index.html)
-
 ##### Monday
 
 **09:00 - 10:00** [Welcome](session-welcome/welcome-slides.html)

@@ -1,4 +1,4 @@
-# (PART) Mathematical foundations {-}
+<!-- # (PART) Mathematical foundations {-} -->
 
 # Mathematical notations
 
