@@ -141,6 +141,9 @@ $$\begin{bmatrix}
 
 -----
 
+
+## Exercises: matrices
+
 ::: {.exercise #m-matrix}
 
 Given matrices 
@@ -166,6 +169,7 @@ e) calculate $\mathbf{A} \cdot \mathbf{C}$?
 f) calculate $\mathbf{B}^\top$
 g) calculate $\mathbf{A}^{-1}$
 h) calculate $(\mathbf{A} + \mathbf{B})^{-1}$
+i) answer again a) - h) this time using R functions and/or commands
 
 
 :::
@@ -217,6 +221,7 @@ $$\mathbf{A}^{-1} = \begin{bmatrix}
   -2 & 1   \\
   \frac{3}{2} & -\frac{1}{2}
 \end{bmatrix}$$
+
 <!-- h) calculate $(\mathbf{A} + \mathbf{B})^{-1}$ -->
 
 
