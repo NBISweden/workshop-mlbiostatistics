@@ -45,7 +45,7 @@ During the course we will be using `R` programming language within `RStudio Desk
 - being able to install CRAN packages e.g. with `install.packages()`
 - being familiar with R Markdown format
 
-Some tips on installing and using R, R-Studio and R Markdown under [precourse-env](precourse-env/).
+Some tips on installing and using R, R-Studio and R Markdown under [precourse-env](precourse-env/precourse-R.html).
 
 ##### R packages
 Some additional R packages requiring installation that we will be using during the course are listed under [precourse-env-packages](precourse-env-packages/)
