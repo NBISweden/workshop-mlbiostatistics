@@ -5,7 +5,7 @@ title:  'Schedule'
 
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Generic schedule
 
-
+<br/>
 [Precourse: mathematical foundations](session-precourse-math/docs/index.html)
 
 <br/>
@@ -63,19 +63,19 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09:30 - 10:30** [Linear models: introduction](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html)
+**09:30 - 10:30** [Linear models: introduction](session-lm/docs/)
 
-**10:30 - 11.00** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/introduction-to-linear-models.html#exercises-linear-models-i)
+**10:30 - 11.00** [Exercises](session-lm/docs/introduction-to-linear-models.html)
 
-**11:00 - 11:30** [Linear models: understanding coefficients](https://olgadet.github.io/bookdown-mlbiostatistics/regression-coefficients.html)
+**11:00 - 11:30** [Linear models: understanding coefficients](session-lm/docs/regression-coefficients.html)
 
-**11:30 - 12.00** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/regression-coefficients.html#exercises-linear-models-ii)
+**11:30 - 12.00** [Exercises](session-lm/docs/regression-coefficients.html)
 
 *12:00 - 13:00 lunch*
 
-**13:00 - 13:30** [Linear models: model summary and assumptions](https://olgadet.github.io/bookdown-mlbiostatistics/model-summary-assumptions.html)
+**13:00 - 13:30** [Linear models: model summary and assumptions](session-lm/docs/model-diagnostics.html)
 
-**13.30 - 14.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/model-summary-assumptions.html#exercises-linear-models-iii)
+**13.30 - 14.30** [Exercises](session-lm/docs/model-diagnostics.html)
 
 *14.30 - 15.00 break*
 
