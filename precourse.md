@@ -48,7 +48,7 @@ During the course we will be using `R` programming language within `RStudio Desk
 Some tips on installing and using R, R-Studio and R Markdown under [precourse-env](precourse-env/precourse-R.html).
 
 ##### R packages
-Some additional R packages requiring installation that we will be using during the course are listed under [precourse-env-packages](precourse-env-packages/)
+Some additional R packages requiring installation that we will be using during the course are listed under [precourse-env-packages](precourse-env-packages/index.html)
 
 
 <br/>
