@@ -3,7 +3,7 @@ title: "Mathematical foundations"
 author: "Olga Dethlefsen"
 site: bookdown::bookdown_site
 documentclass: book
-date: "2022-08-29"  
+date: "2022-08-30"  
 bibliography: [book.bib]
 biblio-style: apalike
 link-citations: yes

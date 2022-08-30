@@ -54,7 +54,7 @@ $$\mathbf{A}=\begin{bmatrix}
   0 & 2 & 5  \\
   0 & 0 & 3
 \end{bmatrix}$$
-- A **lower-triangular matrix** is a square matrix in which all entries above the digonal are 0, that is hat is $x_{ij}=0$ for $i>j$ e.g. 
+- A **lower-triangular matrix** is a square matrix in which all entries above the diagonal are 0, that is hat is $x_{ij}=0$ for $i>j$ e.g. 
 $$\mathbf{A}=\begin{bmatrix}
   1 & 0 & 0  \\
   1 & 1 & 0  \\
@@ -144,8 +144,8 @@ $$\begin{bmatrix}
 
 ## Exercises: matrices
 
-::: {.exercise #m-matrix}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-matrix"><strong>(\#exr:m-matrix) </strong></span>
 Given matrices 
 
  $\mathbf{A} = \begin{bmatrix}
@@ -172,7 +172,7 @@ h) calculate $(\mathbf{A} + \mathbf{B})^{-1}$
 i) answer again a) - h) this time using R functions and/or commands
 
 
-:::
+\EndKnitrBlock{exercise}
 
 ## Answers to selected exercises (matrices) {-}
 

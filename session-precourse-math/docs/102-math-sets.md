@@ -44,7 +44,7 @@ editor_options:
 <br/>
 
 - **complement of a set, $A'$, $A^c$**: are the elements not in A
-- **difference of two sets, $\setminus$**: two sets can be "substracted", denoted by $A \setminus B$, by taking all elements that are members of A but are not members of B, e.g. $\{1, 2, 3, 4\} \setminus \{1, 3\} = \{2, 4\}$. This is also in other words a relative complement of A with respect to B.
+- **difference of two sets, $\setminus$**: two sets can be "subtracted", denoted by $A \setminus B$, by taking all elements that are members of A but are not members of B, e.g. $\{1, 2, 3, 4\} \setminus \{1, 3\} = \{2, 4\}$. This is also in other words a relative complement of A with respect to B.
 
 <br/>
 
@@ -72,8 +72,8 @@ And  given $A = \{1, 2, 3, 4, 5, 6\}$ and $B= \{2, 4, 6\}$ Venn diagram of $A$ a
 
 ## Exercises: sets
 
-::: {.exercise #m-sets-01}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-sets-01"><strong>(\#exr:m-sets-01) </strong></span>
 Given set $S = \{1, 2, 3, 4, 5, 6\}$:
   
 a) what is the subset $T$ of $S$ consisting of its even elements?
@@ -83,10 +83,10 @@ d) what is the intersection $T \cap U$?
 e) what is the union of $T \cup U$?
 f) what is the set difference $U \setminus T$?
 
-:::
+\EndKnitrBlock{exercise}
 
-::: {.exercise #m-sets-02}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-sets-02"><strong>(\#exr:m-sets-02) </strong></span>
 Given set $$A = \{cat, elephant, dog, turtle, goldfish, hamster, parrot, tiger, guinea pig, lion\}$$
   
 a) what is the subset $D$ of $A$ consiting of domesticated animals?
@@ -98,7 +98,7 @@ e) what is the set difference of $A \setminus C$?
 f) can you draw Venn diagram showing relationship between $D$ and $C$?
   
   
-:::
+\EndKnitrBlock{exercise}
 
 
 ## Answers to selected exercises (sets) {-}

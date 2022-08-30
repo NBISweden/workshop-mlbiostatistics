@@ -16,7 +16,7 @@
 
 \begin{figure}
 
-{\centering \includegraphics{figures/precourse/math-functions-definition} 
+{\centering \includegraphics[width=30.88in]{figures/precourse/math-functions-definition} 
 
 }
 
@@ -35,7 +35,7 @@
 Functions have been around for a while and there are many alternative names and writing conventions are being used. Common terms worth knowing:
 \begin{figure}
 
-{\centering \includegraphics{figures/precourse/math-functions-terms} 
+{\centering \includegraphics[width=31.19in]{figures/precourse/math-functions-terms} 
 
 }
 
@@ -52,7 +52,7 @@ Function graphs are a convenient way of showing functions, by looking at the gra
 
 
 
-|x (Celsius degrees) | evaluates | f(x) (Farenheit degress)|
+|x (Celsius degrees) | evaluates | f(x) (Fahrenheit degrees)|
 | :-----------: | :-----------: | :-------: |
 |-20 | $f(-20) = 1.8 \cdot (-20) + 32$| -4 |
 |-10 | $f(-10) = 1.8 \cdot (-10) + 32$| 14 |
@@ -79,10 +79,10 @@ Function graphs are a convenient way of showing functions, by looking at the gra
 - quadratic function $f(x) = a + bx + cx^2$
 - cubic function $fx() = a + bx + cx^2 + dx^3$
 
-**Transcedental functions**: functions that are not algebraic, e.g. 
+**Transcendental functions**: functions that are not algebraic, e.g. 
 
 - exponential function $f(x) = e^x$
-- logarithimic function $f(x) = log(x)$
+- logarithmic function $f(x) = log(x)$
 - trigonometric function $f(x) = -3sin(2x)$
 
 \begin{figure}
@@ -133,8 +133,8 @@ The function can be split in many pieces, e.g. the personal training fee in SEK 
 
 ## Exercises: functions
 
-::: {.exercise #m-functions-evaluate-01}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-functions-evaluate-01"><strong>(\#exr:m-functions-evaluate-01) </strong></span>
 Given the function for the personal trainer costs: 
 
 \begin{equation}
@@ -153,16 +153,16 @@ How much would you pay
 a) for a 4-hours session? Evaluate function f(h) for value 4. 
 b) for a 2-hour session? Evalue function f(h) for value 2. 
 
-:::
+\EndKnitrBlock{exercise}
 
-::: {.exercise #m-functions-write}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-functions-write"><strong>(\#exr:m-functions-write) </strong></span>
 A museum charges 50 SEK per person for a guided tour with a group of 1 to 9 people or a fixed 500 SEK fee for a group of 10 or more people. Write a function relating the number of people $n$ to the cost $C$.
 
-:::
+\EndKnitrBlock{exercise}
 
-::: {.exercise #m-functions-plot-evaluate}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-functions-plot-evaluate"><strong>(\#exr:m-functions-plot-evaluate) </strong></span>
 Given function
 
 \begin{equation}
@@ -182,7 +182,7 @@ b) evaluate function at f(4)
 
 
 
-:::
+\EndKnitrBlock{exercise}
 
 
 ## Answers to selected exercises (functions) {-}
