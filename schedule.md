@@ -65,23 +65,23 @@ title:  'Schedule'
 
 **09:30 - 10:30** [Linear models: introduction](session-lm/docs/)
 
-**10:30 - 11.00** [Exercises](session-lm/docs/introduction-to-linear-models.html)
+**10:30 - 11.00** [Exercises](session-lm/docs/introduction-to-linear-models.html#exercises-linear-models-i)
 
 **11:00 - 11:30** [Linear models: understanding coefficients](session-lm/docs/regression-coefficients.html)
 
-**11:30 - 12.00** [Exercises](session-lm/docs/regression-coefficients.html)
+**11:30 - 12.00** [Exercises](session-lm/docs/regression-coefficients.html#exercises-linear-models-ii)
 
 *12:00 - 13:00 lunch*
 
 **13:00 - 13:30** [Linear models: model summary and assumptions](session-lm/docs/model-diagnostics.html)
 
-**13.30 - 14.30** [Exercises](session-lm/docs/model-diagnostics.html)
+**13.30 - 14.30** [Exercises](session-lm/docs/model-diagnostics.html#exercises-linear-models-iii)
 
 *14.30 - 15.00 break*
 
-**15.00 - 15.30** [Generalized linear models](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html)
+**15.00 - 15.30** [Generalized linear models](session-glms/docs/)
 
-**15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/generalized-linear-models.html#exercises-glms)
+**15.30 - 16.30** [Exercises](session-glms/docs/generalized-linear-models.html#exercises-glms)
 
 **16.30 - 17.00** Daily challenge
 
