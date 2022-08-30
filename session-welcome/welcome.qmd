@@ -5,6 +5,7 @@ format:
   revealjs: 
     theme: [default, custom.scss]
     incremental: false   
+    slide-number: true
 editor: visual
 editor_options: 
   chunk_output_type: console
@@ -12,22 +13,24 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(fig.path="session-intro-files/figures/")
 knitr::opts_chunk$set(fig.pos = 'H')
-knitr::opts_chunk$set(cache.path = "tmp")
 knitr::opts_chunk$set(cache = FALSE)
 
 ```
 
 ## Introduction to biostatistics and machine learning
 
+::: incremental
 -   12th - 16th, September, 2022
 -   BMC, Husargatan 3, Uppsala
 -   Room: Trippelrummet: E10:1307/8/9
+:::
 
 <br/><br/>
 
 ## About us
+
+. . .
 
 -   [Olga Dethlefsen](https://nbis.se/about/staff/olga-dethlefsen/)
 -   [Eva Freyhult](https://nbis.se/about/staff/eva-freyhult/)
@@ -37,6 +40,8 @@ knitr::opts_chunk$set(cache = FALSE)
 -   [Julie Lorent](https://nbis.se/about/staff/julie-lorent/)
 
 <br/>
+
+. . .
 
 -   NBIS: National Bioinformatics Infrastructure Sweden
 -   SciLifeLab Bioinformatics Platform
@@ -48,9 +53,7 @@ knitr::opts_chunk$set(cache = FALSE)
 
 <!-- Names and teams  -->
 
-## What about you?
-
-<br/><br/>
+## What about you? 
 
 ```{r, echo=F, message=FALSE, warning=FALSE}
 
@@ -62,9 +65,10 @@ library(ggpubr)
 library(scales)
 library(tidyverse)
 
-data.input <- read_csv("background-2021.csv")
+data.input <- read_csv("background-2022.csv")
 
 data.inp <- data.input %>%
+  rename("R" = `R experience`) %>% 
   mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced")))
 
 ```
@@ -77,49 +81,88 @@ data.inp$R <- factor(data.inp$R, levels = c("None", "Beginner", "Intermediate", 
 data.inp$Position <- factor(data.inp$Position)
 data.inp$University <- factor(data.inp$University)
 
-bar.width <- 0.7
-g1 <- ggplot(data.inp, aes(x=Position, group = 1)) + 
-  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
-  geom_text(aes(label = scales::percent(..prop..), y= ..prop.. ), stat= "count", vjust = -.5) +
+# barplot: summary of position counts
+data.plot <- data.inp %>%
+  group_by(Position) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+
+g1 <- data.plot %>%
+  ggplot(aes(x = Position, y = n, group = Position)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=6, "Set1")) + 
   xlab("") + 
-  ylab("%") + 
+  ylab("") + 
+  ggtitle("Employment") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
   theme_classic2() + 
-  scale_y_continuous(labels = scales::percent) + 
-  theme(legend.position = "None") + 
-  ggtitle("Position")
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+  
 
+# barplot: summary of university
+data.plot <- data.inp %>%
+  group_by(University) %>% 
+  summarize(n = n())  %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep=""))
 
-g2 <- ggplot(data.inp, aes(x=University, group = 1)) + 
-  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
-  geom_text(aes(label = scales::percent(..prop..), y= ..prop.. ), stat= "count", vjust = -.5) +
+g2 <- data.plot %>%
+  ggplot(aes(x = University, y = n)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
   xlab("") + 
-  ylab("%") + 
+  ylab("") + 
+  ggtitle("University") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
   theme_classic2() + 
-  scale_y_continuous(labels = scales::percent) + 
-  theme(legend.position = "None") + 
-  ggtitle("University")
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
 
-g3 <- ggplot(data.inp, aes(x=R, group = 1)) + 
-  geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
-  geom_text(aes(label = scales::percent(..prop..), y= ..prop.. ), stat= "count", vjust = -.5) +
+  
+# barplot: summary of R experience
+data.plot <- data.inp %>%
+  group_by(R) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+
+g3 <- data.plot %>%
+  ggplot(aes(x = R, y = n)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
   xlab("") + 
-  ylab("%") + 
+  ylab("") + 
+  ggtitle("R experience") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
   theme_classic2() + 
-  scale_y_continuous(labels = scales::percent) + 
-  theme(legend.position = "None") + 
-  ggtitle("R experience")
-
-ggarrange(g1, g3, ncol=2)
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
 
 ```
 
 ## What about you?
+```{r, fig.height=6, echo=F}
+print(g1)
+```
 
-<br/><br/>
-
-```{r, echo=F}
+## What about you?
+```{r, fig.height=6, echo=F}
 print(g2)
 ```
+
+## What about you?
+```{r, fig.height=6, echo=F}
+print(g3)
+```
+
+## What about you?
+![](wordcloud.png)
+
 
 ## Teaching approach
 
@@ -130,10 +173,13 @@ print(g2)
 :::
 
 <!-- ## Online classroom -->
+
 <!-- - we believe that you know how to study best (Online Classroom) -->
+
 <!-- <br/><br/> -->
 
 ## Canvas Demo
+
 -   Schedule
 -   Modules
 -   Chat
@@ -153,21 +199,23 @@ print(g2)
     -   we may allow skipping up to 4h during the week
 -   active participation during the week
 -   completing "Daily challenge" quiz
-    - opens daily at 15.00 
-    - closes at 09:00 the following day
+    -   opens daily at 15.00
+    -   closes at 09:00 the following day
 :::
 
 . . .
 
-*Note that we are not able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.*
 
+*Note that we are not able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.*
 
 
 <br/><br/>
 
 ## Course website
 
+::: incremental
 -   <https://uppsala.instructure.com/courses/70535> (current)
 -   <https://nbisweden.github.io/workshop-mlbiostatistics/> (generic)
+:::
 
-## Questions? 
+## Questions?
