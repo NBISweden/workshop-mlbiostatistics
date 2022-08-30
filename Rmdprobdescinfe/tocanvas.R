@@ -53,13 +53,13 @@ postpage <- function(htmlfile, token, kursid) {
   path <- dirname(htmlfile)
   #url <- tools::file_path_sans_ext(basename(htmlfile))
   url <- tolower(gsub("[ :.]", "-", title))
+  canvashtml <- sprintf("%s/%s-canvas.html", path, url)
   if (length(figs)>0) {
     figurls <- sapply(figs, function(f) postfigure(f, path, token, kursid))
-    ##Replace figures with canvas links
-    canvashtml <- sprintf("%s/%s-canvas.html", path, url)
+    ##Replace figures with canvas links and remove next/previous buttons
     system(sprintf("cat %s | %s | grep -v '<button class=\"btn btn-default\">Previous</button>' | grep -v '<button class=\"btn btn-default\">Next</button>' > %s", htmlfile, paste(sprintf("sed -e \"s|%s|%s|g\"", names(figurls), figurls), collapse=" | "), canvashtml))
   } else {
-    canvashtml <- htmlfile
+    system(sprintf("cat %s | grep -v '<button class=\"btn btn-default\">Previous</button>' | grep -v '<button class=\"btn btn-default\">Next</button>' > %s", htmlfile, canvashtml))
   }
   ##Check if page exists
   post1 <- fromJSON(system(sprintf("curl -X GET --header \"Authorization: Bearer %s\" https://uppsala.instructure.com/api/v1/courses/%i/pages/%s",  token, kursid, url), intern = TRUE))
