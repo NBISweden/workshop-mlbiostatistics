@@ -8,7 +8,7 @@
 
 **Learning outcomes**
 
-- to recognize natural numbers, integrals and real numbers
+- to recognize natural numbers, integers and real numbers
 - to understand the differences between variables and constants
 - to use symbols, especially Sigma and product notations, to represent mathematical operations
 
@@ -75,8 +75,8 @@ Equal sign
 
 **Sigma and Product notation**
 
-- the $\Sigma$ notation, read as **Sigma notation**, provides a convenient way of writing longs sums, e.g. the sum of $x_1 + x_2 + x_3 + ... + x_{20}$ is written as $\displaystyle \sum_{i=1}^{i=20}x_i$
-- the $\Pi$ notation, read as **Product notation**, provides a convenient way of writing longs products, e.g.  $x_1 \cdot x_2 \cdot x_3 \cdot ... \cdot x_{20}$ is written as $\displaystyle \prod_{i=1}^{i=20}x_i$
+- the $\Sigma$ notation, read as **Sigma notation**, provides a convenient way of writing long sums, e.g. the sum of $x_1 + x_2 + x_3 + ... + x_{20}$ is written as $\displaystyle \sum_{i=1}^{i=20}x_i$
+- the $\Pi$ notation, read as **Product notation**, provides a convenient way of writing long products, e.g.  $x_1 \cdot x_2 \cdot x_3 \cdot ... \cdot x_{20}$ is written as $\displaystyle \prod_{i=1}^{i=20}x_i$
 
 ## Inequalities
 Given any two real numbers $a$ and $b$ there are three mutually exclusive possibilities:
@@ -125,8 +125,8 @@ Negative and fractional indices:
 
 ## Exercises: notations
 
-::: {.exercise #m-notations-numbers}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-notations-numbers"><strong>(\#exr:m-notations-numbers) </strong></span>
 Classify numbers as natural, integers or real. If reall, specify if they are rational or irrational.
 
 a) $\frac{1}{3}$
@@ -139,11 +139,11 @@ g) -7
 h) 0
 i) 0.25
 
-:::
+\EndKnitrBlock{exercise}
 
 
-::: {.exercise #m-notations-variables-constants}
-Classify below descriptors as variables or constants. Do you know the letters or symbols commonly used to represent these?
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-notations-variables-constants"><strong>(\#exr:m-notations-variables-constants) </strong></span>Classify below descriptors as variables or constants. Do you know the letters or symbols commonly used to represent these?
 
 a) speed of light in vacuum
 b) mass of an apple
@@ -153,11 +153,11 @@ e) distance from Stockholm central station to Uppsala central station
 f) time on the train to travel between the above stations
 g) electron charge
 
-:::
+\EndKnitrBlock{exercise}
 
 
-::: {.exercise #m-notations-sigma-product}
-Write out explicitly what is meant by the following:
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-notations-sigma-product"><strong>(\#exr:m-notations-sigma-product) </strong></span>Write out explicitly what is meant by the following:
 
 a) $\displaystyle \sum_{i=1}^{i=6}k_i$
 
@@ -175,10 +175,10 @@ g) $\displaystyle \prod_{i=1}^{i=4}(k + 1)^i$
 
 h) $\displaystyle \prod_{i=0}^{n}i$
 
-:::
+\EndKnitrBlock{exercise}
 
-::: {.exercise #m-notations-sigma-product-reverse}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-notations-sigma-product-reverse"><strong>(\#exr:m-notations-sigma-product-reverse) </strong></span>
 Use Sigma or Product notation to represent the long sums and products below:
   
 a) $1+2+3+4+5+6$
@@ -190,7 +190,7 @@ f) $3+6+9+12+···+60$
 g) $3x + 6x^2 + 9x^3 + 12x^4 +...+60x^{20}$
 h) $3x \cdot 6x^2 \cdot 9x^3 \cdot 12x^4 \cdot...\cdot 60x^{20}$
 
-:::
+\EndKnitrBlock{exercise}
 
 
 ## Answers to selected exercises (notations) {-}

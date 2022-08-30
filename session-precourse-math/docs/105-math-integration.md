@@ -78,8 +78,8 @@ We write $$\int_{0}^2f(x)dx = \int_{0}^2 xdx =  \Bigr[ \frac{1}{2}x^2\Bigr]_0^2 
 
 ## Exercises: integration
 
-::: {.exercise #m-int}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-int"><strong>(\#exr:m-int) </strong></span>
 Integrate:
   
 a) $\int 2 \cdot dx$
@@ -93,7 +93,7 @@ h) $\int_0^4 (x^2+1)dx$
 i) $\int (x^4 + \frac{2}{x} + e^{2x}) dx$
 j) $\int_0^4 (x^4+1) dx$
 
-:::
+\EndKnitrBlock{exercise}
 
 ## Answers to selected exercises (integration) {-}
 

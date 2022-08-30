@@ -92,8 +92,8 @@ $$\gamma \cdot \mathbf{x} + \delta \cdot \mathbf{y} =\begin{bmatrix}
 
 ## Exercises: vectors
 
-::: {.exercise #m-vectors}
-Based on vector definitions and operations:
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-vectors"><strong>(\#exr:m-vectors) </strong></span>Based on vector definitions and operations:
   
 a) find the vector $\mathbf{x} + \mathbf{y}$ when $\mathbf{x} =\begin{bmatrix}
   1 \\ 
@@ -142,7 +142,7 @@ e) find the value $n$ such that the vectors $\mathbf{u} =\begin{bmatrix}
   \end{bmatrix}$ are orthogonal. 
 
 
-:::
+\EndKnitrBlock{exercise}
 
 ## Answers to selected exercises (vectors and matrices) {-}
 

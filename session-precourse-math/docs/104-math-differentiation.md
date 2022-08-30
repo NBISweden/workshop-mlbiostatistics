@@ -34,7 +34,7 @@ The function $f(x) = x^4 - 4x^3 - x^2 - e^{-x}$ changes at different rates for d
 ## Average rate of change across an interval
 \begin{figure}
 
-{\centering \includegraphics{figures/precourse/math-differentiation-01} 
+{\centering \includegraphics[width=13.42in]{figures/precourse/math-differentiation-01} 
 
 }
 
@@ -74,7 +74,7 @@ $$\frac{change\:in\:y}{change\:in\:x}=\frac{f(a+h)-f(a)}{a+h-a} = \frac{f(a+h)-f
 
 \begin{figure}
 
-{\centering \includegraphics{figures/precourse/math-differentiation-02} 
+{\centering \includegraphics[width=13.06in]{figures/precourse/math-differentiation-02} 
 
 }
 
@@ -145,8 +145,8 @@ We can use the Table \@ref(tab:diff-table) to find derivatives of some of the fu
 
 ## Exercises: differentiation
 
-::: {.exercise #m-diff}
-
+\BeginKnitrBlock{exercise}
+<span class="exercise" id="exr:m-diff"><strong>(\#exr:m-diff) </strong></span>
 Find derivatives of the functions
 
 a) $f(x) = 2$
@@ -160,7 +160,7 @@ h) $f(x) = \frac{9}{x^2} + ln(4x)$
 i) $f(x) = 4x−6x^6$
 j) $f(x) = \frac{3}{x^2}$
 
-:::
+\EndKnitrBlock{exercise}
 
 ## Answers to selected exercises (differentiation) {-}
 
