@@ -32,7 +32,7 @@ There are few things **to do** before the course starts. These include:
 #### R, R-Studio and R Markdown <a name="R"></a>
 During the course we will be using `R` programming language within `RStudio Desktop` editor. We will be writing scripts using `R Markdown` (.Rmd). We will try to keep coding as simple as possible, but we do assume that you have a basic understanding of R and your computer setup with RStudio and R version 3.5.0 or higher.  
 
-R skills that will be useful during the course are:
+##### R skills that will be useful during the course are:
 
 - using R as calculator incl. raising values to a power
 - being able to work with vectors and matrices, incl. subsetting and matrices multiplication
@@ -45,7 +45,10 @@ R skills that will be useful during the course are:
 - being able to install CRAN packages e.g. with `install.packages()`
 - being familiar with R Markdown format
 
-Some useful links on installation are under [precourse-R](precourse-R/precourse-R).
+Some tips on installing and using R, R-Studio and R Markdown under [precourse-env](precourse-env/).
+
+##### R packages
+Some additional R packages requiring installation that we will be using during the course are listed under [precourse-env-packages](precourse-env-packages/)
 
 
 <br/>
