@@ -79,9 +79,9 @@ title:  'Schedule'
 
 *14.30 - 15.00 break*
 
-**15.00 - 15.30** [Generalized linear models](session-glms/docs/)
+**15.00 - 15.30** [Generalized linear models](session-glm/docs/)
 
-**15.30 - 16.30** [Exercises](session-glms/docs/generalized-linear-models.html#exercises-glms)
+**15.30 - 16.30** [Exercises](session-glm/docs/generalized-linear-models.html#exercises-glms)
 
 **16.30 - 17.00** Daily challenge
 
