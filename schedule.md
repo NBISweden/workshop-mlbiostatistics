@@ -11,7 +11,7 @@ title:  'Schedule'
 <br/>
 ##### Monday
 
-**09:00 - 10:00** [Welcome](session-welcome/welcome-slides.html)
+**09:00 - 10:00** [Welcome](session-welcome/welcome.html)
 
 **10.00 - 10:45** [Introductory lecture](session-intro2/intro2.html)
 
