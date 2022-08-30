@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 3 Model diagnostics | Linear Models</title>
+  <meta name="description" content="Chapter 3 Model diagnostics | Linear Models" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 3 Model diagnostics | Linear Models" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Chapter 3 Model diagnostics | Linear Models" />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 Model diagnostics | Linear Models" />
+  
+  <meta name="twitter:description" content="Chapter 3 Model diagnostics | Linear Models" />
+  
+
+<meta name="author" content="Olga Dethlefsen" />
+
+
+<meta name="date" content="2022-08-30" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="regression-coefficients.html"/>
+
+<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to biostatistics and machine learning</a></li>
+
+<li class="divider"></li>
+<li><a href="index.html#preface" id="toc-preface">Preface</a></li>
+<li><a href="introduction-to-linear-models.html#introduction-to-linear-models" id="toc-introduction-to-linear-models"><span class="toc-section-number">1</span> Introduction to linear models</a>
+<ul>
+<li><a href="introduction-to-linear-models.html#why-linear-models-with-linear-models-we-can-answer-questions-such-as" id="toc-why-linear-models-with-linear-models-we-can-answer-questions-such-as"><span class="toc-section-number">1.1</span> Why linear models? With linear models we can answer questions such as:</a></li>
+<li><a href="introduction-to-linear-models.html#statistical-vs.-deterministic-relationship" id="toc-statistical-vs.-deterministic-relationship"><span class="toc-section-number">1.2</span> Statistical vs. deterministic relationship</a></li>
+<li><a href="introduction-to-linear-models.html#what-linear-models-are-and-are-not" id="toc-what-linear-models-are-and-are-not"><span class="toc-section-number">1.3</span> What linear models are and are not</a></li>
+<li><a href="introduction-to-linear-models.html#terminology" id="toc-terminology"><span class="toc-section-number">1.4</span> Terminology</a></li>
+<li><a href="introduction-to-linear-models.html#simple-linear-regression" id="toc-simple-linear-regression"><span class="toc-section-number">1.5</span> Simple linear regression</a></li>
+<li><a href="introduction-to-linear-models.html#least-squares" id="toc-least-squares"><span class="toc-section-number">1.6</span> Least squares</a></li>
+<li><a href="introduction-to-linear-models.html#intercept-and-slope" id="toc-intercept-and-slope"><span class="toc-section-number">1.7</span> Intercept and Slope</a></li>
+<li><a href="introduction-to-linear-models.html#hypothesis-testing" id="toc-hypothesis-testing"><span class="toc-section-number">1.8</span> Hypothesis testing</a></li>
+<li><a href="introduction-to-linear-models.html#vector-matrix-notations" id="toc-vector-matrix-notations"><span class="toc-section-number">1.9</span> Vector-matrix notations</a></li>
+<li><a href="introduction-to-linear-models.html#confidence-intervals-and-prediction-intervals" id="toc-confidence-intervals-and-prediction-intervals"><span class="toc-section-number">1.10</span> Confidence intervals and prediction intervals</a></li>
+<li><a href="introduction-to-linear-models.html#exercises-linear-models-i" id="toc-exercises-linear-models-i"><span class="toc-section-number">1.11</span> Exercises: linear models I</a></li>
+<li><a href="introduction-to-linear-models.html#answers-to-selected-exercises-linear-models" id="toc-answers-to-selected-exercises-linear-models">Answers to selected exercises (linear models)</a></li>
+</ul></li>
+<li><a href="regression-coefficients.html#regression-coefficients" id="toc-regression-coefficients"><span class="toc-section-number">2</span> Regression coefficients</a>
+<ul>
+<li><a href="regression-coefficients.html#interpreting-and-using-linear-regression-models" id="toc-interpreting-and-using-linear-regression-models"><span class="toc-section-number">2.1</span> Interpreting and using linear regression models</a></li>
+<li><a href="regression-coefficients.html#example-plasma-volume" id="toc-example-plasma-volume"><span class="toc-section-number">2.2</span> Example: plasma volume</a></li>
+<li><a href="regression-coefficients.html#example-galapagos-islands" id="toc-example-galapagos-islands"><span class="toc-section-number">2.3</span> Example: Galapagos Islands</a></li>
+<li><a href="regression-coefficients.html#example-height-and-gender" id="toc-example-height-and-gender"><span class="toc-section-number">2.4</span> Example: Height and gender</a></li>
+<li><a href="regression-coefficients.html#example-heigth-weight-and-gender-i" id="toc-example-heigth-weight-and-gender-i"><span class="toc-section-number">2.5</span> Example: Heigth, weight and gender I</a></li>
+<li><a href="regression-coefficients.html#example-heigth-weight-and-gender-ii" id="toc-example-heigth-weight-and-gender-ii"><span class="toc-section-number">2.6</span> Example: Heigth, weight and gender II</a></li>
+<li><a href="regression-coefficients.html#exercises-linear-models-ii" id="toc-exercises-linear-models-ii"><span class="toc-section-number">2.7</span> Exercises: linear models II</a></li>
+<li><a href="regression-coefficients.html#answers-to-selected-exercises-linear-models-ii" id="toc-answers-to-selected-exercises-linear-models-ii">Answers to selected exercises (linear models II)</a></li>
+</ul></li>
+<li><a href="model-diagnostics.html#model-diagnostics" id="toc-model-diagnostics"><span class="toc-section-number">3</span> Model diagnostics</a>
+<ul>
+<li><a href="model-diagnostics.html#assessing-model-fit" id="toc-assessing-model-fit"><span class="toc-section-number">3.1</span> Assessing model fit</a></li>
+<li><a href="model-diagnostics.html#r2-summary-of-the-fitted-model" id="toc-r2-summary-of-the-fitted-model"><span class="toc-section-number">3.2</span> <span class="math inline">\(R^2\)</span>: summary of the fitted model</a></li>
+<li><a href="model-diagnostics.html#r2-and-correlation-coefficient" id="toc-r2-and-correlation-coefficient"><span class="toc-section-number">3.3</span> <span class="math inline">\(R^2\)</span> and correlation coefficient</a></li>
+<li><a href="model-diagnostics.html#r2adj" id="toc-r2adj"><span class="toc-section-number">3.4</span> <span class="math inline">\(R^2(adj)\)</span></a></li>
+<li><a href="model-diagnostics.html#the-assumptions-of-a-linear-model" id="toc-the-assumptions-of-a-linear-model"><span class="toc-section-number">3.5</span> The assumptions of a linear model</a></li>
+<li><a href="model-diagnostics.html#checking-assumptions" id="toc-checking-assumptions"><span class="toc-section-number">3.6</span> Checking assumptions</a></li>
+<li><a href="model-diagnostics.html#influential-observations" id="toc-influential-observations"><span class="toc-section-number">3.7</span> Influential observations</a></li>
+<li><a href="model-diagnostics.html#selecting-best-model" id="toc-selecting-best-model"><span class="toc-section-number">3.8</span> Selecting best model</a></li>
+<li><a href="model-diagnostics.html#exercises-linear-models-iii" id="toc-exercises-linear-models-iii"><span class="toc-section-number">3.9</span> Exercises: linear models III</a></li>
+<li><a href="model-diagnostics.html#answers-to-selected-exercises-linear-models-iii" id="toc-answers-to-selected-exercises-linear-models-iii">Answers to selected exercises (linear models III)</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Linear Models</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="model-diagnostics" class="section level1" number="3">
+<h1><span class="header-section-number">Chapter 3</span> Model diagnostics</h1>
+<p><strong>Aims</strong></p>
+<ul>
+<li>to introduce concepts of linear models summary and assumptions</li>
+</ul>
+<p><strong>Learning outcomes</strong></p>
+<ul>
+<li>to able to interpret <span class="math inline">\(R^2\)</span> and <span class="math inline">\(R^2(adj)\)</span> values</li>
+<li>state the assumptions of a linear model and assess them using residual plots</li>
+</ul>
+<div id="assessing-model-fit" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> Assessing model fit</h2>
+<ul>
+<li>earlier we learned how to estimate parameters in a liner model using least squares</li>
+<li>now we will consider how to assess the goodness of fit of a model</li>
+<li>we do that by calculating the amount of variability in the response that is explained by the model</li>
+</ul>
+</div>
+<div id="r2-summary-of-the-fitted-model" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> <span class="math inline">\(R^2\)</span>: summary of the fitted model</h2>
+<ul>
+<li><p>considering a simple linear regression, the simplest model, <strong>Model 0</strong>, we could consider fitting is <span class="math display">\[Y_i = \beta_0+ \epsilon_i\]</span> that corresponds to a line that run through the data but lies parallel to the horizontal axis</p></li>
+<li><p>in our plasma volume example that would correspond the mean value of plasma volume being predicted for any value of weight (in purple)
+<img src="303-linear-summary-assumptions_files/figure-html/unnamed-chunk-1-1.png" width="480" style="display: block; margin: auto;" /></p></li>
+<li><p>TSS, denoted <strong>Total corrected sum-of-squares</strong> is the residual sum-of-squares for Model 0
+<span class="math display">\[S(\hat{\beta_0}) = TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2 = S_{yy}\]</span> corresponding the to the sum of squared distances to the purple line
+<img src="303-linear-summary-assumptions_files/figure-html/unnamed-chunk-2-1.png" width="480" style="display: block; margin: auto;" /></p></li>
+<li><p>Fitting <strong>Model 1</strong> of the form <span class="math display">\[Y_i = \beta_0 + \beta_1x + \epsilon_i\]</span> we have earlier defined</p></li>
+<li><p><strong>RSS</strong>, the residual sum-of-squares as:
+<span class="math display">\[RSS = \displaystyle \sum_{i=1}^{n}(y_i - \{\hat{\beta_0} + \hat{\beta}_1x_{1i} + \dots + \hat{\beta}_px_{pi}\}) = \sum_{i=1}^{n}(y_i - \hat{y_i})^2\]</span></p></li>
+<li><p>that corresponds to the squared distances between the observed values <span class="math inline">\(y_i, \dots,y_n\)</span> to fitted values <span class="math inline">\(\hat{y_1}, \dots \hat{y_n}\)</span>, i.e. distances to the red fitted line
+<img src="303-linear-summary-assumptions_files/figure-html/unnamed-chunk-3-1.png" width="480" style="display: block; margin: auto;" /></p></li>
+</ul>
+
+<div class="definition">
+<p><span id="def:unnamed-chunk-4" class="definition"><strong>Definition 3.1  </strong></span>
+A simple but useful measure of model fit is given by <span class="math display">\[R^2 = 1 - \frac{RSS}{TSS}\]</span> where:</p>
+<ul>
+<li>RSS is the residual sum-of-squares for Model 1, the fitted model of interest</li>
+<li>TSS is the sum of squares of the <strong>null model</strong></li>
+</ul>
+</div>
+<ul>
+<li><span class="math inline">\(R^2\)</span> quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model</li>
+<li><span class="math inline">\(R^2\)</span> is also referred as <strong>coefficient of determination</strong></li>
+<li>It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data</li>
+<li>Values of <span class="math inline">\(R^2\)</span> approaching 1 indicate he model to be a good fit</li>
+<li>Values of <span class="math inline">\(R^2\)</span> less than 0.5 suggest that the model gives rather a poor fit to the data</li>
+</ul>
+</div>
+<div id="r2-and-correlation-coefficient" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> <span class="math inline">\(R^2\)</span> and correlation coefficient</h2>
+
+<div class="theorem">
+<p><span id="thm:unnamed-chunk-5" class="theorem"><strong>Theorem 3.1  </strong></span>
+In the case of simple linear regression:</p>
+<p>Model 1: <span class="math inline">\(Y_i = \beta_0 + \beta_1x + \epsilon_i\)</span>
+<span class="math display">\[R^2 = r^2\]</span>
+where:</p>
+<ul>
+<li><span class="math inline">\(R^2\)</span> is the coefficient of determination</li>
+<li><span class="math inline">\(r^2\)</span> is the sample correlation coefficient</li>
+</ul>
+</div>
+</div>
+<div id="r2adj" class="section level2" number="3.4">
+<h2><span class="header-section-number">3.4</span> <span class="math inline">\(R^2(adj)\)</span></h2>
+<ul>
+<li>in the case of multiple linear regression, where there is more than one explanatory variable in the model</li>
+<li>we are using the adjusted version of <span class="math inline">\(R^2\)</span> to assess the model fit</li>
+<li>as the number of explanatory variables increase, <span class="math inline">\(R^2\)</span> also increases</li>
+<li><span class="math inline">\(R^2(adj)\)</span> takes this into account, i.e. adjusts for the fact that there is more than one explanatory variable in the model</li>
+</ul>
+
+<div class="theorem">
+<p><span id="thm:unnamed-chunk-6" class="theorem"><strong>Theorem 3.2  </strong></span>For any multiple linear regression
+<span class="math display">\[Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i\]</span> <span class="math inline">\(R^2(adj)\)</span> is defined as
+<span class="math display">\[R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}\]</span> where</p>
+<ul>
+<li><span class="math inline">\(p\)</span> is the number of independent predictors, i.e. the number of variables in the model, excluding the constant</li>
+</ul>
+<p><span class="math inline">\(R^2(adj)\)</span> can also be calculated from <span class="math inline">\(R^2\)</span>:
+<span class="math display">\[R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}\]</span></p>
+</div>
+<p>We can calculate the values in R and compare the results to the output of linear regression</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="model-diagnostics.html#cb43-1" aria-hidden="true" tabindex="-1"></a>htwtgen <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/lm/heights_weights_genders.csv&quot;</span>)</span>
+<span id="cb43-2"><a href="model-diagnostics.html#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(htwtgen)</span>
+<span id="cb43-3"><a href="model-diagnostics.html#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   Gender   Height   Weight</span></span>
+<span id="cb43-4"><a href="model-diagnostics.html#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   Male 73.84702 241.8936</span></span>
+<span id="cb43-5"><a href="model-diagnostics.html#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2   Male 68.78190 162.3105</span></span>
+<span id="cb43-6"><a href="model-diagnostics.html#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3   Male 74.11011 212.7409</span></span>
+<span id="cb43-7"><a href="model-diagnostics.html#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4   Male 71.73098 220.0425</span></span>
+<span id="cb43-8"><a href="model-diagnostics.html#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5   Male 69.88180 206.3498</span></span>
+<span id="cb43-9"><a href="model-diagnostics.html#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6   Male 67.25302 152.2122</span></span>
+<span id="cb43-10"><a href="model-diagnostics.html#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="fu">attach</span>(htwtgen)</span>
+<span id="cb43-11"><a href="model-diagnostics.html#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="model-diagnostics.html#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Simple linear regression</span></span>
+<span id="cb43-13"><a href="model-diagnostics.html#cb43-13" aria-hidden="true" tabindex="-1"></a>model.simple <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Weight, <span class="at">data=</span>htwtgen)</span>
+<span id="cb43-14"><a href="model-diagnostics.html#cb43-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-15"><a href="model-diagnostics.html#cb43-15" aria-hidden="true" tabindex="-1"></a><span class="co"># TSS</span></span>
+<span id="cb43-16"><a href="model-diagnostics.html#cb43-16" aria-hidden="true" tabindex="-1"></a>TSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((Height <span class="sc">-</span> <span class="fu">mean</span>(Height))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb43-17"><a href="model-diagnostics.html#cb43-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-18"><a href="model-diagnostics.html#cb43-18" aria-hidden="true" tabindex="-1"></a><span class="co"># RSS</span></span>
+<span id="cb43-19"><a href="model-diagnostics.html#cb43-19" aria-hidden="true" tabindex="-1"></a><span class="co"># residuals are returned in the model type names(model.simple)</span></span>
+<span id="cb43-20"><a href="model-diagnostics.html#cb43-20" aria-hidden="true" tabindex="-1"></a>RSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((model.simple<span class="sc">$</span>residuals)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb43-21"><a href="model-diagnostics.html#cb43-21" aria-hidden="true" tabindex="-1"></a>R2 <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (RSS<span class="sc">/</span>TSS)</span>
+<span id="cb43-22"><a href="model-diagnostics.html#cb43-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-23"><a href="model-diagnostics.html#cb43-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(R2)</span>
+<span id="cb43-24"><a href="model-diagnostics.html#cb43-24" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.8551742</span></span>
+<span id="cb43-25"><a href="model-diagnostics.html#cb43-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.simple))</span>
+<span id="cb43-26"><a href="model-diagnostics.html#cb43-26" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-27"><a href="model-diagnostics.html#cb43-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb43-28"><a href="model-diagnostics.html#cb43-28" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Weight, data = htwtgen)</span></span>
+<span id="cb43-29"><a href="model-diagnostics.html#cb43-29" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-30"><a href="model-diagnostics.html#cb43-30" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb43-31"><a href="model-diagnostics.html#cb43-31" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb43-32"><a href="model-diagnostics.html#cb43-32" aria-hidden="true" tabindex="-1"></a><span class="do">## -5.8142 -0.9907  0.0263  0.9918  5.5950 </span></span>
+<span id="cb43-33"><a href="model-diagnostics.html#cb43-33" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-34"><a href="model-diagnostics.html#cb43-34" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb43-35"><a href="model-diagnostics.html#cb43-35" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb43-36"><a href="model-diagnostics.html#cb43-36" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 4.848e+01  7.507e-02   645.8   &lt;2e-16 ***</span></span>
+<span id="cb43-37"><a href="model-diagnostics.html#cb43-37" aria-hidden="true" tabindex="-1"></a><span class="do">## Weight      1.108e-01  4.561e-04   243.0   &lt;2e-16 ***</span></span>
+<span id="cb43-38"><a href="model-diagnostics.html#cb43-38" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb43-39"><a href="model-diagnostics.html#cb43-39" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb43-40"><a href="model-diagnostics.html#cb43-40" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-41"><a href="model-diagnostics.html#cb43-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 1.464 on 9998 degrees of freedom</span></span>
+<span id="cb43-42"><a href="model-diagnostics.html#cb43-42" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.8552, Adjusted R-squared:  0.8552 </span></span>
+<span id="cb43-43"><a href="model-diagnostics.html#cb43-43" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 5.904e+04 on 1 and 9998 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb43-44"><a href="model-diagnostics.html#cb43-44" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple regression</span></span>
+<span id="cb43-45"><a href="model-diagnostics.html#cb43-45" aria-hidden="true" tabindex="-1"></a>model.multiple <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Weight <span class="sc">+</span> Gender, <span class="at">data=</span>htwtgen)</span>
+<span id="cb43-46"><a href="model-diagnostics.html#cb43-46" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(Weight)</span>
+<span id="cb43-47"><a href="model-diagnostics.html#cb43-47" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb43-48"><a href="model-diagnostics.html#cb43-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-49"><a href="model-diagnostics.html#cb43-49" aria-hidden="true" tabindex="-1"></a>RSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((model.multiple<span class="sc">$</span>residuals)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb43-50"><a href="model-diagnostics.html#cb43-50" aria-hidden="true" tabindex="-1"></a>R2_adj <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (RSS<span class="sc">/</span>(n<span class="sc">-</span>p<span class="dv">-1</span>))<span class="sc">/</span>(TSS<span class="sc">/</span>(n<span class="dv">-1</span>))</span>
+<span id="cb43-51"><a href="model-diagnostics.html#cb43-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-52"><a href="model-diagnostics.html#cb43-52" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(R2_adj)</span>
+<span id="cb43-53"><a href="model-diagnostics.html#cb43-53" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.8608793</span></span>
+<span id="cb43-54"><a href="model-diagnostics.html#cb43-54" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.multiple))</span>
+<span id="cb43-55"><a href="model-diagnostics.html#cb43-55" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-56"><a href="model-diagnostics.html#cb43-56" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb43-57"><a href="model-diagnostics.html#cb43-57" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Weight + Gender, data = htwtgen)</span></span>
+<span id="cb43-58"><a href="model-diagnostics.html#cb43-58" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-59"><a href="model-diagnostics.html#cb43-59" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb43-60"><a href="model-diagnostics.html#cb43-60" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb43-61"><a href="model-diagnostics.html#cb43-61" aria-hidden="true" tabindex="-1"></a><span class="do">## -5.4956 -0.9583  0.0126  0.9867  5.8358 </span></span>
+<span id="cb43-62"><a href="model-diagnostics.html#cb43-62" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-63"><a href="model-diagnostics.html#cb43-63" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb43-64"><a href="model-diagnostics.html#cb43-64" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb43-65"><a href="model-diagnostics.html#cb43-65" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 47.0306678  0.1025161  458.76   &lt;2e-16 ***</span></span>
+<span id="cb43-66"><a href="model-diagnostics.html#cb43-66" aria-hidden="true" tabindex="-1"></a><span class="do">## Weight       0.1227594  0.0007396  165.97   &lt;2e-16 ***</span></span>
+<span id="cb43-67"><a href="model-diagnostics.html#cb43-67" aria-hidden="true" tabindex="-1"></a><span class="do">## GenderMale  -0.9628643  0.0474947  -20.27   &lt;2e-16 ***</span></span>
+<span id="cb43-68"><a href="model-diagnostics.html#cb43-68" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb43-69"><a href="model-diagnostics.html#cb43-69" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb43-70"><a href="model-diagnostics.html#cb43-70" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb43-71"><a href="model-diagnostics.html#cb43-71" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 1.435 on 9997 degrees of freedom</span></span>
+<span id="cb43-72"><a href="model-diagnostics.html#cb43-72" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.8609, Adjusted R-squared:  0.8609 </span></span>
+<span id="cb43-73"><a href="model-diagnostics.html#cb43-73" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 3.093e+04 on 2 and 9997 DF,  p-value: &lt; 2.2e-16</span></span></code></pre></div>
+</div>
+<div id="the-assumptions-of-a-linear-model" class="section level2" number="3.5">
+<h2><span class="header-section-number">3.5</span> The assumptions of a linear model</h2>
+<ul>
+<li>up until now we were fitting models and discussed how to assess the model fit</li>
+<li>before making use of a fitted model for explanation or prediction, it is wise to check that the model provides an adequate description of the data</li>
+<li>informally we have been using box plots and scatter plots to look at the data</li>
+<li>there are however formal definitions of the assumptions</li>
+</ul>
+<p><strong>Assumption A: The deterministic part of the model captures all the non-random structure in the data</strong></p>
+<ul>
+<li>this implies that the <strong>mean of the errors <span class="math inline">\(\epsilon_i\)</span></strong> is zero</li>
+<li>it applies only over the range of explanatory variables</li>
+</ul>
+<p><strong>Assumption B: the scale of variability of the errors is constant at all values of the explanatory variables</strong></p>
+<ul>
+<li>practically we are looking at whether the observations are equally spread on both side of the regression line</li>
+</ul>
+<p><strong>Assumption C: the errors are independent</strong></p>
+<ul>
+<li>broadly speaking this means that knowledge of errors attached to one observation does not give us any information about the error attached to another</li>
+</ul>
+<p><strong>Assumptions D: the errors are normally distributed</strong></p>
+<ul>
+<li>this will allow us to describe the variation in the model’s parameters estimates and therefore make inferences about the population from which our sample was taken</li>
+</ul>
+<p><strong>Assumption E: the values of the explanatory variables are recorded without error</strong></p>
+<ul>
+<li>this one is not possible to check via examining the data, instead we have to consider the nature of the experiment</li>
+</ul>
+</div>
+<div id="checking-assumptions" class="section level2" number="3.6">
+<h2><span class="header-section-number">3.6</span> Checking assumptions</h2>
+<p><strong>Residuals</strong>, <span class="math inline">\(\hat{\epsilon_i} = y_i - \hat{y_i}\)</span> are the <strong>main ingredient to check model assumptions</strong>. We use plots such as:</p>
+<ol style="list-style-type: decimal">
+<li>Histograms or normal probability plots of <span class="math inline">\(\hat{\epsilon_i}\)</span></li>
+</ol>
+<ul>
+<li>useful to check the assumption of normality</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> versus the fitted values <span class="math inline">\(\hat{y_i}\)</span></li>
+</ol>
+<ul>
+<li>used to detect changes in error variance</li>
+<li>used to check if the mean of the errors is zero</li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> vs. an explanatory variable <span class="math inline">\(x_{ij}\)</span></li>
+</ol>
+<ul>
+<li>this helps to check that the variable <span class="math inline">\(x_j\)</span> has a linear relationship with the response variable</li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> vs. an explanatory variable <span class="math inline">\(x_{kj}\)</span> that is <strong>not</strong> in the model</li>
+</ol>
+<ul>
+<li>this helps to check whether the additional variable <span class="math inline">\(x_k\)</span> might have a relationship with the response variable</li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> in the order of the observations were collected</li>
+</ol>
+<ul>
+<li>this is useful to check whether errors might be correlated over time</li>
+</ul>
+<p>Let’s look at the “good” example going back to our data of protein levels during pregnancy</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="model-diagnostics.html#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in data</span></span>
+<span id="cb44-2"><a href="model-diagnostics.html#cb44-2" aria-hidden="true" tabindex="-1"></a>data.protein <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/lm/protein.csv&quot;</span>)</span>
+<span id="cb44-3"><a href="model-diagnostics.html#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="model-diagnostics.html#cb44-4" aria-hidden="true" tabindex="-1"></a>protein <span class="ot">&lt;-</span> data.protein<span class="sc">$</span>Protein <span class="co"># our Y</span></span>
+<span id="cb44-5"><a href="model-diagnostics.html#cb44-5" aria-hidden="true" tabindex="-1"></a>gestation <span class="ot">&lt;-</span> data.protein<span class="sc">$</span>Gestation <span class="co"># our X</span></span>
+<span id="cb44-6"><a href="model-diagnostics.html#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="model-diagnostics.html#cb44-7" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(protein <span class="sc">~</span> gestation)</span>
+<span id="cb44-8"><a href="model-diagnostics.html#cb44-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-9"><a href="model-diagnostics.html#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostic plots of the linear model</span></span>
+<span id="cb44-10"><a href="model-diagnostics.html#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="co"># by default plot(model) calls four diagnostics plots</span></span>
+<span id="cb44-11"><a href="model-diagnostics.html#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="co"># par() divides plot window in 2 x 2 grid</span></span>
+<span id="cb44-12"><a href="model-diagnostics.html#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb44-13"><a href="model-diagnostics.html#cb44-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model)</span></code></pre></div>
+<p><img src="303-linear-summary-assumptions_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;" /></p>
+<ul>
+<li>the residual plots provides examples of a situation where the assumptions appear to be met</li>
+<li>the linear regression appears to describe data quite well</li>
+<li>there is no obvious trend of any kind in the residuals vs. fitted values (the shape is scatted)</li>
+<li>points lie reasonably well along the line in the normal probability plot, hence normality appears to be met</li>
+</ul>
+<p><strong>Examples of assumptions not being met</strong></p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lm-viol-01"></span>
+<img src="figures/linear-models/lm-assumptions-01.png" alt="Example of data with a typical seasonal variation (up and down) coupled wtih a linear trend. The blue line gives the linear regression fit to the data, which clearly is not adequate. In comparison, if we used a non-parametric fit, we will get the red line as the fitted relationship. The residual plot retains pattern, given by orange line, indicating that the linear model is not appropriate in this case."  />
+<p class="caption">
+Figure 3.1: Example of data with a typical seasonal variation (up and down) coupled wtih a linear trend. The blue line gives the linear regression fit to the data, which clearly is not adequate. In comparison, if we used a non-parametric fit, we will get the red line as the fitted relationship. The residual plot retains pattern, given by orange line, indicating that the linear model is not appropriate in this case.
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lm-viol-02"></span>
+<img src="figures/linear-models/lm-assumptions-02.png" alt="Example of non-constant variance"  />
+<p class="caption">
+Figure 3.2: Example of non-constant variance
+</p>
+</div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:lm-viol-03"></span>
+<img src="figures/linear-models/lm-assumptions-03.png" alt="Example of residulas deviating from QQ plot, i.e. not following normal distribution. The residuals can deviate in both upper and lower tail. On the left tails are lighter meaning that they have smaller values that what would be expected, on the right there are heavier tails with values larger than expected"  />
+<p class="caption">
+Figure 3.3: Example of residulas deviating from QQ plot, i.e. not following normal distribution. The residuals can deviate in both upper and lower tail. On the left tails are lighter meaning that they have smaller values that what would be expected, on the right there are heavier tails with values larger than expected
+</p>
+</div>
+</div>
+<div id="influential-observations" class="section level2" number="3.7">
+<h2><span class="header-section-number">3.7</span> Influential observations</h2>
+<ul>
+<li>Sometimes individual observations can exert a great deal of influence on the fitted model</li>
+<li>One routine way of checking for this is to fit the model <span class="math inline">\(n\)</span> times, missing out each observation in turn</li>
+<li>If we removed i-th observation and compared the fitted value from the full model, say <span class="math inline">\(\hat{y_j}\)</span> to those obtained by removing this point, denoted <span class="math inline">\(\hat{y_{j(i)}}\)</span> then</li>
+<li>observations with a high Cook’s distance (measuring the effect of deleting a given observation) could be influential</li>
+</ul>
+<p>Let’s remove some observation with higher Cook’s distance from protein data set, re-fit our model and compare the diagnostics plots</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="model-diagnostics.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># observations to be removed (based on Residuals vs. Leverage plot)</span></span>
+<span id="cb45-2"><a href="model-diagnostics.html#cb45-2" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">18</span>,<span class="dv">7</span>)</span>
+<span id="cb45-3"><a href="model-diagnostics.html#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="model-diagnostics.html#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fit models removing observations</span></span>
+<span id="cb45-5"><a href="model-diagnostics.html#cb45-5" aria-hidden="true" tabindex="-1"></a>model<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(protein[<span class="sc">-</span>obs] <span class="sc">~</span> gestation[<span class="sc">-</span>obs])</span>
+<span id="cb45-6"><a href="model-diagnostics.html#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="model-diagnostics.html#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics plot</span></span>
+<span id="cb45-8"><a href="model-diagnostics.html#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb45-9"><a href="model-diagnostics.html#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model<span class="fl">.2</span>)</span></code></pre></div>
+<p><img src="303-linear-summary-assumptions_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="selecting-best-model" class="section level2" number="3.8">
+<h2><span class="header-section-number">3.8</span> Selecting best model</h2>
+<ul>
+<li>We have learned what linear models are, how to find estimates and interpret model coefficients and how to check for the overall relationship between response and predictors. We also know how to assess model fit, check model assumptions and find potential outliers. Given a set of predictors, e.g. many genes, how do we arrive at the best model?</li>
+<li>As a rule of thumb, we want a model that <strong>fits the data best and is as simple as possible</strong>, meaning it contains only relevant predictors.</li>
+<li>In practice, this means, that for smaller data sets, e.g. with up to 10 predictors, one works with <strong>manually</strong> trying different models, including different subsets of predictors, interactions terms and/or their transformations.</li>
+<li>When the number of predictors is large, one can try <strong>automated approaches of feature selection</strong> like forward selection or stepwise regression, the last one demonstrated in the exercises below.</li>
+<li>Finally, as we will learn later in the course, we can use <strong>regularization techniques</strong> that allow including all parameters in the model but constrain (regularizes) coefficient estimates towards zero for the less relevant predictors, preventing building complex models and thus overfitting.</li>
+</ul>
+<hr />
+</div>
+<div id="exercises-linear-models-iii" class="section level2" number="3.9">
+<h2><span class="header-section-number">3.9</span> Exercises: linear models III</h2>
+<ul>
+<li><strong>Data for exercises</strong> can be downloaded from Github using <a href="https://github.com/olgadet/mlbiostats-linear-models/blob/main/data/data.zip">Link 1</a> or from Canvas under Files -&gt; data_exercises/linear-models</li>
+</ul>
+<hr />
+
+<div class="exercise">
+<p><span id="exr:lm-brozek" class="exercise"><strong>Exercise 3.1  </strong></span>
+Brozek score</p>
+<p>Researchers collected age, weight, height and 10 body circumference measurements for 252 men in an attempt to find an alternative way of calculate body fat as oppose to measuring someone weight and volume, the latter one by submerging in a water tank. Is it possible to predict body fat using easy-to-record measurements?</p>
+<p>Use lm() function and fit a linear method to model brozek, score estimate of percent body fat</p>
+<ul>
+<li>find <span class="math inline">\(R^2\)</span> and <span class="math inline">\(R^2(adj)\)</span></li>
+<li>assess the diagnostics plots to check for model assumptions</li>
+<li>delete observation #86 with the highest Cook’s distance and re-fit the model (model.clean)</li>
+<li>look at the model summary. Are all variables associated with brozek score?</li>
+<li>try improving the model fit by removing variables with the highest p-value first and re-fitting the model until all the variables are significantly associated with the response (p value less than 0.1); note down the <span class="math inline">\(R^2(adj)\)</span> values while doing so</li>
+<li>compare the output models for model.clean and final model</li>
+</ul>
+</div>
+<p>To access and preview the data:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="model-diagnostics.html#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fat, <span class="at">package =</span> <span class="st">&quot;faraway&quot;</span>)</span></code></pre></div>
+</div>
+<div id="answers-to-selected-exercises-linear-models-iii" class="section level2 unnumbered">
+<h2>Answers to selected exercises (linear models III)</h2>
+<p>Exr. <a href="model-diagnostics.html#exr:lm-brozek">3.1</a></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="model-diagnostics.html#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># access and preview data</span></span>
+<span id="cb47-2"><a href="model-diagnostics.html#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(fat, <span class="at">package =</span> <span class="st">&quot;faraway&quot;</span>)</span>
+<span id="cb47-3"><a href="model-diagnostics.html#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fat)</span>
+<span id="cb47-4"><a href="model-diagnostics.html#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   brozek siri density age weight height adipos  free neck chest abdom   hip</span></span>
+<span id="cb47-5"><a href="model-diagnostics.html#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   12.6 12.3  1.0708  23 154.25  67.75   23.7 134.9 36.2  93.1  85.2  94.5</span></span>
+<span id="cb47-6"><a href="model-diagnostics.html#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 2    6.9  6.1  1.0853  22 173.25  72.25   23.4 161.3 38.5  93.6  83.0  98.7</span></span>
+<span id="cb47-7"><a href="model-diagnostics.html#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 3   24.6 25.3  1.0414  22 154.00  66.25   24.7 116.0 34.0  95.8  87.9  99.2</span></span>
+<span id="cb47-8"><a href="model-diagnostics.html#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 4   10.9 10.4  1.0751  26 184.75  72.25   24.9 164.7 37.4 101.8  86.4 101.2</span></span>
+<span id="cb47-9"><a href="model-diagnostics.html#cb47-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 5   27.8 28.7  1.0340  24 184.25  71.25   25.6 133.1 34.4  97.3 100.0 101.9</span></span>
+<span id="cb47-10"><a href="model-diagnostics.html#cb47-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6   20.6 20.9  1.0502  24 210.25  74.75   26.5 167.0 39.0 104.5  94.4 107.8</span></span>
+<span id="cb47-11"><a href="model-diagnostics.html#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="do">##   thigh knee ankle biceps forearm wrist</span></span>
+<span id="cb47-12"><a href="model-diagnostics.html#cb47-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 1  59.0 37.3  21.9   32.0    27.4  17.1</span></span>
+<span id="cb47-13"><a href="model-diagnostics.html#cb47-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 2  58.7 37.3  23.4   30.5    28.9  18.2</span></span>
+<span id="cb47-14"><a href="model-diagnostics.html#cb47-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 3  59.6 38.9  24.0   28.8    25.2  16.6</span></span>
+<span id="cb47-15"><a href="model-diagnostics.html#cb47-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 4  60.1 37.3  22.8   32.4    29.4  18.2</span></span>
+<span id="cb47-16"><a href="model-diagnostics.html#cb47-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 5  63.2 42.2  24.0   32.2    27.7  17.7</span></span>
+<span id="cb47-17"><a href="model-diagnostics.html#cb47-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 6  66.0 42.0  25.6   35.7    30.6  18.8</span></span>
+<span id="cb47-18"><a href="model-diagnostics.html#cb47-18" aria-hidden="true" tabindex="-1"></a><span class="co"># fit linear regression model</span></span>
+<span id="cb47-19"><a href="model-diagnostics.html#cb47-19" aria-hidden="true" tabindex="-1"></a>model.all <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> height <span class="sc">+</span> neck <span class="sc">+</span> abdom <span class="sc">+</span> hip <span class="sc">+</span> thigh <span class="sc">+</span> knee <span class="sc">+</span> ankle <span class="sc">+</span> biceps <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb47-20"><a href="model-diagnostics.html#cb47-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-21"><a href="model-diagnostics.html#cb47-21" aria-hidden="true" tabindex="-1"></a><span class="co"># print model summary</span></span>
+<span id="cb47-22"><a href="model-diagnostics.html#cb47-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.all))</span>
+<span id="cb47-23"><a href="model-diagnostics.html#cb47-23" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb47-24"><a href="model-diagnostics.html#cb47-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb47-25"><a href="model-diagnostics.html#cb47-25" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + height + neck + abdom + </span></span>
+<span id="cb47-26"><a href="model-diagnostics.html#cb47-26" aria-hidden="true" tabindex="-1"></a><span class="do">##     hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)</span></span>
+<span id="cb47-27"><a href="model-diagnostics.html#cb47-27" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb47-28"><a href="model-diagnostics.html#cb47-28" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb47-29"><a href="model-diagnostics.html#cb47-29" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb47-30"><a href="model-diagnostics.html#cb47-30" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.2664  -2.5658  -0.0798   2.8976   9.3204 </span></span>
+<span id="cb47-31"><a href="model-diagnostics.html#cb47-31" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb47-32"><a href="model-diagnostics.html#cb47-32" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb47-33"><a href="model-diagnostics.html#cb47-33" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb47-34"><a href="model-diagnostics.html#cb47-34" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -17.063433  14.489336  -1.178  0.24011    </span></span>
+<span id="cb47-35"><a href="model-diagnostics.html#cb47-35" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.056520   0.029888   1.891  0.05983 .  </span></span>
+<span id="cb47-36"><a href="model-diagnostics.html#cb47-36" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.085513   0.045170  -1.893  0.05954 .  </span></span>
+<span id="cb47-37"><a href="model-diagnostics.html#cb47-37" aria-hidden="true" tabindex="-1"></a><span class="do">## height       -0.059703   0.086695  -0.689  0.49171    </span></span>
+<span id="cb47-38"><a href="model-diagnostics.html#cb47-38" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.439315   0.214802  -2.045  0.04193 *  </span></span>
+<span id="cb47-39"><a href="model-diagnostics.html#cb47-39" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.875779   0.070589  12.407  &lt; 2e-16 ***</span></span>
+<span id="cb47-40"><a href="model-diagnostics.html#cb47-40" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.192118   0.132655  -1.448  0.14885    </span></span>
+<span id="cb47-41"><a href="model-diagnostics.html#cb47-41" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.237304   0.131793   1.801  0.07303 .  </span></span>
+<span id="cb47-42"><a href="model-diagnostics.html#cb47-42" aria-hidden="true" tabindex="-1"></a><span class="do">## knee         -0.006595   0.222832  -0.030  0.97642    </span></span>
+<span id="cb47-43"><a href="model-diagnostics.html#cb47-43" aria-hidden="true" tabindex="-1"></a><span class="do">## ankle         0.164831   0.204681   0.805  0.42144    </span></span>
+<span id="cb47-44"><a href="model-diagnostics.html#cb47-44" aria-hidden="true" tabindex="-1"></a><span class="do">## biceps        0.149530   0.157693   0.948  0.34397    </span></span>
+<span id="cb47-45"><a href="model-diagnostics.html#cb47-45" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.424885   0.182801   2.324  0.02095 *  </span></span>
+<span id="cb47-46"><a href="model-diagnostics.html#cb47-46" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.474317   0.494475  -2.982  0.00316 ** </span></span>
+<span id="cb47-47"><a href="model-diagnostics.html#cb47-47" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb47-48"><a href="model-diagnostics.html#cb47-48" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb47-49"><a href="model-diagnostics.html#cb47-49" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb47-50"><a href="model-diagnostics.html#cb47-50" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.98 on 239 degrees of freedom</span></span>
+<span id="cb47-51"><a href="model-diagnostics.html#cb47-51" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7489, Adjusted R-squared:  0.7363 </span></span>
+<span id="cb47-52"><a href="model-diagnostics.html#cb47-52" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  59.4 on 12 and 239 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb47-53"><a href="model-diagnostics.html#cb47-53" aria-hidden="true" tabindex="-1"></a><span class="co"># diagnostics plots</span></span>
+<span id="cb47-54"><a href="model-diagnostics.html#cb47-54" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb47-55"><a href="model-diagnostics.html#cb47-55" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model.all)</span>
+<span id="cb47-56"><a href="model-diagnostics.html#cb47-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-57"><a href="model-diagnostics.html#cb47-57" aria-hidden="true" tabindex="-1"></a><span class="co"># remove potentially influential observations</span></span>
+<span id="cb47-58"><a href="model-diagnostics.html#cb47-58" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">86</span>)</span>
+<span id="cb47-59"><a href="model-diagnostics.html#cb47-59" aria-hidden="true" tabindex="-1"></a>fat2 <span class="ot">&lt;-</span> fat[<span class="sc">-</span>obs, ]</span>
+<span id="cb47-60"><a href="model-diagnostics.html#cb47-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-61"><a href="model-diagnostics.html#cb47-61" aria-hidden="true" tabindex="-1"></a><span class="co"># re-fit the model</span></span>
+<span id="cb47-62"><a href="model-diagnostics.html#cb47-62" aria-hidden="true" tabindex="-1"></a>model.clean <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> height <span class="sc">+</span> neck <span class="sc">+</span> abdom <span class="sc">+</span> hip <span class="sc">+</span> thigh <span class="sc">+</span> knee <span class="sc">+</span> ankle <span class="sc">+</span> biceps <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb47-63"><a href="model-diagnostics.html#cb47-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-64"><a href="model-diagnostics.html#cb47-64" aria-hidden="true" tabindex="-1"></a><span class="co"># diagnostics plots</span></span>
+<span id="cb47-65"><a href="model-diagnostics.html#cb47-65" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb47-66"><a href="model-diagnostics.html#cb47-66" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model.clean)</span></code></pre></div>
+<p><img src="303-linear-summary-assumptions_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="model-diagnostics.html#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model summary</span></span>
+<span id="cb48-2"><a href="model-diagnostics.html#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.clean))</span>
+<span id="cb48-3"><a href="model-diagnostics.html#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-4"><a href="model-diagnostics.html#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-5"><a href="model-diagnostics.html#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + height + neck + abdom + </span></span>
+<span id="cb48-6"><a href="model-diagnostics.html#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="do">##     hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)</span></span>
+<span id="cb48-7"><a href="model-diagnostics.html#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-8"><a href="model-diagnostics.html#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-9"><a href="model-diagnostics.html#cb48-9" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-10"><a href="model-diagnostics.html#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.2664  -2.5658  -0.0798   2.8976   9.3204 </span></span>
+<span id="cb48-11"><a href="model-diagnostics.html#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-12"><a href="model-diagnostics.html#cb48-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-13"><a href="model-diagnostics.html#cb48-13" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-14"><a href="model-diagnostics.html#cb48-14" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -17.063433  14.489336  -1.178  0.24011    </span></span>
+<span id="cb48-15"><a href="model-diagnostics.html#cb48-15" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.056520   0.029888   1.891  0.05983 .  </span></span>
+<span id="cb48-16"><a href="model-diagnostics.html#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.085513   0.045170  -1.893  0.05954 .  </span></span>
+<span id="cb48-17"><a href="model-diagnostics.html#cb48-17" aria-hidden="true" tabindex="-1"></a><span class="do">## height       -0.059703   0.086695  -0.689  0.49171    </span></span>
+<span id="cb48-18"><a href="model-diagnostics.html#cb48-18" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.439315   0.214802  -2.045  0.04193 *  </span></span>
+<span id="cb48-19"><a href="model-diagnostics.html#cb48-19" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.875779   0.070589  12.407  &lt; 2e-16 ***</span></span>
+<span id="cb48-20"><a href="model-diagnostics.html#cb48-20" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.192118   0.132655  -1.448  0.14885    </span></span>
+<span id="cb48-21"><a href="model-diagnostics.html#cb48-21" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.237304   0.131793   1.801  0.07303 .  </span></span>
+<span id="cb48-22"><a href="model-diagnostics.html#cb48-22" aria-hidden="true" tabindex="-1"></a><span class="do">## knee         -0.006595   0.222832  -0.030  0.97642    </span></span>
+<span id="cb48-23"><a href="model-diagnostics.html#cb48-23" aria-hidden="true" tabindex="-1"></a><span class="do">## ankle         0.164831   0.204681   0.805  0.42144    </span></span>
+<span id="cb48-24"><a href="model-diagnostics.html#cb48-24" aria-hidden="true" tabindex="-1"></a><span class="do">## biceps        0.149530   0.157693   0.948  0.34397    </span></span>
+<span id="cb48-25"><a href="model-diagnostics.html#cb48-25" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.424885   0.182801   2.324  0.02095 *  </span></span>
+<span id="cb48-26"><a href="model-diagnostics.html#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.474317   0.494475  -2.982  0.00316 ** </span></span>
+<span id="cb48-27"><a href="model-diagnostics.html#cb48-27" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-28"><a href="model-diagnostics.html#cb48-28" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-29"><a href="model-diagnostics.html#cb48-29" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-30"><a href="model-diagnostics.html#cb48-30" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.98 on 239 degrees of freedom</span></span>
+<span id="cb48-31"><a href="model-diagnostics.html#cb48-31" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7489, Adjusted R-squared:  0.7363 </span></span>
+<span id="cb48-32"><a href="model-diagnostics.html#cb48-32" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  59.4 on 12 and 239 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-33"><a href="model-diagnostics.html#cb48-33" aria-hidden="true" tabindex="-1"></a><span class="co"># re-fit the model (no height)</span></span>
+<span id="cb48-34"><a href="model-diagnostics.html#cb48-34" aria-hidden="true" tabindex="-1"></a>model.red1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> neck <span class="sc">+</span> abdom <span class="sc">+</span> hip <span class="sc">+</span> thigh <span class="sc">+</span> knee <span class="sc">+</span> ankle <span class="sc">+</span> biceps <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb48-35"><a href="model-diagnostics.html#cb48-35" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.red1))</span>
+<span id="cb48-36"><a href="model-diagnostics.html#cb48-36" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-37"><a href="model-diagnostics.html#cb48-37" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-38"><a href="model-diagnostics.html#cb48-38" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + </span></span>
+<span id="cb48-39"><a href="model-diagnostics.html#cb48-39" aria-hidden="true" tabindex="-1"></a><span class="do">##     knee + ankle + biceps + forearm + wrist, data = fat)</span></span>
+<span id="cb48-40"><a href="model-diagnostics.html#cb48-40" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-41"><a href="model-diagnostics.html#cb48-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-42"><a href="model-diagnostics.html#cb48-42" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-43"><a href="model-diagnostics.html#cb48-43" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.2830  -2.6162  -0.1017   2.8789   9.3713 </span></span>
+<span id="cb48-44"><a href="model-diagnostics.html#cb48-44" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-45"><a href="model-diagnostics.html#cb48-45" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-46"><a href="model-diagnostics.html#cb48-46" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-47"><a href="model-diagnostics.html#cb48-47" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -22.66569   11.97691  -1.892  0.05963 .  </span></span>
+<span id="cb48-48"><a href="model-diagnostics.html#cb48-48" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.05948    0.02954   2.013  0.04521 *  </span></span>
+<span id="cb48-49"><a href="model-diagnostics.html#cb48-49" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.09829    0.04114  -2.389  0.01765 *  </span></span>
+<span id="cb48-50"><a href="model-diagnostics.html#cb48-50" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.43444    0.21445  -2.026  0.04389 *  </span></span>
+<span id="cb48-51"><a href="model-diagnostics.html#cb48-51" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.88762    0.06839  12.979  &lt; 2e-16 ***</span></span>
+<span id="cb48-52"><a href="model-diagnostics.html#cb48-52" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.17180    0.12919  -1.330  0.18483    </span></span>
+<span id="cb48-53"><a href="model-diagnostics.html#cb48-53" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.25327    0.12960   1.954  0.05183 .  </span></span>
+<span id="cb48-54"><a href="model-diagnostics.html#cb48-54" aria-hidden="true" tabindex="-1"></a><span class="do">## knee         -0.02318    0.22128  -0.105  0.91665    </span></span>
+<span id="cb48-55"><a href="model-diagnostics.html#cb48-55" aria-hidden="true" tabindex="-1"></a><span class="do">## ankle         0.17300    0.20411   0.848  0.39752    </span></span>
+<span id="cb48-56"><a href="model-diagnostics.html#cb48-56" aria-hidden="true" tabindex="-1"></a><span class="do">## biceps        0.15695    0.15715   0.999  0.31894    </span></span>
+<span id="cb48-57"><a href="model-diagnostics.html#cb48-57" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.43091    0.18239   2.363  0.01895 *  </span></span>
+<span id="cb48-58"><a href="model-diagnostics.html#cb48-58" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.51011    0.49120  -3.074  0.00235 ** </span></span>
+<span id="cb48-59"><a href="model-diagnostics.html#cb48-59" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-60"><a href="model-diagnostics.html#cb48-60" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-61"><a href="model-diagnostics.html#cb48-61" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-62"><a href="model-diagnostics.html#cb48-62" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.976 on 240 degrees of freedom</span></span>
+<span id="cb48-63"><a href="model-diagnostics.html#cb48-63" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7484, Adjusted R-squared:  0.7369 </span></span>
+<span id="cb48-64"><a href="model-diagnostics.html#cb48-64" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  64.9 on 11 and 240 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-65"><a href="model-diagnostics.html#cb48-65" aria-hidden="true" tabindex="-1"></a><span class="co"># re-fit the model (no knee)</span></span>
+<span id="cb48-66"><a href="model-diagnostics.html#cb48-66" aria-hidden="true" tabindex="-1"></a>model.red2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> neck <span class="sc">+</span> abdom <span class="sc">+</span> hip <span class="sc">+</span> thigh <span class="sc">+</span> ankle <span class="sc">+</span> biceps <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb48-67"><a href="model-diagnostics.html#cb48-67" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.red2))</span>
+<span id="cb48-68"><a href="model-diagnostics.html#cb48-68" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-69"><a href="model-diagnostics.html#cb48-69" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-70"><a href="model-diagnostics.html#cb48-70" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + </span></span>
+<span id="cb48-71"><a href="model-diagnostics.html#cb48-71" aria-hidden="true" tabindex="-1"></a><span class="do">##     ankle + biceps + forearm + wrist, data = fat)</span></span>
+<span id="cb48-72"><a href="model-diagnostics.html#cb48-72" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-73"><a href="model-diagnostics.html#cb48-73" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-74"><a href="model-diagnostics.html#cb48-74" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-75"><a href="model-diagnostics.html#cb48-75" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.2552  -2.5979  -0.1133   2.8693   9.3584 </span></span>
+<span id="cb48-76"><a href="model-diagnostics.html#cb48-76" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-77"><a href="model-diagnostics.html#cb48-77" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-78"><a href="model-diagnostics.html#cb48-78" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-79"><a href="model-diagnostics.html#cb48-79" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -23.08716   11.25781  -2.051  0.04137 *  </span></span>
+<span id="cb48-80"><a href="model-diagnostics.html#cb48-80" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.05875    0.02864   2.051  0.04134 *  </span></span>
+<span id="cb48-81"><a href="model-diagnostics.html#cb48-81" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.09965    0.03897  -2.557  0.01117 *  </span></span>
+<span id="cb48-82"><a href="model-diagnostics.html#cb48-82" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.43088    0.21131  -2.039  0.04253 *  </span></span>
+<span id="cb48-83"><a href="model-diagnostics.html#cb48-83" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.88875    0.06740  13.186  &lt; 2e-16 ***</span></span>
+<span id="cb48-84"><a href="model-diagnostics.html#cb48-84" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.17231    0.12884  -1.337  0.18234    </span></span>
+<span id="cb48-85"><a href="model-diagnostics.html#cb48-85" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.24942    0.12403   2.011  0.04544 *  </span></span>
+<span id="cb48-86"><a href="model-diagnostics.html#cb48-86" aria-hidden="true" tabindex="-1"></a><span class="do">## ankle         0.16946    0.20089   0.844  0.39974    </span></span>
+<span id="cb48-87"><a href="model-diagnostics.html#cb48-87" aria-hidden="true" tabindex="-1"></a><span class="do">## biceps        0.15847    0.15616   1.015  0.31123    </span></span>
+<span id="cb48-88"><a href="model-diagnostics.html#cb48-88" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.42946    0.18150   2.366  0.01876 *  </span></span>
+<span id="cb48-89"><a href="model-diagnostics.html#cb48-89" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.51470    0.48823  -3.102  0.00215 ** </span></span>
+<span id="cb48-90"><a href="model-diagnostics.html#cb48-90" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-91"><a href="model-diagnostics.html#cb48-91" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-92"><a href="model-diagnostics.html#cb48-92" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-93"><a href="model-diagnostics.html#cb48-93" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.968 on 241 degrees of freedom</span></span>
+<span id="cb48-94"><a href="model-diagnostics.html#cb48-94" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7484, Adjusted R-squared:  0.738 </span></span>
+<span id="cb48-95"><a href="model-diagnostics.html#cb48-95" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 71.69 on 10 and 241 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-96"><a href="model-diagnostics.html#cb48-96" aria-hidden="true" tabindex="-1"></a><span class="co"># re-fit the model (no ankle)</span></span>
+<span id="cb48-97"><a href="model-diagnostics.html#cb48-97" aria-hidden="true" tabindex="-1"></a>model.red3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> neck <span class="sc">+</span> abdom <span class="sc">+</span> hip <span class="sc">+</span> thigh  <span class="sc">+</span> biceps <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb48-98"><a href="model-diagnostics.html#cb48-98" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.red3))</span>
+<span id="cb48-99"><a href="model-diagnostics.html#cb48-99" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-100"><a href="model-diagnostics.html#cb48-100" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-101"><a href="model-diagnostics.html#cb48-101" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + </span></span>
+<span id="cb48-102"><a href="model-diagnostics.html#cb48-102" aria-hidden="true" tabindex="-1"></a><span class="do">##     biceps + forearm + wrist, data = fat)</span></span>
+<span id="cb48-103"><a href="model-diagnostics.html#cb48-103" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-104"><a href="model-diagnostics.html#cb48-104" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-105"><a href="model-diagnostics.html#cb48-105" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-106"><a href="model-diagnostics.html#cb48-106" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.0740  -2.5615  -0.1021   2.7999   9.3199 </span></span>
+<span id="cb48-107"><a href="model-diagnostics.html#cb48-107" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-108"><a href="model-diagnostics.html#cb48-108" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-109"><a href="model-diagnostics.html#cb48-109" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-110"><a href="model-diagnostics.html#cb48-110" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -20.61247   10.86240  -1.898   0.0589 .  </span></span>
+<span id="cb48-111"><a href="model-diagnostics.html#cb48-111" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.05727    0.02857   2.004   0.0461 *  </span></span>
+<span id="cb48-112"><a href="model-diagnostics.html#cb48-112" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.09141    0.03770  -2.424   0.0161 *  </span></span>
+<span id="cb48-113"><a href="model-diagnostics.html#cb48-113" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.45458    0.20931  -2.172   0.0308 *  </span></span>
+<span id="cb48-114"><a href="model-diagnostics.html#cb48-114" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.88098    0.06673  13.203   &lt;2e-16 ***</span></span>
+<span id="cb48-115"><a href="model-diagnostics.html#cb48-115" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.17575    0.12870  -1.366   0.1733    </span></span>
+<span id="cb48-116"><a href="model-diagnostics.html#cb48-116" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.25504    0.12378   2.061   0.0404 *  </span></span>
+<span id="cb48-117"><a href="model-diagnostics.html#cb48-117" aria-hidden="true" tabindex="-1"></a><span class="do">## biceps        0.15178    0.15587   0.974   0.3311    </span></span>
+<span id="cb48-118"><a href="model-diagnostics.html#cb48-118" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.42805    0.18138   2.360   0.0191 *  </span></span>
+<span id="cb48-119"><a href="model-diagnostics.html#cb48-119" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.40948    0.47175  -2.988   0.0031 ** </span></span>
+<span id="cb48-120"><a href="model-diagnostics.html#cb48-120" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-121"><a href="model-diagnostics.html#cb48-121" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-122"><a href="model-diagnostics.html#cb48-122" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-123"><a href="model-diagnostics.html#cb48-123" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.965 on 242 degrees of freedom</span></span>
+<span id="cb48-124"><a href="model-diagnostics.html#cb48-124" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7477, Adjusted R-squared:  0.7383 </span></span>
+<span id="cb48-125"><a href="model-diagnostics.html#cb48-125" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 79.67 on 9 and 242 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-126"><a href="model-diagnostics.html#cb48-126" aria-hidden="true" tabindex="-1"></a><span class="co"># re-fit the model (no biceps)</span></span>
+<span id="cb48-127"><a href="model-diagnostics.html#cb48-127" aria-hidden="true" tabindex="-1"></a>model.red4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> neck <span class="sc">+</span> abdom <span class="sc">+</span> hip <span class="sc">+</span> thigh  <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb48-128"><a href="model-diagnostics.html#cb48-128" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.red4))</span>
+<span id="cb48-129"><a href="model-diagnostics.html#cb48-129" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-130"><a href="model-diagnostics.html#cb48-130" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-131"><a href="model-diagnostics.html#cb48-131" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + </span></span>
+<span id="cb48-132"><a href="model-diagnostics.html#cb48-132" aria-hidden="true" tabindex="-1"></a><span class="do">##     forearm + wrist, data = fat)</span></span>
+<span id="cb48-133"><a href="model-diagnostics.html#cb48-133" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-134"><a href="model-diagnostics.html#cb48-134" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-135"><a href="model-diagnostics.html#cb48-135" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-136"><a href="model-diagnostics.html#cb48-136" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.0574  -2.7411  -0.1912   2.6929   9.4977 </span></span>
+<span id="cb48-137"><a href="model-diagnostics.html#cb48-137" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-138"><a href="model-diagnostics.html#cb48-138" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-139"><a href="model-diagnostics.html#cb48-139" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-140"><a href="model-diagnostics.html#cb48-140" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -20.06213   10.84654  -1.850  0.06558 .  </span></span>
+<span id="cb48-141"><a href="model-diagnostics.html#cb48-141" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.05922    0.02850   2.078  0.03876 *  </span></span>
+<span id="cb48-142"><a href="model-diagnostics.html#cb48-142" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.08414    0.03695  -2.277  0.02366 *  </span></span>
+<span id="cb48-143"><a href="model-diagnostics.html#cb48-143" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.43189    0.20799  -2.077  0.03889 *  </span></span>
+<span id="cb48-144"><a href="model-diagnostics.html#cb48-144" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.87721    0.06661  13.170  &lt; 2e-16 ***</span></span>
+<span id="cb48-145"><a href="model-diagnostics.html#cb48-145" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.18641    0.12821  -1.454  0.14727    </span></span>
+<span id="cb48-146"><a href="model-diagnostics.html#cb48-146" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.28644    0.11949   2.397  0.01727 *  </span></span>
+<span id="cb48-147"><a href="model-diagnostics.html#cb48-147" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.48255    0.17251   2.797  0.00557 ** </span></span>
+<span id="cb48-148"><a href="model-diagnostics.html#cb48-148" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.40487    0.47167  -2.978  0.00319 ** </span></span>
+<span id="cb48-149"><a href="model-diagnostics.html#cb48-149" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-150"><a href="model-diagnostics.html#cb48-150" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-151"><a href="model-diagnostics.html#cb48-151" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-152"><a href="model-diagnostics.html#cb48-152" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.965 on 243 degrees of freedom</span></span>
+<span id="cb48-153"><a href="model-diagnostics.html#cb48-153" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7467, Adjusted R-squared:  0.7383 </span></span>
+<span id="cb48-154"><a href="model-diagnostics.html#cb48-154" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 89.53 on 8 and 243 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-155"><a href="model-diagnostics.html#cb48-155" aria-hidden="true" tabindex="-1"></a><span class="co"># re-fit the model (no hip)</span></span>
+<span id="cb48-156"><a href="model-diagnostics.html#cb48-156" aria-hidden="true" tabindex="-1"></a>model.red5 <span class="ot">&lt;-</span> <span class="fu">lm</span>(brozek <span class="sc">~</span> age <span class="sc">+</span> weight <span class="sc">+</span> neck <span class="sc">+</span> abdom  <span class="sc">+</span> thigh  <span class="sc">+</span> forearm <span class="sc">+</span> wrist, <span class="at">data =</span> fat)</span>
+<span id="cb48-157"><a href="model-diagnostics.html#cb48-157" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.red5))</span>
+<span id="cb48-158"><a href="model-diagnostics.html#cb48-158" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-159"><a href="model-diagnostics.html#cb48-159" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-160"><a href="model-diagnostics.html#cb48-160" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + neck + abdom + thigh + forearm + </span></span>
+<span id="cb48-161"><a href="model-diagnostics.html#cb48-161" aria-hidden="true" tabindex="-1"></a><span class="do">##     wrist, data = fat)</span></span>
+<span id="cb48-162"><a href="model-diagnostics.html#cb48-162" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-163"><a href="model-diagnostics.html#cb48-163" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-164"><a href="model-diagnostics.html#cb48-164" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-165"><a href="model-diagnostics.html#cb48-165" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.0193  -2.8016  -0.1234   2.9387   9.0019 </span></span>
+<span id="cb48-166"><a href="model-diagnostics.html#cb48-166" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-167"><a href="model-diagnostics.html#cb48-167" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-168"><a href="model-diagnostics.html#cb48-168" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-169"><a href="model-diagnostics.html#cb48-169" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -30.17420    8.34200  -3.617 0.000362 ***</span></span>
+<span id="cb48-170"><a href="model-diagnostics.html#cb48-170" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.06149    0.02852   2.156 0.032047 *  </span></span>
+<span id="cb48-171"><a href="model-diagnostics.html#cb48-171" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.11236    0.03151  -3.565 0.000437 ***</span></span>
+<span id="cb48-172"><a href="model-diagnostics.html#cb48-172" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.37203    0.20434  -1.821 0.069876 .  </span></span>
+<span id="cb48-173"><a href="model-diagnostics.html#cb48-173" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.85152    0.06437  13.229  &lt; 2e-16 ***</span></span>
+<span id="cb48-174"><a href="model-diagnostics.html#cb48-174" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.20973    0.10745   1.952 0.052099 .  </span></span>
+<span id="cb48-175"><a href="model-diagnostics.html#cb48-175" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.51824    0.17115   3.028 0.002726 ** </span></span>
+<span id="cb48-176"><a href="model-diagnostics.html#cb48-176" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.40081    0.47274  -2.963 0.003346 ** </span></span>
+<span id="cb48-177"><a href="model-diagnostics.html#cb48-177" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-178"><a href="model-diagnostics.html#cb48-178" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-179"><a href="model-diagnostics.html#cb48-179" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-180"><a href="model-diagnostics.html#cb48-180" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.974 on 244 degrees of freedom</span></span>
+<span id="cb48-181"><a href="model-diagnostics.html#cb48-181" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7445, Adjusted R-squared:  0.7371 </span></span>
+<span id="cb48-182"><a href="model-diagnostics.html#cb48-182" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 101.6 on 7 and 244 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-183"><a href="model-diagnostics.html#cb48-183" aria-hidden="true" tabindex="-1"></a><span class="co"># compare model.clean and final model</span></span>
+<span id="cb48-184"><a href="model-diagnostics.html#cb48-184" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.clean))</span>
+<span id="cb48-185"><a href="model-diagnostics.html#cb48-185" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-186"><a href="model-diagnostics.html#cb48-186" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-187"><a href="model-diagnostics.html#cb48-187" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + height + neck + abdom + </span></span>
+<span id="cb48-188"><a href="model-diagnostics.html#cb48-188" aria-hidden="true" tabindex="-1"></a><span class="do">##     hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)</span></span>
+<span id="cb48-189"><a href="model-diagnostics.html#cb48-189" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-190"><a href="model-diagnostics.html#cb48-190" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-191"><a href="model-diagnostics.html#cb48-191" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-192"><a href="model-diagnostics.html#cb48-192" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.2664  -2.5658  -0.0798   2.8976   9.3204 </span></span>
+<span id="cb48-193"><a href="model-diagnostics.html#cb48-193" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-194"><a href="model-diagnostics.html#cb48-194" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-195"><a href="model-diagnostics.html#cb48-195" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-196"><a href="model-diagnostics.html#cb48-196" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -17.063433  14.489336  -1.178  0.24011    </span></span>
+<span id="cb48-197"><a href="model-diagnostics.html#cb48-197" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.056520   0.029888   1.891  0.05983 .  </span></span>
+<span id="cb48-198"><a href="model-diagnostics.html#cb48-198" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.085513   0.045170  -1.893  0.05954 .  </span></span>
+<span id="cb48-199"><a href="model-diagnostics.html#cb48-199" aria-hidden="true" tabindex="-1"></a><span class="do">## height       -0.059703   0.086695  -0.689  0.49171    </span></span>
+<span id="cb48-200"><a href="model-diagnostics.html#cb48-200" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.439315   0.214802  -2.045  0.04193 *  </span></span>
+<span id="cb48-201"><a href="model-diagnostics.html#cb48-201" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.875779   0.070589  12.407  &lt; 2e-16 ***</span></span>
+<span id="cb48-202"><a href="model-diagnostics.html#cb48-202" aria-hidden="true" tabindex="-1"></a><span class="do">## hip          -0.192118   0.132655  -1.448  0.14885    </span></span>
+<span id="cb48-203"><a href="model-diagnostics.html#cb48-203" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.237304   0.131793   1.801  0.07303 .  </span></span>
+<span id="cb48-204"><a href="model-diagnostics.html#cb48-204" aria-hidden="true" tabindex="-1"></a><span class="do">## knee         -0.006595   0.222832  -0.030  0.97642    </span></span>
+<span id="cb48-205"><a href="model-diagnostics.html#cb48-205" aria-hidden="true" tabindex="-1"></a><span class="do">## ankle         0.164831   0.204681   0.805  0.42144    </span></span>
+<span id="cb48-206"><a href="model-diagnostics.html#cb48-206" aria-hidden="true" tabindex="-1"></a><span class="do">## biceps        0.149530   0.157693   0.948  0.34397    </span></span>
+<span id="cb48-207"><a href="model-diagnostics.html#cb48-207" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.424885   0.182801   2.324  0.02095 *  </span></span>
+<span id="cb48-208"><a href="model-diagnostics.html#cb48-208" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.474317   0.494475  -2.982  0.00316 ** </span></span>
+<span id="cb48-209"><a href="model-diagnostics.html#cb48-209" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-210"><a href="model-diagnostics.html#cb48-210" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-211"><a href="model-diagnostics.html#cb48-211" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-212"><a href="model-diagnostics.html#cb48-212" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.98 on 239 degrees of freedom</span></span>
+<span id="cb48-213"><a href="model-diagnostics.html#cb48-213" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7489, Adjusted R-squared:  0.7363 </span></span>
+<span id="cb48-214"><a href="model-diagnostics.html#cb48-214" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  59.4 on 12 and 239 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb48-215"><a href="model-diagnostics.html#cb48-215" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.red5))</span>
+<span id="cb48-216"><a href="model-diagnostics.html#cb48-216" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-217"><a href="model-diagnostics.html#cb48-217" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb48-218"><a href="model-diagnostics.html#cb48-218" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = brozek ~ age + weight + neck + abdom + thigh + forearm + </span></span>
+<span id="cb48-219"><a href="model-diagnostics.html#cb48-219" aria-hidden="true" tabindex="-1"></a><span class="do">##     wrist, data = fat)</span></span>
+<span id="cb48-220"><a href="model-diagnostics.html#cb48-220" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-221"><a href="model-diagnostics.html#cb48-221" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb48-222"><a href="model-diagnostics.html#cb48-222" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb48-223"><a href="model-diagnostics.html#cb48-223" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.0193  -2.8016  -0.1234   2.9387   9.0019 </span></span>
+<span id="cb48-224"><a href="model-diagnostics.html#cb48-224" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-225"><a href="model-diagnostics.html#cb48-225" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb48-226"><a href="model-diagnostics.html#cb48-226" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb48-227"><a href="model-diagnostics.html#cb48-227" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -30.17420    8.34200  -3.617 0.000362 ***</span></span>
+<span id="cb48-228"><a href="model-diagnostics.html#cb48-228" aria-hidden="true" tabindex="-1"></a><span class="do">## age           0.06149    0.02852   2.156 0.032047 *  </span></span>
+<span id="cb48-229"><a href="model-diagnostics.html#cb48-229" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       -0.11236    0.03151  -3.565 0.000437 ***</span></span>
+<span id="cb48-230"><a href="model-diagnostics.html#cb48-230" aria-hidden="true" tabindex="-1"></a><span class="do">## neck         -0.37203    0.20434  -1.821 0.069876 .  </span></span>
+<span id="cb48-231"><a href="model-diagnostics.html#cb48-231" aria-hidden="true" tabindex="-1"></a><span class="do">## abdom         0.85152    0.06437  13.229  &lt; 2e-16 ***</span></span>
+<span id="cb48-232"><a href="model-diagnostics.html#cb48-232" aria-hidden="true" tabindex="-1"></a><span class="do">## thigh         0.20973    0.10745   1.952 0.052099 .  </span></span>
+<span id="cb48-233"><a href="model-diagnostics.html#cb48-233" aria-hidden="true" tabindex="-1"></a><span class="do">## forearm       0.51824    0.17115   3.028 0.002726 ** </span></span>
+<span id="cb48-234"><a href="model-diagnostics.html#cb48-234" aria-hidden="true" tabindex="-1"></a><span class="do">## wrist        -1.40081    0.47274  -2.963 0.003346 ** </span></span>
+<span id="cb48-235"><a href="model-diagnostics.html#cb48-235" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb48-236"><a href="model-diagnostics.html#cb48-236" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb48-237"><a href="model-diagnostics.html#cb48-237" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb48-238"><a href="model-diagnostics.html#cb48-238" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 3.974 on 244 degrees of freedom</span></span>
+<span id="cb48-239"><a href="model-diagnostics.html#cb48-239" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7445, Adjusted R-squared:  0.7371 </span></span>
+<span id="cb48-240"><a href="model-diagnostics.html#cb48-240" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 101.6 on 7 and 244 DF,  p-value: &lt; 2.2e-16</span></span></code></pre></div>
+<p><em>Note: we have just run a very simple feature selection using stepwise regression. In this method, using backward elimination, we build a model containing all the variables and remove them one by one based on defined criteria (here we have used p-values) and we stop when we have a justifiable model or when removing a predictor does not change the chosen criterion significantly.</em></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="regression-coefficients.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "section",
+"scroll_highlight": true
+},
+"extra_dependencies": {
+"babel": "swedish,english"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
