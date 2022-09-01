@@ -42,7 +42,7 @@ title:  'Schedule'
 
 **10:45 - 11.15** [Statistical inference: Hypothesis tests using resampling](session-inference)
 
-**11:15 - 12.00** [Exercises](session-inference/infe-exr2-hypresamp.html)
+**11:15 - 12.00** [Exercises](session-inference/infe-exr1-hypresamp.html)
 
 *12:00 - 13:00 lunch*
 
