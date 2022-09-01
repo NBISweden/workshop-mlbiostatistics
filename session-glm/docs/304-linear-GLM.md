@@ -49,6 +49,7 @@ head(yl)
 ## 4 Laurel  47 Female
 ## 5 Laurel  60   Male
 ## 6  Yanny  11 Female
+
 # Recode Laurel to 0 and Yanny as 1 in new variable (what)
 yl$word <- 0
 yl$word[yl$hear=="Laurel"] <- 1
@@ -213,6 +214,7 @@ print(summary(logmodel.2))
 ## AIC: 63.835
 ## 
 ## Number of Fisher Scoring iterations: 5
+
 # plot model
 ggPredict(logmodel.2)
 ```
@@ -256,6 +258,7 @@ head(cancer)
 ## 4 S02000263    80 109.10245 17.0  14.0  10.39  12.30138 25.45705 67.05938
 ## 5 S02000264   181 149.77821 18.6  15.2   5.67  11.88449 26.12484 67.09280
 ## 6 S02000265    77  82.31156 17.0  14.6   5.61  11.82004 25.37644 67.09826
+
 # fit Poisson regression
 epid1 <- glm(Y_all ~ pm10 + smoke + ethnic + log.price + easting + northing + offset(log(E_all)), 
              family = poisson, 
@@ -340,6 +343,7 @@ b) using Poisson regression, can you comment about the numbers of cigarettes smo
 
 
 ```r
+
 library(faraway)
 data(wcgs, package="faraway")
 
@@ -371,12 +375,14 @@ a) probability of developing heart disease
 We first check the relationship between variables to gain more understanding of the data. We discover that a couple of variables are exactly collinear with other variables, including `typechd`, `timechd` and `dibep`. We do not include these in the model. 
 
 ```r
+
 # `chd` and `typechd` were correlated.
 with(wcgs, table(chd, typechd))
 ##      typechd
 ## chd   angina infdeath none silent
 ##   no       0        0 2897      0
 ##   yes     51      135    0     71
+
 # `timechd` is an outcome variable affected by `chd`.
 by(wcgs$timechd, wcgs$chd, summary)
 ## wcgs$chd: no
@@ -386,6 +392,7 @@ by(wcgs$timechd, wcgs$chd, summary)
 ## wcgs$chd: yes
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##      18     934    1666    1655    2400    3229
+
 # `behave` has more detailed info of `dibep` -> exact collinearity
 with(wcgs, table(behave, dibep))
 ##       dibep
