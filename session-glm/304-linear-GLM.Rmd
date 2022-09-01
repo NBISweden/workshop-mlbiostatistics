@@ -3,11 +3,13 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
+
 # Generalized linear models
 
 **Aims**
 
 - to briefly introduce GLMs via examples of modeling binary and count response
+- to test if repo works
 
 **Learning outcomes**
 
