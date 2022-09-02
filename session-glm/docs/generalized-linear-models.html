@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 1 Generalized linear models | Introduction to GLM</title>
   <meta name="description" content="Chapter 1 Generalized linear models | Introduction to GLM" />
-  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 1 Generalized linear models | Introduction to GLM" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Olga Dethlefsen" />
 
 
-<meta name="date" content="2022-09-01" />
+<meta name="date" content="2022-09-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 <link rel="prev" href="index.html"/>
 
-<script src="libs/header-attrs-2.14/header-attrs.js"></script>
-<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,7 +51,8 @@
 
 
 
-
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 
 
 <style type="text/css">
@@ -118,6 +120,7 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 
@@ -138,7 +141,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="generalized-linear-models.html#generalized-linear-models" id="toc-generalized-linear-models"><span class="toc-section-number">1</span> Generalized linear models</a>
 <ul>
 <li><a href="generalized-linear-models.html#why-generalized-linear-models-glms" id="toc-why-generalized-linear-models-glms"><span class="toc-section-number">1.1</span> Why Generalized Linear Models (GLMs)</a></li>
-<li><a href="generalized-linear-models.html#logisitc-regression" id="toc-logisitc-regression"><span class="toc-section-number">1.2</span> Logisitc regression</a></li>
+<li><a href="generalized-linear-models.html#logistic-regression" id="toc-logistic-regression"><span class="toc-section-number">1.2</span> Logistic regression</a></li>
 <li><a href="generalized-linear-models.html#poisson-regression" id="toc-poisson-regression"><span class="toc-section-number">1.3</span> Poisson regression</a></li>
 <li><a href="generalized-linear-models.html#exercises-glms" id="toc-exercises-glms"><span class="toc-section-number">1.4</span> Exercises (GLMs)</a></li>
 </ul></li>
@@ -164,7 +167,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><strong>Aims</strong></p>
 <ul>
 <li>to briefly introduce GLMs via examples of modeling binary and count response</li>
-<li>to test if repo works</li>
 </ul>
 <p><strong>Learning outcomes</strong></p>
 <ul>
@@ -181,15 +183,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Similarly, fitting a regression line to binary data yields predicted values that could take any value, including <span class="math inline">\(&lt;0\)</span></li>
 <li>not to mention that it is hard to argue that the values of 0 and 1s are normally distributed</li>
 </ul>
-<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-2"></span>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-2"></span>
 <img src="304-linear-GLM_files/figure-html/unnamed-chunk-2-1.png" alt="Example of fitting linear model to binary data, to model the acceptance to medical school, coded as 1 (Yes) and 0 (No) using GPA school scores. Linear model does not fit the data well in this case" width="384" />
 <p class="caption">
 Figure 1.1: Example of fitting linear model to binary data, to model the acceptance to medical school, coded as 1 (Yes) and 0 (No) using GPA school scores. Linear model does not fit the data well in this case
 </p>
 </div>
 </div>
-<div id="logisitc-regression" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Logisitc regression</h2>
+<div id="logistic-regression" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Logistic regression</h2>
 <ul>
 <li><a href="https://www.theguardian.com/global/video/2018/may/16/what-do-you-hear-in-this-audio-clip-yanny-or-laurel-takes-internet-by-storm-video">Yanny or Laurel auditory illusion</a> appeared online in May 2018. You could find lots of information about it, together with some plausible explanations why some people hear Yanny and some year Laurel</li>
 <li>One of the explanation is that with age we lose the ability to hear certain sounds</li>
@@ -205,19 +207,18 @@ Figure 1.1: Example of fitting linear model to binary data, to model the accepta
 <span id="cb1-8"><a href="generalized-linear-models.html#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 Laurel  47 Female</span></span>
 <span id="cb1-9"><a href="generalized-linear-models.html#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 Laurel  60   Male</span></span>
 <span id="cb1-10"><a href="generalized-linear-models.html#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6  Yanny  11 Female</span></span>
-<span id="cb1-11"><a href="generalized-linear-models.html#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="generalized-linear-models.html#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Recode Laurel to 0 and Yanny as 1 in new variable (what)</span></span>
-<span id="cb1-13"><a href="generalized-linear-models.html#cb1-13" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb1-14"><a href="generalized-linear-models.html#cb1-14" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word[yl<span class="sc">$</span>hear<span class="sc">==</span><span class="st">&quot;Laurel&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb1-15"><a href="generalized-linear-models.html#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="generalized-linear-models.html#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Make some exploratory plots</span></span>
-<span id="cb1-17"><a href="generalized-linear-models.html#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb1-18"><a href="generalized-linear-models.html#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yl<span class="sc">$</span>age, yl<span class="sc">$</span>word, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">&quot;age&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;&quot;</span>, <span class="at">las=</span><span class="dv">1</span>)</span>
-<span id="cb1-19"><a href="generalized-linear-models.html#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(yl<span class="sc">$</span>age<span class="sc">~</span>yl<span class="sc">$</span>hear, <span class="at">xlab=</span><span class="st">&quot;&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;age&quot;</span>, <span class="at">col=</span><span class="st">&quot;lightblue&quot;</span>)</span></code></pre></div>
-<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-4"></span>
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Luarel (0)" width="768" />
+<span id="cb1-11"><a href="generalized-linear-models.html#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Recode Laurel to 0 and Yanny as 1 in new variable</span></span>
+<span id="cb1-12"><a href="generalized-linear-models.html#cb1-12" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-13"><a href="generalized-linear-models.html#cb1-13" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word[yl<span class="sc">$</span>hear<span class="sc">==</span><span class="st">&quot;Yanny&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-14"><a href="generalized-linear-models.html#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="generalized-linear-models.html#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Make some exploratory plots</span></span>
+<span id="cb1-16"><a href="generalized-linear-models.html#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb1-17"><a href="generalized-linear-models.html#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yl<span class="sc">$</span>age, yl<span class="sc">$</span>word, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">&quot;age&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;&quot;</span>, <span class="at">las=</span><span class="dv">1</span>)</span>
+<span id="cb1-18"><a href="generalized-linear-models.html#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(yl<span class="sc">$</span>age<span class="sc">~</span>yl<span class="sc">$</span>hear, <span class="at">xlab=</span><span class="st">&quot;&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;age&quot;</span>, <span class="at">col=</span><span class="st">&quot;lightblue&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-4"></span>
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)" width="768" />
 <p class="caption">
-Figure 1.2: Yanny and Laurel auditory illusion data, Yanny (1), Luarel (0)
+Figure 1.2: Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)
 </p>
 </div>
 <ul>
@@ -246,12 +247,12 @@ and given the properties of logarithms this is also equivalent to:
 ## 
 ## Deviance Residuals: 
 ##      Min        1Q    Median        3Q       Max  
-## -1.86068  -0.71414  -0.04733   0.64434   2.47887  
+## -2.47887  -0.64434   0.04733   0.71414   1.86068  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept) -3.56159    0.95790  -3.718 0.000201 ***
-## age          0.08943    0.02297   3.893 9.89e-05 ***
+## (Intercept)  3.56159    0.95790   3.718 0.000201 ***
+## age         -0.08943    0.02297  -3.893 9.89e-05 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -264,7 +265,7 @@ and given the properties of logarithms this is also equivalent to:
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="generalized-linear-models.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
 <span id="cb4-2"><a href="generalized-linear-models.html#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPredict</span>(logmodel<span class="fl">.1</span>)</span></code></pre></div>
-<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-5"></span>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-5"></span>
 <img src="304-linear-GLM_files/figure-html/unnamed-chunk-5-1.png" alt="Fitted logistic model to the Yanny and Laurel data" width="384" />
 <p class="caption">
 Figure 1.3: Fitted logistic model to the Yanny and Laurel data
@@ -275,23 +276,23 @@ Figure 1.3: Fitted logistic model to the Yanny and Laurel data
 <span id="cb5-3"><a href="generalized-linear-models.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># we specify response to return prediction on the probability scale</span></span>
 <span id="cb5-4"><a href="generalized-linear-models.html#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(logmodel<span class="fl">.1</span>, <span class="at">type=</span><span class="st">&quot;response&quot;</span>)</span></code></pre></div>
 <pre><code>##          1          2          3          4          5          6          7 
-## 0.50394192 0.67507724 0.33187793 0.65516152 0.85868941 0.07057982 0.87903410 
+## 0.49605808 0.32492276 0.66812207 0.34483848 0.14131059 0.92942018 0.12096590 
 ##          8          9         10         11         12         13         14 
-## 0.06493370 0.35199768 0.69437930 0.91222027 0.15663558 0.78037334 0.43719992 
+## 0.93506630 0.64800232 0.30562070 0.08777973 0.84336442 0.21962666 0.56280008 
 ##         15         16         17         18         19         20         21 
-## 0.39379165 0.59230535 0.20986467 0.45931517 0.69437930 0.22507939 0.48159183 
+## 0.60620835 0.40769465 0.79013533 0.54068483 0.30562070 0.77492061 0.51840817 
 ##         22         23         24         25         26         27         28 
-## 0.20986467 0.71302217 0.10615359 0.97322447 0.65516152 0.11494328 0.20986467 
+## 0.79013533 0.28697783 0.89384641 0.02677553 0.34483848 0.88505672 0.79013533 
 ##         29         30         31         32         33         34         35 
-## 0.12435950 0.90478991 0.87903410 0.93146108 0.15663558 0.18173908 0.33187793 
+## 0.87564050 0.09521009 0.12096590 0.06853892 0.84336442 0.81826092 0.66812207 
 ##         36         37         38         39         40         41         42 
-## 0.59230535 0.94673070 0.06493370 0.82290366 0.91222027 0.82290366 0.92552645 
+## 0.40769465 0.05326930 0.93506630 0.17709634 0.08777973 0.17709634 0.07447355 
 ##         43         44         45         46         47         48         49 
-## 0.83556313 0.04630975 0.50394192 0.37265683 0.97751124 0.45931517 0.41533155 
+## 0.16443687 0.95369025 0.49605808 0.62734317 0.02248876 0.54068483 0.58466845 
 ##         50         51         52         53         54         55         56 
-## 0.35199768 0.04630975 0.83556313 0.15663558 0.20986467 0.22507939 0.15663558 
+## 0.64800232 0.95369025 0.16443687 0.84336442 0.79013533 0.77492061 0.84336442 
 ##         57         58         59         60 
-## 0.73096842 0.35199768 0.43719992 0.87903410</code></pre>
+## 0.26903158 0.64800232 0.56280008 0.12096590</code></pre>
 <ul>
 <li>The regression equation for the fitted model is:
 <span class="math display">\[log(\frac{\hat{p_i}}{1-\hat{p_i}})=-3.56  +  0.09x_i\]</span></li>
@@ -336,13 +337,13 @@ Figure 1.3: Fitted logistic model to the Yanny and Laurel data
 <span id="cb8-10"><a href="generalized-linear-models.html#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb8-11"><a href="generalized-linear-models.html#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Deviance Residuals: </span></span>
 <span id="cb8-12"><a href="generalized-linear-models.html#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min        1Q    Median        3Q       Max  </span></span>
-<span id="cb8-13"><a href="generalized-linear-models.html#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">## -1.81723  -0.72585  -0.06218   0.67360   2.44755  </span></span>
+<span id="cb8-13"><a href="generalized-linear-models.html#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">## -2.44755  -0.67360   0.06218   0.72585   1.81723  </span></span>
 <span id="cb8-14"><a href="generalized-linear-models.html#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb8-15"><a href="generalized-linear-models.html#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
 <span id="cb8-16"><a href="generalized-linear-models.html#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span id="cb8-17"><a href="generalized-linear-models.html#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -3.72679    1.07333  -3.472 0.000516 ***</span></span>
-<span id="cb8-18"><a href="generalized-linear-models.html#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## age          0.09061    0.02337   3.877 0.000106 ***</span></span>
-<span id="cb8-19"><a href="generalized-linear-models.html#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## genderMale   0.23919    0.65938   0.363 0.716789    </span></span>
+<span id="cb8-17"><a href="generalized-linear-models.html#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)  3.72679    1.07333   3.472 0.000516 ***</span></span>
+<span id="cb8-18"><a href="generalized-linear-models.html#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## age         -0.09061    0.02337  -3.877 0.000106 ***</span></span>
+<span id="cb8-19"><a href="generalized-linear-models.html#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## genderMale  -0.23919    0.65938  -0.363 0.716789    </span></span>
 <span id="cb8-20"><a href="generalized-linear-models.html#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb8-21"><a href="generalized-linear-models.html#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb8-22"><a href="generalized-linear-models.html#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
@@ -353,10 +354,9 @@ Figure 1.3: Fitted logistic model to the Yanny and Laurel data
 <span id="cb8-27"><a href="generalized-linear-models.html#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="do">## AIC: 63.835</span></span>
 <span id="cb8-28"><a href="generalized-linear-models.html#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb8-29"><a href="generalized-linear-models.html#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="do">## Number of Fisher Scoring iterations: 5</span></span>
-<span id="cb8-30"><a href="generalized-linear-models.html#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-31"><a href="generalized-linear-models.html#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co"># plot model</span></span>
-<span id="cb8-32"><a href="generalized-linear-models.html#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPredict</span>(logmodel<span class="fl">.2</span>)</span></code></pre></div>
-<div class="figure" style="text-align: center"><span id="fig:unnamed-chunk-7"></span>
+<span id="cb8-30"><a href="generalized-linear-models.html#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="co"># plot model</span></span>
+<span id="cb8-31"><a href="generalized-linear-models.html#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPredict</span>(logmodel<span class="fl">.2</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-7"></span>
 <img src="304-linear-GLM_files/figure-html/unnamed-chunk-7-1.png" alt="Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and femals are very alike and the model suggest no gender effect" width="384" />
 <p class="caption">
 Figure 1.4: Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and femals are very alike and the model suggest no gender effect
@@ -396,41 +396,40 @@ Suppose we wish to model <span class="math inline">\(Y_i\)</span> the number of 
 <span id="cb9-8"><a href="generalized-linear-models.html#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 S02000263    80 109.10245 17.0  14.0  10.39  12.30138 25.45705 67.05938</span></span>
 <span id="cb9-9"><a href="generalized-linear-models.html#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 S02000264   181 149.77821 18.6  15.2   5.67  11.88449 26.12484 67.09280</span></span>
 <span id="cb9-10"><a href="generalized-linear-models.html#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 S02000265    77  82.31156 17.0  14.6   5.61  11.82004 25.37644 67.09826</span></span>
-<span id="cb9-11"><a href="generalized-linear-models.html#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="generalized-linear-models.html#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># fit Poisson regression</span></span>
-<span id="cb9-13"><a href="generalized-linear-models.html#cb9-13" aria-hidden="true" tabindex="-1"></a>epid1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Y_all <span class="sc">~</span> pm10 <span class="sc">+</span> smoke <span class="sc">+</span> ethnic <span class="sc">+</span> log.price <span class="sc">+</span> easting <span class="sc">+</span> northing <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(E_all)), </span>
-<span id="cb9-14"><a href="generalized-linear-models.html#cb9-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">family =</span> poisson, </span>
-<span id="cb9-15"><a href="generalized-linear-models.html#cb9-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> cancer)</span>
-<span id="cb9-16"><a href="generalized-linear-models.html#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="generalized-linear-models.html#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(epid1))</span>
-<span id="cb9-18"><a href="generalized-linear-models.html#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb9-19"><a href="generalized-linear-models.html#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
-<span id="cb9-20"><a href="generalized-linear-models.html#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="do">## glm(formula = Y_all ~ pm10 + smoke + ethnic + log.price + easting + </span></span>
-<span id="cb9-21"><a href="generalized-linear-models.html#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="do">##     northing + offset(log(E_all)), family = poisson, data = cancer)</span></span>
-<span id="cb9-22"><a href="generalized-linear-models.html#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb9-23"><a href="generalized-linear-models.html#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="do">## Deviance Residuals: </span></span>
-<span id="cb9-24"><a href="generalized-linear-models.html#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min       1Q   Median       3Q      Max  </span></span>
-<span id="cb9-25"><a href="generalized-linear-models.html#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="do">## -4.2011  -0.9338  -0.1763   0.8959   3.8416  </span></span>
-<span id="cb9-26"><a href="generalized-linear-models.html#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb9-27"><a href="generalized-linear-models.html#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
-<span id="cb9-28"><a href="generalized-linear-models.html#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span id="cb9-29"><a href="generalized-linear-models.html#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -0.8592657  0.8029040  -1.070 0.284531    </span></span>
-<span id="cb9-30"><a href="generalized-linear-models.html#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="do">## pm10         0.0500269  0.0066724   7.498 6.50e-14 ***</span></span>
-<span id="cb9-31"><a href="generalized-linear-models.html#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="do">## smoke        0.0033516  0.0009463   3.542 0.000397 ***</span></span>
-<span id="cb9-32"><a href="generalized-linear-models.html#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="do">## ethnic      -0.0049388  0.0006354  -7.773 7.66e-15 ***</span></span>
-<span id="cb9-33"><a href="generalized-linear-models.html#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="do">## log.price   -0.1034461  0.0169943  -6.087 1.15e-09 ***</span></span>
-<span id="cb9-34"><a href="generalized-linear-models.html#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="do">## easting     -0.0331305  0.0103698  -3.195 0.001399 ** </span></span>
-<span id="cb9-35"><a href="generalized-linear-models.html#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="do">## northing     0.0300213  0.0111013   2.704 0.006845 ** </span></span>
-<span id="cb9-36"><a href="generalized-linear-models.html#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
-<span id="cb9-37"><a href="generalized-linear-models.html#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
-<span id="cb9-38"><a href="generalized-linear-models.html#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb9-39"><a href="generalized-linear-models.html#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="do">## (Dispersion parameter for poisson family taken to be 1)</span></span>
-<span id="cb9-40"><a href="generalized-linear-models.html#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb9-41"><a href="generalized-linear-models.html#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="do">##     Null deviance: 972.94  on 270  degrees of freedom</span></span>
-<span id="cb9-42"><a href="generalized-linear-models.html#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual deviance: 565.18  on 264  degrees of freedom</span></span>
-<span id="cb9-43"><a href="generalized-linear-models.html#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="do">## AIC: 2356.2</span></span>
-<span id="cb9-44"><a href="generalized-linear-models.html#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb9-45"><a href="generalized-linear-models.html#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="do">## Number of Fisher Scoring iterations: 4</span></span></code></pre></div>
+<span id="cb9-11"><a href="generalized-linear-models.html#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># fit Poisson regression</span></span>
+<span id="cb9-12"><a href="generalized-linear-models.html#cb9-12" aria-hidden="true" tabindex="-1"></a>epid1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Y_all <span class="sc">~</span> pm10 <span class="sc">+</span> smoke <span class="sc">+</span> ethnic <span class="sc">+</span> log.price <span class="sc">+</span> easting <span class="sc">+</span> northing <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(E_all)), </span>
+<span id="cb9-13"><a href="generalized-linear-models.html#cb9-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">family =</span> poisson, </span>
+<span id="cb9-14"><a href="generalized-linear-models.html#cb9-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> cancer)</span>
+<span id="cb9-15"><a href="generalized-linear-models.html#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="generalized-linear-models.html#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(epid1))</span>
+<span id="cb9-17"><a href="generalized-linear-models.html#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-18"><a href="generalized-linear-models.html#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb9-19"><a href="generalized-linear-models.html#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="do">## glm(formula = Y_all ~ pm10 + smoke + ethnic + log.price + easting + </span></span>
+<span id="cb9-20"><a href="generalized-linear-models.html#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="do">##     northing + offset(log(E_all)), family = poisson, data = cancer)</span></span>
+<span id="cb9-21"><a href="generalized-linear-models.html#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-22"><a href="generalized-linear-models.html#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Deviance Residuals: </span></span>
+<span id="cb9-23"><a href="generalized-linear-models.html#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min       1Q   Median       3Q      Max  </span></span>
+<span id="cb9-24"><a href="generalized-linear-models.html#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="do">## -4.2011  -0.9338  -0.1763   0.8959   3.8416  </span></span>
+<span id="cb9-25"><a href="generalized-linear-models.html#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-26"><a href="generalized-linear-models.html#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb9-27"><a href="generalized-linear-models.html#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span id="cb9-28"><a href="generalized-linear-models.html#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -0.8592657  0.8029040  -1.070 0.284531    </span></span>
+<span id="cb9-29"><a href="generalized-linear-models.html#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="do">## pm10         0.0500269  0.0066724   7.498 6.50e-14 ***</span></span>
+<span id="cb9-30"><a href="generalized-linear-models.html#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="do">## smoke        0.0033516  0.0009463   3.542 0.000397 ***</span></span>
+<span id="cb9-31"><a href="generalized-linear-models.html#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="do">## ethnic      -0.0049388  0.0006354  -7.773 7.66e-15 ***</span></span>
+<span id="cb9-32"><a href="generalized-linear-models.html#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="do">## log.price   -0.1034461  0.0169943  -6.087 1.15e-09 ***</span></span>
+<span id="cb9-33"><a href="generalized-linear-models.html#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="do">## easting     -0.0331305  0.0103698  -3.195 0.001399 ** </span></span>
+<span id="cb9-34"><a href="generalized-linear-models.html#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="do">## northing     0.0300213  0.0111013   2.704 0.006845 ** </span></span>
+<span id="cb9-35"><a href="generalized-linear-models.html#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb9-36"><a href="generalized-linear-models.html#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb9-37"><a href="generalized-linear-models.html#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-38"><a href="generalized-linear-models.html#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="do">## (Dispersion parameter for poisson family taken to be 1)</span></span>
+<span id="cb9-39"><a href="generalized-linear-models.html#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-40"><a href="generalized-linear-models.html#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="do">##     Null deviance: 972.94  on 270  degrees of freedom</span></span>
+<span id="cb9-41"><a href="generalized-linear-models.html#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual deviance: 565.18  on 264  degrees of freedom</span></span>
+<span id="cb9-42"><a href="generalized-linear-models.html#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="do">## AIC: 2356.2</span></span>
+<span id="cb9-43"><a href="generalized-linear-models.html#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-44"><a href="generalized-linear-models.html#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="do">## Number of Fisher Scoring iterations: 4</span></span></code></pre></div>
 <p><strong>Hypothesis testing, model fit and predictions</strong></p>
 <ul>
 <li>follows stay the same as for logistic regression</li>
@@ -477,25 +476,24 @@ Additional practice with a bigger more realistic data set.</p>
 <li>using Poisson regression, can you comment about the numbers of cigarettes smoked (cigs)?</li>
 </ol>
 </div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="generalized-linear-models.html#cb10-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-2"><a href="generalized-linear-models.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(faraway)</span>
-<span id="cb10-3"><a href="generalized-linear-models.html#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(wcgs, <span class="at">package=</span><span class="st">&quot;faraway&quot;</span>)</span>
-<span id="cb10-4"><a href="generalized-linear-models.html#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="generalized-linear-models.html#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wcgs)</span>
-<span id="cb10-6"><a href="generalized-linear-models.html#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="do">##      age height weight sdp dbp chol behave cigs dibep chd  typechd timechd</span></span>
-<span id="cb10-7"><a href="generalized-linear-models.html#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 2001  49     73    150 110  76  225     A2   25     B  no     none    1664</span></span>
-<span id="cb10-8"><a href="generalized-linear-models.html#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 2002  42     70    160 154  84  177     A2   20     B  no     none    3071</span></span>
-<span id="cb10-9"><a href="generalized-linear-models.html#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 2003  42     69    160 110  78  181     B3    0     A  no     none    3071</span></span>
-<span id="cb10-10"><a href="generalized-linear-models.html#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 2004  41     68    152 124  78  132     B4   20     A  no     none    3064</span></span>
-<span id="cb10-11"><a href="generalized-linear-models.html#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 2005  59     70    150 144  86  255     B3   20     A yes infdeath    1885</span></span>
-<span id="cb10-12"><a href="generalized-linear-models.html#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 2006  44     72    204 150  90  182     B4    0     A  no     none    3102</span></span>
-<span id="cb10-13"><a href="generalized-linear-models.html#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="do">##        arcus</span></span>
-<span id="cb10-14"><a href="generalized-linear-models.html#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 2001  absent</span></span>
-<span id="cb10-15"><a href="generalized-linear-models.html#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 2002 present</span></span>
-<span id="cb10-16"><a href="generalized-linear-models.html#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 2003  absent</span></span>
-<span id="cb10-17"><a href="generalized-linear-models.html#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 2004  absent</span></span>
-<span id="cb10-18"><a href="generalized-linear-models.html#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="do">## 2005 present</span></span>
-<span id="cb10-19"><a href="generalized-linear-models.html#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 2006  absent</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="generalized-linear-models.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(faraway)</span>
+<span id="cb10-2"><a href="generalized-linear-models.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(wcgs, <span class="at">package=</span><span class="st">&quot;faraway&quot;</span>)</span>
+<span id="cb10-3"><a href="generalized-linear-models.html#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="generalized-linear-models.html#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wcgs)</span>
+<span id="cb10-5"><a href="generalized-linear-models.html#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="do">##      age height weight sdp dbp chol behave cigs dibep chd  typechd timechd</span></span>
+<span id="cb10-6"><a href="generalized-linear-models.html#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 2001  49     73    150 110  76  225     A2   25     B  no     none    1664</span></span>
+<span id="cb10-7"><a href="generalized-linear-models.html#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 2002  42     70    160 154  84  177     A2   20     B  no     none    3071</span></span>
+<span id="cb10-8"><a href="generalized-linear-models.html#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 2003  42     69    160 110  78  181     B3    0     A  no     none    3071</span></span>
+<span id="cb10-9"><a href="generalized-linear-models.html#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 2004  41     68    152 124  78  132     B4   20     A  no     none    3064</span></span>
+<span id="cb10-10"><a href="generalized-linear-models.html#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 2005  59     70    150 144  86  255     B3   20     A yes infdeath    1885</span></span>
+<span id="cb10-11"><a href="generalized-linear-models.html#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 2006  44     72    204 150  90  182     B4    0     A  no     none    3102</span></span>
+<span id="cb10-12"><a href="generalized-linear-models.html#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="do">##        arcus</span></span>
+<span id="cb10-13"><a href="generalized-linear-models.html#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 2001  absent</span></span>
+<span id="cb10-14"><a href="generalized-linear-models.html#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 2002 present</span></span>
+<span id="cb10-15"><a href="generalized-linear-models.html#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 2003  absent</span></span>
+<span id="cb10-16"><a href="generalized-linear-models.html#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 2004  absent</span></span>
+<span id="cb10-17"><a href="generalized-linear-models.html#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 2005 present</span></span>
+<span id="cb10-18"><a href="generalized-linear-models.html#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="do">## 2006  absent</span></span></code></pre></div>
 <hr />
 <p>Answers to selected exercises</p>
 <p>Exr. <a href="generalized-linear-models.html#exr:glm-wcgs">1.2</a> possible solution</p>
@@ -503,32 +501,29 @@ Additional practice with a bigger more realistic data set.</p>
 <li>probability of developing heart disease</li>
 </ol>
 <p>We first check the relationship between variables to gain more understanding of the data. We discover that a couple of variables are exactly collinear with other variables, including <code>typechd</code>, <code>timechd</code> and <code>dibep</code>. We do not include these in the model.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generalized-linear-models.html#cb11-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-2"><a href="generalized-linear-models.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># `chd` and `typechd` were correlated.</span></span>
-<span id="cb11-3"><a href="generalized-linear-models.html#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(wcgs, <span class="fu">table</span>(chd, typechd))</span>
-<span id="cb11-4"><a href="generalized-linear-models.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="do">##      typechd</span></span>
-<span id="cb11-5"><a href="generalized-linear-models.html#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="do">## chd   angina infdeath none silent</span></span>
-<span id="cb11-6"><a href="generalized-linear-models.html#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   no       0        0 2897      0</span></span>
-<span id="cb11-7"><a href="generalized-linear-models.html#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   yes     51      135    0     71</span></span>
-<span id="cb11-8"><a href="generalized-linear-models.html#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="generalized-linear-models.html#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># `timechd` is an outcome variable affected by `chd`.</span></span>
-<span id="cb11-10"><a href="generalized-linear-models.html#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(wcgs<span class="sc">$</span>timechd, wcgs<span class="sc">$</span>chd, summary)</span>
-<span id="cb11-11"><a href="generalized-linear-models.html#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="do">## wcgs$chd: no</span></span>
-<span id="cb11-12"><a href="generalized-linear-models.html#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="do">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span id="cb11-13"><a href="generalized-linear-models.html#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="do">##     238    2864    2952    2775    3048    3430 </span></span>
-<span id="cb11-14"><a href="generalized-linear-models.html#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="do">## ------------------------------------------------------------ </span></span>
-<span id="cb11-15"><a href="generalized-linear-models.html#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="do">## wcgs$chd: yes</span></span>
-<span id="cb11-16"><a href="generalized-linear-models.html#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="do">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span id="cb11-17"><a href="generalized-linear-models.html#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="do">##      18     934    1666    1655    2400    3229</span></span>
-<span id="cb11-18"><a href="generalized-linear-models.html#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="generalized-linear-models.html#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co"># `behave` has more detailed info of `dibep` -&gt; exact collinearity</span></span>
-<span id="cb11-20"><a href="generalized-linear-models.html#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(wcgs, <span class="fu">table</span>(behave, dibep))</span>
-<span id="cb11-21"><a href="generalized-linear-models.html#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="do">##       dibep</span></span>
-<span id="cb11-22"><a href="generalized-linear-models.html#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="do">## behave    A    B</span></span>
-<span id="cb11-23"><a href="generalized-linear-models.html#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="do">##     A1    0  264</span></span>
-<span id="cb11-24"><a href="generalized-linear-models.html#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="do">##     A2    0 1325</span></span>
-<span id="cb11-25"><a href="generalized-linear-models.html#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="do">##     B3 1216    0</span></span>
-<span id="cb11-26"><a href="generalized-linear-models.html#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="do">##     B4  349    0</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generalized-linear-models.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `chd` and `typechd` were correlated.</span></span>
+<span id="cb11-2"><a href="generalized-linear-models.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(wcgs, <span class="fu">table</span>(chd, typechd))</span>
+<span id="cb11-3"><a href="generalized-linear-models.html#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      typechd</span></span>
+<span id="cb11-4"><a href="generalized-linear-models.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="do">## chd   angina infdeath none silent</span></span>
+<span id="cb11-5"><a href="generalized-linear-models.html#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   no       0        0 2897      0</span></span>
+<span id="cb11-6"><a href="generalized-linear-models.html#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   yes     51      135    0     71</span></span>
+<span id="cb11-7"><a href="generalized-linear-models.html#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># `timechd` is an outcome variable affected by `chd`.</span></span>
+<span id="cb11-8"><a href="generalized-linear-models.html#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">by</span>(wcgs<span class="sc">$</span>timechd, wcgs<span class="sc">$</span>chd, summary)</span>
+<span id="cb11-9"><a href="generalized-linear-models.html#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="do">## wcgs$chd: no</span></span>
+<span id="cb11-10"><a href="generalized-linear-models.html#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="do">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span id="cb11-11"><a href="generalized-linear-models.html#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="do">##     238    2864    2952    2775    3048    3430 </span></span>
+<span id="cb11-12"><a href="generalized-linear-models.html#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="do">## ------------------------------------------------------------ </span></span>
+<span id="cb11-13"><a href="generalized-linear-models.html#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="do">## wcgs$chd: yes</span></span>
+<span id="cb11-14"><a href="generalized-linear-models.html#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="do">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span id="cb11-15"><a href="generalized-linear-models.html#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="do">##      18     934    1666    1655    2400    3229</span></span>
+<span id="cb11-16"><a href="generalized-linear-models.html#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># `behave` has more detailed info of `dibep` -&gt; exact collinearity</span></span>
+<span id="cb11-17"><a href="generalized-linear-models.html#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(wcgs, <span class="fu">table</span>(behave, dibep))</span>
+<span id="cb11-18"><a href="generalized-linear-models.html#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="do">##       dibep</span></span>
+<span id="cb11-19"><a href="generalized-linear-models.html#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="do">## behave    A    B</span></span>
+<span id="cb11-20"><a href="generalized-linear-models.html#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="do">##     A1    0  264</span></span>
+<span id="cb11-21"><a href="generalized-linear-models.html#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="do">##     A2    0 1325</span></span>
+<span id="cb11-22"><a href="generalized-linear-models.html#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="do">##     B3 1216    0</span></span>
+<span id="cb11-23"><a href="generalized-linear-models.html#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="do">##     B4  349    0</span></span></code></pre></div>
 <p>We fit logistic regression model to explain the probability of developing cardiac disease (<code>chd</code>) given the remaining variables</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="generalized-linear-models.html#cb12-1" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(chd <span class="sc">~</span> . <span class="sc">-</span> typechd <span class="sc">-</span> timechd <span class="sc">-</span> dibep, <span class="at">data =</span> wcgs, <span class="at">family =</span> binomial)</span>
 <span id="cb12-2"><a href="generalized-linear-models.html#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model1)</span></code></pre></div>
@@ -663,7 +658,6 @@ For example, one mm Hg increase of systolic blood pressure was correlated with t
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -682,6 +676,7 @@ gitbook.start({
 "weibo": false,
 "instapaper": false,
 "vk": false,
+"whatsapp": false,
 "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
@@ -702,6 +697,10 @@ gitbook.start({
 "text": null
 },
 "download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
 "toc": {
 "collapse": "section",
 "scroll_highlight": true

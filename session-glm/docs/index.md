@@ -3,7 +3,7 @@ title: "Introduction to GLM"
 author: "Olga Dethlefsen"
 site: bookdown::bookdown_site
 documentclass: book
-date: "2022-09-01"  
+date: "2022-09-02"  
 bibliography: [book.bib]
 biblio-style: apalike
 link-citations: yes
