@@ -1,0 +1,282 @@
+# Categorical data
+
+```{r, message=FALSE, warning=F}
+# load libraries
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+```
+
+Categorical data can be summarized by counting the number of observations of each category and summarizing in a frequency table or graphically in a bar chart. Alternatively we can calculate the the proportions (or percentages) of each category.
+
+```{mermaid}
+flowchart TD
+  A(Categorical data) --> B(Numerical summary)
+  B(Numerical summary) --> D(Table of frequencies <br/> Proportions <br/> Percentages <br/> ...)
+  A(Categorical data) --> C(Graphical summary)
+  C(Graphical summary) --> E(Bar charts <br/> Pie chart <br/> Mosaic plot <br/> ...)
+```
+
+<!-- Example: 10 mice -->
+```{r data-cat-simulate-mice-data, include=F}
+# Generate mice data
+set.seed(101) # set random seed
+n <- 100 # number of observations to generate
+week <- 5:24 # number of weeks to generate
+m <- length(week)
+
+mice0 <- data.frame(id=1:n, sex=sample(c('male', 'female'), n, replace = TRUE)) %>%
+  mutate(male=1*(sex=="male"), b0=rnorm(n, 15.5, 1), b1=rnorm(n, 0.5, 0.1), b2=rnorm(n, 1.5,0.5), b3=rnorm(n, 0.3, 0.1), a0 = rnorm(n, 44, 4))
+
+mice <- mice0 %>% slice(rep(1:n(), each=m)) %>% mutate(week=rep(week, n))
+mice <- mice %>% mutate(s=rnorm(n*m, 0, 0.2)) %>% mutate(weight=b0+b1*week+b2*male+b3*male*week+s) 
+
+mice <- mice %>% select(id, sex, male, week, weight)
+write_csv(mice, file="data/mice.csv")
+
+```
+
+::: {#exm-mice-10}
+## Lab mice: sex
+
+Imagine, we run an experiment, in which follow 100 mice over a period of 24 weeks. To begin with, we record mice sex (male/female). In addition, every week we record the weight (g) of each mouse, starting at week 5. How can we summarize the sex (male/female) variable? 
+
+::: 
+
+The data can be loaded from [mice.csv](data/mice.csv) and a preview is shown below.
+```{r, message=FALSE}
+#| label: tbl-mice-sex-preview
+#| tbl-cap: Preview of the mice data
+
+# read in data
+mice <- read_csv("data/mice.csv")
+mice <- mice %>%
+  mutate(weight = round(weight,2))
+
+# # preview data
+# mice %>%
+#   datatable() %>%
+#   formatSignif(columns = c("weight"), digits = 4)
+
+# preview data
+head(mice) %>%
+  kable() %>% 
+  kable_styling(full_width = FALSE)
+```
+
+Let's focus on only subset of data, the first 10 mice. 
+```{r}
+#| label: tbl-mice10-sex-preview
+#| tbl-cap: Sex and weigth data for a subset of 10 mice observed at week 5
+
+# select first 10 mice at week 5
+mice.10 <- mice %>% 
+  filter(week == 5) %>%
+  filter(id %in% 1:10)
+
+# preview data
+head(mice.10) %>%
+  kable() %>% 
+  kable_styling(full_width = FALSE)
+```
+
+Clearly, information about male/female falls under categorical data type. Things we can ask here to summarize the data are: how many mice of each category we have, i.e. how many males and how many females and what are the males/females percentages (or proportions). We can also visualize these descriptive statistics in a bar chart of a pie chart. 
+
+**Frequency table**
+
+```{r}
+#| label: tbl-mice-sex
+#| tbl-cap: The number, percentages and proportions of male and female mice
+
+# count frequencies, percentages and proportions
+table.summary <- mice.10 %>% 
+  group_by(sex) %>%
+  tally() %>%
+  mutate("percent (%)" = n/sum(n)*100) %>%
+  mutate("proportion" = n/sum(n))
+  
+# show table
+kable(table.summary) %>% kable_styling(full_width = TRUE)
+  
+```
+
+**Bar chart & pie chart**
+
+To visualize the frequencies (or percentages or proportions) we can use bar charts referred to as barplots in R. 
+
+```{r}
+#| label: fig-mice10
+#| fig-keep: all
+#| fig-height: 10
+#| fig-width: 12
+#| fig-cap: Graphical summaries of number and percentage of mice for each observed sex category (male/female)
+#| fig-subcap:
+#|   - "Bar chart"
+#|   - "Pie chart"
+#| layout-ncol: 2
+
+font.size <- 30
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank()) 
+
+# use ggplot to draw a bar chart
+mice.10 %>%
+  ggplot(aes(x = sex, fill = sex)) +
+  geom_bar(width = 0.5) +
+  scale_fill_brewer(palette = "Paired") + 
+  theme_bw() +
+  my.ggtheme
+
+# draw pie chart
+mice.10 %>%
+  ggplot(aes(x="", y = sex, fill = sex)) +
+  geom_bar(width = 1, stat = "identity") +
+  theme_bw() +
+  coord_polar("y", start=0) +
+  scale_fill_brewer(palette="Paired") +
+  xlab("") +
+  ylab("") + 
+  my.ggtheme
+
+```
+
+
+
+::: {#exm-lefthand}
+## Left-handedness
+
+We are interested in whether left-handedness is associated with suffering from migraine. We collect data on handedness in 30 patients suffering from migraine on regular basis and 40 healthy controls. 
+:::
+
+The preview of data: 
+```{r}
+# in fact we just generate some random data on handedness (L/H) and migrane (Yes/No)
+set.seed(1123) # set random seed 
+patients <- sample(c("L", "R"), 30, prob=c(0.3, 0.7), replace=TRUE)
+controls <- sample(c("L", "R"), 40, prob=c(0.1, 0.9), replace=TRUE)
+data.handedness <- rbind(data.frame(group="patient", handedness=patients),
+              data.frame(group="control", handedness=controls)) %>%
+  rownames_to_column("id")
+
+# preview data on handedness and migraine
+glimpse(data.handedness)
+```
+
+
+```{r}
+# preview first few observations
+head(data.handedness)
+
+# preview last few observations
+tail(data.handedness)
+```
+
+**Summary table**
+
+```{r}
+#| label: tbl-handedness-summary
+#| tbl-cap: Summary of left-handedness among patients and controls
+
+
+# count number (and %) of left-handed by group (patients / controls)
+data.handedness %>%
+  group_by(group) %>%
+  dplyr::summarize(Total=n(), `Left-handed` = sum(handedness=="L")) %>% 
+  mutate(`Left handed (%)` = round(`Left-handed` * 100 / Total, 2)) %>%
+  kable() %>%
+  kable_styling(full_width = TRUE)
+  
+```
+
+**Contingency table**
+
+Shows the multivariate frequency distribution of variables
+
+```{r}
+#| label: tbl-handedness-con
+#| tbl-cap: Contigency table (or cross table) of group and handedness 
+
+# use table() function to create contingency table
+table.con <- table(data.handedness$group, data.handedness$handedness)
+table.con <- addmargins(table.con)
+table.con %>% kable() %>%
+  kable_styling(full_width = TRUE)
+
+```
+
+
+**Bar charts**
+
+Again, we can visualize the frequencies using bar charts. 
+
+```{r}
+#| label: fig-handedness-barcharts
+#| fig-cap: Bar charts summarizing handedness variable in control and patients
+#| fig-width: 12
+#| fig-height: 16
+#| fig-subcap:
+#| - "stacked bars"
+#| - "side-by-side bars"
+#| - "bars showing fractions instead of counts"
+#| layout-ncol: 3
+
+data.handedness %>% 
+  ggplot(aes(x=group, fill=handedness)) + 
+  geom_bar() + 
+  theme_bw() + 
+  xlab("") + 
+  scale_fill_brewer(palette = "Paired") + 
+  my.ggtheme
+  
+# another way of using bar charts: side by side bars
+data.handedness %>% 
+  ggplot(aes(x=group, fill=handedness)) + 
+  geom_bar(position = "dodge") + 
+  theme_bw() + 
+  xlab("") + 
+  scale_fill_brewer(palette = "Paired") + 
+  my.ggtheme
+
+# another way of using bar charts: showing fractions instead of counts
+data.handedness %>% 
+  ggplot(aes(x=group, fill=handedness)) + 
+  geom_bar(position = "fill") + 
+  theme_bw() + 
+  xlab("") + 
+  ylab("fraction") +
+  scale_fill_brewer(palette = "Paired") + 
+  my.ggtheme
+
+```
+
+**Mosaic plot**
+
+Mosaic plots display contingency tables
+
+```{r}
+#| label: fig-handedness-mosaic
+#| fig-cap: Mosaic plot showing contigency table
+
+# recreate contingency table to remove margins stats
+table.con <- table(data.handedness$group, data.handedness$handedness)
+
+# draw mosaic plot
+font.scale <- 2
+mosaicplot(table.con, col = "#a6cee3", 
+           main = "", 
+           cex.axis = font.scale)
+
+```
+
+
+
+
+
+
+
+
+
+
+
