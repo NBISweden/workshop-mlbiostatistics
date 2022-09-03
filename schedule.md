@@ -19,7 +19,7 @@ title:  'Schedule'
 
 *12:00 - 13:00 lunch*
 
-**13:00 - 13.30** [Descriptive statistics](session-descriptive)
+**13:00 - 13.30** [Descriptive statistics](session-descriptive/docs/index.html)
 
 **13.30 - 14.30** [Exercises](session-descriptive/desc-exercises.html)
 
