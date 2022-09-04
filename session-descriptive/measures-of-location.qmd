@@ -28,16 +28,17 @@ Median value divides the ordered data values into two equally sized groups, so 5
 **The arithmetic mean**, also commonly referred to as to mean, is calculated by adding up all the values and diving this by the number of values in the data set.
 
 Mathematically, for $n$ observations $x_1, x_2, \dots, x_n$, the arithmetic mean value is calculated as:
-$$\bar x = \frac{x_1+x_2+\dots+x_n}{n} = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$
+$$\bar x = \frac{x_1+x_2+\dots+x_n}{n} = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$ {#eq-mean}
 
-As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$
+As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
 
 
-::: {#exm-mice-location}
+:::{#exm-mice-location}
 
 ## Lab mice (cont.)
 
 Let's revisit our lab mice example and focus on data from week 5. What's the mode value of sex variable? And what is the average weight of mice? 
+
 :::
 
 ```{r, warning=F, message=F}
@@ -55,6 +56,7 @@ data.mice.week5 <- data.mice %>%
 **Mode value**
 
 We can find mode value by counting how many times we observe males and females among our mice. The mode value is the most commonly occurring one, here "females". We have see from counting the values, that we have 53 female and 47 male mice. 
+
 ```{r}
 # fine mode value
 data.mice.week5 %>%
@@ -66,8 +68,22 @@ data.mice.week5 %>%
 
 **Arithmetic mean and weighted mean**
 
-To calculate the arithmetic mean we can use basic mean() function in R. 
+To calculate the arithmetic mean we can follow @eq-mean
+
 ```{r}
+# calculate arithmetic mean following equation
+x <- data.mice.week5 %>%
+  pull(weight) # extract weight observations
+n <- length(x) # number of observations
+x.bar <- sum(x) / n # calculate mean
+print(x.bar)
+
+```
+
+or use basic `mean()` function in R:
+
+```{r}
+# or alternatively use mean() function
 # calculate arithmetic mean
 data.mice.week5 %$%
   mean(weight) %>%
@@ -76,7 +92,7 @@ data.mice.week5 %$%
 
 The above arithmetic mean value may be however not best to reflect an average mice weight since we do not have equal numbers of males and females in the study. Here we know,or rather assume for the purpose of this example, that it is equally likely to find male and females in mice population and hence, in our experiment, males are underrepresented. 
 
-We can calculate weighted mean to account for group sizes. We assign weights so that they sum up to 100. The males and females group should have equal influence, so 50/50. As we have 53 females, the female weight is $w_f = 50 / 53 = 0.9433962$ and male weight is $w_m = 50 / 47 = 1.06383$. The weighted mean can now be calculated following the above equation and below code and is equal to:
+We can calculate weighted mean to account for group sizes. We assign weights so that they sum up to 100. The males and females group should have equal influence, so 50/50. As we have 53 females, the female weight is $w_f = 50 / 53 = 0.9433962$ and male weight is $w_m = 50 / 47 = 1.06383$. The weighted mean can now be calculated following @eq-mean-weighted and is equal to:
 
 ```{r}
 
