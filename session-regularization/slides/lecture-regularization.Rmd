@@ -507,7 +507,7 @@ Other common notation for LASSO:
       + the values of $Y$ are always standardized (?) for `family=gaussian` (LASSO)
           + and the coefficients are back-standardized before reported
 * Linear regression (`family='gaussian'` = default)
-* preform LASSO (`alpha=1` = default)
+* perform LASSO (`alpha=1` = default)
 
 ```{r, echo=T, eval=TRUE} 
 library(glmnet)
@@ -767,6 +767,98 @@ kable(coefglm, row.names=F) %>%   kable_styling( font_size = 14)
 
 ???
 * Finally print a table with the $\beta$ coefficients (including the intercept, $\beta_0$) for the optimal model (i.e.,  at minimum $\lambda$); compare with oracle knowledge. (Hint: see `? coef.cv.glmnet`).
+
+---
+layout: false
+layout: true
+# Regularization terms
+
+---
+
+### A note: 
+
+- A concept that commonly pops up when regularization is discussed is *norms* 
+    - Good to be aware of
+- Here only mention the in relation ot the relevant regularization term
+    - Extra reading in in-line lecture notes for interested
+
+???
+
+- Details 
+- Geometry interpretation
+- mayb help intuition
+
+---
+
+#### Naive approach (the $L_0$ norm)
+
+- the number of non-zero $\beta$ $$\sum_i I(\beta_i\neq 0),$$ where $I(expr)$ equals 1 if $expr$ is true and 0 otherwise. 
+
+--
+
+- Uses in regularization:
+  - The *Akaike Information Criterion*, $AIC$, $$AIC_m = 2 \# \beta - 2\log L[{\beta}|X,Y]$$
+  -  *Bayesian Information Criterion*, $BIC$,  $$BIC_m = \log(n) \# \beta - 2\log L[{\beta}|X,Y]$$
+
+???
+
+- In fact, this regularization would be the desired approach in most cases. However, as we have seen, finding the optimal model is really hard; in fact this is an *NP-hard* problem. Hence, alternative approaches using other norms has been investigated. 
+
+---
+
+#### Lasso approach (the $L_1$ norm)
+
+- the sum of the absolute values of $\beta_i$, $$\sum_{\beta_i\in\beta} |\beta_i|.$$
+
+--
+
+- Uses in regularization:
+  - LASSO, $$min\left\{RSS\right\} + \lambda \sum_{\beta_i\in\beta} |\beta_i|.$$
+  - `glmnet(..., alpha = 1,...)`
+
+???
+
+- As we have seen, LASSO is an effective algorithm for this regularization. It also does a decent job of mimicking the naive approach, i.e., setting $\beta_i=0$ for certain variables $i$. However, it has been shown that it can occasionally produce non-unique solutions.
+
+---
+
+
+#### Ridge regression approach (the $L_2$ norm)
+
+- Regularization can also be done using $$\sqrt{\sum_{\beta_i\in{\beta}} \beta_i^2}$$ as regularization term.
+
+--
+
+- Uses in regularization:
+ - For regularization, the $L_2$-norm is used in *Ridge Regression*.
+    -  $$min\left\{RSS\right\} + \lambda \sqrt{\sum_{\beta_i\in{\beta}} \beta_i^2}$$
+    - `glmnet(..., alpha = 0,...)`
+ 
+???
+
+- Computationally, this type ofregularization is even more efficient than with an $L_1$ norm. It works well to prevent over-fitting, but because it is bad at shrinking $\beta_i$'s all the way to zero, it is not so good for feature selection.
+
+---
+
+
+#### Combination of regularization terms
+
+- *Elastic net* regularization uses a mixed model combination of the LASSO approach and the Ridge regression regularization terms, $$min\left\{RSS\right\}+\alpha\lambda_1 \sum_{\beta_i\in\beta} |\beta_i| + (1-\alpha) \lambda_2 \sqrt{\sum_{\beta_i\in{\beta}} \beta_i^2}.,$$ where $\alpha \in [0,1]$ determines the weight of the different regularizations
+
+--
+
+- "intermediate" between LASSO and Ridge Regression
+    - `glmnet(..., alpha = <x>,...)`
+--
+
+- The aim is to avoid some drawbacks of LASSO.
+
+
+???
+
+- Elastic net regularization is closely related to the Machine Learning approach (linear) *Support Vector Machines*, $SVN$s
+
+
 ---
 layout: false
 layout: true
@@ -817,7 +909,58 @@ layout: true
 
 ---
 
-### Norms 
+layout: false
+
+
+# That's it
+
+- End of lecture...
+
+--
+
+- Lecture notes for the session is available from Schedule.
+  - contains some extra reading
+
+--
+
+- Next is the Exercises...
+
+---
+
+# Exercises
+
+### Data 
+
+- Biological data from TEX Human Tissue Gene Expression Consortium 
+- $X$: skeletal muscle gene expression subset (randomly sampled 1000 genes)  
+- $Y$: Gender
+
+### Methods
+
+- Model testing with _AIC_ or _BIC_
+
+- Feature selection with _LASSO_
+
+##### Tip:
+
+- Reuse code from lecture notes;)
+
+---
+
+l
+  
+---
+layout: false
+layout: true
+
+# EXTRA
+
+---
+
+### Regularization terms and _norms_
+
+
+#### Norms 
 
 - Norms are a kind of summary statistic over vectors 
   - function that has a vector as input and a (non-negative) number as output. 
@@ -835,7 +978,7 @@ layout: true
 
 ---
 
-#### The $L_0$ "norm"
+#### Naive approach -- the $L_0$ "norm"
 
 - the number of non-zero $\beta$ $$||\beta||_0 = \sum_i I(\beta_i\neq 0),$$ where $I(expr)$ equals 1 if $expr$ is true and 0 otherwise. 
   - corresponds to $\#X$ in our initial simple naive regularization approach
@@ -852,7 +995,7 @@ layout: true
 
 ---
 
-#### The $L_1$ norm
+#### Lasso approach -- the $L_1$ norm
 
 - the sum of the absolute values of $\beta_i$, $$||\beta||_1 = \sum_{\beta_i\in\beta} |\beta_i|.$$
 
@@ -868,7 +1011,7 @@ layout: true
 ---
 
 
-#### The $L_2$ norm
+#### Ridge regression approach -- the $L_2$ norm
 
 - There is also a $L_2$ norm, $$||\beta||_2 = \sqrt{\sum_{\beta_i\in{\beta}} \beta_i^2}.$$
 
@@ -895,7 +1038,7 @@ layout: true
 ---
 
 
-#### Combination of norms
+#### Combination of regularization terms / norms
 
 - *Elastic net* regularization uses a mixed model combination of the $L_1$ norm and the $L_2$ norm,$$RSS+\alpha\lambda_1 ||\beta||_1 + (1-\alpha) \lambda_2 ||\beta||_2.,$$ where $\alpha$ determines the weight of the different regularizations
 
@@ -940,6 +1083,7 @@ Norms can also have a geometry interpretation:
 ???
 - Hamming dist would be 2 here
 - In formal mathematics, the $L_0$ "norm" does not properly fulfill all criteria for a norm; hence it is often, as here, written within quotation marks.
+
 
 ---
 
@@ -993,45 +1137,5 @@ Norms can also have a geometry interpretation:
   - validate on _validation_ data. 
   - continue until the _validation_ loss score does not get better
 - Evaluate final model against the _test_ data.
-
----
-layout: false
-
-
-# That's it
-
-- End of lecture...
-
---
-
-- Lecture notes for the session is available from Schedule.
-  - contains some extra reading
-
---
-
-- Next is the Exercises...
-
----
-
-# Exercises
-
-### Data 
-
-- Biological data from TEX Human Tissue Gene Expression Consortium 
-- $X$: skeletal muscle gene expression subset (randomly sampled 1000 genes)  
-- $Y$: Gender
-
-### Methods
-
-- Model testing with _AIC_ or _BIC_
-
-- Feature selection with _LASSO_
-
-##### Tip:
-
-- Reuse code from lecture notes;)
-
-
-
 
 
