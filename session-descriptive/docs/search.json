@@ -1,0 +1,177 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Descriptive statistics",
+    "section": "",
+    "text": "Descriptive statistics is a term describing simple analyses of data that help getting to know the data by describing the data, showing the data and summarizing the data. Descriptive statistics is used to guide down-stream data analysis and often helps to uncover patterns in the data.\nLearning outcomes\n\nunderstand why we are doing descriptive statistics\nunderstand the difference between data types and be able to select and use appropriate data summaries and plots for each data type\ncompute measures of location, including mean and median\ncompute measures of spread, including quantiles, variance and standard deviation\ncompute population mean and variance\ncompute sample mean and variance\n\nDo you see a mistake or a typo? We would be grateful if you let us know via edu.ml-biostats@nbis.se\nThis repository contains teaching and learning materials prepared and used during “Introduction to biostatistics and machine learning” course, organized by NBIS, National Bioinformatics Infrastructure Sweden. The course is open for PhD students, postdoctoral researcher and other employees within Swedish universities. The materials are geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods. More about the course https://nbisweden.github.io/workshop-mlbiostatistics/"
+  },
+  {
+    "objectID": "data-types.html",
+    "href": "data-types.html",
+    "title": "1  Data types",
+    "section": "",
+    "text": "flowchart LR\n  A(Data types) --> B(Categorical)\n  A(Data types) --> C(Numerical)\n\n\n\n\n\n\n\n\nCategorical data types are further divided into:\n\nNominal: named\n\ne.g.dead/alive, healthy/sick, WT/mutant, AA/Aa/aa, male/female, red/green/blue\n\nOrdinal: named and ordered.\n\ne.g. pain (weak, moderate, severe), AA/Aa/aa, very young/young/middle age/old/very old, grade I, II, III, IV\n\n\nNumerical data types are further divided into:\n\nDiscrete: finite or countable infinite values\n\ne.g. counts, number of cells, number of reads\n\nContinuous: infinitely many uncountable values\n\ne.g. height, weight, concentration\n\n\n\n\n\n\n\n\nImportant\n\n\n\nDepending on the data type we use different methods to describe, summarize and visualize the data. Beyond descriptive statistics, we even use different methods to analyse the data."
+  },
+  {
+    "objectID": "data-categorical.html",
+    "href": "data-categorical.html",
+    "title": "2  Categorical data",
+    "section": "",
+    "text": "Code\n# load libraries\nlibrary(tidyverse)\nlibrary(kableExtra)\nlibrary(ggplot2)\nCategorical data can be summarized by counting the number of observations of each category and summarizing in a frequency table or graphically in a bar chart. Alternatively we can calculate the the proportions (or percentages) of each category.\nThe data can be loaded from mice.csv and a preview is shown below.\nLet’s focus on only subset of data, the first 10 mice.\nClearly, information about male/female falls under categorical data type. Things we can ask here to summarize the data are: how many mice of each category we have, i.e. how many males and how many females and what are the males/females percentages (or proportions). We can also visualize these descriptive statistics in a bar chart of a pie chart."
+  },
+  {
+    "objectID": "data-categorical.html#frequency-table",
+    "href": "data-categorical.html#frequency-table",
+    "title": "2  Categorical data",
+    "section": "2.1 Frequency table",
+    "text": "2.1 Frequency table\n\n\nCode\n# count frequencies, percentages and proportions\ntable.summary <- mice.10 %>% \n  group_by(sex) %>%\n  tally() %>%\n  mutate(\"percent (%)\" = n/sum(n)*100) %>%\n  mutate(\"proportion\" = n/sum(n))\n  \n# show table\nkable(table.summary) %>% kable_styling(full_width = TRUE)\n\n\n\n\nTable 2.3:  The number, percentages and proportions of male and female mice \n \n  \n    sex \n    n \n    percent (%) \n    proportion \n  \n \n\n  \n    female \n    3 \n    30 \n    0.3 \n  \n  \n    male \n    7 \n    70 \n    0.7"
+  },
+  {
+    "objectID": "data-categorical.html#bar-chart-pie-chart",
+    "href": "data-categorical.html#bar-chart-pie-chart",
+    "title": "2  Categorical data",
+    "section": "2.2 Bar chart & pie chart",
+    "text": "2.2 Bar chart & pie chart\nTo visualize the frequencies (or percentages or proportions) we can use bar charts referred to as barplots in R.\n\n\nCode\nfont.size <- 30\nmy.ggtheme <- theme(axis.title = element_text(size = font.size), \n        axis.text = element_text(size = font.size), \n        legend.text = element_text(size = font.size), \n        legend.title = element_blank()) \n\n# use ggplot to draw a bar chart\nmice.10 %>%\n  ggplot(aes(x = sex, fill = sex)) +\n  geom_bar(width = 0.5) +\n  scale_fill_brewer(palette = \"Paired\") + \n  theme_bw() +\n  my.ggtheme\n\n# draw pie chart\nmice.10 %>%\n  ggplot(aes(x=\"\", y = sex, fill = sex)) +\n  geom_bar(width = 1, stat = \"identity\") +\n  theme_bw() +\n  coord_polar(\"y\", start=0) +\n  scale_fill_brewer(palette=\"Paired\") +\n  xlab(\"\") +\n  ylab(\"\") + \n  my.ggtheme\n\n\n\n\n\n\n\n\n(a) Bar chart\n\n\n\n\n\n\n\n(b) Pie chart\n\n\n\n\nFigure 2.1: Graphical summaries of number and percentage of mice for each observed sex category (male/female)\n\n\n\n\nExample 2.2 (Left-handedness) \nWe are interested in whether left-handedness is associated with suffering from migraine. We collect data on handedness in 30 patients suffering from migraine on regular basis and 40 healthy controls.\n\nThe preview of data:\n\n\nCode\n# in fact we just generate some random data on handedness (L/H) and migrane (Yes/No)\nset.seed(1123) # set random seed \npatients <- sample(c(\"L\", \"R\"), 30, prob=c(0.3, 0.7), replace=TRUE)\ncontrols <- sample(c(\"L\", \"R\"), 40, prob=c(0.1, 0.9), replace=TRUE)\ndata.handedness <- rbind(data.frame(group=\"patient\", handedness=patients),\n              data.frame(group=\"control\", handedness=controls)) %>%\n  rownames_to_column(\"id\")\n\n# preview data on handedness and migraine\nglimpse(data.handedness)\n\n\nRows: 70\nColumns: 3\n$ id         <chr> \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\", \"1…\n$ group      <chr> \"patient\", \"patient\", \"patient\", \"patient\", \"patient\", \"pat…\n$ handedness <chr> \"L\", \"L\", \"L\", \"R\", \"L\", \"R\", \"R\", \"L\", \"L\", \"R\", \"R\", \"R\",…\n\n\n\n\nCode\n# preview first few observations\nhead(data.handedness)\n\n\n  id   group handedness\n1  1 patient          L\n2  2 patient          L\n3  3 patient          L\n4  4 patient          R\n5  5 patient          L\n6  6 patient          R\n\n\nCode\n# preview last few observations\ntail(data.handedness)\n\n\n   id   group handedness\n65 65 control          R\n66 66 control          R\n67 67 control          R\n68 68 control          R\n69 69 control          R\n70 70 control          R"
+  },
+  {
+    "objectID": "data-categorical.html#summary-table-2-categorical-variables",
+    "href": "data-categorical.html#summary-table-2-categorical-variables",
+    "title": "2  Categorical data",
+    "section": "2.3 Summary table: 2 categorical variables",
+    "text": "2.3 Summary table: 2 categorical variables\n\n\nCode\n# count number (and %) of left-handed by group (patients / controls)\ndata.handedness %>%\n  group_by(group) %>%\n  dplyr::summarize(Total=n(), `Left-handed` = sum(handedness==\"L\")) %>% \n  mutate(`Left handed (%)` = round(`Left-handed` * 100 / Total, 2)) %>%\n  kable() %>%\n  kable_styling(full_width = TRUE)\n\n\n\n\nTable 2.4:  Summary of left-handedness among patients and controls \n \n  \n    group \n    Total \n    Left-handed \n    Left handed (%) \n  \n \n\n  \n    control \n    40 \n    4 \n    10 \n  \n  \n    patient \n    30 \n    9 \n    30"
+  },
+  {
+    "objectID": "data-categorical.html#contingency-table",
+    "href": "data-categorical.html#contingency-table",
+    "title": "2  Categorical data",
+    "section": "2.4 Contingency table",
+    "text": "2.4 Contingency table\nShows the multivariate frequency distribution of variables\n\n\nCode\n# use table() function to create contingency table\ntable.con <- table(data.handedness$group, data.handedness$handedness)\ntable.con <- addmargins(table.con)\ntable.con %>% kable() %>%\n  kable_styling(full_width = TRUE)\n\n\n\n\nTable 2.5:  Contigency table (or cross table) of group and handedness \n \n  \n      \n    L \n    R \n    Sum \n  \n \n\n  \n    control \n    4 \n    36 \n    40 \n  \n  \n    patient \n    9 \n    21 \n    30 \n  \n  \n    Sum \n    13 \n    57 \n    70"
+  },
+  {
+    "objectID": "data-categorical.html#bar-chart-with-2-categorical-variables",
+    "href": "data-categorical.html#bar-chart-with-2-categorical-variables",
+    "title": "2  Categorical data",
+    "section": "2.5 Bar chart with 2 categorical variables",
+    "text": "2.5 Bar chart with 2 categorical variables\nAgain, we can visualize the frequencies using bar charts.\n\n\nCode\ndata.handedness %>% \n  ggplot(aes(x=group, fill=handedness)) + \n  geom_bar() + \n  theme_bw() + \n  xlab(\"\") + \n  scale_fill_brewer(palette = \"Paired\") + \n  my.ggtheme\n  \n# another way of using bar charts: side by side bars\ndata.handedness %>% \n  ggplot(aes(x=group, fill=handedness)) + \n  geom_bar(position = \"dodge\") + \n  theme_bw() + \n  xlab(\"\") + \n  scale_fill_brewer(palette = \"Paired\") + \n  my.ggtheme\n\n# another way of using bar charts: showing fractions instead of counts\ndata.handedness %>% \n  ggplot(aes(x=group, fill=handedness)) + \n  geom_bar(position = \"fill\") + \n  theme_bw() + \n  xlab(\"\") + \n  ylab(\"fraction\") +\n  scale_fill_brewer(palette = \"Paired\") + \n  my.ggtheme\n\n\n\n\n\n\n\n\n(a) stacked bars\n\n\n\n\n\n\n\n(b) side-by-side bars\n\n\n\n\n\n\n\n(c) bars showing fractions instead of counts\n\n\n\n\nFigure 2.2: Bar charts summarizing handedness variable in control and patients"
+  },
+  {
+    "objectID": "data-categorical.html#mosaic-plot",
+    "href": "data-categorical.html#mosaic-plot",
+    "title": "2  Categorical data",
+    "section": "2.6 Mosaic plot",
+    "text": "2.6 Mosaic plot\nMosaic plots display contingency tables\n\n\nCode\n# recreate contingency table to remove margins stats\ntable.con <- table(data.handedness$group, data.handedness$handedness)\n\n# draw mosaic plot\nfont.scale <- 2\nmosaicplot(table.con, col = \"#a6cee3\", \n           main = \"\", \n           cex.axis = font.scale)\n\n\n\n\n\nFigure 2.3: Mosaic plot showing contigency table"
+  },
+  {
+    "objectID": "data-numerical.html",
+    "href": "data-numerical.html",
+    "title": "3  Numerical data",
+    "section": "",
+    "text": "Code\n# load libraries\nlibrary(tidyverse)\nlibrary(kableExtra)\nlibrary(ggplot2)\nlibrary(ggbeeswarm)\nlibrary(gridExtra)\nNumerical data, both discrete and continuous, can be visualized and summarized in many ways. Common plots include histograms, density plots, box plots and scatter plots. Summary statistics include mean, median, quantiles, variance, standard deviation and median absolute deviation."
+  },
+  {
+    "objectID": "data-numerical.html#strip-plot-jittered-strip-plot-beeswarm-plot",
+    "href": "data-numerical.html#strip-plot-jittered-strip-plot-beeswarm-plot",
+    "title": "3  Numerical data",
+    "section": "3.1 Strip plot, Jittered strip plot & Beeswarm plot",
+    "text": "3.1 Strip plot, Jittered strip plot & Beeswarm plot\nWhen the data set is not very big, i.e. does not contain millions of measurements for a given numerical variable of interest, it can be useful to plot all measurements. This can be done in a 1D scatter plot, called a strip plot or a dot plot.\n\n\nCode\n# define generic ggplot theme\nfont.size <- 12\ncol.blue.light <- \"#a6cee3\"\ncol.blue.dark <- \"#1f78b4\"\nmy.ggtheme <- theme(axis.title = element_text(size = font.size), \n        axis.text = element_text(size = font.size), \n        legend.text = element_text(size = font.size), \n        legend.title = element_blank(), \n        legend.position = \"top\") \n\n# plot strip plot\ndata.sum10dice %>%\n  ggplot(aes(x = \"\", y = sumcounts)) + \n  geom_point() + \n  theme_bw() + \n  ylab(\"dot counts (10 dice)\") + \n  xlab(\"\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.1: Strip plot showing sum of dots across 10 dice being thrown at once 100 times\n\n\n\n\nAs some measurements are repeated, e.g. we count 40 dots in our first attempt in our 40 attempt, the measurements on the strip plot are shown on top of each other and we cannot see them all. A jittered strip plot attempts to reduce overlays by randomly moving data points by small amounts to the left and right.\n\n\nCode\n# plot jittered strip plot\ndata.sum10dice %>%\n  ggplot(aes(x = \"\", y = sumcounts)) + \n  geom_jitter(height = 0, width = 0.35) + \n  theme_bw() + \n  ylab(\"dot counts (10 dice)\") + \n  xlab(\"\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.2: Jittered strip plot showing sum of dots across 10 dice being thrown at once 100 times\n\n\n\n\nIn a jittered strip plot some overlays may still occur, as the data points are moved at random. Further, many data points are moved unnecessarily. In a beeswarm plot data points are moved only when necessary, and even then the data point is only moved the minimum distance necessary to avoid overlays\n\n\nCode\n# plot beeswarm\ndata.sum10dice %>%\n  ggplot(aes(x = \"\", y = sumcounts)) + \n  geom_beeswarm(cex = 2) + \n  theme_bw() + \n  ylab(\"dot counts (10 dice)\") + \n  xlab(\"\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.3: Beeswarm showing sum of dots across 10 dice being thrown at once 100 times\n\n\n\n\nHistogram & density plot\nA histogram bins the data and counts the number of observations that fall into each bin.\n\n\nCode\n# plot histogram\ndata.sum10dice %>%\n  ggplot(aes(x = sumcounts)) + \n  geom_histogram(binwidth = 5, center = 32.5, color = \"white\", fill = col.blue.dark) + \n  theme_bw() + \n  xlab(\"dot counts (10 dice)\") + \n  my.ggtheme\n\n# alternatively un-comment to plot histogram with hist(), base R plot\n# hist(data.sum10dice$counts, main = \"\", xlab=\"counts\")\n\n\n\n\n\nFigure 3.4: Histogram summarizing the sum of dots across 10 dice being thrown at once 100 times\n\n\n\n\nA density plot is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.\n\n\nCode\n# plot density plot\ndata.sum10dice %>% ggplot(aes(x = sumcounts)) + \n  geom_density() + \n  theme_bw() + \n  xlab(\"dot counts (10 dice)\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.5: Density plot of dot counts across 10 dice"
+  },
+  {
+    "objectID": "data-numerical.html#box-plot",
+    "href": "data-numerical.html#box-plot",
+    "title": "3  Numerical data",
+    "section": "3.2 Box plot",
+    "text": "3.2 Box plot\nA box plot, also called a box-and-whisker plot, shows a box covering 50% of the data and the center line is located at the median. The median value is a value such that 50% of the measurements are below the median.\nThe whiskers extend to the most extreme data point or at most 1.5 times the length of the box. (Note that 1.5 is the default in both ggplot and basic R graphics, but it is also a number that can be changed.) Any measurements further out are shown as outliers. A box plot is based on both measures of location and of spread (more about these in the following chapters).\n\n\nCode\ndata.sum10dice %>% ggplot(aes(y = sumcounts, x=\"\")) + \n  geom_boxplot(alpha = 1) + \n  geom_jitter(width = 0.35, alpha = 0.2) + \n  theme_bw() + \n  ylab(\"dot counts (10 dice)\") + \n  xlab(\"\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.6: Box plot of dot counts across 10 dice thrown 100 times, overlayed on the jittered measurments\n\n\n\n\n\nExample 3.2 (Lab mice (cont.)) \nLet’s go back to our lab mice example and focus on the weight measurements that we have observed for our male and female mice over a period of time. How can we summarize the data in a graphical way?"
+  },
+  {
+    "objectID": "data-numerical.html#strip-plot-jittered-stirp-plot-beeswarm-stratified-by-group",
+    "href": "data-numerical.html#strip-plot-jittered-stirp-plot-beeswarm-stratified-by-group",
+    "title": "3  Numerical data",
+    "section": "3.3 Strip plot, jittered stirp plot & beeswarm stratified by group",
+    "text": "3.3 Strip plot, jittered stirp plot & beeswarm stratified by group\n\n\nCode\n# read in mice data\ndata.mice <- read_csv(\"data/mice.csv\")\ndata.mice <- data.mice %>%\n  mutate(weight = round(weight,2))\n\n# select weights at week 5\ndata.mice.week5 <- data.mice %>%\n  filter(week == 5)\n  \n# strip plot stratified by sex\np.striplot <- data.mice.week5 %>%\n  ggplot(aes(x = sex, y = weight)) + \n  geom_point() + \n  theme_bw() + \n  xlab(\"\") + \n  ylab(\"weigth (g)\") + \n  my.ggtheme\n\n# jittered strip plot stratified by sex\np.jitter <- data.mice.week5 %>%\n  ggplot(aes(x = sex, y = weight)) +\n  geom_jitter(height = 0, width = 0.2) +\n  theme_bw() +\n  xlab(\"\") +\n  ylab(\"weigth (g)\") +\n  my.ggtheme\n\n# beeswarm stratified by sex\np.beeswarm <- data.mice.week5 %>%\n  ggplot(aes(x = sex, y = weight)) +\n  geom_beeswarm(cex = 3) +\n  theme_bw() +\n  xlab(\"\") +\n  ylab(\"weigth (g)\") +\n  my.ggtheme\n\ngrid.arrange(arrangeGrob(p.striplot, p.jitter, p.beeswarm,ncol=3))\n\n\n\n\n\nFigure 3.7: Strip plot, jittered strip plot and beeswarm plot showing mice weights at week 5 stratified by sex"
+  },
+  {
+    "objectID": "data-numerical.html#histogram-density-plot-stratified-by-group",
+    "href": "data-numerical.html#histogram-density-plot-stratified-by-group",
+    "title": "3  Numerical data",
+    "section": "3.4 Histogram & density plot stratified by group",
+    "text": "3.4 Histogram & density plot stratified by group\n\n\nCode\n# plot histogram\np.hist <- data.mice.week5 %>%\n  ggplot(aes(x=weight, fill=sex)) + \n  geom_histogram(bins=15, color=\"white\", alpha = 0.6) + \n  xlab(\"weight (g)\") + \n  theme_bw() + \n  scale_fill_brewer(palette = \"Dark2\") + \n  my.ggtheme\n\n\np.density <- data.mice.week5 %>%\n  ggplot(aes(x=weight, fill=sex)) + \n  geom_density(alpha = 0.6) + \n  xlab(\"weight (g)\") + \n  theme_bw() + \n  scale_fill_brewer(palette = \"Dark2\") + \n  my.ggtheme\n\ngrid.arrange(arrangeGrob(p.hist, p.density, ncol=2))\n\n\n\n\n\nFigure 3.8: Histogram and density plot summarizing the weights of mice at week 5, stratified by sex"
+  },
+  {
+    "objectID": "data-numerical.html#box-plot-stratified-by-group",
+    "href": "data-numerical.html#box-plot-stratified-by-group",
+    "title": "3  Numerical data",
+    "section": "3.5 Box plot stratified by group",
+    "text": "3.5 Box plot stratified by group\n\n\nCode\n# plot box plot\ndata.mice.week5 %>%\n  ggplot(aes(y=weight, fill=sex)) + \n  geom_boxplot(alpha = 0.6) + \n  xlab(\"weight (g)\") + \n  theme_bw() + \n  scale_fill_brewer(palette = \"Dark2\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.9: Box plot of mice weights at week 5 stratified by sex"
+  },
+  {
+    "objectID": "data-numerical.html#scatter-plot-2-numerical-variables",
+    "href": "data-numerical.html#scatter-plot-2-numerical-variables",
+    "title": "3  Numerical data",
+    "section": "3.6 Scatter plot: 2 numerical variables",
+    "text": "3.6 Scatter plot: 2 numerical variables\nScatter plots are useful when studying a relationship (association) between two numerical variables. Let’s add some data on our mice length and have a look at the relationship between mice weight and length at week 10.\n\n\nCode\n# simulate mice length data (based on normal distribution)\ndata.mice.week10 <- data.mice %>%\n  filter(week == 10) %>%\n  mutate(length = 7.3+weight/20+rnorm(100,0,0.1)) \n\n# plot scatter plot\ndata.mice.week10 %>%\n  ggplot(aes(x = weight, y = length)) + \n  geom_point() + \n  xlab(\"weigth (g)\") + \n  ylab(\"length (cm)\") + \n  theme_bw() + \n  my.ggtheme\n\n\n\n\n\nFigure 3.10: Scatter plot showing a relationship between mice weight and length at week 10\n\n\n\n\n\n\nCode\n# plot scatter plot\ndata.mice.week10 %>%\n  ggplot(aes(x = weight, y = length, color = sex)) +\n  geom_point() +\n  xlab(\"weigth (g)\") +\n  ylab(\"length (cm)\") +\n  theme_bw() +\n  scale_color_brewer(palette = \"Dark2\") +\n  my.ggtheme\n\n\n\n\n\nFigure 3.11: Scatter plot showing a relationship between mice weight and length at week 10 stratified by sex\n\n\n\n\nSometimes, it is useful to connect the observations in the order in which they appear, e.g. when analyzing time series data.\n\n\nCode\n# select four mice, with ids 17, 18 and 19\ndata.mice.4 <- data.mice %>%\n  subset(id %in% 16:19)\n  \n# plot a line plot\ndata.mice.4 %>%\n  ggplot(aes(x=week, y=weight, group=id)) + \n  geom_point() + \n  geom_line() + \n  ylab(\"weigth (g)\") + \n  theme_bw() + \n  my.ggtheme\n\n\n\n\n\nFigure 3.12: Line plot over age of mouse vs. weight (g) for four mice in the experiment\n\n\n\n\n\n\nCode\n# plot a line plot\ndata.mice.4 %>%\n  ggplot(aes(x=week, y=weight, group=id, color = sex)) + \n  geom_point() + \n  geom_line() + \n  ylab(\"weigth (g)\") + \n  theme_bw() + \n  scale_color_brewer(palette = \"Dark2\") + \n  my.ggtheme\n\n\n\n\n\nFigure 3.13: Line plot over age of mouse vs. weight (g) for four mice in the experiment"
+  },
+  {
+    "objectID": "measures-of-location.html",
+    "href": "measures-of-location.html",
+    "title": "4  Measures of location",
+    "section": "",
+    "text": "Code\n# load libraries\nlibrary(tidyverse)\nlibrary(magrittr)\nlibrary(kableExtra)\nlibrary(ggplot2)\nlibrary(ggbeeswarm)\nlibrary(gridExtra)\nlibrary(reshape2)\nIt is not always easy to get a “feeling” for a set of numerical measurements unless we summarize the data in a meaningful way. Diagrams, as shown in the previous chapter, are often a good starting point. We can further condense the information by reporting what constitutes a representative value. If we also know how widely scattered the observations are around it, we can formulate an image of data. The average is a general term for a measure of location and some common ways of calculating the average are mode, mean and median."
+  },
+  {
+    "objectID": "measures-of-location.html#mode",
+    "href": "measures-of-location.html#mode",
+    "title": "4  Measures of location",
+    "section": "4.1 Mode",
+    "text": "4.1 Mode\nMode values is the value that most common occurs across the measurements. It can be found for numerical and categorical data types."
+  },
+  {
+    "objectID": "measures-of-location.html#median",
+    "href": "measures-of-location.html#median",
+    "title": "4  Measures of location",
+    "section": "4.2 Median",
+    "text": "4.2 Median\nMedian value divides the ordered data values into two equally sized groups, so 50% of the values are below and 50% are above the median value."
+  },
+  {
+    "objectID": "measures-of-location.html#arthimetic-mean-weighted-mean",
+    "href": "measures-of-location.html#arthimetic-mean-weighted-mean",
+    "title": "4  Measures of location",
+    "section": "4.3 Arthimetic mean & weighted mean",
+    "text": "4.3 Arthimetic mean & weighted mean\nThe arithmetic mean, also commonly referred to as to mean, is calculated by adding up all the values and diving this by the number of values in the data set.\nMathematically, for \\(n\\) observations \\(x_1, x_2, \\dots, x_n\\), the arithmetic mean value is calculated as:\n\\[\\bar x = \\frac{x_1+x_2+\\dots+x_n}{n} = \\frac{1}{n}\\displaystyle\\sum_{i=1}^n x_i \\tag{4.1}\\]\nAs all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the weighted mean may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, \\(w_i\\) to each of the observed values, \\(x_i\\), in our sample, to reflect this importance and define the weighted mean as: \\[\\bar{x} = \\frac{w_1x_1 + w_2x_2 + \\ldots + w_nx_n}{w_1 + w_2 + \\ldots + w_n} = \\frac{\\displaystyle\\sum_{i=1}^{n}w_ix_i}{\\displaystyle\\sum_{i=1}^{n}w_i} \\tag{4.2}\\]\n\nExample 4.1 (Lab mice (cont.)) \nLet’s revisit our lab mice example and focus on data from week 5. What’s the mode value of sex variable? And what is the average weight of mice?\n\n\n\nCode\n# read in mice data\ndata.mice <- read_csv(\"data/mice.csv\")\ndata.mice <- data.mice %>%\n  mutate(weight = round(weight,2))\n\n# narrow data set to week 5 measurements\ndata.mice.week5 <- data.mice %>%\n  filter(week == 5)\n\n\nMode value\nWe can find mode value by counting how many times we observe males and females among our mice. The mode value is the most commonly occurring one, here “females”. We have see from counting the values, that we have 53 female and 47 male mice.\n\n\nCode\n# fine mode value\ndata.mice.week5 %>%\n  group_by(sex) %>%\n  tally() %>%\n  arrange(desc(n)) %>%\n  print()\n\n\n# A tibble: 2 × 2\n  sex        n\n  <chr>  <int>\n1 female    53\n2 male      47\n\n\nArithmetic mean and weighted mean\nTo calculate the arithmetic mean we can follow Equation 4.1\n\n\nCode\n# calculate arithmetic mean following equation\nx <- data.mice.week5 %>%\n  pull(weight) # extract weight observations\nn <- length(x) # number of observations\nx.bar <- sum(x) / n # calculate mean\nprint(x.bar)\n\n\n[1] 19.3752\n\n\nor use basic mean() function in R:\n\n\nCode\n# or alternatively use mean() function\n# calculate arithmetic mean\ndata.mice.week5 %$%\n  mean(weight) %>%\n  print()\n\n\n[1] 19.3752\n\n\nThe above arithmetic mean value may be however not best to reflect an average mice weight since we do not have equal numbers of males and females in the study. Here we know,or rather assume for the purpose of this example, that it is equally likely to find male and females in mice population and hence, in our experiment, males are underrepresented.\nWe can calculate weighted mean to account for group sizes. We assign weights so that they sum up to 100. The males and females group should have equal influence, so 50/50. As we have 53 females, the female weight is \\(w_f = 50 / 53 = 0.9433962\\) and male weight is \\(w_m = 50 / 47 = 1.06383\\). The weighted mean can now be calculated following Equation 4.2 and is equal to:\n\n\nCode\n# number of females\nn.females <- data.mice.week5 %>%\n  filter(sex == \"female\") %>%\n  nrow() \n\n# number of males\nn.males <- data.mice.week5 %>%\n  filter(sex == \"male\") %>%\n  nrow() \n\n# add weights to observations\ndata.mice.week5.addweight <- data.mice.week5 %>%\n  mutate(w = ifelse(sex == \"male\", 50/n.males, 50/n.females)) %>% # assign weights\n  mutate(wx = weight * w) %$% # multiply weight by their weights values\n  mean(wx) %>% # average the weighted measurements\n  print()\n\n\n[1] 19.45934\n\n\n\n\n\n\n\n\nWarning\n\n\n\nNote that several very different distributions can still have the same mean value.\n\n\n\n\n\n\n\nFigure 4.1: Examples of various distributions having the same mean value of 3.5"
+  },
+  {
+    "objectID": "measures-of-spread.html",
+    "href": "measures-of-spread.html",
+    "title": "5  Measures of spread",
+    "section": "",
+    "text": "Code\n# load libraries\nlibrary(tidyverse)\nlibrary(magrittr)\nlibrary(kableExtra)\nlibrary(ggplot2)\nlibrary(gridExtra)"
+  },
+  {
+    "objectID": "measures-of-spread.html#quartiles",
+    "href": "measures-of-spread.html#quartiles",
+    "title": "5  Measures of spread",
+    "section": "5.1 Quartiles",
+    "text": "5.1 Quartiles\nQuartiles are the three values that divide the data values into four equally sized groups.\n\nQ1. First quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.\nQ2. Second quartile. 50% of values are below Q2 and 50% are above Q2. Q2 is the median that we have seen before.\nQ3. Third quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.\n\n\nExample 5.1 (Lab mice (cont.)) \nGoing back to the lab mice example. What are the three quartiles of mice weight at week 5?\n\n\n\nCode\n# read in mice data\ndata.mice <- read_csv(\"data/mice.csv\")\ndata.mice <- data.mice %>%\n  mutate(weight = round(weight,2))\n\n# narrow data set to week 5 measurements\ndata.mice.week5 <- data.mice %>%\n  filter(week == 5)\n\n# calculate quartiles\ndata.mice.week5 %>%\n  summarise(x = quantile(weight, c(0.25, 0.5, 0.75))) %>%\n  print()\n\n\n# A tibble: 3 × 1\n      x\n  <dbl>\n1  17.8\n2  19.3\n3  20.6\n\n\nWe can check if the values agree with the box plot.\n\n\nCode\n# define generic ggplot theme\nfont.size <- 12\nmy.ggtheme <- theme(axis.title = element_text(size = font.size), \n        axis.text = element_text(size = font.size), \n        legend.text = element_text(size = font.size), \n        legend.title = element_blank(), \n        legend.position = \"top\") \n\ndata.mice.week5 %>%\n  ggplot(aes(x = \"\", y = weight)) + \n  geom_boxplot() + \n  xlab(\"\") + \n  ylab(\"weight (g)\") + \n  theme_bw() + \n  my.ggtheme\n\n\n\n\n\nFigure 5.1: Bar plot of mice weights at week 5"
+  },
+  {
+    "objectID": "measures-of-spread.html#variance-and-standard-deviation",
+    "href": "measures-of-spread.html#variance-and-standard-deviation",
+    "title": "5  Measures of spread",
+    "section": "5.2 Variance and standard deviation",
+    "text": "5.2 Variance and standard deviation\nThe variance of a set of observations is their mean squared distance from the mean value:\n\\[\\sigma^2 = \\frac{1}{n} \\sum_{i=1}^n (x_i - \\bar x)^2. \\tag{5.1}\\] The variance is measured in the square of the unit in which \\(x\\) was measured. Another common measure using the same unit as \\(x\\) is standard deviation, defined as the square root of the variance:\n\\[\\sigma = \\sqrt{\\frac{1}{n} \\sum_{i=1}^n (x_i - \\bar x)^2} \\tag{5.2}\\]\nTypically, we regard the collection of observations \\(x_1, \\dots, x_n\\) as a sample drawn from a large population of possible observations. It has been shown theoretically that we obtain a better sample estimate of the population standard deviation if we divide by \\((n-1)\\). So the denominator \\(n\\) is commonly replaced by \\(n-1\\) and the sample standard deviation is calculated instead:\n\\[s = \\sqrt{\\frac{1}{n-1} \\sum_{i=1}^n (x_i - \\bar x)^2}. \\tag{5.3}\\]\nTo reiterate:\n\nwe calculate standard deviation, \\(\\sigma\\), when we consider our observations to be entire population (Equation 5.2)\nwe calculate sample standard deviation, \\(s\\), when we consider our observations a random sample from a larger population, as a better estimate of the standard deviation of the larger population (Equation 5.3)\n\n\nExample 5.2 (Lab mice (cont.)) \nLet’s calculate variance, standard deviation and sample standard deviation for mice weight at week 5.\n\n\n\nCode\n# get weights measurements at week 5\nweight.week5 <- data.mice.week5 %>%\n  pull(weight)\n\n# number of observations\nn <- length(weight.week5)\n  \n# calculate mean (arithmetic)\nweight.mean <- mean(weight.week5)\n\n# calculate variance following variance equation\nsigma2 <- (sum((weight.week5 - weight.mean)^2))/(n)\n\n# calculate standard deviation following standard deviation equation\nsigma <- sqrt((sum((weight.week5 - weight.mean)^2))/(n))\n\n# calculate sample standard deviation following sample standard deviation equation\ns <- sqrt((sum((weight.week5 - weight.mean)^2))/(n-1))\n# sd(weight.week5) # we can alternatively use sd() function\n\n# collect results\nv.name <- c(\"sigma2\", \"sigma\", \"s\")\nv.values <- c(sigma2, sigma, s)\nresults <- data.frame(stats = v.name, value = v.values)\nprint(results)\n\n\n   stats    value\n1 sigma2 3.817581\n2  sigma 1.953863\n3      s 1.963706"
+  },
+  {
+    "objectID": "exercises.html",
+    "href": "exercises.html",
+    "title": "6  Exercises",
+    "section": "",
+    "text": "Code\n# load libraries\nlibrary(tidyverse)\nlibrary(kableExtra)\nlibrary(ggplot2)\nlibrary(ggbeeswarm)\nlibrary(gridExtra)"
+  },
+  {
+    "objectID": "exercises.html#solutions-descriptive-statistics",
+    "href": "exercises.html#solutions-descriptive-statistics",
+    "title": "6  Exercises",
+    "section": "Solutions: Descriptive statistics",
+    "text": "Solutions: Descriptive statistics\n\nSolution. Exercise 6.1\n\nSmokers: 5 (50%) yes\nbaby weight (kg) mean (sd): 3.3 (0.44)\ngender: 6 (60%) F\nmother weight (kg) mean(sd): 64 (8.5)\nmother age mean(sd): 28.5 (5.8)\npartity mean(sd): 1.5 (1.4) could also be handled as categorical (ordinal) and report frequencies and percentages.\nmarried: 4 (40%) yes\n\nDid you compute standard deviations that were slightly different? Then you probably computed the sample standard deviation, which could actually be what you want to report. When do you want to compute sample standard deviation?\n\n\nSolution. Exercise 6.1\n\n12.62\n0.067\n0.26\n0.22\n0.0028"
+  }
+]

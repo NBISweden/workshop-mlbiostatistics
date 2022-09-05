@@ -1,0 +1,161 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Measures of location
+```{r, include=T, message=FALSE, warning=FALSE}
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(ggbeeswarm)
+library(gridExtra)
+library(reshape2)
+```
+
+It is not always easy to get a "feeling" for a set of numerical measurements unless we summarize the data in a meaningful way. Diagrams, as shown in the previous chapter, are often a good starting point. We can further condense the information by reporting what constitutes a representative value. If we also know how widely scattered the observations are around it, we can formulate an image of data. The **average** is a general term for a measure of **location** and some common ways of calculating the average are mode, mean and median. 
+
+## Mode
+Mode values is the value that most common occurs across the measurements. It can be found for numerical and categorical data types. 
+
+## Median 
+Median value divides the ordered data values into two equally sized groups, so 50% of the values are below and 50% are above the median value. 
+
+## Arthimetic mean & weighted mean
+**The arithmetic mean**, also commonly referred to as to mean, is calculated by adding up all the values and diving this by the number of values in the data set.
+
+Mathematically, for $n$ observations $x_1, x_2, \dots, x_n$, the arithmetic mean value is calculated as:
+$$\bar x = \frac{x_1+x_2+\dots+x_n}{n} = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$ {#eq-mean}
+
+As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
+
+
+:::{#exm-mice-location}
+
+## Lab mice (cont.)
+
+Let's revisit our lab mice example and focus on data from week 5. What's the mode value of sex variable? And what is the average weight of mice? 
+
+:::
+
+```{r, warning=F, message=F}
+# read in mice data
+data.mice <- read_csv("data/mice.csv")
+data.mice <- data.mice %>%
+  mutate(weight = round(weight,2))
+
+# narrow data set to week 5 measurements
+data.mice.week5 <- data.mice %>%
+  filter(week == 5)
+
+```
+
+**Mode value**
+
+We can find mode value by counting how many times we observe males and females among our mice. The mode value is the most commonly occurring one, here "females". We have see from counting the values, that we have 53 female and 47 male mice. 
+
+```{r}
+# fine mode value
+data.mice.week5 %>%
+  group_by(sex) %>%
+  tally() %>%
+  arrange(desc(n)) %>%
+  print()
+```
+
+**Arithmetic mean and weighted mean**
+
+To calculate the arithmetic mean we can follow @eq-mean
+
+```{r}
+# calculate arithmetic mean following equation
+x <- data.mice.week5 %>%
+  pull(weight) # extract weight observations
+n <- length(x) # number of observations
+x.bar <- sum(x) / n # calculate mean
+print(x.bar)
+
+```
+
+or use basic `mean()` function in R:
+
+```{r}
+# or alternatively use mean() function
+# calculate arithmetic mean
+data.mice.week5 %$%
+  mean(weight) %>%
+  print()
+```
+
+The above arithmetic mean value may be however not best to reflect an average mice weight since we do not have equal numbers of males and females in the study. Here we know,or rather assume for the purpose of this example, that it is equally likely to find male and females in mice population and hence, in our experiment, males are underrepresented. 
+
+We can calculate weighted mean to account for group sizes. We assign weights so that they sum up to 100. The males and females group should have equal influence, so 50/50. As we have 53 females, the female weight is $w_f = 50 / 53 = 0.9433962$ and male weight is $w_m = 50 / 47 = 1.06383$. The weighted mean can now be calculated following @eq-mean-weighted and is equal to:
+
+```{r}
+
+# number of females
+n.females <- data.mice.week5 %>%
+  filter(sex == "female") %>%
+  nrow() 
+
+# number of males
+n.males <- data.mice.week5 %>%
+  filter(sex == "male") %>%
+  nrow() 
+
+# add weights to observations
+data.mice.week5.addweight <- data.mice.week5 %>%
+  mutate(w = ifelse(sex == "male", 50/n.males, 50/n.females)) %>% # assign weights
+  mutate(wx = weight * w) %$% # multiply weight by their weights values
+  mean(wx) %>% # average the weighted measurements
+  print()
+    
+```
+
+
+:::{.callout-warning}
+Note that several very different distributions can still have the same mean value. 
+:::
+
+```{r mean35, warning=FALSE, message=FALSE, include=T, echo=F}
+#| fig-cap: Examples of various distributions having the same mean value of 3.5
+#| label: fig-mean-distr
+#| fig-width: 12
+#| fig-height: 10
+#| fig-cap-location: margin
+
+df <- data.frame(x=rnorm(200, 3.5, 2))
+df$x <- df$x - mean(df$x) + 3.5
+y <- exp(rnorm(200, 0, 1))
+y <- y+3.5 - mean(y)
+df$y=y
+
+df$z <- rep(c(0,10), c(200*.65, 200*.35))
+
+df$a <- rnorm(200, 3.5, 8)
+df$a <- df$a - mean(df$a) + 3.5
+b <- exp(rnorm(200, 2, 1))
+df$b <- b+3.5 - mean(b)
+c <- c(rnorm(150, 10, 3), rnorm(50,0,1))
+c <- c + 3.5 - mean(c)
+df$c <- c
+
+data.plot <- df
+colnames(data.plot) <- c("Distr1", "Distr2", "Distr3", "Distr4", "Distr5", "Distr6")
+data.plot %>%
+  rownames_to_column("x") %>%
+  pivot_longer(-x, names_to = "Distr") %>%
+  ggplot(aes(x = value)) + 
+  geom_histogram(color="white", bins=30) + 
+  facet_wrap(~Distr, scale = "free") + 
+  theme_bw() +
+  xlab("")
+  
+``` 
+
+
+
+

@@ -1,0 +1,137 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Measures of spread
+```{r, include=T, message=FALSE, warning=FALSE}
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(gridExtra)
+```
+
+
+## Quartiles 
+
+Quartiles are the three values that divide the data values into four equally sized groups.
+
+  - Q1. First quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.
+  - Q2. Second quartile. 50% of values are below Q2 and 50% are above Q2. Q2 is the median that we have seen before.
+  - Q3. Third quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.
+
+
+::: {#exm-mice-quartiles}
+
+## Lab mice (cont.)
+
+Going back to the lab mice example. What are the three quartiles of mice weight at week 5? 
+
+:::
+
+```{r, warning=F, message=F}
+# read in mice data
+data.mice <- read_csv("data/mice.csv")
+data.mice <- data.mice %>%
+  mutate(weight = round(weight,2))
+
+# narrow data set to week 5 measurements
+data.mice.week5 <- data.mice %>%
+  filter(week == 5)
+
+# calculate quartiles
+data.mice.week5 %>%
+  summarise(x = quantile(weight, c(0.25, 0.5, 0.75))) %>%
+  print()
+
+```
+
+We can check if the values agree with the box plot. 
+```{r}
+#| fig-cap: Bar plot of mice weights at week 5
+#| label: fig-mice-boxplot
+#| fig-cap-location: margin
+#| fig-width: 4
+#| fig-height: 4
+
+# define generic ggplot theme
+font.size <- 12
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") 
+
+data.mice.week5 %>%
+  ggplot(aes(x = "", y = weight)) + 
+  geom_boxplot() + 
+  xlab("") + 
+  ylab("weight (g)") + 
+  theme_bw() + 
+  my.ggtheme
+
+```
+
+
+## Variance and standard deviation
+
+The **variance** of a set of observations is their mean squared distance from the mean value:
+
+$$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2.$$ {#eq-sigma2}
+The variance is measured in the square of the unit in which $x$ was measured. Another common measure using the same unit as $x$ is **standard deviation**, defined as the square root of the variance:
+
+$$\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2}$$ {#eq-sigma}
+
+
+Typically, we regard the collection of observations $x_1, \dots, x_n$ as a **sample** drawn from a large **population** of possible observations. It has been shown theoretically that we obtain a better sample estimate of the **population standard deviation** if we divide by $(n-1)$. So the denominator $n$ is commonly replaced by $n-1$ and the **sample standard deviation** is calculated instead:
+
+$$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$ {#eq-s}
+
+To reiterate: 
+
+- we calculate standard deviation, $\sigma$, when we consider our observations to be entire population (@eq-sigma)
+- we calculate sample standard deviation, $s$, when we consider our observations a random sample from a larger population, as a better estimate of the standard deviation of the larger population (@eq-s)
+
+::: {#exm-mice-sd}
+
+## Lab mice (cont.)
+
+Let's calculate variance, standard deviation and sample standard deviation for mice weight at week 5. 
+
+:::
+
+```{r}
+
+# get weights measurements at week 5
+weight.week5 <- data.mice.week5 %>%
+  pull(weight)
+
+# number of observations
+n <- length(weight.week5)
+  
+# calculate mean (arithmetic)
+weight.mean <- mean(weight.week5)
+
+# calculate variance following variance equation
+sigma2 <- (sum((weight.week5 - weight.mean)^2))/(n)
+
+# calculate standard deviation following standard deviation equation
+sigma <- sqrt((sum((weight.week5 - weight.mean)^2))/(n))
+
+# calculate sample standard deviation following sample standard deviation equation
+s <- sqrt((sum((weight.week5 - weight.mean)^2))/(n-1))
+# sd(weight.week5) # we can alternatively use sd() function
+
+# collect results
+v.name <- c("sigma2", "sigma", "s")
+v.values <- c(sigma2, sigma, s)
+results <- data.frame(stats = v.name, value = v.values)
+print(results)
+
+```
+
+
+
+

@@ -19,7 +19,7 @@ title:  'Schedule'
 
 *12:00 - 13:00 lunch*
 
-**13:00 - 13.30** [Descriptive statistics](session-descriptive)
+**13:00 - 13.30** [Descriptive statistics](session-descriptive/docs/index.html)
 
 **13.30 - 14.30** [Exercises](session-descriptive/desc-exercises.html)
 
@@ -27,7 +27,7 @@ title:  'Schedule'
 
 **15:00 - 15:30** [Probability: Introduction and discrete distributions](session-probability)
 
-**13.30 - 16.30** [Exercises](session-probability/prob-exercise-discrv.html)
+**13.30 - 16.30** [Exercises](session-probability/prob-exr1-discrv.html)
 
 **16.30 - 17.00** Daily challenge
 
@@ -36,25 +36,25 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09:30 - 10.00** [Probability: continuous distributions](session-probability/prob-contrv.html)
+**09:30 - 10.00** [Probability: continuous distributions](session-probability/prob-03contrv.html)
 
-**10:00 - 10.45** [Exercises](session-probability/prob-exercise-contrv.html) and [Exercises](session-probability/prob-exercise-sample.html)
+**10:00 - 10.45** [Exercises](session-probability/prob-exr2-contrv.html)
 
 **10:45 - 11.15** [Statistical inference: Hypothesis tests using resampling](session-inference)
 
-**11:15 - 12.00** [Exercises](session-inference/infe-exercises-hypresamp.html)
+**11:15 - 12.00** [Exercises](session-inference/infe-exr2-hypresamp.html)
 
 *12:00 - 13:00 lunch*
 
 **13.00 - 13.30** [Statistical inference: Parametric tests](session-inference/infe-hypparam.html)
 
-**13.30 - 14.30** [Exercises](session-inference/infe-exercise-hypparam.html)
+**13.30 - 14.30** [Exercises](session-inference/infe-exr2-hypparam.html)
 
 *14.30 - 15.00 break*
 
 **15.00 - 15.30** [Statistical inference: point and interval estimates](session-inference/infe-interval.html)
 
-**15.30 - 16.30** [Exercises](session-inference/infe-exercise-interval.html)
+**15.30 - 16.30** [Exercises](session-inference/infe-exr3-interval.html)
 
 **16.30 - 17.00** Daily challenge
 
@@ -124,3 +124,10 @@ title:  'Schedule'
 **14.30 - 16.00** Course wrap-up  
 
 <br/><br/>
+
+
+<br/>
+<br/>
+<br/>
+
+[test](test-quatrobook/docs/index.html)
