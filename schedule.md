@@ -16,7 +16,7 @@ title:  'Schedule'
 
 **10.00 - 10:45** [Introductory lecture](session-intro2/intro2.html)
 
-**11.00 - 12:00** [Descriptive statistics](session-descriptive/docs/index.html)
+**11.00 - 12:00** [Descriptive statistics](session-descriptive/docs/index.html) ([.chapter](session-descriptive/docs/index.html), [.presentation](session-descriptive-presentation/session-descriptive-presentation.html))
 
 *12:00 - 13:00 lunch*
 
@@ -130,6 +130,3 @@ title:  'Schedule'
 <br/>
 <br/>
 <br/>
-
-[test-presentation](session-descriptive-presentation/session-descriptive-presentation.html)
-[test-quatrobook](test-quatrobook/docs/index.html)
