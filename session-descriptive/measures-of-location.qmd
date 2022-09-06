@@ -37,7 +37,7 @@ As all the values equally contribute to the calculations, the arithmetic mean va
 
 ## Lab mice (cont.)
 
-Let's revisit our lab mice example and focus on data from week 5. What's the mode value of sex variable? And what is the average weight of mice? 
+Let's revisit our lab mice example and focus on data from week 5. What's the mode value of sex variable? What is median value of the first 9 measures of mice weight at week 5? How about for the first 10 measurements? And what is the average weight of mice during that week? 
 
 :::
 
@@ -58,12 +58,53 @@ data.mice.week5 <- data.mice %>%
 We can find mode value by counting how many times we observe males and females among our mice. The mode value is the most commonly occurring one, here "females". We have see from counting the values, that we have 53 female and 47 male mice. 
 
 ```{r}
-# fine mode value
+# find mode value
 data.mice.week5 %>%
   group_by(sex) %>%
   tally() %>%
   arrange(desc(n)) %>%
   print()
+```
+
+**Median value**
+
+We can find median value by: 
+
+- ordering values
+- and finding the middle value, if the number of measurement is odd 
+- and taking the arithmetic average of the two middle measurements, if the number of measurements is even 
+
+Median value for the first 9 measurements of mice weight at week 5:
+
+```{r}
+# find median value for the first 9 measurements (odd)
+data.mice.week5 %>%
+  slice(1:9) %>% # select first 9 measurements
+  arrange(weight) %>% # arrange by weight
+  slice(5) %>%  # get the middle, fifth measurement
+  pull(weight) %>% 
+  print() # print weight value for the 5th measurement (median)
+  
+# # alternatively use median() function
+# data.mice.week5 %>%
+#   slice(1:9) %>% # select first 9 measurements
+#   arrange(weight) %>% # arrange by weight
+#   pull(weight) %>% 
+#   median()
+
+```
+
+Median value for the first 10 measurements of mice weight at week 5:
+
+```{r}
+# find median value for the first 9 measurements (odd)
+data.mice.week5 %>%
+  slice(1:10) %>% # select first 9 measurements
+  arrange(weight) %>% # arrange by weight
+  slice(5,6) %$%  # get 2 middle values, fifth & sixth
+  mean(weight) %>% 
+  print() # print weight value for the 5th measurement (median)
+  
 ```
 
 **Arithmetic mean and weighted mean**

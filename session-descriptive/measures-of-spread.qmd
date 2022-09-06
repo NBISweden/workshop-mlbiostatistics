@@ -18,9 +18,10 @@ library(gridExtra)
 
 Quartiles are the three values that divide the data values into four equally sized groups.
 
-  - Q1. First quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.
-  - Q2. Second quartile. 50% of values are below Q2 and 50% are above Q2. Q2 is the median that we have seen before.
-  - Q3. Third quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.
+  - **Q1**. Lower quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.
+  - **Q2**. Median. 50% of values are below Q2 and 50% are above Q2. Q2 is the median that we have seen before.
+  - **Q3**. Upper quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.
+  - **IQR**. Interquartile range, midspread, middle 50%. IQR = Q3 - Q1. 
 
 
 ::: {#exm-mice-quartiles}
@@ -58,6 +59,8 @@ We can check if the values agree with the box plot.
 
 # define generic ggplot theme
 font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
 my.ggtheme <- theme(axis.title = element_text(size = font.size), 
         axis.text = element_text(size = font.size), 
         legend.text = element_text(size = font.size), 
@@ -80,10 +83,41 @@ data.mice.week5 %>%
 The **variance** of a set of observations is their mean squared distance from the mean value:
 
 $$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2.$$ {#eq-sigma2}
+
+```{r}
+#| label: fig-var
+#| fig-cap: First ten measurments of mice weight at week 5. Grey lines show the distance to the mean value.
+#| fig-cap-location: margin
+
+data.xy <- data.mice.week5 %>% 
+  slice(1:10) %>%
+  rename(y = weight) %>%
+  rename(x = id)
+  
+y.bar <- mean(data.xy$y)
+
+data.xy %>%
+ggplot(aes(x=x, y=y)) +
+  geom_segment( aes(x=x, xend=x, y=y, yend=y.bar), color="grey") +
+  geom_point(color=col.blue.dark, size=4) +
+  geom_hline(yintercept=y.bar) + 
+  theme_bw() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks = element_blank(), 
+    axis.text.y = element_blank()) +
+  xlab("") +
+  ylab("Length (cm)") +
+  coord_flip() + 
+  my.ggtheme
+
+
+```
+
 The variance is measured in the square of the unit in which $x$ was measured. Another common measure using the same unit as $x$ is **standard deviation**, defined as the square root of the variance:
 
 $$\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2}$$ {#eq-sigma}
-
 
 Typically, we regard the collection of observations $x_1, \dots, x_n$ as a **sample** drawn from a large **population** of possible observations. It has been shown theoretically that we obtain a better sample estimate of the **population standard deviation** if we divide by $(n-1)$. So the denominator $n$ is commonly replaced by $n-1$ and the **sample standard deviation** is calculated instead:
 
