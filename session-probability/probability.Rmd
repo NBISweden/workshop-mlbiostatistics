@@ -143,7 +143,7 @@ When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, eac
 The probability mass function of a fair six-sided die can be summarized in a table;
 
 ```{r pmfdie}
-kable(matrix(c(1:6,rep(1/6,6)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
+kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
 ```
 
 or in a barplot;
@@ -729,12 +729,13 @@ Cumulative distribution functions can be computed using `pnorm`, `pt`, `pchisq` 
 
 Also, functions for computing an $x$ such that $P(X<x) = q$, where $q$ is a probability of interest are available using `qnorm`, `qt`, `qchisq` and `qf`.
 
-# Random sample {#prob-04sample}
+# Sampling and experimental design {#prob-04sample}
 
-In many (most) experiments it is not feasible (or even possible) to examine the entire population. Instead we study a random sample.
+## Random sampling
 
-A random sample is a random subset of individuals from a population.
-<!-- In random sampling from a population, where the variable $X$ has a known distribution with mean $\mu$ and standard deviation $\sigma$ -->
+In many (most) experiments it is not feasible (or even possible) to examine the entire population. Instead a random sample is studied.
+
+A **random sample** is a random subset of individuals from a population.
   
 There are different techniques for performing random sampling, two common techniques are **simple random sampling** and **stratified random sampling**.
 
@@ -753,6 +754,27 @@ A **simple random sample** is a random subset of individuals from a population, 
 
 In **stratified random sampling** the population is first divided into subpopulations based on important attributes, e.g. sex (male/female), age (young/middle aged/old) or BMI (underweight/normal weight/overweight/obese). Simple random sampling is then performed within each subpopulation.
 
+## Principles of experimental design
+
+When you plan your experiment and assign experimental units to treatment/control group (or similar), it is important to consider extraneous variables, i.e. variables that are not your main interest but that might affect the studied experimental outcome or the variable of interest. These variables can be properties of the experimental units such as age, sex etc. but also variables introduced in the experiment, like batch, experiment date, laboratory personell etc.
+
+Fundamental to experimental design are the three principles; **replication**, **randomization** and **blocking**.
+
+**Replication**. Replication is the repetition of the same experiment, with the same conditions. **Biological replicates** are measurements of different biological units under the same conditions, whereas **technical replicates** are repeated measurements of the same biological unit under the same conditions.
+
+**Randomization**. Experimental units are not identical, hence by assigning experimental units to treatment/control at random we can avoid unnecessary bias. It is also important to perform the measurements in random order.
+
+<!-- - **Completely randomized design**, the experimental units are assigned to treatment and control groups at random. -->
+<!-- - **Randomized block design**, first group the experimental units based on extraneous variables such as sex, age, BMI, then within each group assign the experimental units to treatment/control at random. -->
+
+**Blocking**. Blocking is grouping experimental units into blocks consisting of units that are similar to one another and assigning units within a block to treatment/control at random. Blocking reduces known but irrelevant sources of variation between units and thus allows greater precision in the estimation of the source of variation under study.
+
+The experimental units can be grouped into blocks according to their properies (e.g. age, sex, etc). Units within a block will be more similar than between blocks. By assigning units within a block to treatment/control at random, the variation due to differences between blocks (that are not relevant to the studied outcome) can be reduced.
+
+In many retrospective studies it is not possible to assign patients into treatment/control or sick/healthy. Experimental design is still important for controling sources of variation introduced during the experiment.
+
+**Block what you can; randomize what you cannot.**
+
 ## Sample properties
 
 Summary statistics can be computed for a sample, such as the sum, proportion, mean and variance.
@@ -770,7 +792,7 @@ $$P = \frac{X}{n}$$
 with expected value 
 $$E[P] = \frac{E[X]}{n} = \frac{n\pi}{n} = \pi$$
 
-## Sample mean and standard deviation
+### Sample mean and standard deviation
 
 For a particular sample of size $n$; $x_1, \dots, x_n$, the sample mean is denoted $m = \bar x$. The sample mean is calculated as;
   
@@ -790,7 +812,7 @@ $$E[\bar X] = \frac{1}{n} n E[X] = E[X] = \mu$$
 
 Similarly, the sample variance is an unbiased estimate of the population variance.
 
-## Standard error
+### Standard error
 
 Eventhough the sample can be used to calculate unbiased estimates of the population value, the sample estimate will not be perfect. The standard deviation of the sampling distribution (the distribution of sample estimates) is called the **standard error**.
 
@@ -803,25 +825,6 @@ $$SEM = \frac{\sigma}{\sqrt{n}}$$
 Replacing $\sigma$ with the sample standard deviation, $s$, we get an estimate of the standard error of the mean;
 
 $$SEM \approx \frac{s}{\sqrt{n}}$$
-
-## Experimental design
-
-When you plan your experiment and assign experimental units to treatment/control group (or similar), it is important to consider extraneous variable, i.e. variables that are not your main interest but that might affect the studied experimental outcome or the variable of interest. These variables can be properties of the experimental units such as age, sex etc. but also variables introduced in the xperiment, like batch, experiment date, laboratory personell etc.
-
-Fundamental to experimental design are the three principles; **replication**, **randomization** and **blocking**.
-
-**Replication**. Randimization is the repetition of the same experiment, with the same conditions. **Biological replicates** are measurements of different biological units under the same conditions, whereas **technical replicates** are repeated measurements of the same biological unit under the same conditions.
-
-**Randomization**. Experimental units are not identical, hence by assigning experimental units to treatment/control at random we can avoid unnecessary bias. It is also important to perform the measurements in random order.
-
-<!-- - **Completely randomized design**, the experimental units are assigned to treatment and control groups at random. -->
-<!-- - **Randomized block design**, first group the experimental units based on extraneous variables such as sex, age, BMI, then within each group assign the experimental units to treatment/control at random. -->
-
-**Blocking**. Blocking is grouping experimental units into blocks  consisting of units that are similar to one another. Blocking reduces known but irrelevant sources of variation between units and thus allows greater precision in the estimation of the source of variation under study.
-
-The experimental units can be grouped into blocks according to their properies (e.g. age, sex, etc). Units within a block will be more similar than between blocks. By assigning units within a block to treatment/control at random, the variation due to differences between blocks (that are not relevant to the studied outcome) can be reduced.
-
-In many retrospective studies it is not possible to assign patients into treatment/control or sick/healthy. Experimental design is still important for controling sources of variation introduced during the experiment.
 
 # Exercises: Continuous random variables {.unnumbered #prob-exr2-contrv}
 
