@@ -55,7 +55,7 @@ title:  'Schedule'
 
 **15.00 - 15.30** [Multiple testing correction](session-inference/infe-multiple.html)
 
-**15.30 - 16.30** [Non parametric tests](session-rank-tests/docs/index.html) ((.presentation)[session-rank-tests-presentation/session-rank-tests-presentatation.html])
+**15.30 - 16.30** [Non parametric tests](session-rank-tests/docs/index.html) ([.presentation](session-rank-tests-presentation/session-rank-tests-presentation.html))
 
 **16.30 - 17.00** Daily challenge
 
