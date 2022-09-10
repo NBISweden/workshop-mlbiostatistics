@@ -1,0 +1,226 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "session-rank-tests",
+    "section": "",
+    "text": "Hypothesis tests that are based on knowledge of the probability distributions (e.g. normal or binomial) that the data follow are known as parametric tests. When data do not meet the parametric test assumptions, we can use non-parametric tests, also called distribution free tests, that replace the data with their ranks.\nLearning outcomes\n\nknow when to use non-parametric tests, their advantages and limitations\nname the main rank methods and their parametric counterparts\nexplain how Wilcoxon signed rank test and Wilcoxon rank sum test work in detail\nbe able to use R to compute Wilcoxon signed rank test, Wilcoxon rank sum test and Kruskal-Wallis one way analysis of variance\n\nDo you see a mistake or a typo? We would be grateful if you let us know via edu.ml-biostats@nbis.se\nThis repository contains teaching and learning materials prepared and used during “Introduction to biostatistics and machine learning” course, organized by NBIS, National Bioinformatics Infrastructure Sweden. The course is open for PhD students, postdoctoral researcher and other employees within Swedish universities. The materials are geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods. More about the course https://nbisweden.github.io/workshop-mlbiostatistics/"
+  },
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "Hypothesis tests that are based on knowledge of the probability distributions (e.g. normal or binomial) that the data follow are known as parametric tests. When data do not meet the parametric test assumptions, we can use non-parametric tests, also called distribution free tests, that replace the data with their ranks. These tests came before computers enabled resampling to obtain the null distribution as seen before and are still being used in hypothesis testing."
+  },
+  {
+    "objectID": "intro.html#pros-and-cons",
+    "href": "intro.html#pros-and-cons",
+    "title": "1  Introduction",
+    "section": "1.1 Pros and cons",
+    "text": "1.1 Pros and cons\nPros\nNon-parametric rank based test are useful when:\n\nwe do not know the underlying probability distribution and/or our data does not meet parametric test requirements\nsample size is too small to properly assess the distribution of the data\ntransforming our data to meet the parametric test requirements would make interpretation of the results harder\n\nCons\nSome limitations of the non-parametric rank based tests include the facts that:\n\nthey are primary significance tests that often do not provide estimates of the effects of interest\nthey lead to waste of information and in consequence they have less power\nwhen sample size are extremely small (e.g. \\(n=3\\)) rank tests cannot produce small P-values, even when the outcomes in the two groups are very different\nnon-parametric tests are less easily extended to situations where we wish to take into account the effect of more than one exposure on the outcome"
+  },
+  {
+    "objectID": "intro.html#main-non-parametric-rank-tests",
+    "href": "intro.html#main-non-parametric-rank-tests",
+    "title": "1  Introduction",
+    "section": "1.2 Main non-parametric rank tests",
+    "text": "1.2 Main non-parametric rank tests\n\nWilcoxon signed rank test\n\ncompares the sample median against a hypothetical median (equivalent to one sample t-test)\nor examine the difference between paired observations (equivalent to paired t-test)\n\nWilcoxon rank sum test\n\nexamines the difference between two unrelated groups\nequivalent to two sample t-test\n\nKruskal-Wallis one-way analysis of variance\n\nexamines the difference between two or more unrelated groups\nequivalent to ANOVA\n\nSpearman’s rank correlation\n\nassess correlation on ranks\nalternative to Pearson correlation coefficient\n\nKendall’s rank correlation\n\nassess correlation on ranks\nalternative to Pearson correlation coefficient"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-i.html",
+    "href": "wilcoxon-signed-rank-i.html",
+    "title": "2  Wilcoxon signed rank test I",
+    "section": "",
+    "text": "for a median\nNamed after Frank Wilcoxon (1892–1945), Wilcoxon signed rank test was one of the first “non-parametric” methods developed. It can be used to:"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-i.html#define-the-null-and-alternative-hypothesis-under-study",
+    "href": "wilcoxon-signed-rank-i.html#define-the-null-and-alternative-hypothesis-under-study",
+    "title": "2  Wilcoxon signed rank test I",
+    "section": "2.1 Define the null and alternative hypothesis under study",
+    "text": "2.1 Define the null and alternative hypothesis under study\n\\(H_0: m = m_0\\) the median sleeping time is equal to \\(m_0\\), \\(m_0 = 7\\) h\n\\(H_1 < m_0\\) the median sleeping time is less than \\(m_0\\), \\(m_0 = 7\\) h"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-i.html#calculate-the-value-of-the-test-statistics",
+    "href": "wilcoxon-signed-rank-i.html#calculate-the-value-of-the-test-statistics",
+    "title": "2  Wilcoxon signed rank test I",
+    "section": "2.2 Calculate the value of the test statistics",
+    "text": "2.2 Calculate the value of the test statistics\n\nwe subtract the median from each measurement, \\(X_i - m_0\\)\nwe find absolute value of the difference, \\(|X_i - m_0|\\)\nwe rank the absolute value of the difference\nwe find the value of \\(W\\), the Wilcoxon signed-rank test statistics as \\[W =\\displaystyle \\sum_{i=1}^{n}Z_iR_i \\tag{2.1}\\] where \\(Z_i\\) is an indicator variable such as:\n\n\\[\\begin{equation}\n    Z_i =\n    \\left\\{\n        \\begin{array}{cc}\n                0  & \\mathrm{if\\ } X_i - m_0 < 0 \\\\\n                1  &  otherwise \\\\\n        \\end{array}\n    \\right.\n\\end{equation}\\]\n\n\nCode\nm0 <- 7\ndata.wilcoxon <- data.sleep %>% \n  select(!drug) %>% # remove drug data for now\n  rename(x = placebo) %>% # rename placebo column to x so it is easier to type and follow eq\n  mutate(`x-m0` = x - 7) %>% # subtract m0\n  mutate(`abs(x-m0)` = abs(`x-m0`)) %>% # take absolute value\n  mutate(R = rank(`abs(x-m0)`)) %>% # rank\n  mutate(Z = ifelse(`x-m0` < 0, 0, 1)) %>% # define indicator variable Z\n  mutate(ZR = R*Z) # calculate ranks R times Z\n\n# print the table\ndata.wilcoxon %>%\n  kable() %>% kable_styling(full_width = FALSE)\n\n\n\n\n\n \n  \n    id \n    x \n    x-m0 \n    abs(x-m0) \n    R \n    Z \n    ZR \n  \n \n\n  \n    1 \n    5.2 \n    -1.8 \n    1.8 \n    6.0 \n    0 \n    0.0 \n  \n  \n    2 \n    7.9 \n    0.9 \n    0.9 \n    3.5 \n    1 \n    3.5 \n  \n  \n    3 \n    3.9 \n    -3.1 \n    3.1 \n    9.0 \n    0 \n    0.0 \n  \n  \n    4 \n    4.7 \n    -2.3 \n    2.3 \n    7.0 \n    0 \n    0.0 \n  \n  \n    5 \n    5.3 \n    -1.7 \n    1.7 \n    5.0 \n    0 \n    0.0 \n  \n  \n    6 \n    7.4 \n    0.4 \n    0.4 \n    2.0 \n    1 \n    2.0 \n  \n  \n    7 \n    4.2 \n    -2.8 \n    2.8 \n    8.0 \n    0 \n    0.0 \n  \n  \n    8 \n    6.1 \n    -0.9 \n    0.9 \n    3.5 \n    0 \n    0.0 \n  \n  \n    9 \n    3.8 \n    -3.2 \n    3.2 \n    10.0 \n    0 \n    0.0 \n  \n  \n    10 \n    7.3 \n    0.3 \n    0.3 \n    1.0 \n    1 \n    1.0 \n  \n\n\n\nTable 2.1:  Demonstrating steps in the calculating W, Wilcoxon signed-rank test statistics on the placebo column: x stands for placebo sleeping hours \n\n\nWe can now calculate \\(W\\) following equation Equation 2.1 and we get:\n\n\nCode\n# sum up the ranks multiplied by Z indicator value\nW <- data.wilcoxon$ZR %>% sum()\nprint(W)\n\n\n[1] 6.5"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-i.html#compare-the-value-to-the-test-statistics-to-values-from-known-probability-distribution",
+    "href": "wilcoxon-signed-rank-i.html#compare-the-value-to-the-test-statistics-to-values-from-known-probability-distribution",
+    "title": "2  Wilcoxon signed rank test I",
+    "section": "2.3 Compare the value to the test statistics to values from known probability distribution",
+    "text": "2.3 Compare the value to the test statistics to values from known probability distribution\nWe got \\(W = 6.5\\) and now we need to calculate the P-value associated with \\(W\\) to be able to make decision about rejecting the null hypothesis. We refer to a statistical table “Upper and Lower Percentiles of the Wilcoxon Signed Rank Test, W” that can be found online or here.\nFor sample size \\(n=10\\) we can see that probability of observing \\(W \\le 3\\) or \\(W \\ge 52\\) is small, 0.005. Probability of observing \\(W \\le 4\\) or \\(W \\ge 51\\) is 0.007, still small but slightly larger. While we are getting towards the middle of the distribution the probability of observing \\(W\\) is getting larger and the probability of observing \\(W \\le11\\) or \\(W \\ge 44\\) is 0.053.\nThe P-value associated with observing \\(W=6.5\\) is just under \\(0.019\\). Assuming 5% significance level, we have enough evidence to reject the null hypothesis and conclude that the median is significantly less than 7 hours."
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-i.html#obtaining-probablity-mass-function",
+    "href": "wilcoxon-signed-rank-i.html#obtaining-probablity-mass-function",
+    "title": "2  Wilcoxon signed rank test I",
+    "section": "2.4 Obtaining probablity mass function",
+    "text": "2.4 Obtaining probablity mass function\nWhere is the statistical table coming from?\nBriefly, Wilcoxon described and showed examples how to calculate both the test statistics \\(W\\) for an example data as well as the distribution of \\(W\\) under the null hypothesis Wilcoxon (1945). We can try to find the distribution of W ourselves for a simple scenario with less, four observation (\\(n=4\\))\n\n\nCode\n# enumerate all rank possibilties (by hand)\nr1 <- c(1, -1, 1, 1, 1, -1, -1, -1, 1, 1, 1, -1, -1, -1, 1, -1)\nr2 <- c(2, 2, -2, 2, 2, -2, 2, 2, -2, 2, -2, -2, -2, 2, -2, -2)\nr3 <- c(3, 3, 3, -3, 3, 3, -3, 3, -3, -3, 3, -3, 3, -3, -3, -3)\nr4 <- c(4, 4, 4, 4, -4, 4, 4, -4, 4, -4, -4, 4, -4, -4, -4, -4)\n\ndata.w <- rbind(r1, r2, r3, r4)\ndata.w.ind <- data.w\ndata.w.ind[data.w < 0] <- 0\nr.sum <- apply(data.w.ind, 2, sum)\n\ndata.w <- rbind(data.w, r.sum)\nrownames(data.w) <- c(\"id1\", \"id4\", \"id3\", \"id4\", \"W\")\ncolnames(data.w) <- paste(\"c\", 1:16, sep=\"\")\n\ndata.w %>% kable() %>% kable_styling(full_width = TRUE) %>%\n  row_spec(5, bold = T, color = \"black\", background = \"#deebf7\")\n\n\n\n\n\n \n  \n      \n    c1 \n    c2 \n    c3 \n    c4 \n    c5 \n    c6 \n    c7 \n    c8 \n    c9 \n    c10 \n    c11 \n    c12 \n    c13 \n    c14 \n    c15 \n    c16 \n  \n \n\n  \n    id1 \n    1 \n    -1 \n    1 \n    1 \n    1 \n    -1 \n    -1 \n    -1 \n    1 \n    1 \n    1 \n    -1 \n    -1 \n    -1 \n    1 \n    -1 \n  \n  \n    id4 \n    2 \n    2 \n    -2 \n    2 \n    2 \n    -2 \n    2 \n    2 \n    -2 \n    2 \n    -2 \n    -2 \n    -2 \n    2 \n    -2 \n    -2 \n  \n  \n    id3 \n    3 \n    3 \n    3 \n    -3 \n    3 \n    3 \n    -3 \n    3 \n    -3 \n    -3 \n    3 \n    -3 \n    3 \n    -3 \n    -3 \n    -3 \n  \n  \n    id4 \n    4 \n    4 \n    4 \n    4 \n    -4 \n    4 \n    4 \n    -4 \n    4 \n    -4 \n    -4 \n    4 \n    -4 \n    -4 \n    -4 \n    -4 \n  \n  \n    W \n    10 \n    9 \n    8 \n    7 \n    6 \n    7 \n    6 \n    5 \n    5 \n    3 \n    4 \n    4 \n    3 \n    2 \n    1 \n    0 \n  \n\n\n\nTable 2.2:  Enumeration of possible of ranks given 4 observations together with calculated W statistics \n\n\n\nGiven 4 observations, we could get ranks \\(R_i\\) of 1, 2, 3 or 4 only\nFurther, depending where the observation would be with respect to \\(m_0\\), the rank \\(R_i\\) could be positive or negative.\nFor example, the first column \\(c1\\) corresponds to all 4 observations having positive ranks, so all \\(x_i - m_0 > 0\\), whereas column \\(c16\\) corresponds to all observations having negative ranks, so \\(x_i - m_0 < 0\\).\nAs \\(W\\) test statistics is derived by summing up the positive ranks, we can see by listing all the combinations in the table, that \\(0 \\le W \\le10\\).\n\nWe can also now write down the probability mass function given the table.\n\n\nCode\n# calculate probability mass function\nW <- data.w[5,]\n\ndf.w <- data.frame(W = W) %>%\n  group_by(W) %>%\n  summarize(n = n()) %>%\n  mutate(per = n / 16) \n\ndist.W <- rbind(W = formatC(df.w$W), `p(W)`=df.w$per)\n\ndist.W %>% t() %>%\n  kable(digits = 2) %>%\n  kable_styling(full_width = T) %>%\n  row_spec(1, )\n\n\n\n\n\n \n  \n    W \n    p(W) \n  \n \n\n  \n    0 \n    0.0625 \n  \n  \n    1 \n    0.0625 \n  \n  \n    2 \n    0.0625 \n  \n  \n    3 \n    0.125 \n  \n  \n    4 \n    0.125 \n  \n  \n    5 \n    0.125 \n  \n  \n    6 \n    0.125 \n  \n  \n    7 \n    0.125 \n  \n  \n    8 \n    0.0625 \n  \n  \n    9 \n    0.0625 \n  \n  \n    10 \n    0.0625 \n  \n\n\n\nTable 2.3:  Probability mass function for 4 observations \n\n\n\n\nCode\n# plot pmf\nbarplot(df.w$per, names.arg = 0:10, ylab = \"p(W)\", xlab=\"W\")\n\n\n\n\n\nFigure 2.1: Probablity mass function for observations\n\n\n\n\nNow we can use our knowledge from the Probability session on discrete distributions to calculate the probability associated with observing test statistics \\(W\\) given the known probability mass function.\nFor more examples on how to manually obtain the distribution \\(W\\) under the null hypothesis visit PennState Elbery collage website."
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-i.html#in-r-we-use-wilcox.test-function",
+    "href": "wilcoxon-signed-rank-i.html#in-r-we-use-wilcox.test-function",
+    "title": "2  Wilcoxon signed rank test I",
+    "section": "2.5 In R we use wilcox.test() function:",
+    "text": "2.5 In R we use wilcox.test() function:\n\n# run Wilcoxon signed rank test for a median\nwilcox.test(x = data.sleep$placebo, \n            y = NULL,\n            alternative = \"less\",\n            mu = 7, \n            exact = F\n            )\n\n\n    Wilcoxon signed rank test with continuity correction\n\ndata:  data.sleep$placebo\nV = 6.5, p-value = 0.01827\nalternative hypothesis: true location is less than 7\n\n\n\n\n\n\nWilcoxon, Frank. 1945. “Individual Comparisions by Ranking Methods.” Biometrics Bulletin 1 (6): 80–83."
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-ii.html",
+    "href": "wilcoxon-signed-rank-ii.html",
+    "title": "3  Wilcoxon signed rank test II",
+    "section": "",
+    "text": "paired observations"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-ii.html#define-the-null-and-alternative-hypothesis-under-the-study",
+    "href": "wilcoxon-signed-rank-ii.html#define-the-null-and-alternative-hypothesis-under-the-study",
+    "title": "3  Wilcoxon signed rank test II",
+    "section": "3.1 Define the null and alternative hypothesis under the study",
+    "text": "3.1 Define the null and alternative hypothesis under the study\n\\(H_0:\\) the median difference in the population equals to zero\n\\(H_1:\\) the median difference in the population does not equals to zero"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-ii.html#test-statistics-calculate-difference-and-rank-it",
+    "href": "wilcoxon-signed-rank-ii.html#test-statistics-calculate-difference-and-rank-it",
+    "title": "3  Wilcoxon signed rank test II",
+    "section": "3.2 Test statistics: calculate difference and rank it",
+    "text": "3.2 Test statistics: calculate difference and rank it\nWe start by calculating the difference between hours of sleep for each study participant. We exclude any difference that is equal to 0. The rest of values we rank in ascending order, ignoring the sign. As a result the smallest difference value, here 0.6 is ranked 1.\n\n\nCode\n# calculate pair difference and rank it\ndf.wilcox.signed <- data.sleep %>%\n  mutate(diff = drug - placebo) %>%\n  mutate(rank = rank(abs(diff))) %>%\n  print()\n\n\n   id drug placebo diff rank\n1   1  6.1     5.2  0.9    2\n2   2  6.0     7.9 -1.9    5\n3   3  8.2     3.9  4.3   10\n4   4  7.6     4.7  2.9    8\n5   5  6.5     5.3  1.2    3\n6   6  5.4     7.4 -2.0    6\n7   7  6.9     4.2  2.7    7\n8   8  6.7     6.1  0.6    1\n9   9  7.4     3.8  3.6    9\n10 10  5.8     7.3 -1.5    4"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-ii.html#test-statistics-sum-up-the-ranks-of-the-negative-differences-and-of-positive-differences-and-denote-these-sums-by-t_--and-t_-respectively",
+    "href": "wilcoxon-signed-rank-ii.html#test-statistics-sum-up-the-ranks-of-the-negative-differences-and-of-positive-differences-and-denote-these-sums-by-t_--and-t_-respectively",
+    "title": "3  Wilcoxon signed rank test II",
+    "section": "3.3 Test statistics: sum up the ranks of the negative differences and of positive differences and denote these sums by \\(T_{-}\\) and \\(T_{+}\\) respectively",
+    "text": "3.3 Test statistics: sum up the ranks of the negative differences and of positive differences and denote these sums by \\(T_{-}\\) and \\(T_{+}\\) respectively\nWe get \\(T_{-} = 40\\) and \\(T_{+} = 15\\)\nWhy? If there were no differences in effectiveness between the sleeping drug and the placebo then the sums \\(T_{-}\\) and \\(T_{+}\\) would be similar. If there were a difference then one sum would be much smaller and one sum would be much larger than expected.\n\n\nCode\n# sum up the ranks of the positive and negative differences\ndata.tsum <- df.wilcox.signed %>%\n  mutate(sign = ifelse(diff < 0, \"+\", \"-\")) %>%\n  group_by(sign) %>%\n  summarize(T = sum(rank)) %>%\n  print()\n\n\n# A tibble: 2 × 2\n  sign      T\n  <chr> <dbl>\n1 -        40\n2 +        15"
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-ii.html#test-statistics-denote-the-smaller-sum-by-t-and-interpret-the-p-value",
+    "href": "wilcoxon-signed-rank-ii.html#test-statistics-denote-the-smaller-sum-by-t-and-interpret-the-p-value",
+    "title": "3  Wilcoxon signed rank test II",
+    "section": "3.4 Test statistics: denote the smaller sum by T and interpret the P-value",
+    "text": "3.4 Test statistics: denote the smaller sum by T and interpret the P-value\nThe Wilcoxon signed rank test is based on assessing whether \\(T\\), the smaller of \\(T_{-}\\) and \\(T_{+}\\), is smaller than would be expected by chance, under the null hypothesis that the median of the paired differences is zero.\nThe hypothesis is that \\(T\\) is equal to the sum of the ranks divided by 2, so that the smaller \\(T\\) the more evidence there is against the null hypothesis.\nHaving our \\(T\\) value we can check what is the probability of observing the value of \\(T\\) under the null hypothesis, by checking the statistical table of “Critical values for the Wilcoxon matched pairs signed rank test” found online or here.\nIn our example, \\(T=15\\) and the sample size is \\(n=10\\), where \\(n\\) is the number of non-zero differences (we had none). According to the table, the 5% percentage point is at 8. Since \\(T=15 > 8\\) our \\(P-value > 0.05\\) and we do not have enough evidence to reject the null hypothesis. There is no evidence of the sleeping drug working."
+  },
+  {
+    "objectID": "wilcoxon-signed-rank-ii.html#in-r-we-use-wilcox.test-function-adjusting-paired-argument",
+    "href": "wilcoxon-signed-rank-ii.html#in-r-we-use-wilcox.test-function-adjusting-paired-argument",
+    "title": "3  Wilcoxon signed rank test II",
+    "section": "3.5 In R we use wilcox.test() function adjusting paired argument:",
+    "text": "3.5 In R we use wilcox.test() function adjusting paired argument:\n\n# run Wilcoxon signed rank test for paired observations \nwilcox.test(x = data.sleep$placebo, \n            y = data.sleep$drug,\n            alternative = \"two.sided\",\n            mu = 0,\n            paired = TRUE, \n            exact = F)\n\n\n    Wilcoxon signed rank test with continuity correction\n\ndata:  data.sleep$placebo and data.sleep$drug\nV = 15, p-value = 0.2213\nalternative hypothesis: true location shift is not equal to 0"
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html",
+    "href": "wilcoxon-rank-sum.html",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "",
+    "text": "two unrelated groups\nWilcoxon rank sum test is used to assess whether an outcome variable differs between two exposure groups, so it equivalent to the non-parametric two sample t test. It examines whether the median difference between two groups is equal to zero. Let’s follow an example to get a better idea how it works."
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html#define-the-null-and-alternative-hypothesis-under-study",
+    "href": "wilcoxon-rank-sum.html#define-the-null-and-alternative-hypothesis-under-study",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "4.1 Define the null and alternative hypothesis under study",
+    "text": "4.1 Define the null and alternative hypothesis under study\n\\(H_0:\\) the difference between the medians of the two groups equals to zero\n\\(H_1:\\) the difference between the medians of the two groups does not equals to zero"
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html#test-statistics-rank-the-values",
+    "href": "wilcoxon-rank-sum.html#test-statistics-rank-the-values",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "4.2 Test statistics: rank the values",
+    "text": "4.2 Test statistics: rank the values\nWe rank the values of the weights from both groups together in ascending order of magnitude. If any of the values are equal, we average their ranks.\n\n\nCode\n# rank weight variable in ascending order\ndf.wilcoxon.rank.sum <- data.babies %>%\n  mutate(rank = rank(weight)) %>%\n  print()\n\n\n   id weight smoking rank\n1   1   3.99      No   11\n2   2   3.89      No   10\n3   3   3.60      No    8\n4   4   3.73      No    9\n5   5   3.31      No    7\n6   6   3.18     Yes    5\n7   7   2.74     Yes    2\n8   8   2.90     Yes    3\n9   9   3.27     Yes    6\n10 10   3.15     Yes    4\n11 11   2.42     Yes    1"
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html#test-statistics-sum-up-the-ranks-in-the-smaller-group",
+    "href": "wilcoxon-rank-sum.html#test-statistics-sum-up-the-ranks-in-the-smaller-group",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "4.3 Test statistics: sum up the ranks in the smaller group",
+    "text": "4.3 Test statistics: sum up the ranks in the smaller group\nWe add up the ranks in the group with the smaller sample size. If both groups have equal number of measurements just pick one group. Here, the smaller group are the no smokers, and the rank sum up to \\(T=45\\)\n\n\nCode\n# sum up ranks for the smaller group\ndata.sumrank <- df.wilcoxon.rank.sum %>%\n  group_by(smoking) %>%\n  summarize(T = sum(rank)) %>% \n  filter(smoking == \"No\") %>%\n  pull(T) %>%\n  print()\n\n\n[1] 45"
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html#test-statistics-find-interpret-the-p-value",
+    "href": "wilcoxon-rank-sum.html#test-statistics-find-interpret-the-p-value",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "4.4 Test statistics: find & interpret the P-value",
+    "text": "4.4 Test statistics: find & interpret the P-value\nWe compare the \\(T\\) value with the values in “Critical range for the Wilcoxon rank sum test” found online or here. The range shown for \\(P=0.05\\) is from 18 to 42 for sample size 5 and 6 respectively. \\(T\\) value below 18 or above 42 corresponds to \\(P-value < 0.05\\). In our case \\(T=45\\) so above 42, hence we have enough evidence to reject the null hypothesis that the median birth weight of children born to smokers is the same as the median birth weight of children born to non-smokers."
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html#in-r",
+    "href": "wilcoxon-rank-sum.html#in-r",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "4.5 In R",
+    "text": "4.5 In R\nIn R we compute the test with kruskal.test() function changing paired parameter to False.\n\n# compute Wilcoxon rank sum test\nwilcox.test(data.babies$weight ~ data.babies$smoking, \n            exact = T, \n            paired = F)\n\n\n    Wilcoxon rank sum exact test\n\ndata:  data.babies$weight by data.babies$smoking\nW = 30, p-value = 0.004329\nalternative hypothesis: true location shift is not equal to 0"
+  },
+  {
+    "objectID": "wilcoxon-rank-sum.html#note-on-confidence-intervals",
+    "href": "wilcoxon-rank-sum.html#note-on-confidence-intervals",
+    "title": "4  Wilcoxon rank sum test",
+    "section": "4.6 Note on confidence intervals",
+    "text": "4.6 Note on confidence intervals\nTo get the confidence intervals we could set conf.int = T:\n\n# compute Wilcoxon rank sum test incl. CI\nwilcox.test(data.babies$weight ~ data.babies$smoking, \n            exact = F, \n            paired = F, \n            conf.int = T)\n\n\n    Wilcoxon rank sum test with continuity correction\n\ndata:  data.babies$weight by data.babies$smoking\nW = 30, p-value = 0.008113\nalternative hypothesis: true location shift is not equal to 0\n95 percent confidence interval:\n 0.3300051 1.2499709\nsample estimates:\ndifference in location \n             0.7224397 \n\n\nor we could obtain CI via bootstrapping as we have seen earlier today:\n\n# calculate bootstrapping CI\nn <- 1000 # number of bootstrapped samples\nv.mdiff <- c() # vector to hold difference in means for each iteration\n\nfor (i in 1:n){\n  s.nonsmokers <- sample(bw.nonsmokers, replace = T) # sampling from nonsmokers\n  s.smokers <- sample(bw.smokers, replace = T) # sampling from smokers\n\n  m.nonsmokers <- median(s.nonsmokers) # calculate median of nonsmokers\n  m.smokers <- median(s.smokers) # calculate median of nonsmokers\n\n  v.mdiff[i] <- m.nonsmokers - m.smokers # difference in median\n}\n\n# use percentiles to calculate 95% CI, top and bottom 2.5%\nCI.95 <- quantile(v.mdiff, probs = c(0.025, 0.975))\nprint(CI.95)\n\n    2.5%    97.5% \n0.268875 1.230000"
+  },
+  {
+    "objectID": "kruskal-wallis.html",
+    "href": "kruskal-wallis.html",
+    "title": "5  The Kruskal-Wallis test",
+    "section": "",
+    "text": "two or more unrelated groups\nKruskal-Wallis test is an extension of the Wilcoxon rank sum test for unrelated \\(k\\) groups, where \\(k\\ge 2\\). Under the null hypothesis of no differences in the distribution between the groups, the sums of the ranks in each of the \\(k\\) groups should be comparable after allowing for any differences in sample size.\nIn R one can use kruskal.test() to compute the test. Otherwise, the procedure is outlined below."
+  },
+  {
+    "objectID": "kruskal-wallis.html#define-the-null-and-alternative-hypothesis",
+    "href": "kruskal-wallis.html#define-the-null-and-alternative-hypothesis",
+    "title": "5  The Kruskal-Wallis test",
+    "section": "5.1 Define the null and alternative hypothesis",
+    "text": "5.1 Define the null and alternative hypothesis\n\\(H_0:\\) each group has the same distribution of values in the population\n\\(H_1:\\) at least one group does not have the same distribution of values in the population"
+  },
+  {
+    "objectID": "kruskal-wallis.html#calculate-the-value-of-the-test-statistics",
+    "href": "kruskal-wallis.html#calculate-the-value-of-the-test-statistics",
+    "title": "5  The Kruskal-Wallis test",
+    "section": "5.2 Calculate the value of the test statistics",
+    "text": "5.2 Calculate the value of the test statistics\nRank all \\(n\\) values and calculate the sum of the ranks in each of the groups: these sums are \\(R_1, R_2, ..., R_k\\). The test statistics is given by: \\[ H = \\frac{12}{n(n+1)}\\displaystyle\\sum_{i=1}^{n}\\frac{R_i^2}{n_i}-3(n+1)\\] which follows a \\(\\chi^2\\) distribution with \\((k-1)\\) degrees of freedom."
+  },
+  {
+    "objectID": "correlation.html",
+    "href": "correlation.html",
+    "title": "6  Correlation",
+    "section": "",
+    "text": "Pearson correlation coefficient, or rather more correctly Pearson product moment correlation coefficient, gives us an idea about the strength of association between two numerical variables. Its true value in the population, \\(\\rho\\), is estimated in the sample by \\(r\\), where:\n\\[r=\\frac{\\sum(x-\\bar{x})(x-\\bar{y})}{\\sqrt{\\sum(x-\\bar{x})^2\\sum(x-\\bar{y})^2}} \\tag{6.1}\\]\nProperties:\n\nthe value of \\(r\\) range between -1 to 1\nthe sign indicates whether, in general, one variable increases as the other variable increases (\\(r > 0\\)) or whether one variable increases while the other variables decreases (\\(r < 0\\))\nthe magnitude indicates how close the points are to the straight line, in particular \\(r=1\\) for a perfect positive correlation, \\(r=-1\\) for a perfect negative correlation and \\(r=0\\) for no correlation\n\n\n\nCode\n# simulate data with different levels of correlation\n# no. of observations to generate\nn <- 15 \n\n# perfect positive correlation\nx1 <- 1:n\ny1 <- 1:n\ncor1 <- cor(x1, y1) %>% round(2)\n\n# perfect negative correlation\nx2 <- 1:n\ny2 <- -1*(1:n)\ncor2 <- cor(x2, y2) %>% round(2)\n\n# positive correlation\nset.seed(123)\nx3 <- 1:n\ny3 <- x3 + rnorm(n, mean = 1, sd = 2)\ncor3 <- cor(x3, y3) %>% round(1)\n\n# negative correlation\nset.seed(123)\nx4 <- 1:n\ny4 <- x4*(-1) + rnorm(n, mean = 1, sd = 4)\ncor4 <- cor(x4, y4) %>% round(1)\n\n# no correlation\nset.seed(123)\nx5 <- 1:n\ny5 <- rnorm(n, mean = 1, sd = 4)\ncor5 <- cor(x5, y5) %>% round(1)\n\n# quadratic relationship\nx6 <- -n:n\ny6 <- x6^2\n\npar(mfrow = c(2,3))\nplot(x1, y1, xlab=\"x\", ylab=\"y\", main = paste(\"r = \", cor1, sep=\"\"), pch=19)\nplot(x2, y2, xlab=\"x\", ylab=\"y\", main = paste(\"r = \", cor2, sep=\"\"), pch=19)\n\nplot(x3, y3, xlab=\"x\", ylab=\"y\", main = paste(\"r = \", cor3, sep=\"\"), pch=19)\nplot(x4, y4, xlab=\"x\", ylab=\"y\", main = paste(\"r = \", cor4, sep=\"\"), pch=19)\n\nplot(x5, y5, xlab=\"x\", ylab=\"y\", main = paste(\"r = \", cor5, sep=\"\"), pch=19)\nplot(x6, y6, xlab=\"x\", ylab=\"y\", main = paste(\"r = NA\", sep=\"\"), pch=19)\n\n\n\n\n\nLimitations\nIt may be misleading to calculate correlation coefficient, \\(r\\), when:\n\nthere is a non-linear relationship between the two variables, e.g. quadratic\noutliers are present\nthe data include more than one observation on each individual (grouped data)\n\nSpearman correlation and Kendall’s tau use try to overcome some of the above limitations, by operating on ranks, to measure the strength of the association."
+  },
+  {
+    "objectID": "correlation.html#spearman-correlation",
+    "href": "correlation.html#spearman-correlation",
+    "title": "6  Correlation",
+    "section": "6.2 Spearman correlation",
+    "text": "6.2 Spearman correlation\nTo calculate Spearman’s rank correlation between two variables \\(X\\) and \\(Y\\) we:\n\nrank the values of \\(X\\) and \\(Y\\) independently\nfollow the formula to calculate the Pearson correlation coefficient using ranks (Equation 6.1)"
+  },
+  {
+    "objectID": "correlation.html#kendalls-tau",
+    "href": "correlation.html#kendalls-tau",
+    "title": "6  Correlation",
+    "section": "6.3 Kendall’s tau",
+    "text": "6.3 Kendall’s tau\nTo calculate Kendall’s tau, \\(\\tau\\), we compare ranks of \\(X\\) and \\(Y\\) between every pair of observation. (There are n(n-1)/2 possible pairs). The pairs of ranks for observation \\(i\\) and \\(j\\) are said to be:\n\nconcordant: if they differ in the same direction, i.e. if both the \\(X\\) and \\(Y\\) ranks of subject \\(i\\) are lower than the corresponding ranks of subject \\(j\\), or both are higher\ndiscordant: otherwise\n\n\\[\\tau = \\frac{n_C-n_D}{n(n-1)/2}\\] where\n\\(n_C\\), number of concordant pairs \\(n_D\\), number of discordant pairs\nFor instance, in the below data, the ranks of subjects #1 and #2 are concordant as subject #1 has a lower rank than subject #2 for both the variables. The ranks of subjects #3 and #6 are discordant as subject #3 has a more highly ranked \\(X\\) value than subject #6 but a lower ranked \\(Y value\\).\n\n\nCode\n# input data\nx <- c(58, 70, 74, 63.5, 62.0, 70.5, 71, 66)\ny <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12)\nn <- length(x)\ndf <- data.frame(subject = 1:n, x = x, rank_x = rank(x), y = y, rank_y = rank(y))\n\ndf %>%\n  kable() %>%\n  kable_styling(full_width = TRUE)\n\n\n\n\n\n \n  \n    subject \n    x \n    rank_x \n    y \n    rank_y \n  \n \n\n  \n    1 \n    58.0 \n    1 \n    2.75 \n    2 \n  \n  \n    2 \n    70.0 \n    5 \n    2.86 \n    4 \n  \n  \n    3 \n    74.0 \n    8 \n    3.37 \n    7 \n  \n  \n    4 \n    63.5 \n    3 \n    2.76 \n    3 \n  \n  \n    5 \n    62.0 \n    2 \n    2.62 \n    1 \n  \n  \n    6 \n    70.5 \n    6 \n    3.49 \n    8 \n  \n  \n    7 \n    71.0 \n    7 \n    3.05 \n    5 \n  \n  \n    8 \n    66.0 \n    4 \n    3.12 \n    6 \n  \n\n\n\nTable 6.1:  Example X and Y measurments for 8 subjects with ranks done independently on X and Y."
+  },
+  {
+    "objectID": "correlation.html#in-r-we-use-cor-function",
+    "href": "correlation.html#in-r-we-use-cor-function",
+    "title": "6  Correlation",
+    "section": "6.4 In R we use cor() function",
+    "text": "6.4 In R we use cor() function\nApart from following the above equations by hand, in R we can use cor() function to calculate Pearson, Spearman and Kendall’s tau correlation coefficients.\n\n# Pearson\ncor(x,y, method = \"pearson\")\n\n[1] 0.7591266\n\n# Spearman\ncor(x,y, method = \"spearman\")\n\n[1] 0.8095238\n\n# Kendall's tau\ncor(x,y, method = \"kendall\")\n\n[1] 0.6428571"
+  },
+  {
+    "objectID": "exercises.html",
+    "href": "exercises.html",
+    "title": "Exercises",
+    "section": "",
+    "text": "# input sleep data\ndata.sleep <- data.frame(id = 1:10, \n                         drug = c(6.1, 6.0, 8.2, 7.6, 6.5, 5.4, 6.9, 6.7, 7.4, 5.8), \n                         placebo = c(5.2, 7.9, 3.9, 4.7, 5.3, 7.4, 4.2, 6.1, 3.8, 7.3)) \n\n\nExercise 2 (Wilcoxon rank sum test) \nYou’ve collected more data on the newborn babies born to smokers and non-smokers. Is the enough evidence to reject the null hypothesis of the difference between the medians of the two groups equals to zero? Use the code below to input new data.\n\n\n# input babies weights \nbw.nonsmokers <- c(3.99, 3.89, 3.6, 3.73, 3.31, 3.7, 4.08, 3.61, 3.83, 3.41, 4.13, 3.36, 3.54, 3.51, 2.71)\nbw.smokers <- c(3.18, 2.74, 2.9, 3.27, 3.65, 3.42, 3.23, 2.86, 3.6, 3.65, 3.69, 3.53, 2.38, 2.34)\n\n\nExercise 3 (Kruskall Wallis) Can you double-check your calculations using Kruskall-Wallis test instead via kruskal-test() function? Would you expect to get different or similar results? And finally, imagine that you’ve repeated the experiment again, this time collecting data for three groups, non-smokers, occasional smokers and regular smokers. Is there enough evidence to reject the null hypothesis of each group having the same distribution of values in the population?\nData data are below.\n\n\n# input babies weights \nbw.nonsmokers <- c(3.99, 3.89, 3.6, 3.73, 3.31, 3.7, 4.08, 3.61, 3.83, 3.41, 4.13, 3.36, 3.54, 3.51, 2.71)\nbw.smokers <- c(3.18, 2.74, 2.9, 3.27, 3.65, 3.42, 3.23, 2.86, 3.6, 3.65, 3.69, 3.53, 2.38, 2.34)\nbw.occsmokers <- c(3.65, 3.53, 2.34, 3.70, 3.42, 2.71, 3.83, 3.60, 3.18, 3.65)"
+  },
+  {
+    "objectID": "references.html",
+    "href": "references.html",
+    "title": "References",
+    "section": "",
+    "text": "Wilcoxon, Frank. 1945. “Individual\nComparisions by Ranking Methods.” Biometrics\nBulletin 1 (6): 80–83."
+  }
+]
