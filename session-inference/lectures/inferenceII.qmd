@@ -1,0 +1,501 @@
+---
+title: "Statistical inference, part II"
+subtitle: "Parametric tests"
+author: "Eva Freyhult"
+date: "2022-09-13"
+institute: NBIS, SciLifeLab
+format: 
+  revealjs:
+    slide-number: true
+    self-contained: true
+    theme: [default, custom.scss]
+---
+
+```{r, include=FALSE}
+require(tidyverse)
+require(ggplot2)
+require(reshape2)
+require(knitr)
+require(kableExtra)
+require(latex2exp)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=4)
+```
+
+
+# Parametric tests
+
+If the null distribution was already known (or could be computed based on a few assumptions) resampling would not be necessary.
+
+We can follow the same steps as before to perform a hypothesis test:
+  
+  1. Define $H_0$ and $H_1$
+  2. Select an appropriate significance level, $\alpha$
+  3. Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+  4. Assume that $H_0$ is true and derive the null distribution of the test statistic based on appropriate assumptions.
+  5. Compare the observed value, $t_{obs}$, with the null distribution and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+  6. Based on the p-value either accept or reject $H_0$.
+
+
+## One sample, proportions, pollen example
+
+Assume that the proportion of pollen allergy in Sweden is known to be $0.3$. Observe 100 people from Uppsala, 42 of these are allergic to pollen. Is there a reason to believe that the proportion of pollen allergic in Uppsala $\pi > 0.3$?
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+Denote the unknown (Uppsala) populations proportion of pollen allergy $\pi$ and define $H_0$ and $H_1$.
+
+$$H_0: \pi=\pi_0 \\
+H_1: \pi>\pi_0,$$
+
+where $\pi_0$ is the known proportion under $H_0$ (here 0.3, the proportion in Sweden).
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+$H_0: \pi=\pi_0, H_1: \pi>\pi_0,$
+
+### Significance level, $\alpha$
+
+$\alpha = 0.05$
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+$H_0: \pi=\pi_0, H_1: \pi>\pi_0,$
+
+### Significance level, $\alpha$
+
+$\alpha = 0.05$
+
+### Test statistic
+
+Here, we will use $X$, the number of allergic persons in a random sample of size $n=100$.
+
+The observed value is $x_{obs} = 42$.
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+$H_0: \pi=\pi_0, H_1: \pi>\pi_0,$
+
+### Significance level, $\alpha$
+
+$\alpha = 0.05$
+
+### Test statistic
+
+$X$, the number of allergic persons in a random sample of size $n=100$. $x_{obs} = 42$.
+
+### Null distribution
+
+$X$ is binomially distributed under the null hypothesis. There is no need to use resampling here, so we can use the binomial distribution to answer the question.
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+$H_0: \pi=\pi_0, H_1: \pi>\pi_0,$
+
+### Significance level, $\alpha$
+
+$\alpha = 0.05$
+
+### Test statistic
+
+$X$, the number of allergic persons in a random sample of size $n=100$. $x_{obs} = 42$.
+
+### Null distribution
+
+$X$ is binomially distributed under the null hypothesis.
+
+### p-value
+
+The probability of $x_{obs}$ or something higher,
+
+$p = P(X \geq 42) = 1 - P(X \leq 41)$ = [`1-pbinom(41,100,0.3)`] = `r format(1-pbinom(41,100,0.3), digits=4)`
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+$H_0: \pi=\pi_0, H_1: \pi>\pi_0,$
+
+### Significance level, $\alpha$
+
+$\alpha = 0.05$
+
+### Test statistic
+
+$X$, the number of allergic persons in a random sample of size $n=100$. $x_{obs} = 42$.
+
+### Null distribution
+
+$X$ is binomially distributed under the null hypothesis.
+
+### p-value
+
+$p = P(X \geq 42)$ = `r format(1-pbinom(41,100,0.3), digits=4)`
+
+### Accept or recject $H_0$?
+
+
+## One sample, proportions, pollen example
+
+### Null and alternative hypothesis
+
+$H_0: \pi=\pi_0, H_1: \pi>\pi_0,$
+
+### Significance level, $\alpha$
+
+$\alpha = 0.05$
+
+### Test statistic
+
+$X$, the number of allergic persons in a random sample of size $n=100$. $x_{obs} = 42$.
+
+### Null distribution
+
+$X$ is binomially distributed under the null hypothesis.
+
+### p-value
+
+$P(X \geq 42) = `r format(1-pbinom(41,100,0.3), digits=4)`
+
+### Accept or recject $H_0$?
+
+As $p<0.05$ $H_0$ is rejected and we conclude that there is reason to believe that the proportion of pollen allergic in Uppsala is higher than 0.3.
+
+## One sample, proportions, pollen example
+
+This p-value can also be computed using the exact binomial test;
+
+```{r, echo=TRUE}
+binom.test(42, 100, 0.3, alternative="greater")
+```
+
+## One sample, proportions, pollen example
+
+An alternative approach is to use the Central limit theorem, and use the normal approximation (see details in lecture notes).
+
+Central Limit Theorem
+
+>The sum of $n$ independent and equally distributed random variables is normally distributed, if $n$ is large enough.
+
+
+
+## One sample, mean
+
+A one sample test of means compares the mean of a sample to a prespecified value.
+
+The hypotheses:
+
+$$H_0: \mu = \mu_0 \\
+H_1: \mu \neq \mu_0$$
+
+The alternative hypothesis, $H_1,$ above is for the two sided hypothesis test. Other options are the one sided $H_1$; $H_1: \mu > \mu_0$ or $H_1: \mu < \mu_0$.
+
+## One sample, mean, mouse example
+
+We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g, is there reason to believe that high fat diet affect mice body weight?
+
+## One sample, mean, mouse example
+
+The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3)
+
+Hence, the mean weight of $n=10$ independent mice from the same population is  
+$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
+## One sample, mean, mouse example
+
+The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3)
+
+Hence, the mean weight of $n=10$ independent mice from the same population is  
+$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
+
+An appropriate test statistic is 
+
+$$Z = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}}$$
+If $\sigma$ is known, $Z\sim N(0,1)$.
+
+
+## One sample t-test
+
+For small $n$ and unknown $\sigma$, the test statistic
+
+$$t = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$
+
+is t-distributed with $df=n-1$ degrees of freedom.
+
+## Two samples, mean
+
+A two sample test of means is used to determine if two population means are equal.
+
+Two independent samples are collected (one from each population) and the means are compared. Can for example be used to determine if a treatment group is different compared to a control group, in terms of the mean of a property of interest.
+
+The hypotheses;
+
+$$H_0: \mu_2 = \mu_1\\
+H_1: \mu_2 \neq \mu_1$$
+
+The above $H_1$ is two-sided. One-sided alternatives could be
+$$H_1: \mu_2 > \mu_1\\
+\mathrm{or}\\
+H_1: \mu_2 < \mu_1$$
+
+## Two samples, mean
+
+Assume that observations from both populations are normally distributed;
+
+$$
+\begin{aligned}
+X_1 \sim N(\mu_1, \sigma_1) \\
+X_2 \sim N(\mu_2, \sigma_2)
+\end{aligned}
+$$
+
+Then it follows that the sample means will also be normally distributed;
+
+$$
+\begin{aligned}
+\bar X_1 \sim N(\mu_1, \sigma_1/\sqrt{n_1}) \\
+\bar X_2 \sim N(\mu_2, \sigma_2/\sqrt{n_2})
+\end{aligned}
+$$
+
+The mean difference $D = \bar X_2 - \bar X_1$ is thus also normally distributed:
+
+$$D = \bar X_2 - \bar X_1 = N\left(\mu_2-\mu_1, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
+
+## Two samples, mean
+
+If $H_0$ is true: $$D = \bar X_2 - \bar X_1 = N\left(0, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
+
+The test statistic: $$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}}$$ is standard normal, i.e. $Z \sim N(0,1)$.
+
+However, note that the test statistic require the standard deviations $\sigma_1$ and $\sigma_2$ to be known.
+
+<!-- --- -->
+
+## Two samples, mean
+### Unknown variances
+
+What if the population standard deviations are not known?
+
+## Two samples, mean
+### Unknown variances, large sample sizes
+
+If the sample sizes are large, we can replace the known standard deviations with our sample standard deviations and according to the central limit theorem assume that 
+
+$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}} \sim N(0,1)$$
+
+and proceed as before.
+
+## Two samples, mean
+### Unknown variances, small sample sizes
+
+Either assume equal variances and proceed with Student's t-test or use Welch's t-test for unequal variances.
+
+## Two samples, mean
+### Unknown equal variances, small sample sizes
+
+**Student's t-test**
+
+Assume equal variances in the two populations and compute the pooled sample standard deviation;
+
+$$
+  s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}
+$$
+  
+and the test statistic
+
+$$t = \frac{\bar X_1 - \bar X_2}{\sqrt{s_p^2(\frac{1}{n_1} + \frac{1}{n_2})}},$$
+  
+which is t-distributed with $n_1+n_2-2$ degrees of freedom.
+
+## Two samples, mean
+### Unknown variances, small sample sizes
+
+**Welch's t-test**
+
+For unequal variances the following test statistic can be used;
+
+$$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
+$t$ is $t$-distributed and the degrees of freedom can be computed using Welch approximation.
+
+Fortunately, the t-test is implemented in R, e.g. in the function `t.test` in the R-package `stats`. This function can compute both Student's t-test with equal variances and Welch's t-test with unequal variances.
+
+## Variance test
+
+:::: {.columns}
+
+::: {.column width="50%"}
+The test of equal variance in two groups is based on the null hypothesis
+
+$$H_0: \sigma_1^2 = \sigma_2^2$$
+  
+If the two samples both come from two populations with normal distributions, the sample variances
+
+$$S_1^2 = \frac{1}{n_1-1} \sum_{i=1}^{n_1} (X_{1i}-\bar X_1)^2\\
+S_2^2 = \frac{1}{n_2-1} \sum_{i=1}^{n_2} (X_{2i}-\bar X_2)^2$$
+:::
+:::{.column width="50%"}
+It can be shown that $\frac{(n_1-1)S_1^2}{\sigma_1^2} \sim \chi^2(n_1-1)$ and $\frac{(n_2-1)S_2^2}{\sigma_2^2} \sim \chi^2(n_2-1)$.
+
+Hence, the test statistic for comparing the variances of two groups
+
+$$F = \frac{S_1^2}{S_2^2}$$
+is $F$-distributed with $n_1-1$ and $n_2-1$ degrees of freedom.
+:::
+::::
+
+In R a test of equal variances can be performed using the function `var.test`.
+
+
+
+
+## Multiple testing
+### Error types
+
+:::: {.columns}
+:::{.column width="50%"}
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling()
+```
+:::
+::: {.column width="50%}
+:::
+::::
+
+## Multiple testing
+### Error types
+
+:::: {.columns}
+:::{.column width="50%"}
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling()
+```
+:::
+
+::: {.column width="50%}
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=F, ncol=3)) %>% kable_styling()
+```
+
+:::
+
+::::
+
+
+## Multiple testing
+### Error types
+
+:::: {.columns}
+:::{.column width="50%"}
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling()
+```
+:::
+
+::: {.column width="50%}
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=F, ncol=3)) %>% kable_styling()
+```
+
+:::
+
+::::
+
+**Significance level**
+
+$$P(\mbox{reject }\,H_0 | H_0 \,\mbox{is true}) = P(\mbox{type I error}) = \alpha$$
+  
+**Statistical power**
+
+$$P(\mbox{reject } H_0 | H_1 \mbox{ is true}) = P(\mbox{reject } H_0 | H_0 \mbox{ is false}) = 1 - P(\mbox{type II error})$$
+
+## Multiple tests
+
+:::: {.columns}
+::: {.column width="50%"}
+
+### Perform one test:
+  
+  - P(One type I error) = $\alpha$
+  - P(No type I error) = $1 - \alpha$
+  
+### Perform $m$ independent tests:
+  
+  - P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+  - P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
+  
+:::
+
+::: {.column width="50%"}
+
+```{r multiple, echo=FALSE, out.width="100%", fig.align="center", fig.width=4, fig.height=4}
+a=0.05
+k <- 1:100
+ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
+```
+
+:::
+
+::::
+
+## Multiple test correction
+
+- FWER: family-wise error rate, control the probability of one or more false positive, e.g. Bonferroni, Holm
+- FDR: false discovery rate, control the proportion of false positives among the hits, e.g. Benjamini-Hochberg, Storey
+
+## Bonferroni correction
+
+To achieve a family-wise error rate of $\leq \alpha$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \alpha/m$.
+
+Objections: too conservative
+
+## Benjamini-Hochbergs FDR
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling(font_size=14)
+```
+
+The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
+
+
+Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
+  
+1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
+2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
+3. Declare significance for all tests $1, 2, \dots, j$.
+
+## 'Adjusted' p-values
+  
+Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
+  
+- Using Bonferroni's method the 'adjusted' p-values are:
+  
+  $\tilde p_i = \min(m p_i, 1)$.
+
+A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+  
+- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+  
+  $q_i = \min(\frac{m}{i} p_i, 1)$
+  
+  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
+
+<!-- --- -->
+
+## Example, 10000 independent tests (e.g. genes) {-}
+
+```{r padjust, results="asis"}
+p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
+kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
+```

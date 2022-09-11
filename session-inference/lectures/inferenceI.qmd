@@ -1,13 +1,13 @@
 ---
 title: "Statistical inference, part I"
 author: "Eva Freyhult"
-date: "2022-10-13"
+date: "2022-09-13"
 institute: NBIS, SciLifeLab
 format: 
   revealjs:
     slide-number: true
     self-contained: true
-    theme: [default]
+    theme: [default, custom.scss]
 ---
 
 ```{r, include=FALSE}
@@ -71,7 +71,7 @@ plot(ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(
 The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
 
 ```{r examplepval, out.width="70%", fig.align="center", fig.show="hold", fig.width=5, warning=FALSE}
-pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("P(X$\\geq$x_{obs})"), x=1.8, y=0.11, hjust=0)
+pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("P( X$\\geq$xobs )"), x=1.8, y=0.11, hjust=0)
 plot(pl + scale_x_continuous(breaks=c(-2,0,1.5,2), labels=c("-2","0","xobs", "2")) + theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_line(color = c("grey92", "grey92", NA, "grey92"))))
 ```
 
@@ -80,7 +80,7 @@ plot(pl + scale_x_continuous(breaks=c(-2,0,1.5,2), labels=c("-2","0","xobs", "2"
 The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
 
 ```{r examplepval2, out.width="70%", fig.align="center", fig.show="hold", fig.width=5, warning=FALSE}
-pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("P(X$\\leq$-x_{obs})"), x=-1.8, y=0.11, hjust=1)
+pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("P(X$\\leq$-xobs)"), x=-1.8, y=0.11, hjust=1)
 plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","0","xobs", "2")) +
      theme(panel.grid.minor = element_blank(),
               panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92"))))
@@ -126,7 +126,7 @@ xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
 ```
 
 ```{r}
-kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_size=14)
+kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling()
 ```
 
 ## Simulation example
@@ -154,13 +154,13 @@ $$\alpha = 0.05$$
 
 **3. Test statistic**
 
-Here we are interested in the mean difference between high-fat and control mice, $D$
+Of interest; the mean difference between high-fat and control mice 
+
+$$D = \bar X_2 - \bar X_1$$
 
 Mean weight of 12 (randomly selected) mice on ordinary diet, $\bar X_1$. $E[\bar X_1] = E[X_1] = \mu_1$
 
 Mean weight of 12 (randomly selected) mice on high-fat diet, $\bar X_2$. $E[\bar X_2] = E[X_2] = \mu_2$
-
-The mean difference: $D = \bar X_2 - \bar X_1$
 
 Observed values;
 
@@ -177,11 +177,11 @@ mN <- mean(xN)
 dobs <- mHF - mN
 ```
 
-Mean weight of control mice (ordinary diet): $\bar x_1 = `r sprintf("%.2f", mN)`$
+$\bar x_1 = `r sprintf("%.2f", mN)`$, mean weight of control mice (ordinary diet)
 
-Mean weight of mice on high-fat diet: $\bar x_2 = `r sprintf("%.2f", mHF)`$
+$\bar x_2 = `r sprintf("%.2f", mHF)`$, mean weight of mice on high-fat diet
 
-Difference in mean weights: $d_{obs} = \bar x_2 - \bar x_1 = `r dobs`$
+$d_{obs} = \bar x_2 - \bar x_1 = `r dobs`$, difference in mean weights 
 
 ## Simulation example
 
