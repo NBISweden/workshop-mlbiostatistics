@@ -39,7 +39,7 @@ title:  'Schedule'
 
 **09:30 - 10.00** [Statistical inference: Hypothesis tests using resampling](session-inference)
 
-**10:00 - 10.45** [Exercises](session-probability/prob-exr2-contrv.html)
+**10:00 - 10.45** [Exercises](session-inference/prob-exr1-hypresamp.html)
 
 **10:45 - 11.15** [Statistical inference: Parametric tests](session-inference/infe-hypparam.html)
 
