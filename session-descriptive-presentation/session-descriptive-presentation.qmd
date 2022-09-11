@@ -85,16 +85,16 @@ flowchart LR
 . . .
 
 -   Nominal: named, categories are mutually exclusive and unordered
-    -   *e.g.dead/alive, healthy/sick, WT/mutant, AA/Aa/aa, male/female, red/green/blue*
+    -   *e.g.dead/alive, healthy/sick, WT/mutant, A/B/AB/O, male/female, red/green/blue*
 
 . . .
 
 -   Ordinal: named and ordered, categories are mutually exclusive and ordered
-    -   *e.g. pain (weak, moderate, severe), AA/Aa/aa, very young/young/middle age/old/very old, grade I, II, III, IV*
-    
+    -   *e.g. pain (weak, moderate, severe), very young/young/middle age/old/very old, grade I, II, III, IV*
+
 ::: notes
 Ask for examples before showing the second part of the slide
-:::  
+:::
 
 ## Data types
 
@@ -299,7 +299,6 @@ mice.10 %>%
   my.ggtheme
 
 ```
-
 
 ::: notes
 Ask how can we numerically summarize the variable? How about graphically?
@@ -551,7 +550,6 @@ data.sum10dice %>%
 -   A **histogram** bins the data and counts the number of observations that fall into each bin.
 -   A **density plot** is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.
 
-
 <br>
 
 ```{r}
@@ -584,7 +582,7 @@ data.sum10dice %>% ggplot(aes(x = sumcounts)) +
 -   **A box plot**, also called a box-and-whisker plot, shows a box covering 50% of the data
 -   The center line is located at the **median**, a value such that 50% of the measurements are below the median.
 -   The whiskers extend to the most extreme data point or at most **1.5 times the length of the box**. Any measurements further out are shown as **outliers**.
-  - *Note: 1.5 times is the default used in both ggplot and basic R graphics but it can also be adjusted.*
+-   *Note: 1.5 times is the default used in both ggplot and basic R graphics but it can also be adjusted.*
 -   A box plot is based on both measures of location and of spread.
 :::
 
@@ -609,25 +607,24 @@ data.sum10dice %>% ggplot(aes(y = sumcounts, x="")) +
 ```
 
 ![](figures/fig-boxplot-dotcounts.png){.absolute top="100" width="450" height="500"}
-
-
 :::
 :::
 
 ## Numerical data
+
 <br>
 
-::: {#fig-boxplot layout-ncol=2}
-
+::: {#fig-boxplot layout-ncol="2"}
 ![Box plot](figures/fig-boxplot-dotcounts.png)
 
 ![Box plot overlayed on a jittered strip plot](figures/fig-boxplot-jittered-dotcounts.png)
 
 Box plot of dot counts across 10 dice thrown 100 times (left) and with overlayed on the jittered strip plot (right)
 :::
+
 ## Numerical data
 
-**Strip plot, jittered stirp plot & beeswarm stratified by group** 
+**Strip plot, jittered stirp plot & beeswarm stratified by group**
 
 <br>
 
@@ -804,16 +801,11 @@ flowchart LR
 
 <br>
 
-
 ::: incremental
 -   It is not always easy to get a "feeling" for a set of numerical measurements unless we summarize the data in a meaningful way. Diagrams, as shown in the previous chapter, are often a good starting point.
 -   We can further condense the information by reporting what constitutes a **representative value**. If we also know how widely scattered the observations are around it, we can formulate an image of data.
 -   The **average** is a general term for a measure of **location** and some common ways of calculating the average are **mode**, **mean** and **median**.
 :::
-
-
-
-
 
 ## Measures of location
 
@@ -837,10 +829,9 @@ Median value divides the ordered data values into two equally sized groups, so 5
 
 . . .
 
-
 ::: {#exm-mode-median}
+Given mice weight measurements (rounded up) for the first 6 mice during week 5, what are mode and median values?
 
-Given mice weight measurements (rounded up) for the first 6 mice during week 5,  what are mode and median values?
 ```{r}
 data.mice.week5 %>%
   slice(1:6) %>% 
@@ -850,10 +841,8 @@ data.mice.week5 %>%
 :::
 
 ::: notes
-Mode: male
-Median: 19.7
+Mode: male Median: 19.7
 :::
-
 
 ## Measures of location
 
@@ -875,16 +864,11 @@ Mathematically, for $n$ observations $x_1, x_2, \dots, x_n$, the arithmetic mean
 
 As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
 
-
 ## Measures of location
 
 ::: {#exm-weighted-mean}
-
 Imagine that you are interested in estimating the length of a wild type mice in your neighborhood. One day you manage to catch and measure 6 mice and observe lengths of 12, 16, 18, 20, 20, 17 (cm), where 12 and 16 cm were observed for female mice. You have heard that females and males are equally likely to live in your neighborhood. How do you calculate the weighted average to estimate the mice length given your data?
-
 :::
-
-
 
 ```{r}
 
@@ -912,9 +896,9 @@ results <- data.frame(mean = mean(data.obs$x),
 ```
 
 ::: notes
-mean;17.16667,  weighted mean 16.375
+mean; 17.16667, weighted mean 16.375
+To get weights: 50/2 for females, 50/4 for males
 :::
-
 
 ## Measures of location
 
@@ -959,10 +943,10 @@ data.plot %>%
 ::: {.column width="40%"}
 **Quartiles** are the three values that divide the data values into four equally sized groups.
 
-- **Q1**. Lower quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.
-- **Q2**. Median. 50% of values are below Q2 and 50% are above Q2
-- **Q3**. Upper quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.
-- **IQR**. Interquartile range, midspread, middle 50%. IQR = Q3 - Q1. 
+-   **Q1**. Lower quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.
+-   **Q2**. Median. 50% of values are below Q2 and 50% are above Q2
+-   **Q3**. Upper quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.
+-   **IQR**. Interquartile range, midspread, middle 50%. IQR = Q3 - Q1.
 
 <br>
 
@@ -982,8 +966,6 @@ weight.quartiles <- data.mice.week5 %>%
   pull(quartiles) %>%
   print()
 ```
-
-
 :::
 
 ::: {.column width="10%"}
@@ -1014,16 +996,13 @@ data.mice.week5 %>%
 :::
 :::
 
-
-
-
-## Measures of spread 
+## Measures of spread
 
 **Variance and standard deviation**
 
 The **variance** of a set of observations is their mean squared distance from the mean value:
 
-$$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2.$$ {#eq-sigma2} 
+$$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2.$$ {#eq-sigma2}
 
 <br>
 
@@ -1062,8 +1041,7 @@ The variance is measured in the square of the unit in which $x$ was measured. **
 
 $$\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2}$$ {#eq-sigma}
 
-<br>
-<br>
+<br> <br>
 
 . . .
 
@@ -1071,25 +1049,26 @@ Typically, we regard the collection of observations $x_1, \dots, x_n$ as a **sam
 
 $$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$ {#eq-s}
 
-
 ## IDA & EDA
 
 **EDA: Exploratory Data Analysis**
 
-:::{.callout-note}
+::: callout-note
 ## EDA
+
 "...exploratory data analysis is an approach of analyzing data sets to summarize their main characteristics, often using statistical graphics and other data visualization methods. A statistical model can be used or not, but primarily EDA is for seeing what the data can tell us beyond the formal modeling and thereby contrasts traditional hypothesis testing. Exploratory data analysis has been promoted by John Tukey since 1970 to encourage statisticians to explore the data, and possibly formulate hypotheses that could lead to new data collection and experiments..." (Wikipedia)
 :::
 
 **IDA: Initial Data Analysis**
 
-:::{.callout-note}
+::: callout-note
 ## IDA
+
 "...EDA is different from initial data analysis (IDA) which focuses more narrowly on checking assumptions required for model fitting and hypothesis testing, and handling missing values and making transformations of variables as needed. EDA encompasses IDA..." (Wikipedia)
 :::
 
-
 ## Summary
+
 ::: incremental
 -   Descriptive statistics is usually the first step of data analysis in which we try to familiarize ourselves with the data
 -   Numerical summaries displaying data diagrammatically give us idea about data distributions. They can also uncover some errors or outliers as well as emerging patterns in the data.
@@ -1102,13 +1081,8 @@ $$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$ {#eq-s}
 
 . . .
 
-<br>
-For many more options for plotting check out The R Graph Gallery
-[https://r-graph-gallery.com](https://r-graph-gallery.com)
-
+<br> For many more options for plotting check out The R Graph Gallery <https://r-graph-gallery.com>
 
 ## Thank you
 
-questions? 
-
-
+questions?

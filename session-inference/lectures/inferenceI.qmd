@@ -1,0 +1,243 @@
+---
+title: "Statistical inference, part I"
+author: "Eva Freyhult"
+date: "2022-09-13"
+institute: NBIS, SciLifeLab
+format: 
+  revealjs:
+    slide-number: true
+    self-contained: true
+    theme: [default, custom.scss]
+---
+
+```{r, include=FALSE}
+require(tidyverse)
+require(ggplot2)
+require(reshape2)
+require(knitr)
+require(kableExtra)
+require(latex2exp)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=4)
+```
+
+# Statistical inference
+
+Statistical inference is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
+
+## Hypothesis test
+
+To perform a hypothesis test is to evaluate a hypothesis based on a random sample.
+
+Typically, the hypotheses that are tested are assumptions about properties of a population, such as proportion, mean, mean difference, variance etc.
+
+## The null and alternative hypothesis
+
+There are two hypotheses involved in a hypothesis test, the **null hypothesis**, $H_0$, and the **alternative hypothesis**, $H_1$.
+
+$H_0$, the **null hypothesis** is in general neutral, "no change", "no difference between groups", "no association".
+
+In general we want to show that $H_0$ is false.
+
+$H_1$, The **alternative hypothesis** expresses what the researcher is interested in "the treatment has an effect", "there is a difference between groups", "there is an association".
+
+The alternative hypothesis can also be directional "the treatment has a positive effect".
+
+## To perform a hypothesis test
+
+::: {.smaller style="font-size: 25px"}
+1.  Define $H_0$ and $H_1$
+2.  Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+3.  Assume that the $H_0$ is true and compute the sampling distribution of $T$.
+4.  Select an appropriate significance level, $\alpha$
+5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+6.  Based on the p-value either accept or reject $H_0$.
+:::
+
+A **sampling distribution** is the distribution of a sample statistic. The sampling distribution can be obtained by drawing a large number of samples from a specific population.
+
+## Null distribution
+
+The **null distribution** is a sampling distribution when the null hypothesis is true.
+
+```{r examplenull, out.width="70%", fig.show="hold", fig.width=5, fig.align="center", fig.cap="A null distribution"}
+x<-seq(-3,3,0.01)
+df <- data.frame(x=x, f=dnorm(x, 0, 1))
+plot(ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)"))
+```
+
+## p-value
+
+The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
+
+```{r examplepval, out.width="70%", fig.align="center", fig.show="hold", fig.width=5, warning=FALSE}
+pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("P( X$\\geq$xobs )"), x=1.8, y=0.11, hjust=0)
+plot(pl + scale_x_continuous(breaks=c(-2,0,1.5,2), labels=c("-2","0","xobs", "2")) + theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_line(color = c("grey92", "grey92", NA, "grey92"))))
+```
+
+## p-value
+
+The p-value is the probability of the observed value, or something more extreme, if the null hypothesis is true.
+
+```{r examplepval2, out.width="70%", fig.align="center", fig.show="hold", fig.width=5, warning=FALSE}
+pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("P(X$\\leq$-xobs)"), x=-1.8, y=0.11, hjust=1)
+plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","0","xobs", "2")) +
+     theme(panel.grid.minor = element_blank(),
+              panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92"))))
+```
+
+## Significance level and error types
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
+```
+
+The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$\| $H_0$ is true).
+
+<!-- The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controll by setting the significance level to a disired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want to many missed hits (type II error). -->
+
+The significance level should be set before the hypothesis test is performed!
+
+Common values of $\alpha$ are 0.05 or 0.01.
+
+If the p-value is above the significance level, $H_0$ is accepted.
+
+If the p-value is below the significance level, $H_0$ is rejected.
+
+<!-- Power = P(Refect H0|H0 is false) -->
+
+## Simulation example
+
+**Do high fat diet lead to increased body weight?**
+
+Study setup:
+
+1.  Order 24 female mice from a lab.
+2.  Randomly assign 12 of the 24 mice to receive high-fat diet, the remaining 12 are controls (ordinary diet).
+3.  Measure body weight after one week.
+
+The observed values, mouse weights in grams, are summarized below;
+
+```{r miceobs, echo=FALSE}
+## 12 HF mice
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+```
+
+```{r}
+kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling()
+```
+
+## Simulation example
+
+**1. Null and alternative hypotheses**
+
+$$
+\begin{aligned}
+H_0: \mu_2 = \mu_1 \iff \mu_2 - \mu_1 = 0\\
+H_1: \mu_2>\mu_1 \iff \mu_2-\mu_1 > 0
+\end{aligned}
+$$
+
+where $\mu_2$ is the (unknown) mean body weight of the high-fat mouse population and $\mu_1$ is the mean body-weight of the control mouse population.
+
+Studied population: Female mice that can be ordered from a lab.
+
+## Simulation example
+
+**2. Select appropriate significance level** $\alpha$
+
+$$\alpha = 0.05$$
+
+## Simulation example
+
+**3. Test statistic**
+
+Of interest; the mean difference between high-fat and control mice 
+
+$$D = \bar X_2 - \bar X_1$$
+
+Mean weight of 12 (randomly selected) mice on ordinary diet, $\bar X_1$. $E[\bar X_1] = E[X_1] = \mu_1$
+
+Mean weight of 12 (randomly selected) mice on high-fat diet, $\bar X_2$. $E[\bar X_2] = E[X_2] = \mu_2$
+
+Observed values;
+
+```{r, echo=FALSE}
+## 12 HF mice
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+
+##Compute mean body weights of the two samples
+mHF <- mean(xHF)
+mN <- mean(xN) 
+## Compute mean difference
+dobs <- mHF - mN
+```
+
+$\bar x_1 = `r sprintf("%.2f", mN)`$, mean weight of control mice (ordinary diet)
+
+$\bar x_2 = `r sprintf("%.2f", mHF)`$, mean weight of mice on high-fat diet
+
+$d_{obs} = \bar x_2 - \bar x_1 = `r dobs`$, difference in mean weights 
+
+## Simulation example
+
+**4. Null distribution**
+
+If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the same diet.
+
+The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
+
+Random reassignment to two groups can be accomplished using permutation.
+
+Assume $H_0$ is true, i.e. assume all mice are equivalent and
+
+1.  Randomly reassign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control'.
+2.  Compute difference in mean weights
+
+If we repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
+
+## Simulation example
+
+**4. Null distribution**
+
+```{r permtest, echo=FALSE, out.width="50%"}
+## All 24 body weights in a vector
+x <- c(xHF, xN)
+## Mean difference
+dobs <- mean(x[1:12]) - mean(x[13:24])
+
+## Permute once
+y <- sample(x)
+##Compute mean difference
+#mean(y[1:12]) - mean(y[13:24])
+dnull.perm <- replicate(n = 100000, {
+  y <- sample(x)
+  ##Mean difference
+  mean(y[1:12]) - mean(y[13:24])
+})
+ggplot(data.frame(d=dnull.perm), aes(x=d)) + geom_histogram(bins=25, color="white") + theme_bw() + geom_vline(xintercept=dobs, color="red")
+##Alternatively plot using hist
+## hist(dnull.perm)
+```
+
+## Simulation example
+
+**5. Compute p-value**
+
+What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
+
+```{r micepval, echo=FALSE, eval=FALSE}
+## Compute the p-value
+sum(dnull.perm>dobs)/length(dnull.perm)
+mean(dnull.perm>dobs)
+```
+
+$P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) =$ `r sprintf("%.3g",mean(dnull.perm>=dobs))`
+
+## Simulation example
+
+**6. Conclusion?**

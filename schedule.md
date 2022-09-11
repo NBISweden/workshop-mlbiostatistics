@@ -39,7 +39,7 @@ title:  'Schedule'
 
 **09:30 - 10.00** [Statistical inference: Hypothesis tests using resampling](session-inference)
 
-**10:00 - 10.45** [Exercises](session-probability/prob-exr2-contrv.html)
+**10:00 - 10.45** [Exercises](session-inference/prob-exr1-hypresamp.html)
 
 **10:45 - 11.15** [Statistical inference: Parametric tests](session-inference/infe-hypparam.html)
 
@@ -55,7 +55,7 @@ title:  'Schedule'
 
 **15.00 - 15.30** [Multiple testing correction](session-inference/infe-multiple.html)
 
-**15.30 - 16.30** Non parametric tests
+**15.30 - 16.30** [Non parametric tests](session-rank-tests/docs/index.html) ([.presentation](session-rank-tests-presentation/session-rank-tests-presentation.html))
 
 **16.30 - 17.00** Daily challenge
 

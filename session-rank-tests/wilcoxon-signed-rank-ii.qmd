@@ -1,0 +1,99 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Wilcoxon signed rank test II
+
+*paired observations*
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+```
+
+
+::: {#exm-wilcoxon-signed-ii}
+## Wilcoxon signed rank test (paired observations)
+
+Going back to our sleep study, now we are ready to examine whether there is enough evidence to reject a null hypothesis of median of the differences between the paired observations is equal to 0. Being able to reject a null hypothesis would mean that the drug is having an effect.
+
+The data we recorded are shown below:
+```{r}
+# input data
+data.sleep <- data.frame(id = 1:10, 
+                         drug = c(6.1, 6.0, 8.2, 7.6, 6.5, 5.4, 6.9, 6.7, 7.4, 5.8), 
+                         placebo = c(5.2, 7.9, 3.9, 4.7, 5.3, 7.4, 4.2, 6.1, 3.8, 7.3)) 
+
+print(data.sleep)
+
+```
+:::
+
+## Define the null and alternative hypothesis under the study
+
+$H_0:$  the median difference in the population equals to zero
+
+$H_1:$  the median difference in the population does not equals to zero
+
+
+## Test statistics: calculate difference and rank it
+
+We start by calculating the difference between hours of sleep for each study participant. We exclude any difference that is equal to 0. The rest of values we rank in ascending order, ignoring the sign. As a result the smallest difference value, here 0.6 is ranked 1. 
+
+```{r}
+# calculate pair difference and rank it
+df.wilcox.signed <- data.sleep %>%
+  mutate(diff = drug - placebo) %>%
+  mutate(rank = rank(abs(diff))) %>%
+  print()
+```
+
+## Test statistics: sum up the ranks of the negative differences and of positive differences and denote these sums by $T_{-}$ and $T_{+}$ respectively
+
+We get $T_{-} = 40$ and $T_{+} = 15$
+
+Why? If there were no differences in effectiveness between the sleeping drug and the placebo then the sums $T_{-}$ and $T_{+}$ would be similar. If there were a difference then one sum would be much smaller and one sum would be much larger than expected.
+
+```{r}
+# sum up the ranks of the positive and negative differences
+data.tsum <- df.wilcox.signed %>%
+  mutate(sign = ifelse(diff < 0, "+", "-")) %>%
+  group_by(sign) %>%
+  summarize(T = sum(rank)) %>%
+  print()
+```
+
+## Test statistics: denote the smaller sum by T and interpret the *P*-value
+
+The Wilcoxon signed rank test is based on assessing whether $T$, the smaller of $T_{-}$ and $T_{+}$, is smaller than would be expected by chance, under the null hypothesis that the median of the paired differences is zero. 
+
+The hypothesis is that $T$ is equal to the sum of the ranks divided by 2, so that the smaller $T$ the more evidence there is against the null hypothesis. 
+
+Having our $T$ value we can check what is the probability of observing the value of $T$ under the null hypothesis, by checking the statistical table of "Critical values for the Wilcoxon matched pairs signed rank test" found online or [here](statstable/Wilcoxon-signed-rank-test-pairs-T-distribution.pdf).
+
+In our example, $T=15$ and the sample size  is $n=10$, where $n$ is the number of non-zero differences (we had none). According to the table, the 5% percentage point is at 8. Since $T=15 > 8$ our $P-value > 0.05$ and we do not have enough evidence to reject the null hypothesis. There is no evidence of the sleeping drug working. 
+
+## In `R` we use `wilcox.test()` function adjusting `paired` argument:
+```{r}
+#| code-fold: false
+
+# run Wilcoxon signed rank test for paired observations 
+wilcox.test(x = data.sleep$placebo, 
+            y = data.sleep$drug,
+            alternative = "two.sided",
+            mu = 0,
+            paired = TRUE, 
+            exact = F)
+```
+
+
+
+
+
