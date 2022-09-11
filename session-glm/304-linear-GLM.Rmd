@@ -20,7 +20,7 @@ editor_options:
 library(ggplot2)  
 library(kableExtra)
 library(ggiraphExtra)
-  
+library(magrittr)
 ```
 
 ## Why Generalized Linear Models (GLMs)
@@ -44,38 +44,12 @@ ggplot(data = medgpa, aes(y=Acceptance, x=GPA)) +
 ## Logistic regression
 - [Yanny or Laurel auditory illusion](https://www.theguardian.com/global/video/2018/may/16/what-do-you-hear-in-this-audio-clip-yanny-or-laurel-takes-internet-by-storm-video) appeared online in May 2018. You could find lots of information about it, together with some plausible explanations why some people hear Yanny and some year Laurel
 - One of the explanation is that with age we lose the ability to hear certain sounds
-- To see if there is evidence for that, someone has already collected some data for 53 people including their age and gender
-
-```{r, include=FALSE}
-
-# simulate Yanny - Laurel data (Laurel more often in older people)
-# no gender effect
-library(magrittr)
-
-set.seed(1)
-n <- 30
-l1 <- rnorm(n, mean=50, sd=20) %>% round()
-y1 <- rnorm(n, mean=27, sd=15) %>% round()
-gender <- c("Male", "Female")
-gender <- sample(gender, 2*n, replace = T)
-
-#t.test(l1, y1)
-
-yl <- data.frame(hear=c(rep("Laurel", n), rep("Yanny", n)), age = c(l1, y1), gender = gender)
-idx <- sample(1:(2*n), 2*n)
-yl <- yl[idx,]
-
-head(yl)
-range(yl$age)
-
-#write.csv(yl, "data/lm/yanny-laurel.csv", row.names = F)
-
-```
+- To see if there is evidence for that, someone has already collected some data for 198 people including their age and gender
 
 
 ```{r, echo=T, collapse=TRUE, fig.align="center", fig.width=8, fig.height=4, fig.cap="Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)"}
 # Read in and preview data
-yl <- read.csv("data/lm/yanny-laurel.csv")
+yl <- read.csv("data/lm/YannyLaurel.csv")
 head(yl)
 
 # Recode Laurel to 0 and Yanny as 1 in new variable
@@ -121,10 +95,10 @@ predict(logmodel.1, type="response")
 ```
 
 - The regression equation for the fitted model is:
-$$log(\frac{\hat{p_i}}{1-\hat{p_i}})=-3.56  +  0.09x_i$$
-- we see from the output that $\hat{\beta_0} = -3.56$ and $\hat{\beta_1} = 0.09$
+$$log(\frac{\hat{p_i}}{1-\hat{p_i}})=0.97  -  0.02x_i$$
+- we see from the output that $\hat{\beta_0} = 0.97$ and $\hat{\beta_1} = -0.02$
 - these estimates are arrived at via maximum likelihood estimation, something that is out of scope here
-- but similarly to linear models, we can test the null hypothesis $H_0:\beta_1=0$ by comparing,  $z = \frac{\hat{\beta_1}}{e.s.e(\hat{\beta_1)}} = 3.89$ with a standard normal distribution, and the associated value is small so there is enough evidence to reject the null, meaning that age is significantly associated with the probability with hearing Laurel and Yanny, **Wald test**
+- but similarly to linear models, we can test the null hypothesis $H_0:\beta_1=0$ by comparing,  $z = \frac{\hat{\beta_1}}{e.s.e(\hat{\beta_1)}} = -2.33$ with a standard normal distribution, and the associated value is small so there is enough evidence to reject the null, meaning that age is significantly associated with the probability with hearing Laurel and Yanny, **Wald test**
 - the same conclusion can be reached if we compare the **residual deviance**
 
 **Deviance**
@@ -133,24 +107,24 @@ $$log(\frac{\hat{p_i}}{1-\hat{p_i}})=-3.56  +  0.09x_i$$
 - we use saturated and residual deviance to assess model, instead of $R^2$ or $R^2(adj)$
 - for a GLM model that fits the data well the approximate deviance $D$ is
 $$\chi^2(m-p)$$ where $m$ is the number of parameters in the saturated model (full model) and $p$ is the number of parameters in the model of interest
-- for our above model we have $83.178  - 57.967 = 25.21$ which is larger than 95th percentile of $\chi^2(59-58)$
+- for our above model we have $274.41  - 268.73 = 5.68$ which is larger than 95th percentile of $\chi^2(197-196)$
 ```{r, collapse=TRUE}
 qchisq(df=1, p=0.95)
 ```
-- i.e. $25.21 >> 3.84$ and again we can conclude that age is a significant term in the model
+- i.e. $5.68 > 3.84$ and again we can conclude that age is a significant term in the model
 
 **Odds ratios**
 
 - In logistic regression we often interpret the model coefficients by taking $e^{\hat{\beta}}$
 - and we talk about **odd ratios**
-- e.g. we can say, given our above model, $e^{0.08943} = 1.093551$ that for each unit increase in age the odds of hearing Laurel get multiplied by 1.09
+- e.g. we can say, given our above model, $e^{-0.02444} = 0.9758562$ that for each unit increase in age the odds of hearing Laurel get multiplied by 0.98
 
 **Other covariates**
 
 - Finally, we can use the same logic as in multiple regression to expand by models by additional variables, numerical, binary or categorical
 - E.g. we can test whether there is a gender effect when hearing Yanny or Laurel
 
-```{r, collapse=TRUE, fig.align="center", fig.width=4, fig.height=3, fig.cap="Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and femals are very alike and the model suggest no gender effect", warning=FALSE}
+```{r, collapse=TRUE, fig.align="center", fig.width=4, fig.height=3, fig.cap="Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and females are very alike and the model suggest no gender effect", warning=FALSE}
 # fit logistic regression including age and gender
 logmodel.2 <- glm(word ~ age + gender, family = binomial(link="logit"), data = yl)
 
@@ -159,6 +133,61 @@ print(summary(logmodel.2))
 
 # plot model
 ggPredict(logmodel.2)
+```
+
+**Simulated data**
+
+This is beyond the scope of this course but a more advanced model might be needed to better explain these specific data. As an exercise, let us simulate a dataset where the logistic regression would be a better fit (it would probably be the case if the age effect had been larger than the one observed in the Yanny/Laurel example above). 
+
+```{r, echo=T, collapse=TRUE, fig.align="center", fig.width=8, fig.height=4}
+# In a similar way as for the first Yanny/Laurel model above (logmodel.1)
+# where a binary variable (hearing Yanny/Laurel) was explained by one 
+# continuous variable (age), let us simulate the data below:
+
+# - we will simulate a sample of 60 individuals where the binary variable 
+# (e.g. hearing Yanny/Laurel) is equal to zero 30 times and to one 30 times
+
+set.seed(1)
+n <- 30
+binaryVar <- c(rep(0, n), rep(1, n))
+
+# - we would like to simulate a strong effect of the continuous variable 
+# so we can simulate people with binaryVar 0 and binaryVar 1 from 
+# different distributions. 
+
+distr0 <- rnorm(n, mean=65, sd=15) %>% round()
+distr1 <- rnorm(n, mean=25, sd=12) %>% round()
+
+dat <- data.frame(binaryVar=c(rep(0, n), rep(1, n)),
+                  continuousVar = c(distr0, distr1))
+idx <- sample(1:(2*n), 2*n) 
+dat <- dat[idx,] #reorder samples randomly
+
+head(dat)
+
+# Make some exploratory plots
+par(mfrow=c(1,2))
+plot(dat$continuousVar, dat$binaryVar, pch=19, 
+     xlab="Continuous variable (for instance age)", 
+     ylab="Binary variable (for instance hearing Yanny/Laurel)", las=1)
+
+boxplot(dat$continuousVar~dat$binaryVar, 
+        xlab="Binary variable", 
+        ylab="Continuous variable", 
+        col="lightblue")
+```
+
+```{r, collapse=TRUE, fig.align="center", fig.width=4, fig.height=3, warning=FALSE}
+
+# fit logistic regression model
+logmodel.3 <- glm(binaryVar ~ continuousVar, 
+                  family = binomial(link="logit"), data = dat)
+
+# print model summary
+print(summary(logmodel.3))
+
+# plot
+ggPredict(logmodel.3)
 ```
 
 ## Poisson regression
@@ -171,7 +200,7 @@ $$E(Y_i)=\mu_i = \eta_ie^{\mathbf{x_i}^T\boldsymbol\beta}$$ with a log link $\ln
 **Data set**
 Suppose we wish to model $Y_i$ the number of cancer cases in the i-th intermediate geographical location (IG) in Glasgow. We have collected data for 271 regions, a small areas that contain between 2500 and 6000 people. Together with cancer occurrence with have data:
 
-- Y\_all: number of cases of all types of cancer in te IG in 2013
+- Y\_all: number of cases of all types of cancer in the IG in 2013
 - E\_all: expected number of cases of all types of cancer for the IG based on the population size and demographics of the IG in 2013
 - pm10: air pollution
 - smoke: percentage of people in an area that smoke
