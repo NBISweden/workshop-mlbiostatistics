@@ -33,23 +33,21 @@ editor_options:
 ## Logistic regression
 - [Yanny or Laurel auditory illusion](https://www.theguardian.com/global/video/2018/may/16/what-do-you-hear-in-this-audio-clip-yanny-or-laurel-takes-internet-by-storm-video) appeared online in May 2018. You could find lots of information about it, together with some plausible explanations why some people hear Yanny and some year Laurel
 - One of the explanation is that with age we lose the ability to hear certain sounds
-- To see if there is evidence for that, someone has already collected some data for 53 people including their age and gender
-
-
+- To see if there is evidence for that, someone has already collected some data for 198 people including their age and gender
 
 
 
 ```r
 # Read in and preview data
-yl <- read.csv("data/lm/yanny-laurel.csv")
+yl <- read.csv("data/lm/YannyLaurel.csv")
 head(yl)
 ##     hear age gender
-## 1  Yanny  40 Female
-## 2  Yanny  48   Male
-## 3  Yanny  32 Female
-## 4 Laurel  47 Female
-## 5 Laurel  60   Male
-## 6  Yanny  11 Female
+## 1  Yanny   4      F
+## 2  Yanny   5      F
+## 3  Yanny   7      M
+## 4 Laurel   7      M
+## 5  Yanny   8      F
+## 6  Yanny   8      F
 # Recode Laurel to 0 and Yanny as 1 in new variable
 yl$word <- 0
 yl$word[yl$hear=="Yanny"] <- 1
@@ -61,8 +59,8 @@ boxplot(yl$age~yl$hear, xlab="", ylab="age", col="lightblue")
 ```
 
 <div class="figure" style="text-align: center">
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)" width="768" />
-<p class="caption">(\#fig:unnamed-chunk-4)Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)</p>
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-3-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)" width="768" />
+<p class="caption">(\#fig:unnamed-chunk-3)Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)</p>
 </div>
 
 - Since the response variable takes only two values (Yanny or Laurel) we use GLM model 
@@ -94,21 +92,21 @@ print(summary(logmodel.1))
 ##     data = yl)
 ## 
 ## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.47887  -0.64434   0.04733   0.71414   1.86068  
+##     Min       1Q   Median       3Q      Max  
+## -1.5319  -1.1656   0.8516   1.1376   1.5238  
 ## 
 ## Coefficients:
-##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)  3.56159    0.95790   3.718 0.000201 ***
-## age         -0.08943    0.02297  -3.893 9.89e-05 ***
+##             Estimate Std. Error z value Pr(>|z|)  
+## (Intercept)  0.97429    0.42678   2.283   0.0224 *
+## age         -0.02444    0.01048  -2.332   0.0197 *
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 83.178  on 59  degrees of freedom
-## Residual deviance: 57.967  on 58  degrees of freedom
-## AIC: 61.967
+##     Null deviance: 274.41  on 197  degrees of freedom
+## Residual deviance: 268.73  on 196  degrees of freedom
+## AIC: 272.73
 ## 
 ## Number of Fisher Scoring iterations: 4
 ```
@@ -119,8 +117,8 @@ ggPredict(logmodel.1)
 ```
 
 <div class="figure" style="text-align: center">
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-5-1.png" alt="Fitted logistic model to the Yanny and Laurel data" width="384" />
-<p class="caption">(\#fig:unnamed-chunk-5)Fitted logistic model to the Yanny and Laurel data</p>
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Fitted logistic model to the Yanny and Laurel data" width="384" />
+<p class="caption">(\#fig:unnamed-chunk-4)Fitted logistic model to the Yanny and Laurel data</p>
 </div>
 
 ```r
@@ -131,31 +129,63 @@ predict(logmodel.1, type="response")
 ```
 
 ```
-##          1          2          3          4          5          6          7 
-## 0.49605808 0.32492276 0.66812207 0.34483848 0.14131059 0.92942018 0.12096590 
-##          8          9         10         11         12         13         14 
-## 0.93506630 0.64800232 0.30562070 0.08777973 0.84336442 0.21962666 0.56280008 
-##         15         16         17         18         19         20         21 
-## 0.60620835 0.40769465 0.79013533 0.54068483 0.30562070 0.77492061 0.51840817 
-##         22         23         24         25         26         27         28 
-## 0.79013533 0.28697783 0.89384641 0.02677553 0.34483848 0.88505672 0.79013533 
-##         29         30         31         32         33         34         35 
-## 0.87564050 0.09521009 0.12096590 0.06853892 0.84336442 0.81826092 0.66812207 
-##         36         37         38         39         40         41         42 
-## 0.40769465 0.05326930 0.93506630 0.17709634 0.08777973 0.17709634 0.07447355 
-##         43         44         45         46         47         48         49 
-## 0.16443687 0.95369025 0.49605808 0.62734317 0.02248876 0.54068483 0.58466845 
-##         50         51         52         53         54         55         56 
-## 0.64800232 0.95369025 0.16443687 0.84336442 0.79013533 0.77492061 0.84336442 
-##         57         58         59         60 
-## 0.26903158 0.64800232 0.56280008 0.12096590
+##         1         2         3         4         5         6         7         8 
+## 0.7061023 0.7010050 0.6906602 0.6906602 0.6854144 0.6854144 0.6801208 0.6801208 
+##         9        10        11        12        13        14        15        16 
+## 0.6747804 0.6747804 0.6747804 0.6747804 0.6639632 0.6639632 0.6639632 0.6584885 
+##        17        18        19        20        21        22        23        24 
+## 0.6584885 0.6584885 0.6529712 0.6529712 0.6474126 0.6418137 0.6361759 0.6074493 
+##        25        26        27        28        29        30        31        32 
+## 0.6016063 0.6016063 0.6016063 0.5957342 0.5898346 0.5898346 0.5839091 0.5779592 
+##        33        34        35        36        37        38        39        40 
+## 0.5719866 0.5719866 0.5719866 0.5719866 0.5719866 0.5719866 0.5659929 0.5659929 
+##        41        42        43        44        45        46        47        48 
+## 0.5659929 0.5599798 0.5599798 0.5599798 0.5599798 0.5599798 0.5599798 0.5599798 
+##        49        50        51        52        53        54        55        56 
+## 0.5539491 0.5539491 0.5539491 0.5539491 0.5539491 0.5479025 0.5479025 0.5479025 
+##        57        58        59        60        61        62        63        64 
+## 0.5479025 0.5479025 0.5479025 0.5479025 0.5418417 0.5418417 0.5418417 0.5418417 
+##        65        66        67        68        69        70        71        72 
+## 0.5418417 0.5357685 0.5357685 0.5357685 0.5357685 0.5357685 0.5357685 0.5357685 
+##        73        74        75        76        77        78        79        80 
+## 0.5296847 0.5296847 0.5296847 0.5296847 0.5296847 0.5296847 0.5296847 0.5296847 
+##        81        82        83        84        85        86        87        88 
+## 0.5235921 0.5235921 0.5235921 0.5235921 0.5235921 0.5235921 0.5174924 0.5174924 
+##        89        90        91        92        93        94        95        96 
+## 0.5174924 0.5174924 0.5174924 0.5174924 0.5113875 0.5113875 0.5113875 0.5113875 
+##        97        98        99       100       101       102       103       104 
+## 0.5113875 0.5113875 0.5113875 0.5113875 0.5113875 0.5113875 0.5113875 0.5052791 
+##       105       106       107       108       109       110       111       112 
+## 0.5052791 0.5052791 0.5052791 0.5052791 0.4991693 0.4991693 0.4991693 0.4991693 
+##       113       114       115       116       117       118       119       120 
+## 0.4930596 0.4930596 0.4930596 0.4930596 0.4930596 0.4869521 0.4869521 0.4869521 
+##       121       122       123       124       125       126       127       128 
+## 0.4869521 0.4869521 0.4808484 0.4808484 0.4808484 0.4808484 0.4808484 0.4808484 
+##       129       130       131       132       133       134       135       136 
+## 0.4747504 0.4747504 0.4747504 0.4747504 0.4686600 0.4686600 0.4686600 0.4686600 
+##       137       138       139       140       141       142       143       144 
+## 0.4686600 0.4686600 0.4686600 0.4686600 0.4686600 0.4686600 0.4625789 0.4625789 
+##       145       146       147       148       149       150       151       152 
+## 0.4625789 0.4625789 0.4625789 0.4565089 0.4565089 0.4565089 0.4565089 0.4565089 
+##       153       154       155       156       157       158       159       160 
+## 0.4565089 0.4565089 0.4504518 0.4504518 0.4444093 0.4444093 0.4444093 0.4444093 
+##       161       162       163       164       165       166       167       168 
+## 0.4444093 0.4383833 0.4383833 0.4383833 0.4383833 0.4383833 0.4323753 0.4323753 
+##       169       170       171       172       173       174       175       176 
+## 0.4263872 0.4263872 0.4204206 0.4144771 0.4085585 0.4085585 0.4085585 0.4085585 
+##       177       178       179       180       181       182       183       184 
+## 0.4026662 0.4026662 0.3968019 0.3909671 0.3909671 0.3736547 0.3736547 0.3736547 
+##       185       186       187       188       189       190       191       192 
+## 0.3679527 0.3679527 0.3679527 0.3679527 0.3622873 0.3622873 0.3622873 0.3622873 
+##       193       194       195       196       197       198 
+## 0.3566600 0.3566600 0.3510719 0.3510719 0.3510719 0.3131544
 ```
 
 - The regression equation for the fitted model is:
-$$log(\frac{\hat{p_i}}{1-\hat{p_i}})=-3.56  +  0.09x_i$$
-- we see from the output that $\hat{\beta_0} = -3.56$ and $\hat{\beta_1} = 0.09$
+$$log(\frac{\hat{p_i}}{1-\hat{p_i}})=0.97  -  0.02x_i$$
+- we see from the output that $\hat{\beta_0} = 0.97$ and $\hat{\beta_1} = -0.02$
 - these estimates are arrived at via maximum likelihood estimation, something that is out of scope here
-- but similarly to linear models, we can test the null hypothesis $H_0:\beta_1=0$ by comparing,  $z = \frac{\hat{\beta_1}}{e.s.e(\hat{\beta_1)}} = 3.89$ with a standard normal distribution, and the associated value is small so there is enough evidence to reject the null, meaning that age is significantly associated with the probability with hearing Laurel and Yanny, **Wald test**
+- but similarly to linear models, we can test the null hypothesis $H_0:\beta_1=0$ by comparing,  $z = \frac{\hat{\beta_1}}{e.s.e(\hat{\beta_1)}} = -2.33$ with a standard normal distribution, and the associated value is small so there is enough evidence to reject the null, meaning that age is significantly associated with the probability with hearing Laurel and Yanny, **Wald test**
 - the same conclusion can be reached if we compare the **residual deviance**
 
 **Deviance**
@@ -164,19 +194,19 @@ $$log(\frac{\hat{p_i}}{1-\hat{p_i}})=-3.56  +  0.09x_i$$
 - we use saturated and residual deviance to assess model, instead of $R^2$ or $R^2(adj)$
 - for a GLM model that fits the data well the approximate deviance $D$ is
 $$\chi^2(m-p)$$ where $m$ is the number of parameters in the saturated model (full model) and $p$ is the number of parameters in the model of interest
-- for our above model we have $83.178  - 57.967 = 25.21$ which is larger than 95th percentile of $\chi^2(59-58)$
+- for our above model we have $274.41  - 268.73 = 5.68$ which is larger than 95th percentile of $\chi^2(197-196)$
 
 ```r
 qchisq(df=1, p=0.95)
 ## [1] 3.841459
 ```
-- i.e. $25.21 >> 3.84$ and again we can conclude that age is a significant term in the model
+- i.e. $5.68 > 3.84$ and again we can conclude that age is a significant term in the model
 
 **Odds ratios**
 
 - In logistic regression we often interpret the model coefficients by taking $e^{\hat{\beta}}$
 - and we talk about **odd ratios**
-- e.g. we can say, given our above model, $e^{0.08943} = 1.093551$ that for each unit increase in age the odds of hearing Laurel get multiplied by 1.09
+- e.g. we can say, given our above model, $e^{-0.02444} = 0.9758562$ that for each unit increase in age the odds of hearing Laurel get multiplied by 0.98
 
 **Other covariates**
 
@@ -196,32 +226,120 @@ print(summary(logmodel.2))
 ##     data = yl)
 ## 
 ## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -2.44755  -0.67360   0.06218   0.72585   1.81723  
+##     Min       1Q   Median       3Q      Max  
+## -1.6376  -1.1464   0.7595   1.1510   1.5592  
 ## 
 ## Coefficients:
-##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)  3.72679    1.07333   3.472 0.000516 ***
-## age         -0.09061    0.02337  -3.877 0.000106 ***
-## genderMale  -0.23919    0.65938  -0.363 0.716789    
+##             Estimate Std. Error z value Pr(>|z|)   
+## (Intercept)  1.24682    0.48166   2.589  0.00964 **
+## age         -0.02325    0.01061  -2.191  0.02848 * 
+## genderM     -0.43691    0.32798  -1.332  0.18282   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 274.41  on 197  degrees of freedom
+## Residual deviance: 266.94  on 195  degrees of freedom
+## AIC: 272.94
+## 
+## Number of Fisher Scoring iterations: 4
+# plot model
+ggPredict(logmodel.2)
+```
+
+<div class="figure" style="text-align: center">
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-6-1.png" alt="Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and females are very alike and the model suggest no gender effect" width="384" />
+<p class="caption">(\#fig:unnamed-chunk-6)Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and females are very alike and the model suggest no gender effect</p>
+</div>
+
+**Simulated data**
+
+This is beyond the scope of this course but a more advanced model might be needed to better explain these specific data. As an exercise, let us simulate a dataset where the logistic regression would be a better fit (it would probably be the case if the age effect had been larger than the one observed in the Yanny/Laurel example above). 
+
+
+```r
+# In a similar way as for the first Yanny/Laurel model above (logmodel.1)
+# where a binary variable (hearing Yanny/Laurel) was explained by one 
+# continuous variable (age), let us simulate the data below:
+
+# - we will simulate a sample of 60 individuals where the binary variable 
+# (e.g. hearing Yanny/Laurel) is equal to zero 30 times and to one 30 times
+
+set.seed(1)
+n <- 30
+binaryVar <- c(rep(0, n), rep(1, n))
+
+# - we would like to simulate a strong effect of the continuous variable 
+# so we can simulate people with binaryVar 0 and binaryVar 1 from 
+# different distributions. 
+
+distr0 <- rnorm(n, mean=65, sd=15) %>% round()
+distr1 <- rnorm(n, mean=25, sd=12) %>% round()
+
+dat <- data.frame(binaryVar=c(rep(0, n), rep(1, n)),
+                  continuousVar = c(distr0, distr1))
+idx <- sample(1:(2*n), 2*n) 
+dat <- dat[idx,] #reorder samples randomly
+
+head(dat)
+##    binaryVar continuousVar
+## 42         1            22
+## 32         1            24
+## 39         1            38
+## 51         1            30
+## 29         0            58
+## 34         1            24
+# Make some exploratory plots
+par(mfrow=c(1,2))
+plot(dat$continuousVar, dat$binaryVar, pch=19, 
+     xlab="Continuous variable (for instance age)", 
+     ylab="Binary variable (for instance hearing Yanny/Laurel)", las=1)
+
+boxplot(dat$continuousVar~dat$binaryVar, 
+        xlab="Binary variable", 
+        ylab="Continuous variable", 
+        col="lightblue")
+```
+
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-7-1.png" width="768" style="display: block; margin: auto;" />
+
+
+```r
+# fit logistic regression model
+logmodel.3 <- glm(binaryVar ~ continuousVar, 
+                  family = binomial(link="logit"), data = dat)
+
+# print model summary
+print(summary(logmodel.3))
+## 
+## Call:
+## glm(formula = binaryVar ~ continuousVar, family = binomial(link = "logit"), 
+##     data = dat)
+## 
+## Deviance Residuals: 
+##      Min        1Q    Median        3Q       Max  
+## -2.23294  -0.08988   0.01110   0.18155   1.70441  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)    9.16941    2.55369   3.591 0.000330 ***
+## continuousVar -0.21133    0.06112  -3.458 0.000544 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
 ##     Null deviance: 83.178  on 59  degrees of freedom
-## Residual deviance: 57.835  on 57  degrees of freedom
-## AIC: 63.835
+## Residual deviance: 19.123  on 58  degrees of freedom
+## AIC: 23.123
 ## 
-## Number of Fisher Scoring iterations: 5
-# plot model
-ggPredict(logmodel.2)
+## Number of Fisher Scoring iterations: 7
+# plot
+ggPredict(logmodel.3)
 ```
 
-<div class="figure" style="text-align: center">
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-7-1.png" alt="Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and femals are very alike and the model suggest no gender effect" width="384" />
-<p class="caption">(\#fig:unnamed-chunk-7)Yanny Laurel data modelled with logistic regression given age and gender. Regression lines in males and femals are very alike and the model suggest no gender effect</p>
-</div>
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-8-1.png" width="384" style="display: block; margin: auto;" />
 
 ## Poisson regression
 - GLMs can be also applied to count data
@@ -233,7 +351,7 @@ $$E(Y_i)=\mu_i = \eta_ie^{\mathbf{x_i}^T\boldsymbol\beta}$$ with a log link $\ln
 **Data set**
 Suppose we wish to model $Y_i$ the number of cancer cases in the i-th intermediate geographical location (IG) in Glasgow. We have collected data for 271 regions, a small areas that contain between 2500 and 6000 people. Together with cancer occurrence with have data:
 
-- Y\_all: number of cases of all types of cancer in te IG in 2013
+- Y\_all: number of cases of all types of cancer in the IG in 2013
 - E\_all: expected number of cases of all types of cancer for the IG based on the population size and demographics of the IG in 2013
 - pm10: air pollution
 - smoke: percentage of people in an area that smoke
@@ -453,7 +571,7 @@ For example, one mm Hg increase of systolic blood pressure was correlated with t
 hist(wcgs$cigs, breaks = 25)
 ```
 
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-13-1.png" width="672" />
 
 ```r
 # Poisson regression for age
