@@ -1,0 +1,150 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Correlation
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+```
+
+## Pearson correlation coefficient
+
+Pearson correlation coefficient, or rather more correctly Pearson product moment correlation coefficient, gives us an idea about the strength of association between two numerical variables. Its true value in the population, $\rho$, is estimated in the sample by $r$, where:
+
+$$r=\frac{\sum(x-\bar{x})(x-\bar{y})}{\sqrt{\sum(x-\bar{x})^2\sum(x-\bar{y})^2}}$${#eq-pearson}
+
+
+**Properties:**
+
+- the value of $r$ range between -1 to 1
+- the sign indicates whether, in general, one variable increases as the other variable increases ($r > 0$) or whether one variable increases while the other variables decreases ($r < 0$)
+- the magnitude indicates how close the points are to the straight line, in particular $r=1$ for a perfect positive correlation, $r=-1$ for a perfect negative correlation and $r=0$ for no correlation
+
+
+```{r}
+# simulate data with different levels of correlation
+# no. of observations to generate
+n <- 15 
+
+# perfect positive correlation
+x1 <- 1:n
+y1 <- 1:n
+cor1 <- cor(x1, y1) %>% round(2)
+
+# perfect negative correlation
+x2 <- 1:n
+y2 <- -1*(1:n)
+cor2 <- cor(x2, y2) %>% round(2)
+
+# positive correlation
+set.seed(123)
+x3 <- 1:n
+y3 <- x3 + rnorm(n, mean = 1, sd = 2)
+cor3 <- cor(x3, y3) %>% round(1)
+
+# negative correlation
+set.seed(123)
+x4 <- 1:n
+y4 <- x4*(-1) + rnorm(n, mean = 1, sd = 4)
+cor4 <- cor(x4, y4) %>% round(1)
+
+# no correlation
+set.seed(123)
+x5 <- 1:n
+y5 <- rnorm(n, mean = 1, sd = 4)
+cor5 <- cor(x5, y5) %>% round(1)
+
+# quadratic relationship
+x6 <- -n:n
+y6 <- x6^2
+
+par(mfrow = c(2,3))
+plot(x1, y1, xlab="x", ylab="y", main = paste("r = ", cor1, sep=""), pch=19)
+plot(x2, y2, xlab="x", ylab="y", main = paste("r = ", cor2, sep=""), pch=19)
+
+plot(x3, y3, xlab="x", ylab="y", main = paste("r = ", cor3, sep=""), pch=19)
+plot(x4, y4, xlab="x", ylab="y", main = paste("r = ", cor4, sep=""), pch=19)
+
+plot(x5, y5, xlab="x", ylab="y", main = paste("r = ", cor5, sep=""), pch=19)
+plot(x6, y6, xlab="x", ylab="y", main = paste("r = NA", sep=""), pch=19)
+
+```
+
+**Limitations**
+
+It may be misleading to calculate correlation coefficient, $r$, when:
+
+- there is a non-linear relationship between the two variables, e.g. quadratic
+- outliers are present
+- the data include more than one observation on each individual (grouped data)
+
+Spearman correlation and Kendall's tau use try to overcome some of the above limitations, by operating on ranks, to measure the strength of the association. 
+
+## Spearman correlation
+
+To calculate Spearman's rank correlation between two variables $X$ and $Y$ we: 
+
+- rank the values of $X$ and $Y$ independently
+- follow the formula to calculate the Pearson correlation coefficient using ranks (@eq-pearson)
+
+## Kendall's tau
+
+To calculate Kendall's tau, $\tau$, we compare ranks of $X$ and $Y$ between every pair of observation. (There are n(n-1)/2 possible pairs). The pairs of ranks for observation $i$ and $j$ are said to be: 
+
+- concordant: if they differ in the same direction, i.e. if both the $X$ and $Y$ ranks of subject $i$ are lower than the corresponding ranks of subject $j$, or both are higher
+- discordant: otherwise
+
+$$\tau = \frac{n_C-n_D}{n(n-1)/2}$$ where 
+
+$n_C$, number of concordant pairs
+$n_D$, number of discordant pairs
+
+
+For instance, in the below data, the ranks of subjects #1 and #2 are concordant as subject #1 has a lower rank than subject #2 for both the variables. The ranks of subjects #3 and #6 are discordant as subject #3 has a more highly ranked $X$ value than subject #6 but a lower ranked $Y value$.
+
+```{r}
+#| label: tbl-cor
+#| tbl-cap: "Example X and Y measurments for 8 subjects with ranks done independently on X and Y. "
+#| tbl-cap-location: margin
+
+# input data
+x <- c(58, 70, 74, 63.5, 62.0, 70.5, 71, 66)
+y <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12)
+n <- length(x)
+df <- data.frame(subject = 1:n, x = x, rank_x = rank(x), y = y, rank_y = rank(y))
+
+df %>%
+  kable() %>%
+  kable_styling(full_width = TRUE)
+
+```
+
+## In `R` we use `cor()` function
+Apart from following the above equations by hand, in R we can use `cor()` function to calculate Pearson, Spearman and Kendall's tau correlation coefficients. 
+
+```{r}
+#| code-fold: false
+
+# Pearson
+cor(x,y, method = "pearson")
+
+# Spearman
+cor(x,y, method = "spearman")
+
+# Kendall's tau
+cor(x,y, method = "kendall")
+
+```
+
+
+

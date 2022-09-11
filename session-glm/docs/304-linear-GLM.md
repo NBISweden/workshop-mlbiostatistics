@@ -3,6 +3,7 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
+
 # Generalized linear models
 
 **Aims**
@@ -29,7 +30,7 @@ editor_options:
 <p class="caption">(\#fig:unnamed-chunk-2)Example of fitting linear model to binary data, to model the acceptance to medical school, coded as 1 (Yes) and 0 (No) using GPA school scores. Linear model does not fit the data well in this case</p>
 </div>
 
-## Logisitc regression
+## Logistic regression
 - [Yanny or Laurel auditory illusion](https://www.theguardian.com/global/video/2018/may/16/what-do-you-hear-in-this-audio-clip-yanny-or-laurel-takes-internet-by-storm-video) appeared online in May 2018. You could find lots of information about it, together with some plausible explanations why some people hear Yanny and some year Laurel
 - One of the explanation is that with age we lose the ability to hear certain sounds
 - To see if there is evidence for that, someone has already collected some data for 53 people including their age and gender
@@ -49,9 +50,9 @@ head(yl)
 ## 4 Laurel  47 Female
 ## 5 Laurel  60   Male
 ## 6  Yanny  11 Female
-# Recode Laurel to 0 and Yanny as 1 in new variable (what)
+# Recode Laurel to 0 and Yanny as 1 in new variable
 yl$word <- 0
-yl$word[yl$hear=="Laurel"] <- 1
+yl$word[yl$hear=="Yanny"] <- 1
 
 # Make some exploratory plots
 par(mfrow=c(1,2))
@@ -60,8 +61,8 @@ boxplot(yl$age~yl$hear, xlab="", ylab="age", col="lightblue")
 ```
 
 <div class="figure" style="text-align: center">
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Luarel (0)" width="768" />
-<p class="caption">(\#fig:unnamed-chunk-4)Yanny and Laurel auditory illusion data, Yanny (1), Luarel (0)</p>
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)" width="768" />
+<p class="caption">(\#fig:unnamed-chunk-4)Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)</p>
 </div>
 
 - Since the response variable takes only two values (Yanny or Laurel) we use GLM model 
@@ -94,12 +95,12 @@ print(summary(logmodel.1))
 ## 
 ## Deviance Residuals: 
 ##      Min        1Q    Median        3Q       Max  
-## -1.86068  -0.71414  -0.04733   0.64434   2.47887  
+## -2.47887  -0.64434   0.04733   0.71414   1.86068  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept) -3.56159    0.95790  -3.718 0.000201 ***
-## age          0.08943    0.02297   3.893 9.89e-05 ***
+## (Intercept)  3.56159    0.95790   3.718 0.000201 ***
+## age         -0.08943    0.02297  -3.893 9.89e-05 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -131,23 +132,23 @@ predict(logmodel.1, type="response")
 
 ```
 ##          1          2          3          4          5          6          7 
-## 0.50394192 0.67507724 0.33187793 0.65516152 0.85868941 0.07057982 0.87903410 
+## 0.49605808 0.32492276 0.66812207 0.34483848 0.14131059 0.92942018 0.12096590 
 ##          8          9         10         11         12         13         14 
-## 0.06493370 0.35199768 0.69437930 0.91222027 0.15663558 0.78037334 0.43719992 
+## 0.93506630 0.64800232 0.30562070 0.08777973 0.84336442 0.21962666 0.56280008 
 ##         15         16         17         18         19         20         21 
-## 0.39379165 0.59230535 0.20986467 0.45931517 0.69437930 0.22507939 0.48159183 
+## 0.60620835 0.40769465 0.79013533 0.54068483 0.30562070 0.77492061 0.51840817 
 ##         22         23         24         25         26         27         28 
-## 0.20986467 0.71302217 0.10615359 0.97322447 0.65516152 0.11494328 0.20986467 
+## 0.79013533 0.28697783 0.89384641 0.02677553 0.34483848 0.88505672 0.79013533 
 ##         29         30         31         32         33         34         35 
-## 0.12435950 0.90478991 0.87903410 0.93146108 0.15663558 0.18173908 0.33187793 
+## 0.87564050 0.09521009 0.12096590 0.06853892 0.84336442 0.81826092 0.66812207 
 ##         36         37         38         39         40         41         42 
-## 0.59230535 0.94673070 0.06493370 0.82290366 0.91222027 0.82290366 0.92552645 
+## 0.40769465 0.05326930 0.93506630 0.17709634 0.08777973 0.17709634 0.07447355 
 ##         43         44         45         46         47         48         49 
-## 0.83556313 0.04630975 0.50394192 0.37265683 0.97751124 0.45931517 0.41533155 
+## 0.16443687 0.95369025 0.49605808 0.62734317 0.02248876 0.54068483 0.58466845 
 ##         50         51         52         53         54         55         56 
-## 0.35199768 0.04630975 0.83556313 0.15663558 0.20986467 0.22507939 0.15663558 
+## 0.64800232 0.95369025 0.16443687 0.84336442 0.79013533 0.77492061 0.84336442 
 ##         57         58         59         60 
-## 0.73096842 0.35199768 0.43719992 0.87903410
+## 0.26903158 0.64800232 0.56280008 0.12096590
 ```
 
 - The regression equation for the fitted model is:
@@ -196,13 +197,13 @@ print(summary(logmodel.2))
 ## 
 ## Deviance Residuals: 
 ##      Min        1Q    Median        3Q       Max  
-## -1.81723  -0.72585  -0.06218   0.67360   2.44755  
+## -2.44755  -0.67360   0.06218   0.72585   1.81723  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
-## (Intercept) -3.72679    1.07333  -3.472 0.000516 ***
-## age          0.09061    0.02337   3.877 0.000106 ***
-## genderMale   0.23919    0.65938   0.363 0.716789    
+## (Intercept)  3.72679    1.07333   3.472 0.000516 ***
+## age         -0.09061    0.02337  -3.877 0.000106 ***
+## genderMale  -0.23919    0.65938  -0.363 0.716789    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 

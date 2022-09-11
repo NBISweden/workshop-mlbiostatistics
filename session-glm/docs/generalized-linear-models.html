@@ -24,7 +24,7 @@
 <meta name="author" content="Olga Dethlefsen" />
 
 
-<meta name="date" content="2022-08-30" />
+<meta name="date" content="2022-09-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -141,7 +141,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="generalized-linear-models.html#generalized-linear-models" id="toc-generalized-linear-models"><span class="toc-section-number">1</span> Generalized linear models</a>
 <ul>
 <li><a href="generalized-linear-models.html#why-generalized-linear-models-glms" id="toc-why-generalized-linear-models-glms"><span class="toc-section-number">1.1</span> Why Generalized Linear Models (GLMs)</a></li>
-<li><a href="generalized-linear-models.html#logisitc-regression" id="toc-logisitc-regression"><span class="toc-section-number">1.2</span> Logisitc regression</a></li>
+<li><a href="generalized-linear-models.html#logistic-regression" id="toc-logistic-regression"><span class="toc-section-number">1.2</span> Logistic regression</a></li>
 <li><a href="generalized-linear-models.html#poisson-regression" id="toc-poisson-regression"><span class="toc-section-number">1.3</span> Poisson regression</a></li>
 <li><a href="generalized-linear-models.html#exercises-glms" id="toc-exercises-glms"><span class="toc-section-number">1.4</span> Exercises (GLMs)</a></li>
 </ul></li>
@@ -190,8 +190,8 @@ Figure 1.1: Example of fitting linear model to binary data, to model the accepta
 </p>
 </div>
 </div>
-<div id="logisitc-regression" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Logisitc regression</h2>
+<div id="logistic-regression" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Logistic regression</h2>
 <ul>
 <li><a href="https://www.theguardian.com/global/video/2018/may/16/what-do-you-hear-in-this-audio-clip-yanny-or-laurel-takes-internet-by-storm-video">Yanny or Laurel auditory illusion</a> appeared online in May 2018. You could find lots of information about it, together with some plausible explanations why some people hear Yanny and some year Laurel</li>
 <li>One of the explanation is that with age we lose the ability to hear certain sounds</li>
@@ -207,18 +207,18 @@ Figure 1.1: Example of fitting linear model to binary data, to model the accepta
 <span id="cb1-8"><a href="generalized-linear-models.html#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 Laurel  47 Female</span></span>
 <span id="cb1-9"><a href="generalized-linear-models.html#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 Laurel  60   Male</span></span>
 <span id="cb1-10"><a href="generalized-linear-models.html#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6  Yanny  11 Female</span></span>
-<span id="cb1-11"><a href="generalized-linear-models.html#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Recode Laurel to 0 and Yanny as 1 in new variable (what)</span></span>
+<span id="cb1-11"><a href="generalized-linear-models.html#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Recode Laurel to 0 and Yanny as 1 in new variable</span></span>
 <span id="cb1-12"><a href="generalized-linear-models.html#cb1-12" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb1-13"><a href="generalized-linear-models.html#cb1-13" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word[yl<span class="sc">$</span>hear<span class="sc">==</span><span class="st">&quot;Laurel&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-13"><a href="generalized-linear-models.html#cb1-13" aria-hidden="true" tabindex="-1"></a>yl<span class="sc">$</span>word[yl<span class="sc">$</span>hear<span class="sc">==</span><span class="st">&quot;Yanny&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb1-14"><a href="generalized-linear-models.html#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-15"><a href="generalized-linear-models.html#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Make some exploratory plots</span></span>
 <span id="cb1-16"><a href="generalized-linear-models.html#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
 <span id="cb1-17"><a href="generalized-linear-models.html#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yl<span class="sc">$</span>age, yl<span class="sc">$</span>word, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">&quot;age&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;&quot;</span>, <span class="at">las=</span><span class="dv">1</span>)</span>
 <span id="cb1-18"><a href="generalized-linear-models.html#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(yl<span class="sc">$</span>age<span class="sc">~</span>yl<span class="sc">$</span>hear, <span class="at">xlab=</span><span class="st">&quot;&quot;</span>, <span class="at">ylab=</span><span class="st">&quot;age&quot;</span>, <span class="at">col=</span><span class="st">&quot;lightblue&quot;</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-4"></span>
-<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Luarel (0)" width="768" />
+<img src="304-linear-GLM_files/figure-html/unnamed-chunk-4-1.png" alt="Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)" width="768" />
 <p class="caption">
-Figure 1.2: Yanny and Laurel auditory illusion data, Yanny (1), Luarel (0)
+Figure 1.2: Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)
 </p>
 </div>
 <ul>
@@ -247,12 +247,12 @@ and given the properties of logarithms this is also equivalent to:
 ## 
 ## Deviance Residuals: 
 ##      Min        1Q    Median        3Q       Max  
-## -1.86068  -0.71414  -0.04733   0.64434   2.47887  
+## -2.47887  -0.64434   0.04733   0.71414   1.86068  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept) -3.56159    0.95790  -3.718 0.000201 ***
-## age          0.08943    0.02297   3.893 9.89e-05 ***
+## (Intercept)  3.56159    0.95790   3.718 0.000201 ***
+## age         -0.08943    0.02297  -3.893 9.89e-05 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
@@ -276,23 +276,23 @@ Figure 1.3: Fitted logistic model to the Yanny and Laurel data
 <span id="cb5-3"><a href="generalized-linear-models.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># we specify response to return prediction on the probability scale</span></span>
 <span id="cb5-4"><a href="generalized-linear-models.html#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(logmodel<span class="fl">.1</span>, <span class="at">type=</span><span class="st">&quot;response&quot;</span>)</span></code></pre></div>
 <pre><code>##          1          2          3          4          5          6          7 
-## 0.50394192 0.67507724 0.33187793 0.65516152 0.85868941 0.07057982 0.87903410 
+## 0.49605808 0.32492276 0.66812207 0.34483848 0.14131059 0.92942018 0.12096590 
 ##          8          9         10         11         12         13         14 
-## 0.06493370 0.35199768 0.69437930 0.91222027 0.15663558 0.78037334 0.43719992 
+## 0.93506630 0.64800232 0.30562070 0.08777973 0.84336442 0.21962666 0.56280008 
 ##         15         16         17         18         19         20         21 
-## 0.39379165 0.59230535 0.20986467 0.45931517 0.69437930 0.22507939 0.48159183 
+## 0.60620835 0.40769465 0.79013533 0.54068483 0.30562070 0.77492061 0.51840817 
 ##         22         23         24         25         26         27         28 
-## 0.20986467 0.71302217 0.10615359 0.97322447 0.65516152 0.11494328 0.20986467 
+## 0.79013533 0.28697783 0.89384641 0.02677553 0.34483848 0.88505672 0.79013533 
 ##         29         30         31         32         33         34         35 
-## 0.12435950 0.90478991 0.87903410 0.93146108 0.15663558 0.18173908 0.33187793 
+## 0.87564050 0.09521009 0.12096590 0.06853892 0.84336442 0.81826092 0.66812207 
 ##         36         37         38         39         40         41         42 
-## 0.59230535 0.94673070 0.06493370 0.82290366 0.91222027 0.82290366 0.92552645 
+## 0.40769465 0.05326930 0.93506630 0.17709634 0.08777973 0.17709634 0.07447355 
 ##         43         44         45         46         47         48         49 
-## 0.83556313 0.04630975 0.50394192 0.37265683 0.97751124 0.45931517 0.41533155 
+## 0.16443687 0.95369025 0.49605808 0.62734317 0.02248876 0.54068483 0.58466845 
 ##         50         51         52         53         54         55         56 
-## 0.35199768 0.04630975 0.83556313 0.15663558 0.20986467 0.22507939 0.15663558 
+## 0.64800232 0.95369025 0.16443687 0.84336442 0.79013533 0.77492061 0.84336442 
 ##         57         58         59         60 
-## 0.73096842 0.35199768 0.43719992 0.87903410</code></pre>
+## 0.26903158 0.64800232 0.56280008 0.12096590</code></pre>
 <ul>
 <li>The regression equation for the fitted model is:
 <span class="math display">\[log(\frac{\hat{p_i}}{1-\hat{p_i}})=-3.56  +  0.09x_i\]</span></li>
@@ -337,13 +337,13 @@ Figure 1.3: Fitted logistic model to the Yanny and Laurel data
 <span id="cb8-10"><a href="generalized-linear-models.html#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb8-11"><a href="generalized-linear-models.html#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Deviance Residuals: </span></span>
 <span id="cb8-12"><a href="generalized-linear-models.html#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min        1Q    Median        3Q       Max  </span></span>
-<span id="cb8-13"><a href="generalized-linear-models.html#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">## -1.81723  -0.72585  -0.06218   0.67360   2.44755  </span></span>
+<span id="cb8-13"><a href="generalized-linear-models.html#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">## -2.44755  -0.67360   0.06218   0.72585   1.81723  </span></span>
 <span id="cb8-14"><a href="generalized-linear-models.html#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb8-15"><a href="generalized-linear-models.html#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
 <span id="cb8-16"><a href="generalized-linear-models.html#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span id="cb8-17"><a href="generalized-linear-models.html#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -3.72679    1.07333  -3.472 0.000516 ***</span></span>
-<span id="cb8-18"><a href="generalized-linear-models.html#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## age          0.09061    0.02337   3.877 0.000106 ***</span></span>
-<span id="cb8-19"><a href="generalized-linear-models.html#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## genderMale   0.23919    0.65938   0.363 0.716789    </span></span>
+<span id="cb8-17"><a href="generalized-linear-models.html#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)  3.72679    1.07333   3.472 0.000516 ***</span></span>
+<span id="cb8-18"><a href="generalized-linear-models.html#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## age         -0.09061    0.02337  -3.877 0.000106 ***</span></span>
+<span id="cb8-19"><a href="generalized-linear-models.html#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## genderMale  -0.23919    0.65938  -0.363 0.716789    </span></span>
 <span id="cb8-20"><a href="generalized-linear-models.html#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb8-21"><a href="generalized-linear-models.html#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb8-22"><a href="generalized-linear-models.html#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
