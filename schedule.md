@@ -64,7 +64,7 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09:30 - 10:30** [Linear models: introduction](session-lm/docs/)
+**09:30 - 10:30** [Linear models: introduction](session-lm/docs/lm-intro.html) [.presentation](session-lm-presentation/session-lm-presentation.html)
 
 **10:30 - 11.00** [Exercises](session-lm/docs/introduction-to-linear-models.html#exercises-linear-models-i)
 

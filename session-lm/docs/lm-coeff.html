@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Introduction to linear models - 2&nbsp; Regression coefficients</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./lm-coeff-exercises.html" rel="next">
+<link href="./lm-intro-exercises.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression coefficients</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Introduction to linear models</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Preface</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-intro-exercises.html" class="sidebar-item-text sidebar-link">Exercises (introduction to linear models)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-coeff.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression coefficients</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-coeff-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exercises (Regression coefficients)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-diagn.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Model diagnostics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-diagn-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Exercises (Model diagnostics)</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#interpreting-and-using-linear-regression-models" id="toc-interpreting-and-using-linear-regression-models" class="nav-link active" data-scroll-target="#interpreting-and-using-linear-regression-models"> <span class="header-section-number">2.1</span> Interpreting and using linear regression models</a></li>
+  <li><a href="#example-plasma-volume" id="toc-example-plasma-volume" class="nav-link" data-scroll-target="#example-plasma-volume"> <span class="header-section-number">2.2</span> Example: Plasma volume</a></li>
+  <li><a href="#example-galapagos-islands" id="toc-example-galapagos-islands" class="nav-link" data-scroll-target="#example-galapagos-islands"> <span class="header-section-number">2.3</span> Example: Galapagos Islands</a></li>
+  <li><a href="#example-height-and-gender" id="toc-example-height-and-gender" class="nav-link" data-scroll-target="#example-height-and-gender"> <span class="header-section-number">2.4</span> Example: Height and gender</a></li>
+  <li><a href="#example-height-weight-and-gender-i" id="toc-example-height-weight-and-gender-i" class="nav-link" data-scroll-target="#example-height-weight-and-gender-i"> <span class="header-section-number">2.5</span> Example: Height, weight and gender I</a></li>
+  <li><a href="#example-heigth-weight-and-gender-ii" id="toc-example-heigth-weight-and-gender-ii" class="nav-link" data-scroll-target="#example-heigth-weight-and-gender-ii"> <span class="header-section-number">2.6</span> Example: Heigth, weight and gender II</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression coefficients</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p><strong>Aims</strong></p>
+<ul>
+<li>to clarify the interpretation of the fitted linear models</li>
+</ul>
+<p><strong>Learning outcomes</strong></p>
+<ul>
+<li>to use <code>lm()</code> function to fit multiple linear regression model</li>
+<li>to be able to interpret the output of the model</li>
+<li>to be able to use <code>lm()</code> function to check for association between variables, group effects and interaction terms</li>
+</ul>
+<div class="cell">
+
+</div>
+<section id="interpreting-and-using-linear-regression-models" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="interpreting-and-using-linear-regression-models"><span class="header-section-number">2.1</span> Interpreting and using linear regression models</h2>
+<ul>
+<li>In previous section we have seen how to find estimates of model coefficients, using theorems and vector-matrix notations.</li>
+<li>Now, we will focus on what model coefficient values tell us and how to interpret them</li>
+<li>And we will look at the common cases of using linear regression models</li>
+<li>We will do this via analyzing some examples</li>
+</ul>
+</section>
+<section id="example-plasma-volume" class="level2 page-columns page-full" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="example-plasma-volume"><span class="header-section-number">2.2</span> Example: Plasma volume</h2>
+<div class="cell page-columns page-full" data-fig-cap-location="margin" data-fig-heigth="4">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># fit regression model</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(plasma <span class="sc">~</span> weight)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the original data and fitted regression line</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(weight, plasma, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">"weight [kg]"</span>, <span class="at">ylab=</span><span class="st">"plasma [l]"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(weight, model<span class="sc">$</span>fitted.values, <span class="at">col=</span><span class="st">"red"</span>) <span class="co"># fitted model in red</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># print model summary</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = plasma ~ weight)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">## -0.27880 -0.14178 -0.01928  0.13986  0.32939 </span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)  0.08572    1.02400   0.084   0.9360  </span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="do">## weight       0.04362    0.01527   2.857   0.0289 *</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 0.2188 on 6 degrees of freedom</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.5763, Adjusted R-squared:  0.5057 </span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-plasma-volume" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="lm-coeff_files/figure-html/fig-plasma-volume-1.png" class="img-fluid figure-img" width="384"></p>
+<p></p><figcaption class="figure-caption">Figure 2.1: Scatter plot showing plasma volume for each weight</figcaption><p></p>
+</figure>
+</div>
+</div></div></div>
+<p><strong>Model:</strong></p>
+<ul>
+<li><span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span> where <span class="math inline">\(x_i\)</span> corresponds to <span class="math inline">\(weight_i\)</span></li>
+</ul>
+<p><strong>Slope</strong></p>
+<ul>
+<li>The value of slope tells us how and by much the outcome changes with a unit change in <span class="math inline">\(x\)</span></li>
+<li>If we go up in weight 1 kg what would be our expected change in plasma volume<span class="math inline">\(^1\)</span>?</li>
+<li>And if we go up in weight 10 kg what would be our expected change in plasma volume<span class="math inline">\(^2\)</span>?</li>
+</ul>
+<p><strong>Intercept</strong></p>
+<ul>
+<li>the <strong>intercept</strong>, often labeled the <strong>constant</strong>, is the value of Y when <span class="math inline">\(x_i=0\)</span></li>
+<li>in models where <span class="math inline">\(x_i\)</span> can be equal 0, the intercept is simply the expected mean value of response</li>
+<li>in models where <span class="math inline">\(x_i\)</span> cannot be equal 0, like in our plasma example no weight makes no sense for healthy men, the intercept has no intrinsic meaning</li>
+<li>the intercept is thus quite often ignored in linear models, as it is the value of slope that dictates the association between exposure and outcome</li>
+</ul>
+<p><br></p>
+<ul>
+<li><span class="math inline">\(^1\)</span>: If we go up in weight 1 kg we would expect our plasma volume to increase by 0.04 liter since <span class="math inline">\(\hat{\beta} = 0.04\)</span></li>
+<li><span class="math inline">\(^2\)</span> If we go up in weight 10 kg we would expect our plasma volume to increase by <span class="math inline">\(0.04 \cdot 10 = 0.4\)</span> liter</li>
+</ul>
+</section>
+<section id="example-galapagos-islands" class="level2 page-columns page-full" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="example-galapagos-islands"><span class="header-section-number">2.3</span> Example: Galapagos Islands</h2>
+<p>Researchers were interested in biological diversity on the Galapagos islands. They have collected data on number of plant species (Species) and number of endemic species on 30 islands as well as some descriptors of the islands such as area [<span class="math inline">\(\mathrm{km^2}\)</span>], elevation [m], distance to nearest island [km], distance to Santa Cruz [km] and the area of the adjacent island [<span class="math inline">\(\mathrm{km^2}\)</span>].</p>
+<p>The preview of data is here:</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data is available via faraway package</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(faraway)){</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">"faraway"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(faraway)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(gala, <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_paper</span>(<span class="st">"hover"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div id="tbl-gi" class="anchored page-columns page-full">
+
+<table class="lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Species </th>
+   <th style="text-align:right;"> Endemics </th>
+   <th style="text-align:right;"> Area </th>
+   <th style="text-align:right;"> Elevation </th>
+   <th style="text-align:right;"> Nearest </th>
+   <th style="text-align:right;"> Scruz </th>
+   <th style="text-align:right;"> Adjacent </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Baltra </td>
+   <td style="text-align:right;"> 58 </td>
+   <td style="text-align:right;"> 23 </td>
+   <td style="text-align:right;"> 25.09 </td>
+   <td style="text-align:right;"> 346 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> 1.84 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Bartolome </td>
+   <td style="text-align:right;"> 31 </td>
+   <td style="text-align:right;"> 21 </td>
+   <td style="text-align:right;"> 1.24 </td>
+   <td style="text-align:right;"> 109 </td>
+   <td style="text-align:right;"> 0.6 </td>
+   <td style="text-align:right;"> 26.3 </td>
+   <td style="text-align:right;"> 572.33 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Caldwell </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 0.21 </td>
+   <td style="text-align:right;"> 114 </td>
+   <td style="text-align:right;"> 2.8 </td>
+   <td style="text-align:right;"> 58.7 </td>
+   <td style="text-align:right;"> 0.78 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Champion </td>
+   <td style="text-align:right;"> 25 </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 0.10 </td>
+   <td style="text-align:right;"> 46 </td>
+   <td style="text-align:right;"> 1.9 </td>
+   <td style="text-align:right;"> 47.4 </td>
+   <td style="text-align:right;"> 0.18 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Coamano </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> 77 </td>
+   <td style="text-align:right;"> 1.9 </td>
+   <td style="text-align:right;"> 1.9 </td>
+   <td style="text-align:right;"> 903.82 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Daphne.Major </td>
+   <td style="text-align:right;"> 18 </td>
+   <td style="text-align:right;"> 11 </td>
+   <td style="text-align:right;"> 0.34 </td>
+   <td style="text-align:right;"> 119 </td>
+   <td style="text-align:right;"> 8.0 </td>
+   <td style="text-align:right;"> 8.0 </td>
+   <td style="text-align:right;"> 1.84 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Daphne.Minor </td>
+   <td style="text-align:right;"> 24 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0.08 </td>
+   <td style="text-align:right;"> 93 </td>
+   <td style="text-align:right;"> 6.0 </td>
+   <td style="text-align:right;"> 12.0 </td>
+   <td style="text-align:right;"> 0.34 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Darwin </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 2.33 </td>
+   <td style="text-align:right;"> 168 </td>
+   <td style="text-align:right;"> 34.1 </td>
+   <td style="text-align:right;"> 290.2 </td>
+   <td style="text-align:right;"> 2.85 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Eden </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 71 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 0.4 </td>
+   <td style="text-align:right;"> 17.95 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Enderby </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.18 </td>
+   <td style="text-align:right;"> 112 </td>
+   <td style="text-align:right;"> 2.6 </td>
+   <td style="text-align:right;"> 50.2 </td>
+   <td style="text-align:right;"> 0.10 </td>
+  </tr>
+</tbody>
+</table>
+
+<div class="quarto-table-caption margin-caption">Table 2.1:  Preview of the Galapagos Islands data </div></div>
+</div>
+</div>
+<p>And we can fit a linear regression model to model number of <em>Species</em> given the remaining variables. Let’s keep aside for now that number of <em>Species</em> is actually a count variable, not a continuous numerical variable, we just want to estimate the number of <em>Species</em> for now.</p>
+<p><strong>Fitted Model</strong></p>
+<ul>
+<li><span class="math inline">\(Y_i = \beta_0 + \beta_1 Area_i + \beta_2 Elevation_i + \beta_3 Nearest_i + \beta_4 Scruz_i + \beta_5 Adjacent_i + \epsilon_i\)</span></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit multiple linear regression and print model summary</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Species <span class="sc">~</span> Area <span class="sc">+</span> Elevation <span class="sc">+</span> Nearest <span class="sc">+</span> Scruz <span class="sc">+</span> Adjacent, <span class="at">data =</span> gala)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model1))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Species ~ Area + Elevation + Nearest + Scruz + Adjacent, </span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="do">##     data = gala)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="do">## -111.679  -34.898   -7.862   33.460  182.584 </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)  7.068221  19.154198   0.369 0.715351    </span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Area        -0.023938   0.022422  -1.068 0.296318    </span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Elevation    0.319465   0.053663   5.953 3.82e-06 ***</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="do">## Nearest      0.009144   1.054136   0.009 0.993151    </span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Scruz       -0.240524   0.215402  -1.117 0.275208    </span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Adjacent    -0.074805   0.017700  -4.226 0.000297 ***</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 60.98 on 24 degrees of freedom</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.7658, Adjusted R-squared:  0.7171 </span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  15.7 on 5 and 24 DF,  p-value: 6.838e-07</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Using the model compare two islands in terms of number of species</strong></p>
+<ul>
+<li>if the second island has an elevation 1 m higher than the first one?<span class="math inline">\(^1\)</span></li>
+<li>if the second island has an elevation 100 m higher than the first one?<span class="math inline">\(^2\)</span></li>
+<li>if the second island is 100 km closer to Santa Cruz?<span class="math inline">\(^3\)</span></li>
+<li>overall, is there a relationship between the response <span class="math inline">\(Y\)</span> (Species) and predictors?<span class="math inline">\(^4\)</span></li>
+</ul>
+<p><br></p>
+<ul>
+<li><span class="math inline">\(^1\)</span> the second island will have 0.32 species more than the first one, <span class="math inline">\(\hat{\beta_2} = 0.319465 \approx 0.32\)</span></li>
+<li><span class="math inline">\(^2\)</span> the second island will have <span class="math inline">\(0.32 \cdot 100 = 32\)</span> more species than the first one</li>
+<li><span class="math inline">\(^3\)</span> the second island would have <span class="math inline">\(-0.24 \cdot 100 = -24\)</span> less species than the first if there was enough evidence to reject the null hypothesis of <span class="math inline">\(\beta_4 = 0\)</span>; It is not appropriate to try to interpret non-significant coefficients.</li>
+<li><span class="math inline">\(^4\)</span> we have seen before that in the case of simple linear regression it was enough to test the null hypothesis of <span class="math inline">\(H_0: \beta=0\)</span> versus <span class="math inline">\(H_0: \beta\neq0\)</span> to answers the question whether there is an overall relationship between response and predictor. In case of multiple regression, with many predictors, we need to test the null hypothesis of <span class="math display">\[H_0: \beta_1 = \beta_2 = \dots = \beta_p = 0\]</span> versus the alternative <span class="math display">\[H_a: at \; least \; one \; \beta_j \; is \; non-zero\]</span> This hypothesis test is performed by computing <strong>F-statistics</strong> reported in the model summary and calculated as <span class="math inline">\(F = \frac{(TSS - RSS)/p}{RSS/(n-p-1)}\)</span> where <span class="math inline">\(TSS = \sum(y_i - \bar{y})^2\)</span> and <span class="math inline">\(RSS = \sum(y_i - \hat{y_i})^2\)</span>. Here, the <span class="math inline">\(F-statsitics = 15.7\)</span> and the associated <span class="math inline">\(p-value &lt; 0.05\)</span> so there is enough evidence to reject the null hypothesis in favor of the alternative and conclude that there is an overall significant relationship between response (Species) and predictors.</li>
+</ul>
+<p><br> <strong>Not so easy: alternative model</strong></p>
+<p>Consider an alternative model where we only use elevation to model the number of species</p>
+<p><span class="math display">\[Y_i = \beta_0 + \beta_1 Elevation_i + \epsilon_i\]</span></p>
+<p>We fit the model in <code>R</code> and look at the model summary</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Species <span class="sc">~</span> Elevation, <span class="at">data =</span> gala)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model2))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Species ~ Elevation, data = gala)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="do">## -218.319  -30.721  -14.690    4.634  259.180 </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 11.33511   19.20529   0.590     0.56    </span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Elevation    0.20079    0.03465   5.795 3.18e-06 ***</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 78.66 on 28 degrees of freedom</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.5454, Adjusted R-squared:  0.5291 </span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 33.59 on 1 and 28 DF,  p-value: 3.177e-06</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Using the alternative model compare again two islands in terms of number of species</strong></p>
+<ul>
+<li>if the second island has an elevation 1 m higher than the first one?<span class="math inline">\(^1\)</span></li>
+<li>if the second island has an elevation 100 m higher than the first one?<span class="math inline">\(^2\)</span></li>
+</ul>
+<p><br></p>
+<ul>
+<li><span class="math inline">\(^1\)</span> the second island will have 0.20 species more than the first one</li>
+<li><span class="math inline">\(^2\)</span> the second island will have <span class="math inline">\(0.20 \cdot 100 = 20\)</span> more species</li>
+</ul>
+<p><strong>Specific interpretation</strong></p>
+<ul>
+<li>Obviously there is difference between 32 and 20 times more species given the same elevation difference as obtained by the multiple regression (first model) and simple regression (alternative model).</li>
+<li>Our interpretations need to be more specific and we say that <strong>a unit increase in <span class="math inline">\(x\)</span> with other predictors held constant will produce a change equal to <span class="math inline">\(\hat{\beta}\)</span> in the response <span class="math inline">\(y\)</span></strong></li>
+<li>It is of course often quite unrealistic to be able to control other variables and keep them constant and for our alternative model, a change in evaluation is most likely associated with other variables, even though they are not included in the model.</li>
+<li>Further, our explanation contains <strong>no notation of causation</strong>, even though the two models are showing a strong association between elevation and number of species.</li>
+<li>We will learn later how to choose the best model by assessing its fit and including only relevant variable (feature selection), for now we focus on learning how to interpret the coefficients given a fitted model.</li>
+</ul>
+</section>
+<section id="example-height-and-gender" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="example-height-and-gender"><span class="header-section-number">2.4</span> Example: Height and gender</h2>
+<p>Data are available containing the weight [lbs] and height [inches] of 10000 men and women</p>
+<div class="cell" data-fig-cap-location="margin">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>htwtgen <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/lm/heights_weights_genders.csv"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(htwtgen)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   Gender   Height   Weight</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   Male 73.84702 241.8936</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 2   Male 68.78190 162.3105</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 3   Male 74.11011 212.7409</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 4   Male 71.73098 220.0425</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 5   Male 69.88180 206.3498</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6   Male 67.25302 152.2122</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># boxplot for females and males</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(htwtgen<span class="sc">$</span>Height <span class="sc">~</span> htwtgen<span class="sc">$</span>Gender, </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab=</span><span class="st">""</span>, <span class="at">ylab=</span><span class="st">"Height"</span>, <span class="at">col=</span><span class="st">"lightblue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-height-gender" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="lm-coeff_files/figure-html/fig-height-gender-1.png" class="img-fluid figure-img" width="672"></p>
+<p></p><figcaption class="figure-caption">Figure 2.2: Box plot for 10 000 heigth measurments stratifed by gender</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>We want to <strong>compare the average height of men and women</strong>.</li>
+<li>We can do that using linear regression and including gender as <strong>binary variable</strong></li>
+</ul>
+<p><strong>Model</strong></p>
+<p><span class="math display">\[Y_i = \alpha + \beta I_{x_i} + \epsilon_i\]</span></p>
+<p>where <span class="math display">\[\begin{equation}
+    I_{x_i} =
+    \left\{
+        \begin{array}{cc}
+                1 &amp; \mathrm{if\ } x_i=1 \\
+                0 &amp; \mathrm{if\ } x_i=0 \\
+        \end{array}
+    \right.
+\end{equation}\]</span> for some coding, e.g.&nbsp;we choose to set “Female=1” and “Male=0” or vice versa.</p>
+<p>In <code>R</code> we write:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: check that Gender is indeed non-numeric</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">class</span>(htwtgen<span class="sc">$</span>Gender))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "character"</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># fit linear regression and print model summary</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Gender, <span class="at">data =</span> htwtgen)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model1))</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Gender, data = htwtgen)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="do">## -10.6194  -1.8374   0.0088   1.9185   9.9724 </span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 63.70877    0.03933  1619.8   &lt;2e-16 ***</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="do">## GenderMale   5.31757    0.05562    95.6   &lt;2e-16 ***</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 2.781 on 9998 degrees of freedom</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.4776, Adjusted R-squared:  0.4775 </span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic:  9140 on 1 and 9998 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Estimates</strong></p>
+<p><span class="math display">\[\hat{\alpha} = 63.71\]</span></p>
+<p><span class="math display">\[\hat{\beta} = 5.32\]</span></p>
+<ul>
+<li>the <code>lm()</code> function chooses automatically one of the category as baseline, here Females</li>
+<li>model summary prints the output of the model with the baseline category “hidden”</li>
+<li>i.e.&nbsp;notice the only label we have is “GenderMale”</li>
+<li>meaning that we ended-up having a model coded as below: <span class="math display">\[\begin{equation}
+  I_{x_i} =
+  \left\{
+      \begin{array}{cc}
+              1 &amp; \mathrm{if\ } \quad person_i\;is\;male \\
+              0 &amp; \mathrm{if\ } \quad person_i\;is\;female \\
+      \end{array}
+  \right.
+\end{equation}\]</span></li>
+<li>Consequently, if observation <span class="math inline">\(i\)</span> is male then the expected value of height is:</li>
+</ul>
+<p><span class="math display">\[E(Height_i|Male) = 63.71 + 5.32 = 69.03\]</span></p>
+<ul>
+<li>and if observation <span class="math inline">\(i\)</span> is female then the expected value of height is:</li>
+</ul>
+<p><span class="math display">\[E(Height_i|Male) = 63.71\]</span></p>
+</section>
+<section id="example-height-weight-and-gender-i" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="example-height-weight-and-gender-i"><span class="header-section-number">2.5</span> Example: Height, weight and gender I</h2>
+<ul>
+<li>So as expected, there is a difference in average height between men and women.</li>
+<li>Can we also observe a significant relationship between weight and height?</li>
+<li>And if so, does this relationship depend on gender?</li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|label: fig-htwtgen-plot</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#|fig-cap: Scatter plot showing height measurments given weight, stratified by gender</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#|fig-cap-location: margin</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#|collapse: true</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#|code-fold: false</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#|fig-width: 5</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#|fig-heigth: 5</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the data separately for Male and Female</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>htwtgen, <span class="fu">aes</span>(<span class="at">x =</span> Weight, <span class="at">y=</span>Height, <span class="at">col =</span> Gender)) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="lm-coeff_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>From the plot we can see that height increases with weight.</li>
+<li>On average, men are taller than women.</li>
+<li>On average, men weight more than women.</li>
+<li>The relationship between height and weight appears to be the same for males and females, i.e.&nbsp;height increases with weight for both men and women.</li>
+</ul>
+<p>To assess the relationship we use a model containing height and gender.</p>
+<p><strong>Model</strong></p>
+<p><span class="math display">\[Y_i = \alpha + \beta I_{x_i} + \gamma x_{2,i} + \epsilon_i\]</span></p>
+<p>where <span class="math display">\[\begin{equation}
+    I_{x_i} =
+    \left\{
+        \begin{array}{cc}
+                1 &amp; \mathrm{if\ } \quad person_i\;is\;male \\
+                0 &amp; \mathrm{if\ } \quad person_i\;is\;female \\
+        \end{array}
+    \right.
+\end{equation}\]</span></p>
+<p>and <span class="math inline">\(x_{2,i}\)</span> is the weight of person <span class="math inline">\(i\)</span></p>
+<p>In <code>R</code> we write:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit linear model and print model summary</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Gender <span class="sc">+</span> Weight, <span class="at">data =</span> htwtgen)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model2))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Gender + Weight, data = htwtgen)</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">## -5.4956 -0.9583  0.0126  0.9867  5.8358 </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 47.0306678  0.1025161  458.76   &lt;2e-16 ***</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="do">## GenderMale  -0.9628643  0.0474947  -20.27   &lt;2e-16 ***</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Weight       0.1227594  0.0007396  165.97   &lt;2e-16 ***</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 1.435 on 9997 degrees of freedom</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.8609, Adjusted R-squared:  0.8609 </span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 3.093e+04 on 2 and 9997 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Model together with estimates</strong></p>
+<p><span class="math display">\[Y_i = \alpha + \beta I_{x_i} + \gamma x_{2,i} + \epsilon_i\]</span></p>
+<p>where <span class="math display">\[\begin{equation}
+    I_{x_i} =
+    \left\{
+        \begin{array}{cc}
+                1 &amp; \mathrm{if\ } \quad person_i\;is\;male \\
+                0 &amp; \mathrm{if\ } \quad person_i\;is\;female \\
+        \end{array}
+    \right.
+\end{equation}\]</span></p>
+<p>and <span class="math inline">\(x_{2,i}\)</span> is the weight of person <span class="math inline">\(i\)</span></p>
+<p><strong>Estimates</strong></p>
+<p><span class="math display">\[\hat{\alpha} = 47.031\]</span></p>
+<p><span class="math display">\[\hat{\beta} = -0.963\]</span></p>
+<p><span class="math display">\[\hat{\gamma} = 0.123\]</span></p>
+<ul>
+<li>Using our estimates, for a male of with an example weight of 161.4 we would predict a height of:</li>
+</ul>
+<p><span class="math display">\[E(Height_i|Male, Weight = 161.4) = 47.031 - 0.963 + (0.123 \cdot 161.4) = 65.9\]</span></p>
+<ul>
+<li>and for a female of weight 161.4 we would predict a height of</li>
+</ul>
+<p><span class="math display">\[E(Height_i|Female, Weight = 161.4) = 47.031 + (0.123 \cdot 161.4) = 66.9\]</span></p>
+<p>In <code>R</code> we can plot our data and the fitted moded to verify our calculations:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the data separately for men and women</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using ggplot() and geom_smooth()</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>htwtgen, <span class="fu">aes</span>(<span class="at">x =</span> Weight, <span class="at">y=</span>Height, <span class="at">col =</span> Gender)) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span>lm) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>() <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color=</span><span class="fu">guide_legend</span>(<span class="at">override.aes=</span><span class="fu">list</span>(<span class="at">fill=</span><span class="cn">NA</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="lm-coeff_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<p><br></p>
+<!-- **Predicting outside the data range: warning** -->
+<!-- - As much as our calculations are correct, the above example also shows the need of considering the data when interpreting coefficients. Our expected height for a person weighing 161.4 lbs is 66.9 for a woman and 65.9 (lower!) for a man. -->
+<!-- - However, our initial data inspection on the plot showed that the the majority of our values for women lie between 100 and 175 and between 150 and 250 for men, i.e. they lie in different ranges. -->
+<!-- - In principle, we should **not predict outside the data range**.  -->
+</section>
+<section id="example-heigth-weight-and-gender-ii" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="example-heigth-weight-and-gender-ii"><span class="header-section-number">2.6</span> Example: Heigth, weight and gender II</h2>
+<ul>
+<li>The fitted lines in the above example are <strong>parallel</strong>, the <strong>slope is modeled to be the same for men and women</strong>, and the intercept denotes the group differences</li>
+<li>It is also possible to allow <strong>both intercept and slope being fitted separately for each group</strong></li>
+<li>This is done when we except that the relationships are different in different groups, e.g.&nbsp;increasing in one group and decreasing in the other.</li>
+<li>And we then talk about including <strong>interaction effect</strong>, as the two lines may interact (cross).</li>
+</ul>
+<p><strong>Model</strong></p>
+<p><span class="math display">\[Y_{i,j} = \alpha_i + \beta_ix_{ij} + \epsilon_{i,j}\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(Y_{i,j}\)</span> is the height of person <span class="math inline">\(j\)</span> of gender <span class="math inline">\(i\)</span></li>
+<li><span class="math inline">\(x_{ij}\)</span> is the weight of person <span class="math inline">\(j\)</span> of gender <span class="math inline">\(i\)</span></li>
+<li><span class="math inline">\(i=1\)</span> corresponds to men in our example (keeping the same coding as above)</li>
+<li><span class="math inline">\(i=2\)</span> corresponds to women</li>
+</ul>
+<p>In <code>R</code> we define the interaction term with <code>*</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit linear model with interaction</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Gender <span class="sc">*</span> Weight, <span class="at">data =</span> htwtgen)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model3))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Gender * Weight, data = htwtgen)</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="do">## -5.4698 -0.9568  0.0092  0.9818  5.7544 </span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="do">##                    Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)       47.347783   0.146325 323.579  &lt; 2e-16 ***</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="do">## GenderMale        -1.683668   0.242119  -6.954 3.78e-12 ***</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="do">## Weight             0.120425   0.001067 112.903  &lt; 2e-16 ***</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="do">## GenderMale:Weight  0.004493   0.001480   3.036   0.0024 ** </span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 1.435 on 9996 degrees of freedom</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.861,  Adjusted R-squared:  0.861 </span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 2.064e+04 on 3 and 9996 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, based on the regression output we would expect:</p>
+<ul>
+<li>for a men of weight <span class="math inline">\(x\)</span>, a height of:</li>
+</ul>
+<p><span class="math display">\[E(height|male\; and \; weight=x)=47.34778 - 1.68367 + 0.12043x + 0.00449x = 45.7 + 0.125x\]</span></p>
+<ul>
+<li>for a women of weight <span class="math inline">\(x\)</span>, a height of <span class="math display">\[E(height|female\; and \; weight=x)=47.34778 + 0.12043x\]</span></li>
+</ul>
+<p><strong>Estimates</strong></p>
+<p><span class="math display">\[\hat{\alpha_1} = 45.7\]</span></p>
+<p><span class="math display">\[\hat{\beta_1} = 0.125\]</span></p>
+<p><span class="math display">\[\hat{\alpha_2} = 47.34778\]</span></p>
+<p><span class="math display">\[\hat{\beta_2} = 0.12043\]</span></p>
+<ul>
+<li>We can see from the regression output that the interaction term, “GenderMale:Weight, is significant</li>
+<li>and therefore the relationship between weight and height is different for men and women.</li>
+<li>We can plot the fitted model and see that the lines are no longer parallel.</li>
+<li>We will see clearer example of the interactions in the exercises.</li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ggiraphExtra makes it easy to visualize fitted models</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(ggiraphExtra)){</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.packages</span>(<span class="st">"ggiraphExtra"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(ggiraphExtra)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggPredict</span>(model3) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>() <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color=</span><span class="fu">guide_legend</span>(<span class="at">override.aes=</span><span class="fu">list</span>(<span class="at">fill=</span><span class="cn">NA</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="lm-coeff_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<!-- ------- -->
+<!-- ## Exercises: linear models II -->
+<!-- **Before you begin:** -->
+<!-- - **Try to complete Exr. \@ref(exr:lm-rerun) and Exr. \@ref(exr:lm-trout)** to practice the material above. Exr. \@ref(exr:lm-blooddrug) includes three groups and can be used as a supplementary practice.  -->
+<!-- - **Data for exercises** can be downloaded from Github using [Link 1](https://github.com/olgadet/mlbiostats-linear-models/blob/main/data/data.zip) or from Canvas under Files -> data_exercises/linear-models -->
+<!-- --------- -->
+<!-- ```{exercise, "lm-rerun"} -->
+<!-- Given the "height-weight-gender" data: -->
+<!-- a) repeat fitting the models with a) gender, b) weight and gender and c) interaction between weight and gender -->
+<!-- b) given the model with the interaction term, what is expected height of a man and a women given a weight of 120 lbs? -->
+<!-- c) can you use predict() function to check your calculations?  -->
+<!-- ``` -->
+<!-- --------- -->
+<!-- ```{exercise, "lm-trout"} -->
+<!-- When the behavior of a group of trout is studied, some fish are observed to become dominant and others to become subordinate. Dominant fish have freedom of movement whereas subordinate fish tend to congregate in the periphery of the waterway to avoid crossing the path of the dominant fish. Data on energy expenditure and ration of blood obtained were collected as part of a laboratory experiment for 20 trout. Energy and ration is measured in calories per kilo-calorie per trout per day. -->
+<!-- Use the below code to load the data to R and use linear regression models to answer: -->
+<!-- - a) is there a relationship between ration obtained and energy expenditure -->
+<!-- - b) is the relationship between ration obtained and energy expenditure different for each type of fish? -->
+<!-- - Hint: it is good to start with some explanatory plots between every pair of variable -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- # read in data and show preview -->
+<!-- trout <- read.csv("data/lm/trout.csv") -->
+<!-- # recode the Group variable and treat like categories (factor) -->
+<!-- trout$Group <- factor(trout$Group, labels=c("Dominant", "Subordinate")) -->
+<!-- ``` -->
+<!-- ------- -->
+<!-- ```{exercise, "lm-blooddrug"} -->
+<!-- A clinical trial -->
+<!-- A clinical trial has been carried out to compare three drug treatments which are intended to lower blood pressure in hypertensive patients. The data contains initial values fo systolic blood pressure (bp) in mmHg for each patient and the reduction achieved during the course of the trial. For each patient, allocation to treatment (drug) was carried out randomly and conditions such as the length of the treatment and dose of the drug were standardized as far as possible.  -->
+<!-- Use linear regression to answer questions: -->
+<!-- a) is there an association between the reduction in blood pressure and initial blood pressure  -->
+<!-- b) is reduction in blood pressure different across the treatment (in three drug groups)? -->
+<!-- c) is reduction in blood pressure different across the treatment when accounting for initial blood pressure?  -->
+<!-- d) is reduction in blood pressure changing differently under different treatment?  -->
+<!-- Hint: here we have three categories which can be seen as expanding the model with two categories by an additional one: one category will be treated as baseline -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- blooddrug <- read.csv("data/lm/bloodrug.csv") -->
+<!-- blooddrug$drug <- factor(blooddrug$drug) -->
+<!-- head(blooddrug) -->
+<!-- ``` -->
+<!-- ------- -->
+<!-- ## Answers to selected exercises (linear models II) {-} -->
+<!-- Exr. \@ref(exr:lm-rerun) -->
+<!-- a) -->
+<!-- ```{r, collapse=TRUE} -->
+<!-- htwtgen <- read.csv("data/lm/heights_weights_genders.csv") -->
+<!-- head(htwtgen) -->
+<!-- # a) -->
+<!-- model1 <- lm(Height ~ Gender, data = htwtgen) -->
+<!-- model2 <- lm(Height ~ Gender + Weight, data = htwtgen) -->
+<!-- model3 <- lm(Height ~ Gender * Weight, data = htwtgen) -->
+<!-- # print(summary(model1)) -->
+<!-- # print(summary(model2)) -->
+<!-- # print(summary(model3)) -->
+<!-- ``` -->
+<!-- b) use equations to find the height for men and women respectively: -->
+<!-- $$E(height|male\; and \; weight=x)=47.34778 - 1.68367 + 0.12043x + 0.00449x = 45.7 + 0.125x$$ -->
+<!-- $$E(height|female\; and \; weight=x)=47.34778 + 0.12043x$$ -->
+<!-- c) -->
+<!-- ```{r, collapse=TRUE} -->
+<!-- # for men -->
+<!-- new.obs <- data.frame(Weight=120, Gender="Male") -->
+<!-- predict(model3, newdata = new.obs) -->
+<!-- # for female -->
+<!-- new.obs <- data.frame(Weight=120, Gender="Female") -->
+<!-- predict(model3, newdata = new.obs) -->
+<!-- ``` -->
+<!-- ---------- -->
+<!-- Exr. \@ref(exr:lm-trout) -->
+<!-- ```{r, collapse=TRUE, fig.align="center", fig.width=5, fig.height=4} -->
+<!-- # read in data and show preview -->
+<!-- trout <- read.csv("data/lm/trout.csv") -->
+<!-- # recode the Group variable and treat like categories (factor) -->
+<!-- trout$Group <- factor(trout$Group, labels=c("Dominant", "Subordinate")) -->
+<!-- head(trout) -->
+<!-- # plot data -->
+<!-- # boxplots of Energy and Ration per group -->
+<!-- boxplot(trout$Energy ~ trout$Group, xlab="", ylab="Energy") -->
+<!-- boxplot(trout$Ration ~ trout$Group, xlab="", ylab="Ration") -->
+<!-- # scatter plot of Ration vs. Energy -->
+<!-- plot(trout$Ration, trout$Energy, pch=19, xlab="Ration", ylab="Energy") -->
+<!-- ``` -->
+<!-- - From the exploratory plots we see that there is some sort of relationship between ratio and energy, i.e. energy increase while ration obtained increases -->
+<!-- - From boxplots we see that the ration obtained may be different in two groups -->
+<!-- ```{r, collapse=TRUE, fig.align="center", fig.keep="all", fig.width=5, fig.height=4} -->
+<!-- # Is there a relationship between ration obtained and energy expenditure -->
+<!-- model1 <- lm(Energy ~ Ration, data = trout) -->
+<!-- print(summary(model1)) -->
+<!-- # from the regression output we can see that yes, a unit increase in ratio increase energy expenditure by 0.72 -->
+<!-- # Is there a relationship between ration obtained and energy expenditure different for each type of fish? -->
+<!-- # we first check if there is a group effect -->
+<!-- model2 <- lm(Energy ~ Ration + Group, data = trout) -->
+<!-- print(summary(model2)) -->
+<!-- ggPredict(model2) +    -->
+<!--   theme_light() +  -->
+<!--   guides(color=guide_legend(override.aes=list(fill=NA))) -->
+<!-- # and whether there is an interaction effect -->
+<!-- model3 <- lm(Energy ~ Ration * Group, data = trout) -->
+<!-- print(summary(model3)) -->
+<!-- ggPredict(model3) +  -->
+<!--   theme_light() +  -->
+<!--   guides(color=guide_legend(override.aes=list(fill=NA))) -->
+<!-- ``` -->
+<!-- Based on the regression output and plots we can say: -->
+<!-- - there is a relationship between ration obtained and energy expenditure -->
+<!-- - that this relationship is the same in the two groups although the energy expenditure is higher in the dominant fish -->
+<!-- --- -->
+<!-- Exr. \@ref(exr:lm-blooddrug) -->
+<!-- a)  -->
+<!-- Yes. The `redn` and `initial` were significantly associated (p-value = 0.00312, linear regression). -->
+<!-- ```{r, collapse=TRUE} -->
+<!-- model1 <- lm(redn ~ initial, data = blooddrug) -->
+<!-- summary(model1) -->
+<!-- ``` -->
+<!-- b)  -->
+<!-- No. The `drug2` and `drug3` were not significantly different from `drug1` (p-value = 0.714 and p-value = 0.628, respectively). The patients of the drug 1 group had 2.750 higher blood pressure drop (`redn`) than those of the drug 2 group. However, the difference was relatively small comparing to the standard error of the estimate, which was 7.402. -->
+<!-- The difference between drug 1 and 3 was relatively small, too. -->
+<!-- ```{r, collapse=TRUE} -->
+<!-- model2 <- lm(redn ~ drug, data = blooddrug) -->
+<!-- summary(model2) -->
+<!-- ``` -->
+<!-- c) -->
+<!-- Yes. The `redn` of the `drug2` group was significantly higher than that of the `drug1` group after adjustment for the effects of the `initial` (P = 0.018). -->
+<!-- The reduction of the patients who got the drug 2 was much higher (13.6906) than the drug 1, comparing to the standard error of the difference (5.3534) after accounting for initial blood pressure.  -->
+<!-- ```{r, collapse=TRUE} -->
+<!-- model3 <- lm(redn ~ drug + initial, data = blooddrug) -->
+<!-- summary(model3) -->
+<!-- ``` -->
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./lm-intro-exercises.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Exercises (introduction to linear models)</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./lm-coeff-exercises.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exercises (Regression coefficients)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

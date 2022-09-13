@@ -1,0 +1,255 @@
+# Exercises (Regression coefficients)
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(gridExtra)
+library(ggplot2)
+library(faraway)
+library(ggiraphExtra)
+
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") 
+
+```
+
+**Data for exercises** are on Canvas under Files -> data_exercises --> linear-models
+
+::: {#exr-rerun}
+
+## Height-weigth-gender
+
+a) repeat fitting the models with a) gender, b) weight and gender and c) interaction between weight and gender
+b) given the model with the interaction term, what is expected height of a man and a women given a weight of 120 lbs?
+c) can you use predict() function to check your calculations?
+
+:::
+
+
+::: {#exr-trout}
+
+## Trout
+
+When the behavior of a group of trout is studied, some fish are observed to become dominant and others to become subordinate. Dominant fish have freedom of movement whereas subordinate fish tend to congregate in the periphery of the waterway to avoid crossing the path of the dominant fish. Data on energy expenditure and ration of blood obtained were collected as part of a laboratory experiment for 20 trout. Energy and ration is measured in calories per kilo-calorie per trout per day.
+
+Use the below code to load the data to R and use linear regression models to answer:
+
+- a) is there a relationship between ration obtained and energy expenditure
+- b) is the relationship between ration obtained and energy expenditure different for each type of fish?
+- Hint: it is good to start with some explanatory plots between every pair of variable
+
+:::
+
+```{r}
+#| code-fold: false
+
+# read in data and show preview
+trout <- read.csv("data/lm/trout.csv")
+
+# recode the Group variable and treat like categories (factor)
+trout$Group <- factor(trout$Group, labels=c("Dominant", "Subordinate"))
+
+```
+
+
+
+
+
+
+::: {#exr-drug}
+
+## Lowering blood pressure
+
+A clinical trial has been carried out to compare three drug treatments which are intended to lower blood pressure in hypertensive patients. The data contains initial values fo systolic blood pressure (bp) in mmHg for each patient and the reduction achieved during the course of the trial. For each patient, allocation to treatment (drug) was carried out randomly and conditions such as the length of the treatment and dose of the drug were standardized as far as possible.
+
+Use linear regression to answer questions:
+
+a) is there an association between the reduction in blood pressure and initial blood pressure
+b) is reduction in blood pressure different across the treatment (in three drug groups)?
+c) is reduction in blood pressure different across the treatment when accounting for initial blood pressure?
+d) is reduction in blood pressure changing differently under different treatment?
+Hint: here we have three categories which can be seen as expanding the model with two categories by an additional one: one category will be treated as baseline
+
+:::
+
+```{r}
+#| code-fold: false
+
+blooddrug <- read.csv("data/lm/bloodrug.csv")
+blooddrug$drug <- factor(blooddrug$drug)
+head(blooddrug)
+```
+
+
+## Answers to selected exercises 
+
+::: {.solution}
+
+@exr-rerun
+
+:::
+
+
+a)
+```{r}
+#| code-fold: false
+#| collapse: false
+
+htwtgen <- read.csv("data/lm/heights_weights_genders.csv")
+head(htwtgen)
+
+# a)
+model1 <- lm(Height ~ Gender, data = htwtgen)
+model2 <- lm(Height ~ Gender + Weight, data = htwtgen)
+model3 <- lm(Height ~ Gender * Weight, data = htwtgen)
+
+# print(summary(model1))
+# print(summary(model2))
+# print(summary(model3))
+```
+
+b) use equations to find the height for men and women respectively:
+$$E(height|male\; and \; weight=x)=47.34778 - 1.68367 + 0.12043x + 0.00449x = 45.7 + 0.125x$$
+$$E(height|female\; and \; weight=x)=47.34778 + 0.12043x$$
+
+c)
+```{r}
+#| code-fold: false
+#| collapse: false
+
+# for men
+new.obs <- data.frame(Weight=120, Gender="Male")
+predict(model3, newdata = new.obs)
+
+# for female
+new.obs <- data.frame(Weight=120, Gender="Female")
+predict(model3, newdata = new.obs)
+
+```
+
+
+::: {.solution}
+
+@exr-trout
+
+:::
+
+
+```{r}
+#| code-fold: false
+#| collapse: true
+#| fig-width: 5
+#| fig-height: 4
+
+# read in data and show preview
+trout <- read.csv("data/lm/trout.csv")
+
+# recode the Group variable and treat like categories (factor)
+trout$Group <- factor(trout$Group, labels=c("Dominant", "Subordinate"))
+head(trout)
+
+# plot data
+# boxplots of Energy and Ration per group
+boxplot(trout$Energy ~ trout$Group, xlab="", ylab="Energy")
+boxplot(trout$Ration ~ trout$Group, xlab="", ylab="Ration")
+
+# scatter plot of Ration vs. Energy
+plot(trout$Ration, trout$Energy, pch=19, xlab="Ration", ylab="Energy")
+
+```
+
+- From the exploratory plots we see that there is some sort of relationship between ratio and energy, i.e. energy increase while ration obtained increases
+- From box plots we see that the ration obtained may be different in two groups
+
+```{r}
+#| code-fold: false
+#| collapse: true
+#| fig-width: 5
+#| fig-height: 4
+#| fig-keep: all
+
+# Is there a relationship between ration obtained and energy expenditure
+model1 <- lm(Energy ~ Ration, data = trout)
+print(summary(model1))
+# from the regression output we can see that yes, a unit increase in ratio increase energy expenditure by 0.72
+
+# Is there a relationship between ration obtained and energy expenditure different for each type of fish?
+# we first check if there is a group effect
+model2 <- lm(Energy ~ Ration + Group, data = trout)
+print(summary(model2))
+ggPredict(model2) +
+  theme_light() +
+  guides(color=guide_legend(override.aes=list(fill=NA)))
+
+# and whether there is an interaction effect
+model3 <- lm(Energy ~ Ration * Group, data = trout)
+print(summary(model3))
+ggPredict(model3) +
+  theme_light() +
+  guides(color=guide_legend(override.aes=list(fill=NA)))
+
+```
+
+Based on the regression output and plots we can say:
+
+- there is a relationship between ration obtained and energy expenditure
+- that this relationship is the same in the two groups although the energy expenditure is higher in the dominant fish
+
+
+::: {.solution}
+
+@exr-drug
+
+:::
+
+
+a)
+
+Yes. The `redn` and `initial` were significantly associated (p-value = 0.00312, linear regression).
+
+```{r}
+#| collapse: true
+#| code-fold: false
+
+model1 <- lm(redn ~ initial, data = blooddrug)
+summary(model1)
+```
+
+b)
+
+No. The `drug2` and `drug3` were not significantly different from `drug1` (p-value = 0.714 and p-value = 0.628, respectively). The patients of the drug 1 group had 2.750 higher blood pressure drop (`redn`) than those of the drug 2 group. However, the difference was relatively small comparing to the standard error of the estimate, which was 7.402.
+The difference between drug 1 and 3 was relatively small, too.
+```{r}
+#| collapse: true
+#| code-fold: false
+
+model2 <- lm(redn ~ drug, data = blooddrug)
+summary(model2)
+```
+
+c)
+
+Yes. The `redn` of the `drug2` group was significantly higher than that of the `drug1` group after adjustment for the effects of the `initial` (P = 0.018).
+The reduction of the patients who got the drug 2 was much higher (13.6906) than the drug 1, comparing to the standard error of the difference (5.3534) after accounting for initial blood pressure.
+
+```{r}
+#| collapse: true
+#| code-fold: false
+
+model3 <- lm(redn ~ drug + initial, data = blooddrug)
+summary(model3)
+
+```
+

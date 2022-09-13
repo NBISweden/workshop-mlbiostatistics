@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Introduction to linear models - 4&nbsp; Model diagnostics</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./lm-diagn-exercises.html" rel="next">
+<link href="./lm-coeff-exercises.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Model diagnostics</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Introduction to linear models</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Preface</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-intro-exercises.html" class="sidebar-item-text sidebar-link">Exercises (introduction to linear models)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-coeff.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression coefficients</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-coeff-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exercises (Regression coefficients)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-diagn.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Model diagnostics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-diagn-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Exercises (Model diagnostics)</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#assessing-model-fit" id="toc-assessing-model-fit" class="nav-link active" data-scroll-target="#assessing-model-fit"> <span class="header-section-number">4.1</span> Assessing model fit</a></li>
+  <li><a href="#r2-summary-of-the-fitted-model" id="toc-r2-summary-of-the-fitted-model" class="nav-link" data-scroll-target="#r2-summary-of-the-fitted-model"> <span class="header-section-number">4.2</span> <span class="math inline">\(R^2\)</span>: summary of the fitted model</a></li>
+  <li><a href="#r2-and-correlation-coefficient" id="toc-r2-and-correlation-coefficient" class="nav-link" data-scroll-target="#r2-and-correlation-coefficient"> <span class="header-section-number">4.3</span> <span class="math inline">\(R^2\)</span> and correlation coefficient</a></li>
+  <li><a href="#r2adj" id="toc-r2adj" class="nav-link" data-scroll-target="#r2adj"> <span class="header-section-number">4.4</span> <span class="math inline">\(R^2(adj)\)</span></a></li>
+  <li><a href="#the-assumptions-of-a-linear-model" id="toc-the-assumptions-of-a-linear-model" class="nav-link" data-scroll-target="#the-assumptions-of-a-linear-model"> <span class="header-section-number">4.5</span> The assumptions of a linear model</a></li>
+  <li><a href="#checking-assumptions" id="toc-checking-assumptions" class="nav-link" data-scroll-target="#checking-assumptions"> <span class="header-section-number">4.6</span> Checking assumptions</a></li>
+  <li><a href="#influential-observations" id="toc-influential-observations" class="nav-link" data-scroll-target="#influential-observations"> <span class="header-section-number">4.7</span> Influential observations</a></li>
+  <li><a href="#selecting-best-model" id="toc-selecting-best-model" class="nav-link" data-scroll-target="#selecting-best-model"> <span class="header-section-number">4.8</span> Selecting best model</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Model diagnostics</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p><strong>Aims</strong></p>
+<ul>
+<li>to introduce concepts of linear models summary and assumptions</li>
+</ul>
+<p><strong>Learning outcomes</strong></p>
+<ul>
+<li>to able to interpret <span class="math inline">\(R^2\)</span> and <span class="math inline">\(R^2(adj)\)</span> values</li>
+<li>state the assumptions of a linear model and assess them using residual plots</li>
+</ul>
+<section id="assessing-model-fit" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="assessing-model-fit"><span class="header-section-number">4.1</span> Assessing model fit</h2>
+<ul>
+<li>earlier we learned how to estimate parameters in a liner model using least squares</li>
+<li>now we will consider how to assess the goodness of fit of a model</li>
+<li>we do that by calculating the amount of variability in the response that is explained by the model</li>
+</ul>
+</section>
+<section id="r2-summary-of-the-fitted-model" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="r2-summary-of-the-fitted-model"><span class="header-section-number">4.2</span> <span class="math inline">\(R^2\)</span>: summary of the fitted model</h2>
+<ul>
+<li>considering a simple linear regression, the simplest model, <strong>Model 0</strong>, we could consider fitting is <span class="math display">\[Y_i = \beta_0+ \epsilon_i\]</span> that corresponds to a line that run through the data but lies parallel to the horizontal axis</li>
+<li>in our plasma volume example that would correspond the mean value of plasma volume being predicted for any value of weight (in purple)</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lm-diagn_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>TSS, denoted <strong>Total corrected sum-of-squares</strong> is the residual sum-of-squares for Model 0</li>
+</ul>
+<p><span class="math display">\[S(\hat{\beta_0}) = TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2 = S_{yy}\]</span> corresponding the to the sum of squared distances to the purple line</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lm-diagn_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Fitting <strong>Model 1</strong> of the form <span class="math display">\[Y_i = \beta_0 + \beta_1x + \epsilon_i\]</span> we have earlier defined</li>
+<li><strong>RSS</strong>, the residual sum-of-squares as:</li>
+</ul>
+<p><span class="math display">\[RSS = \displaystyle \sum_{i=1}^{n}(y_i - \{\hat{\beta_0} + \hat{\beta}_1x_{1i} + \dots + \hat{\beta}_px_{pi}\}) = \sum_{i=1}^{n}(y_i - \hat{y_i})^2\]</span></p>
+<ul>
+<li>that corresponds to the squared distances between the observed values <span class="math inline">\(y_i, \dots,y_n\)</span> to fitted values <span class="math inline">\(\hat{y_1}, \dots \hat{y_n}\)</span>, i.e.&nbsp;distances to the red fitted line</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lm-diagn_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="def-r2" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 4.1 (<span class="math inline">\(R^2\)</span>) </strong></span>A simple but useful measure of model fit is given by <span class="math display">\[R^2 = 1 - \frac{RSS}{TSS}\]</span> where:</p>
+<ul>
+<li>RSS is the residual sum-of-squares for Model 1, the fitted model of interest</li>
+<li>TSS is the sum of squares of the <strong>null model</strong></li>
+</ul>
+</div>
+<ul>
+<li><span class="math inline">\(R^2\)</span> quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model</li>
+<li><span class="math inline">\(R^2\)</span> is also referred as <strong>coefficient of determination</strong></li>
+<li>It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data</li>
+<li>Values of <span class="math inline">\(R^2\)</span> approaching 1 indicate the model to be a good fit</li>
+<li>Values of <span class="math inline">\(R^2\)</span> less than 0.5 suggest that the model gives rather a poor fit to the data</li>
+</ul>
+</section>
+<section id="r2-and-correlation-coefficient" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="r2-and-correlation-coefficient"><span class="header-section-number">4.3</span> <span class="math inline">\(R^2\)</span> and correlation coefficient</h2>
+<div id="thm-r2" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.1 (<span class="math inline">\(R^2\)</span>) </strong></span>In the case of simple linear regression:</p>
+<p>Model 1: <span class="math inline">\(Y_i = \beta_0 + \beta_1x + \epsilon_i\)</span></p>
+<p><span class="math display">\[R^2 = r^2\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(R^2\)</span> is the coefficient of determination</li>
+<li><span class="math inline">\(r^2\)</span> is the sample correlation coefficient</li>
+</ul>
+</div>
+</section>
+<section id="r2adj" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="r2adj"><span class="header-section-number">4.4</span> <span class="math inline">\(R^2(adj)\)</span></h2>
+<ul>
+<li>in the case of multiple linear regression, where there is more than one explanatory variable in the model</li>
+<li>we are using the adjusted version of <span class="math inline">\(R^2\)</span> to assess the model fit</li>
+<li>as the number of explanatory variables increase, <span class="math inline">\(R^2\)</span> also increases</li>
+<li><span class="math inline">\(R^2(adj)\)</span> takes this into account, i.e.&nbsp;adjusts for the fact that there is more than one explanatory variable in the model</li>
+</ul>
+<div id="thm-r2adj" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 4.2 (<span class="math inline">\(R^2(adj)\)</span>) </strong></span>For any multiple linear regression <span class="math display">\[Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i\]</span> <span class="math inline">\(R^2(adj)\)</span> is defined as</p>
+<p><span class="math display">\[R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}\]</span> where</p>
+<ul>
+<li><span class="math inline">\(p\)</span> is the number of independent predictors, i.e.&nbsp;the number of variables in the model, excluding the constant</li>
+</ul>
+<p><span class="math inline">\(R^2(adj)\)</span> can also be calculated from <span class="math inline">\(R^2\)</span>:</p>
+<p><span class="math display">\[R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}\]</span></p>
+</div>
+<p>We can calculate the values in R and compare the results to the output of linear regression</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>htwtgen <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/lm/heights_weights_genders.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(htwtgen)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   Gender   Height   Weight</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   Male 73.84702 241.8936</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2   Male 68.78190 162.3105</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3   Male 74.11011 212.7409</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4   Male 71.73098 220.0425</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5   Male 69.88180 206.3498</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6   Male 67.25302 152.2122</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">attach</span>(htwtgen)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## Simple linear regression</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>model.simple <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Weight, <span class="at">data=</span>htwtgen)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># TSS</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>TSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((Height <span class="sc">-</span> <span class="fu">mean</span>(Height))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># RSS</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># residuals are returned in the model type names(model.simple)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>RSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((model.simple<span class="sc">$</span>residuals)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>R2 <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (RSS<span class="sc">/</span>TSS)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(R2)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.8551742</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.simple))</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Weight, data = htwtgen)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## -5.8142 -0.9907  0.0263  0.9918  5.5950 </span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="do">##              Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 4.848e+01  7.507e-02   645.8   &lt;2e-16 ***</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## Weight      1.108e-01  4.561e-04   243.0   &lt;2e-16 ***</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 1.464 on 9998 degrees of freedom</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.8552, Adjusted R-squared:  0.8552 </span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 5.904e+04 on 1 and 9998 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple regression</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>model.multiple <span class="ot">&lt;-</span> <span class="fu">lm</span>(Height <span class="sc">~</span> Weight <span class="sc">+</span> Gender, <span class="at">data=</span>htwtgen)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(Weight)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>RSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((model.multiple<span class="sc">$</span>residuals)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>R2_adj <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (RSS<span class="sc">/</span>(n<span class="sc">-</span>p<span class="dv">-1</span>))<span class="sc">/</span>(TSS<span class="sc">/</span>(n<span class="dv">-1</span>))</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(R2_adj)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.8608793</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model.multiple))</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = Height ~ Weight + Gender, data = htwtgen)</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="do">##     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="do">## -5.4956 -0.9583  0.0126  0.9867  5.8358 </span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) 47.0306678  0.1025161  458.76   &lt;2e-16 ***</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="do">## Weight       0.1227594  0.0007396  165.97   &lt;2e-16 ***</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="do">## GenderMale  -0.9628643  0.0474947  -20.27   &lt;2e-16 ***</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 1.435 on 9997 degrees of freedom</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.8609, Adjusted R-squared:  0.8609 </span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 3.093e+04 on 2 and 9997 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="the-assumptions-of-a-linear-model" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="the-assumptions-of-a-linear-model"><span class="header-section-number">4.5</span> The assumptions of a linear model</h2>
+<ul>
+<li>up until now we were fitting models and discussed how to assess the model fit</li>
+<li>before making use of a fitted model for explanation or prediction, it is wise to check that the model provides an adequate description of the data</li>
+<li>informally we have been using box plots and scatter plots to look at the data</li>
+<li>there are however formal definitions of the assumptions</li>
+</ul>
+<p><strong>Assumption A: The deterministic part of the model captures all the non-random structure in the data</strong></p>
+<ul>
+<li>this implies that the <strong>mean of the errors <span class="math inline">\(\epsilon_i\)</span></strong> is zero</li>
+<li>it applies only over the range of explanatory variables</li>
+</ul>
+<p><strong>Assumption B: the scale of variability of the errors is constant at all values of the explanatory variables</strong></p>
+<ul>
+<li>practically we are looking at whether the observations are equally spread on both side of the regression line</li>
+</ul>
+<p><strong>Assumption C: the errors are independent</strong></p>
+<ul>
+<li>broadly speaking this means that knowledge of errors attached to one observation does not give us any information about the error attached to another</li>
+</ul>
+<p><strong>Assumptions D: the errors are normally distributed</strong></p>
+<ul>
+<li>this will allow us to describe the variation in the model’s parameters estimates and therefore make inferences about the population from which our sample was taken</li>
+</ul>
+<p><strong>Assumption E: the values of the explanatory variables are recorded without error</strong></p>
+<ul>
+<li>this one is not possible to check via examining the data, instead we have to consider the nature of the experiment</li>
+</ul>
+</section>
+<section id="checking-assumptions" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="checking-assumptions"><span class="header-section-number">4.6</span> Checking assumptions</h2>
+<p><strong>Residuals</strong>, <span class="math inline">\(\hat{\epsilon_i} = y_i - \hat{y_i}\)</span> are the <strong>main ingredient to check model assumptions</strong>. We use plots such as:</p>
+<ol type="1">
+<li>Histograms or normal probability plots of <span class="math inline">\(\hat{\epsilon_i}\)</span></li>
+</ol>
+<ul>
+<li>useful to check the assumption of normality</li>
+</ul>
+<ol start="2" type="1">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> versus the fitted values <span class="math inline">\(\hat{y_i}\)</span></li>
+</ol>
+<ul>
+<li>used to detect changes in error variance</li>
+<li>used to check if the mean of the errors is zero</li>
+</ul>
+<ol start="3" type="1">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> vs.&nbsp;an explanatory variable <span class="math inline">\(x_{ij}\)</span></li>
+</ol>
+<ul>
+<li>this helps to check that the variable <span class="math inline">\(x_j\)</span> has a linear relationship with the response variable</li>
+</ul>
+<ol start="4" type="1">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> vs.&nbsp;an explanatory variable <span class="math inline">\(x_{kj}\)</span> that is <strong>not</strong> in the model</li>
+</ol>
+<ul>
+<li>this helps to check whether the additional variable <span class="math inline">\(x_k\)</span> might have a relationship with the response variable</li>
+</ul>
+<ol start="4" type="1">
+<li>Plots of <span class="math inline">\(\hat{\epsilon_i}\)</span> in the order of the observations were collected</li>
+</ol>
+<ul>
+<li>this is useful to check whether errors might be correlated over time</li>
+</ul>
+<p>Let’s look at the “good” example going back to our data of protein levels during pregnancy</p>
+<div class="cell" data-layout-align="center">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data.protein <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/lm/protein.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>protein <span class="ot">&lt;-</span> data.protein<span class="sc">$</span>Protein <span class="co"># our Y</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>gestation <span class="ot">&lt;-</span> data.protein<span class="sc">$</span>Gestation <span class="co"># our X</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(protein <span class="sc">~</span> gestation)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostic plots of the linear model</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># by default plot(model) calls four diagnostics plots</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># par() divides plot window in 2 x 2 grid</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lm-diagn_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>the residual plots provides examples of a situation where the assumptions appear to be met</li>
+<li>the linear regression appears to describe data quite well</li>
+<li>there is no obvious trend of any kind in the residuals vs.&nbsp;fitted values (the shape is scattered)</li>
+<li>points lie reasonably well along the line in the normal probability plot, hence normality appears to be met</li>
+</ul>
+<p><strong>Examples of assumptions not being met</strong></p>
+<div class="cell" data-layout-align="center" data-fig-cap-location="margin">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/linear-models/lm-assumptions-01.png" class="img-fluid figure-img" width="828"></p>
+<p></p><figcaption class="figure-caption">Example of data with a typical seasonal variation (up and down) coupled wtih a linear trend. The blue line gives the linear regression fit to the data, which clearly is not adequate. In comparison, if we used a non-parametric fit, we will get the red line as the fitted relationship. The residual plot retains pattern, given by orange line, indicating that the linear model is not appropriate in this case</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center" data-fig-cap-location="margin">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/linear-models/lm-assumptions-02.png" class="img-fluid figure-img" width="1033"></p>
+<p></p><figcaption class="figure-caption">Example of non-constant variance</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center" data-fig-cap-location="margin">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/linear-models/lm-assumptions-03.png" class="img-fluid figure-img" width="801"></p>
+<p></p><figcaption class="figure-caption">Example of residulas deviating from QQ plot, i.e.&nbsp;not following normal distribution. The residuals can deviate in both upper and lower tail. On the left tails are lighter meaning that they have smaller values that what would be expected, on the right there are heavier tails with values larger than expected</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="influential-observations" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="influential-observations"><span class="header-section-number">4.7</span> Influential observations</h2>
+<ul>
+<li>Sometimes individual observations can exert a great deal of influence on the fitted model</li>
+<li>One routine way of checking for this is to fit the model <span class="math inline">\(n\)</span> times, missing out each observation in turn</li>
+<li>If we removed i-th observation and compared the fitted value from the full model, say <span class="math inline">\(\hat{y_j}\)</span> to those obtained by removing this point, denoted <span class="math inline">\(\hat{y_{j(i)}}\)</span> then</li>
+<li>observations with a high Cook’s distance (measuring the effect of deleting a given observation) could be influential</li>
+</ul>
+<p>Let’s remove some observation with higher Cook’s distance from protein data set, re-fit our model and compare the diagnostics plots</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># observations to be removed (based on Residuals vs. Leverage plot)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">18</span>,<span class="dv">7</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fit models removing observations</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>model<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(protein[<span class="sc">-</span>obs] <span class="sc">~</span> gestation[<span class="sc">-</span>obs])</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics plot</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm-diagn_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+</section>
+<section id="selecting-best-model" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="selecting-best-model"><span class="header-section-number">4.8</span> Selecting best model</h2>
+<ul>
+<li>We have learned what linear models are, how to find estimates and interpret model coefficients and how to check for the overall relationship between response and predictors. We also know how to assess model fit, check model assumptions and find potential outliers. Given a set of predictors, e.g.&nbsp;many genes, how do we arrive at the best model?</li>
+<li>As a rule of thumb, we want a model that <strong>fits the data best and is as simple as possible</strong>, meaning it contains only relevant predictors.</li>
+<li>In practice, this means, that for smaller data sets, e.g.&nbsp;with up to 10 predictors, one works with <strong>manually</strong> trying different models, including different subsets of predictors, interactions terms and/or their transformations.</li>
+<li>When the number of predictors is large, one can try <strong>automated approaches of feature selection</strong> like forward selection or stepwise regression, the last one demonstrated in the exercises below.</li>
+<li>Finally, as we will learn later in the course, we can use <strong>regularization techniques</strong> that allow including all parameters in the model but constrain (regularizes) coefficient estimates towards zero for the less relevant predictors, preventing building complex models and thus overfitting.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./lm-coeff-exercises.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exercises (Regression coefficients)</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./lm-diagn-exercises.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Exercises (Model diagnostics)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
