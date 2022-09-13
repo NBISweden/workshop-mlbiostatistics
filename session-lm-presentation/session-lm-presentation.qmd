@@ -1,0 +1,1450 @@
+---
+title: "Introduction to linear models"
+# author: Olga Dethlefsen
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default, custom.scss]
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(gridExtra)
+
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") 
+
+```
+
+## Why linear models?
+
+. . .
+
+With linear models we can answer questions such as:
+
+::: incremental
+-   is there a relationship between exposure and outcome, e.g. body weight and plasma volume?
+-   how strong is the relationship between the two variables?
+-   what will be a predicted value of the outcome given a new set of exposure values?
+-   how accurately can we predict outcome?
+-   which variables are associated with the response, e.g. is it body weight and height that can explain the plasma volume or is it just the body weight?
+:::
+
+## Statistical vs. deterministic relationship
+
+. . . 
+
+Relationships in probability and statistics can generally be one of three things: 
+
+::: incremental
+- deterministic
+- random
+- statistical
+::::
+
+
+## Statistical vs. deterministic relationship
+*deterministic*
+
+A **deterministic** relationship involves **an exact relationship** between two variables, for instance Fahrenheit and Celsius degrees is defined by an equation $Fahrenheit=\frac{9}{5}\cdot Celcius+32$
+
+. . . 
+
+```{r}
+#| fig-width: 6
+#| fig-align: center
+# Deterministic relationship example
+x_celcius <- seq(from=0, to=50, by=5)
+y_fahr <- 9/5*x_celcius+32
+plot(x_celcius, y_fahr, type="b", pch=19, xlab="Celcius", ylab="Fahrenheit", main="Deterministic", cex.main=1, las=2)
+```
+
+
+## Statistical vs. deterministic relationship {.smaller}
+*random*
+
+There is **no relationship** between variables in the **random relationship**, e.g. number of plants Olga buys and time of the year as Olga buys plants whenever she feels like it throughout the entire year
+
+```{r}
+#| fig-width: 6
+#| fig-align: center
+# Statistical relationship (random)
+x <- seq(from=0, to=100, by=5)
+y_random <- - rnorm(length(x), mean=100, sd=25)
+plot(x, y_random, pch=19, xlab="x", ylab="y", main="Random", cex.main=1, las=2)
+```
+
+
+## Statistical vs. deterministic relationship {.smaller}
+*statistical relationship*
+
+**A statistical relationship** is a **mixture of deterministic and random relationship**, e.g. the savings that Olga has left in the bank account depend on Olga's monthly salary income (deterministic part) and the money spent on buying plants (random part)
+
+
+```{r}
+#| fig-width: 10
+#| fig-align: center
+
+# prepare plot space
+par(mfrow=c(1,2))
+
+# Statistical relationship (increasing)
+x <- seq(from=0, to=100, by=5)
+y_increasing <- 2*x + rnorm(length(x), mean=100, sd=25)
+plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1, las=2)
+
+# Statistical relationship (decreasing)
+y_decreasing <- -2*x + rnorm(length(x), mean=100, sd=25)
+plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1, las=2)
+
+
+```
+
+
+
+## What linear models are and are not
+
+::: incremental
+-   A linear model is one in which the parameters appear linearly in the deterministic part of the model
+-   e.g. **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled
+-   linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike
+-  or the **transformation of the variables**, e.g. a function of kilometers cycled squared
+:::
+
+## What linear models are and are not
+
+Examples of linear models:
+
+::: incremental
+a)  $Y_i = \alpha + \beta x_i + \gamma y_i + \epsilon_i$
+b)  $Y_i = \alpha + \beta x_i^2 \epsilon$
+c)  $Y_i = \alpha + \beta x_i^2 + \gamma x_i^3 + \epsilon$
+d)  $Y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 y_i + \beta_4 \sqrt {y_i} + \beta_5 x_i y_i + \epsilon$
+:::
+
+. . .
+
+and an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$
+
+e)  $Y_i = \alpha + x_i^\beta + \epsilon$
+
+## What linear models are and are not
+
+*What about this one?*
+
+<br>
+
+```{r}
+#| warning: false
+#| column: margin
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+#| fig-align: center
+
+# advance 1
+x <- seq(-10, 10, 1)
+y <- x^2 + rnorm(length(x), mean(x), 10)
+data.xy <- data.frame(x=x, y = y, ymodel = x^2)
+p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  theme_classic() +
+  my.ggtheme
+
+plot(p.adv1)
+
+```
+
+. . .
+
+Yes, it's an example of a linear model: $y_i = x_i^2 + \epsilon_i$ showing that linear models can capture more than a straight line relationship
+
+## Terminology
+
+There are many terms and notations used interchangeably
+
+::: incremental
+-   $y$ is being called:
+    -   response
+    -   outcome
+    -   dependent variable
+-   $x$ is being called:
+    -   exposure
+    -   explanatory variable
+    -   dependent variable
+    -   predictor
+    -   covariate
+:::
+
+## Simple linear regression
+
+```{r}
+#| fig-width: 10
+#| fig-height: 4
+#| fig-align: center
+
+par(mfrow=c(1,2))
+x <- 1:100
+y <- x + rnorm(length(x), 0, 10)
+plot(x,y, pch = 19)
+
+x <- 1:100
+y <- (x - rnorm(length(x), 0, 10))*(-1)
+plot(x,y, pch = 19)
+
+```
+
+::: incremental
+-   It is used to check the association between **the numerical outcome and one numerical explanatory variable**
+-   In practice, we are finding the best-fitting straight line to describe the relationship between the outcome and exposure
+:::
+
+## Simple linear regression
+
+::: {#exm-simple-lm}
+## Weight and plasma volume
+
+Let's look at the example data containing body weight (kg) and plasma volume (liters) for eight healthy men to see what the best-fitting straight line is.
+
+Example data:
+
+```{r}
+#| code-fold: false
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+```
+
+``` r
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+```
+:::
+
+. . .
+
+```{r}
+#| label: fig-lm-intro-example
+#| fig-cap: "Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*."
+#| fig-cap-location: margin
+#| echo: false
+#| fig-width: 4
+#| fig-heigth: 4
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+
+```
+
+## Simple linear regression
+
+
+```{r}
+#| label: fig-lm-01
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+
+```
+
+```{r}
+#| label: fig-lm-02
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
+
+reg1 <- lm(plasma ~ weight)
+a <- reg1$coefficients[1]
+b <- reg1$coefficients[2]
+
+#abline(a=a+0.1 , b + 0.001, col="gray")
+#abline(a=a+0.1 , b + 0.0001, col="gray")
+#abline(a=a , b + 0.00015, col="gray")
+#abline(a=a+0.1 , b + 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.001, col="gray")
+# abline(a=a, b - 0.001, col="gray")
+ abline(a=a+0.5 , b , col="gray")
+# abline(a=a-0.5 , b , col="gray")
+
+#abline(lm(plasma~weight), col="red") # regression line
+points(weight, plasma, pch=19)
+
+```
+
+```{r}
+#| label: fig-lm-03
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
+
+reg1 <- lm(plasma ~ weight)
+a <- reg1$coefficients[1]
+b <- reg1$coefficients[2]
+
+abline(a=a+0.1 , b + 0.001, col="gray")
+#abline(a=a+0.1 , b + 0.0001, col="gray")
+# abline(a=a , b + 0.00015, col="gray")
+# abline(a=a+0.1 , b + 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.001, col="gray")
+# abline(a=a, b - 0.001, col="gray")
+abline(a=a+0.5 , b , col="gray")
+# abline(a=a-0.5 , b , col="gray")
+
+#abline(lm(plasma~weight), col="red") # regression line
+points(weight, plasma, pch=19)
+
+```
+
+
+```{r}
+#| label: fig-lm-03b
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
+
+reg1 <- lm(plasma ~ weight)
+a <- reg1$coefficients[1]
+b <- reg1$coefficients[2]
+
+abline(a=a+0.1 , b + 0.001, col="gray")
+#abline(a=a+0.1 , b + 0.0001, col="gray")
+# abline(a=a , b + 0.00015, col="gray")
+#abline(a=a+0.1 , b + 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.002, col="gray")
+# abline(a=a+0.1 , b - 0.002, col="gray")
+ abline(a=a+0.1 , b - 0.001, col="gray")
+#abline(a=a, b - 0.001, col="gray")
+abline(a=a+0.5 , b , col="gray")
+#abline(a=a-0.5 , b , col="gray")
+
+#abline(lm(plasma~weight), col="red") # regression line
+points(weight, plasma, pch=19)
+
+```
+
+```{r}
+#| label: fig-lm-04
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
+
+reg1 <- lm(plasma ~ weight)
+a <- reg1$coefficients[1]
+b <- reg1$coefficients[2]
+
+abline(a=a+0.1 , b + 0.001, col="gray")
+abline(a=a+0.1 , b + 0.0001, col="gray")
+#abline(a=a , b + 0.00015, col="gray")
+abline(a=a+0.1 , b + 0.002, col="gray")
+abline(a=a+0.1 , b - 0.002, col="gray")
+abline(a=a+0.1 , b - 0.002, col="gray")
+abline(a=a+0.1 , b - 0.001, col="gray")
+abline(a=a, b - 0.001, col="gray")
+abline(a=a+0.5 , b , col="gray")
+abline(a=a-0.5 , b , col="gray")
+
+#abline(lm(plasma~weight), col="red") # regression line
+points(weight, plasma, pch=19)
+
+```
+
+```{r}
+#| label: fig-lm-05
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
+
+reg1 <- lm(plasma ~ weight)
+a <- reg1$coefficients[1]
+b <- reg1$coefficients[2]
+
+abline(a=a+0.1 , b + 0.001, col="gray")
+abline(a=a+0.1 , b + 0.0001, col="gray")
+#abline(a=a , b + 0.00015, col="gray")
+abline(a=a+0.1 , b + 0.002, col="gray")
+abline(a=a+0.1 , b - 0.002, col="gray")
+abline(a=a+0.1 , b - 0.002, col="gray")
+abline(a=a+0.1 , b - 0.001, col="gray")
+abline(a=a, b - 0.001, col="gray")
+abline(a=a+0.5 , b , col="gray")
+abline(a=a-0.5 , b , col="gray")
+
+abline(lm(plasma~weight), col="red") # regression line
+points(weight, plasma, pch=19)
+```
+
+::: {.r-stack}
+![](session-lm-presentation_files/figure-revealjs/fig-lm-01-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-02-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-03-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-03b-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-04-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-05-1.png){.fragment width="600" height="600"}
+:::
+
+
+## Simple linear regression
+
+
+```{r}
+#| label: fig-lm-example-reg
+#| fig-cap: "Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice verca*. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes (increase or decreases) with a change of exposure variable"
+#| fig-cap-location: margin
+#| echo: false
+#| fig-width: 10
+#| fig-heigth: 4
+
+par(mfrow=c(1,2))
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+
+
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
+
+reg1 <- lm(plasma ~ weight)
+a <- reg1$coefficients[1]
+b <- reg1$coefficients[2]
+
+abline(a=a+0.1 , b + 0.001, col="gray")
+abline(a=a+0.1 , b + 0.0001, col="gray")
+#abline(a=a , b + 0.00015, col="gray")
+abline(a=a+0.1 , b + 0.002, col="gray")
+abline(a=a+0.1 , b - 0.002, col="gray")
+abline(a=a+0.1 , b - 0.002, col="gray")
+abline(a=a+0.1 , b - 0.001, col="gray")
+abline(a=a, b - 0.001, col="gray")
+abline(a=a+0.5 , b , col="gray")
+abline(a=a-0.5 , b , col="gray")
+
+abline(lm(plasma~weight), col="red") # regression line
+points(weight, plasma, pch=19)
+
+
+```
+
+. . .
+
+
+The equation for the red line is: $$Y_i=0.086 +  0.044 \cdot x_i \quad for \;i = 1 \dots 8$$ 
+
+. . .
+
+and in general: $$Y_i=\alpha + \beta \cdot x_i \quad for \; i = 1 \dots n$$ {#eq-lm-no-error}
+
+. . .
+
+## Simple linear regression
+
+In other words, by finding the best-fitting straight line we are **building a statistical model** to represent the relationship between plasma volume ($Y$) and explanatory body weight variable ($x$)
+
+
+## Simple linear regression
+
+```{.r}
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+```
+
+::: incremental
+- If we were to use our model $Y_i=0.086 + 0.044 \cdot x_i$ to find plasma volume given a weight of 58 kg (our first observation, $i=1$)
+- we would notice that we would get $Y=0.086 + 0.044 \cdot 58 = 2.638$
+-  $2.638$ is not exactly the as same as $2.75$, the first measurement we have in our dataset, i.e. $2.75 - 2.638 = 0.112 \neq 0$.
+-   We thus add to the previous equation (@eq-lm-no-error) an **error term** to account for this and now we can write our **simple regression model** more formally as:
+:::
+
+. . .
+
+$$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm}
+
+. . .
+
+where:
+
+::: incremental
+-   $x$: is called: exposure variable, explanatory variable, dependent variable, predictor, covariate
+-   $y$: is called: response, outcome, dependent variable
+-   $\alpha$ and $\beta$ are **model coefficients**
+-   and $\epsilon_i$ is an **error terms**
+:::
+
+## Least squares
+
+::: incremental
+-   in the above **"body weight - plasma volume"** example, the values of $\alpha$ and $\beta$ have just appeared
+-   in practice, $\alpha$ and $\beta$ values are **unknown** and we use data to **estimate these coefficients**, noting the estimates with a **hat**, $\hat{\alpha}$ and $\hat{\beta}$
+-   **least squares** is one of the methods of parameters estimation, i.e. finding $\hat{\alpha}$ and $\hat{\beta}$
+:::
+
+## Least squares {.smaller}
+
+*minimizing RSS*
+
+```{r}
+#| label: fig-reg-errors
+#| fig-cap: "Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice versa*. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line"
+#| fig-cap-location: margin
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 8
+#| fig-height: 4
+
+data.reg <- data.frame(plasma=plasma, weight=weight)
+fit.reg <- lm(plasma~weight, data=data.reg)
+data.reg$predicted <- predict(fit.reg)
+data.reg$residuals <- residuals((fit.reg))
+
+ggplot(data.reg, aes(x=weight, plasma)) + geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "firebrick") +
+  geom_segment(aes(xend = weight, yend = predicted), color="blue") +
+  geom_point(aes(y = predicted), shape = 1) +
+  geom_point(aes(y = predicted), shape = 1) +
+  theme_bw() + xlab("body weight [kg]") + ylab("plasma volume [liters]")
+
+```
+
+. . .
+
+Let $\hat{y_i}=\hat{\alpha} + \hat{\beta}x_i$ be the prediction $y_i$ based on the $i$-th value of $x$:
+
+-   Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$-th **residual**, i.e. the difference between the $i$-th observed response value and the $i$-th response value that is predicted by the linear model
+-   RSS, the **residual sum of squares** is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + \dots + \epsilon_n^2$$ or equivalently as: $$RSS=(y_1-\hat{\alpha}-\hat{\beta}x_1)^2+(y_2-\hat{\alpha}-\hat{\beta}x_2)^2+...+(y_n-\hat{\alpha}-\hat{\beta}x_n)^2$$
+-   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**. With some calculus, we get @thm-lss
+
+## Least squares
+
+::: {#thm-lss}
+## Least squares estimates for a simple linear regression
+
+$$\hat{\beta} = \frac{S_{xy}}{S_{xx}}$$ $$\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}$$
+
+where:
+
+-   $\bar{x}$: mean value of $x$
+-   $\bar{y}$: mean value of $y$
+-   $S_{xx}$: sum of squares of $X$ defined as $S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2$
+-   $S_{yy}$: sum of squares of $Y$ defined as $S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2$
+-   $S_{xy}$: sum of products of $X$ and $Y$ defined as $S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})$
+:::
+
+## Least squares
+
+We can further re-write the above sum of squares to obtain
+
+sum of squares of $X$:
+
+$$S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2 = \sum_{i=1}^{n}x_i^2-\frac{(\sum_{i=1}^{n}x_i)^2}{n})$$
+
+. . .
+
+and
+
+sum of products of $X$ and $Y$
+
+$$S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})=\sum_{i=1}^nx_iy_i-\frac{\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n}$$
+
+## Least squares
+
+*Live demo*
+
+::: {#exm-lss}
+## Least squares
+
+Let's try least squares method to find coefficient estimates in the **"body weight and plasma volume example"**
+
+``` r
+# initial data
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+# rename variables for convenience
+x <- weight
+y <- plasma
+
+# mean values of x and y
+x.bar <- mean(x)
+y.bar <- mean(y)
+
+# Sum of squares
+Sxx <-  sum((x - x.bar)^2)
+Sxy <- sum((x-x.bar)*(y-y.bar))
+
+# Coefficient estimates
+beta.hat <- Sxy / Sxx
+alpha.hat <- y.bar - Sxy/Sxx*x.bar
+
+# Print estimated coefficients alpha and beta
+print(alpha.hat)
+print(beta.hat)
+```
+
+```{r}
+#| code-fold: false
+
+# initial data
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+# rename variables for convenience
+x <- weight
+y <- plasma
+
+# mean values of x and y
+x.bar <- mean(x)
+y.bar <- mean(y)
+
+# Sum of squares
+Sxx <-  sum((x - x.bar)^2)
+Sxy <- sum((x-x.bar)*(y-y.bar))
+
+# Coefficient estimates
+beta.hat <- Sxy / Sxx
+alpha.hat <- y.bar - Sxy/Sxx*x.bar
+
+# Print estimated coefficients alpha and beta
+print(alpha.hat)
+print(beta.hat)
+
+```
+:::
+
+## Least squares
+
+*Live demo*
+
+In R we can use `lm()`, the built-in function, to fit a linear regression model and we can replace the above code with one line
+
+``` r
+lm(plasma ~ weight)
+```
+
+```{r}
+#| code-fold: false
+lm(plasma ~ weight)
+```
+
+## Slope
+
+$plasma = 0.0857 + 0.0436 * weight$
+
+Linear regression gives us estimates of model coefficient $Y_i = \alpha + \beta x_i + \epsilon_i$
+
+```{r}
+#| fig-align: center
+
+model <- lm(plasma ~ weight)
+alpha <- model$coefficients[1]
+beta <- model$coefficients[2]
+
+my.s <- 2
+par(mfcol=c(1,2))
+
+# Beta 1 example a
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+abline(lm(plasma~weight), col="red") # regression line
+abline(h = alpha + beta * 65, col = "blue",  lty = 3)
+abline(h = alpha + beta * 70, col = "blue",  lty = 3)
+segments(x0=65, y0=alpha + beta * 65, x1=70, y1=alpha + beta * 65, col="blue")
+segments(x0=70, y0=alpha + beta * 65, x1=70, y1=alpha + beta * 70, col="blue")
+text(72, 2.95, expression(beta), cex=1.2, col="blue")
+text(60, alpha + beta * 65 + 0.05, round(alpha + beta * 65, 2), cex=1.2, col="blue")
+text(60, alpha + beta * 70 + 0.05, round(alpha + beta * 70, 2), cex=1.2, col="blue")
+
+# Beta 1 example b
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid(), xlim=c(60, 70), ylim=c(2.8, 3.2))
+abline(lm(plasma~weight), col="red") # regression line
+abline(h = alpha + beta * 65, col = "blue",  lty = 3)
+abline(h = alpha + beta * 66, col = "blue",  lty = 3)
+segments(x0=65, y0=alpha + beta * 65, x1=66, y1=alpha + beta * 65, col="blue")
+segments(x0=66, y0=alpha + beta * 65, x1=66, y1=alpha + beta * 66, col="blue")
+text(67, 2.94, expression(beta), cex=1.2, col="blue")
+text(61, alpha + beta * 65 - 0.02, round(alpha + beta * 65, 2), cex=1.2, col="blue")
+text(61, alpha + beta * 66 + 0.02, round(alpha + beta * 66, 2), cex=1.2, col="blue")
+
+```
+
+*Increasing weight by 5 kg corresponds to $3.14 - 2.92 = 0.22$ increase in plasma volume. Increasing weight by 1 kg corresponds $2.96 - 2.92 = 0.04$ increase in plasma volume*
+
+## Intercept
+
+$plasma = 0.0857 + 0.0436 * weight$
+
+Linear regression gives us estimates of model coefficient $Y_i = \alpha + \beta x_i + \epsilon_i$
+
+```{r}
+#| fig-align: center
+
+# Values from regression model: plasma_volume = 0.0857 + 0.043615*x
+par(mfcol=c(1,2))
+
+# Fitted line
+plot(weight, plasma, cex.main = my.s, cex.main=my.s, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
+abline(lm(plasma~weight), col="red") # regression line
+text(65, 3.3, "plasma = 0.0857 + 0.0436 * weight", cex=1)
+
+# Beta 0 example a
+plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid(), xlim=c(-20, 80), ylim=c(0, 5))
+abline(lm(plasma~weight), col="red") # regression line
+abline(h=alpha, col="blue", lty = 3) # regression line
+segments(x0=65, y0=2.92, x1=66, y1=2.92, col="blue")
+segments(x0=66, y0=2.92, x1=66, y1=2.964, col="blue")
+text(15, 0.4, expression(alpha), cex=1.2, col="blue")
+text(33, 0.5, paste("= ", round(alpha,3), sep=""), cex=1.2, col="blue")
+
+```
+
+*Intercept value corresponds to expected outcome when the explanatory variable value equals to zero. It is not always meaningful*
+
+## Hypothesis testing
+
+**Is there a relationship between the response and the predictor?**
+
+::: incremental
+-   the calculated $\hat{\alpha}$ and $\hat{\beta}$ are **estimates of the population values** of the intercept and slope and are therefore subject to **sampling variation**
+-   their precision is measured by their **estimated standard errors**, `e.s.e`($\hat{\alpha}$) and `e.s.e`($\hat{\beta}$)
+-   these estimated standard errors are used in **hypothesis testing** and in constructing **confidence and prediction intervals**
+:::
+
+## Hypothesis testing {.smaller}
+
+**The most common hypothesis test** involves testing the `null hypothesis` of:
+
+-   $H_0:$ There is no relationship between $X$ and $Y$
+-   versus the `alternative hypothesis` $H_a:$ there is some relationship between $X$ and $Y$
+
+. . .
+
+**Mathematically**, this corresponds to testing:
+
+-   $H_0: \beta=0$
+-   versus $H_a: \beta\neq0$
+-   since if $\beta=0$ then the model $Y_i=\alpha+\beta x_i + \epsilon_i$ reduces to $Y=\alpha + \epsilon_i$
+
+. . .
+
+**Under the null hypothesis** $H_0: \beta = 0$ <!-- we have: $$\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})} \sim t(n-p)$$  --> ![](figures/linear-models/lm-tstatistics.png)
+
+-   $n$ is number of observations
+-   $p$ is number of model parameters
+-   $\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})}$ is the ratio of the departure of the estimated value of a parameter, $\hat\beta$, from its hypothesized value, $\beta$, to its standard error, called `t-statistics`
+-   the `t-statistics` follows Student's t distribution with $n-p$ degrees of freedom
+
+## Hypothesis testing {.smaller}
+
+::: {#exm-hypothesis-testing}
+## Hypothesis testing
+
+Let's look again at our example data. This time we will not only fit the linear regression model but also look a bit more closely at the `R summary` of the model
+
+```{r}
+#| code-fold: false
+
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+model <- lm(plasma ~ weight)
+print(summary(model))
+
+```
+:::
+
+. . .
+
+-   Under `Estimate` we see estimates of our model coefficients, $\hat{\alpha}$ (intercept) and $\hat{\beta}$ (slope, here weight), followed by their estimated standard errors, `Std. Errors`
+
+. . .
+
+-   If we were to test if there is an **association between weight and plasma volume** we would write under the null hypothesis $H_0: \beta = 0$ $$\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})} = \frac{0.04362-0}{0.01527} = 2.856582$$
+
+. . .
+
+-   and we would **compare** `t-statistics` to `Student's t distribution` with $n-p = 8 - 2 = 6$ degrees of freedom (as we have 8 observations and two model parameters, $\alpha$ and $\beta$)
+
+. . .
+
+-   we can use **Student's t distribution table** or **R code** to obtain the associated *P*-value
+
+``` r
+2*pt(2.856582, df=6, lower=F)
+```
+
+```{r}
+#| code-fold: false
+2*pt(2.856582, df=6, lower=F)
+```
+
+. . .
+
+-   here the observed t-statistics is large and therefore yields a small *P*-value, meaning that **there is sufficient evidence to reject null hypothesis in favor of the alternative** and conclude that there is a significant association between weight and plasma volume
+
+## Vector-matrix notations {.scrollable .smaller}
+
+While in simple linear regression it is feasible to arrive at the parameters estimates using calculus in more realistic settings of **multiple regression**, with more than one explanatory variable in the model, it is **more efficient to use vectors and matrices to define the regression model**.
+
+. . .
+
+Let's **rewrite** our simple linear regression model $Y_i = \alpha + \beta_i + \epsilon_i \quad i=1,\dots n$ **into vector-matrix notation** in **6 steps**.
+
+. . .
+
+Step 1. First we rename our $\alpha$ to $\beta_0$ and $\beta$ to $\beta_1$ as it is easier to keep tracking the number of model parameters this way
+
+. . .
+
+Step 2. Then we notice that we actually have $n$ equations such as:
+
+$$y_1 = \beta_0 + \beta_1 x_1 + \epsilon_1$$ $$y_2 = \beta_0 + \beta_1 x_2 + \epsilon_2$$ $$y_3 = \beta_0 + \beta_1 x_3 + \epsilon_3$$ $$\dots$$ $$y_n = \beta_0 + \beta_1 x_n + \epsilon_n$$
+
+. . .
+
+Step 3. We group all $Y_i$ and $\epsilon_i$ into column vectors: $\mathbf{Y}=\begin{bmatrix}  y_1 \\  y_2 \\  \vdots \\  y_{n} \end{bmatrix}$ and $\boldsymbol\epsilon=\begin{bmatrix}  \epsilon_1 \\  \epsilon_2 \\  \vdots \\  \epsilon_{n} \end{bmatrix}$
+
+. . .
+
+Step 4. We stack two parameters $\beta_0$ and $\beta_1$ into another column vector:$$\boldsymbol\beta=\begin{bmatrix}
+  \beta_0  \\
+  \beta_1
+\end{bmatrix}$$
+
+. . .
+
+Step 5. We append a vector of ones with the single predictor for each $i$ and create a matrix with two columns called **design matrix** $$\mathbf{X}=\begin{bmatrix}
+  1 & x_1  \\
+  1 & x_2  \\
+  \vdots & \vdots \\
+  1 & x_{n}
+\end{bmatrix}$$
+
+. . .
+
+Step 6. We write our linear model in a vector-matrix notations as: $$\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon$$
+
+## Vector-matrix notations {.smaller}
+
+::: {#def-vector-matrix-lm}
+## vector matrix form of the linear model
+
+The vector-matrix representation of a linear model with $p-1$ predictors can be written as $$\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon$$
+
+where:
+
+-   $\mathbf{Y}$ is $n \times1$ vector of observations
+-   $\mathbf{X}$ is $n \times p$ **design matrix**
+-   $\boldsymbol\beta$ is $p \times1$ vector of parameters
+-   $\boldsymbol\epsilon$ is $n \times1$ vector of vector of random errors, indepedent and identically distributed (i.i.d) N(0, $\sigma^2$)
+
+In full, the above vectors and matrix have the form:
+
+$\mathbf{Y}=\begin{bmatrix}  y_1 \\  y_2 \\  \vdots \\  y_{n} \end{bmatrix}$ $\boldsymbol\beta=\begin{bmatrix}  \beta_0 \\  \beta_1 \\  \vdots \\  \beta_{p} \end{bmatrix}$ $\boldsymbol\epsilon=\begin{bmatrix}  \epsilon_1 \\  \epsilon_2 \\  \vdots \\  \epsilon_{n} \end{bmatrix}$ $\mathbf{X}=\begin{bmatrix}  1 & x_{1,1} & \dots & x_{1,p-1} \\  1 & x_{2,1} & \dots & x_{2,p-1} \\  \vdots & \vdots & \vdots & \vdots \\  1 & x_{n,1} & \dots & x_{n,p-1} \end{bmatrix}$
+:::
+
+## Vector-matrix notations
+
+::: {#thm-lss-vector-matrix}
+## Least squares in vector-matrix notation
+
+The least squares estimates for a linear regression of the form: $$\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon$$
+
+is given by: $$\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$$
+:::
+
+## Vector-matrix notations {.smaller .scrollable}
+
+::: {#exm-vector-matrix-notation}
+## vector-matrix-notation
+
+Following the above definition we can write the **"weight - plasma volume model"** as: $$\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon$$ where:
+
+$\mathbf{Y}=\begin{bmatrix}  2.75 \\ 2.86 \\ 3.37 \\ 2.76 \\ 2.62 \\ 3.49 \\ 3.05 \\ 3.12 \end{bmatrix}$
+
+$\boldsymbol\beta=\begin{bmatrix}  \beta_0 \\  \beta_1 \end{bmatrix}$ $\boldsymbol\epsilon=\begin{bmatrix}  \epsilon_1 \\  \epsilon_2 \\  \vdots \\  \epsilon_{8} \end{bmatrix}$ $\mathbf{X}=\begin{bmatrix}  1 & 58.0 \\  1 & 70.0 \\  1 & 74.0 \\  1 & 63.5 \\  1 & 62.0 \\  1 & 70.5 \\  1 & 71.0 \\  1 & 66.0 \\ \end{bmatrix}$
+
+. . .
+
+and we can estimate model parameters using $\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$.
+:::
+
+## Vector-matrix notations
+
+*Live demo*
+
+Estimating model parameters using $\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$.
+
+``` r
+n <- length(plasma) # no. of observation
+Y <- as.matrix(plasma, ncol=1)
+X <- cbind(rep(1, length=n), weight)
+X <- as.matrix(X)
+
+# print Y and X to double-check that the format is according to the definition
+print(Y)
+print(X)
+
+# least squares estimate
+# solve() finds inverse of matrix
+beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y
+print(beta.hat)
+```
+
+```{r}
+#| code-fold: false
+
+n <- length(plasma) # no. of observation
+Y <- as.matrix(plasma, ncol=1)
+X <- cbind(rep(1, length=n), weight)
+X <- as.matrix(X)
+
+# print Y and X to double-check that the format is according to the definition
+#print(Y)
+#print(X)
+
+# least squares estimate
+# solve() finds inverse of matrix
+beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y
+print(beta.hat)
+
+```
+
+<!-- ## Confidence intervals and prediction intervals -->
+
+<!-- - when we estimate coefficients we can also find their **confidence intervals**, typically 95\% confidence intervals, i.e. a range of values that contain the true unknown value of the parameter -->
+
+<!-- - we can also use linear regression models to predict the response value given a new observation and find **prediction intervals**. Here, we look at any specific value of $x_i$, and find an interval around the predicted value $y_i'$ for $x_i$ such that there is a 95\% probability that the real value of y (in the population) corresponding to $x_i$ is within this interval -->
+
+<!-- ::: {exm-prediction-and-intervals} -->
+
+<!-- ## prediction and intervals -->
+
+<!-- Let's: -->
+
+<!-- - find confidence intervals for our coefficient estimates -->
+
+<!-- - predict plasma volume for a men weighting 60 kg -->
+
+<!-- - find prediction interval -->
+
+<!-- - plot original data, fitted regression model, predicted observation and prediction interval -->
+
+<!-- ```{r} -->
+
+<!-- #| code-fold: false -->
+
+<!-- # fit regression model -->
+
+<!-- model <- lm(plasma ~ weight) -->
+
+<!-- print(summary(model)) -->
+
+<!-- # find confidence intervals for the model coefficients -->
+
+<!-- confint(model) -->
+
+<!-- # predict plasma volume for a new observation of 60 kg -->
+
+<!-- # we have to create data frame with a variable name matching the one used to build the model -->
+
+<!-- new.obs <- data.frame(weight = 60) -->
+
+<!-- predict(model, newdata = new.obs) -->
+
+<!-- # find prediction intervals -->
+
+<!-- prediction.interval <- predict(model, newdata = new.obs,  interval = "prediction") -->
+
+<!-- print(prediction.interval) -->
+
+<!-- # plot the original data, fitted regression and predicted value -->
+
+<!-- plot(weight, plasma, pch=19, xlab="weight [kg]", ylab="plasma [l]", ylim=c(2,4)) -->
+
+<!-- lines(weight, model$fitted.values, col="red") # fitted model in red -->
+
+<!-- points(new.obs, predict(model, newdata = new.obs), pch=19, col="blue") # predicted value at 60kg -->
+
+<!-- segments(60, prediction.interval[2], 60, prediction.interval[3], lty = 3) # add prediction interval -->
+
+<!-- ``` -->
+
+<!-- ## References -->
+
+<!-- ::: {#refs} -->
+
+<!-- ::: -->
+
+## Thank you for listening
+
+*Any questions?*
+
+# Model diagnostics
+Assessing model fit and validity
+
+## Assessing model fit
+
+- earlier we learned how to estimate parameters in a liner model using least squares
+- now we will consider how to assess the goodness of fit of a model
+- we do that by calculating the amount of variability in the response that is explained by the model
+
+## $R^2$: summary of the fitted model
+*TSS*
+
+```{r}
+#| label: fig-lm-fit-00
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+#weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+#plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+#abline(h=mean(plasma), col="purple")
+
+```
+
+```{r}
+#| label: fig-lm-fit-01
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+#weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+#plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(h=mean(plasma), col="purple")
+
+```
+
+```{r}
+#| label: fig-lm-fit-02
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(h=mean(plasma), col="purple")
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], mean(plasma))
+}
+
+```
+
+
+
+::: {.r-stack}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-fit-00-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-fit-01-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-fit-02-1.png){.fragment width="600" height="600"}
+
+:::
+
+
+## $R^2$: summary of the fitted model
+
+*RSS*
+
+```{r}
+#| label: fig-lm-rss-01
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+#weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+#plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+#abline(h=mean(plasma), col="purple")
+
+```
+
+
+```{r}
+#| label: fig-lm-rss-02
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(lm(plasma ~ weight), col="red")
+model <- lm(plasma ~ weight)
+
+
+```
+
+```{r}
+#| label: fig-lm-rss-03
+#| include: false
+#| fig-width: 6
+#| fig-height: 6
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(lm(plasma ~ weight), col="red")
+model <- lm(plasma ~ weight)
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], model$fitted.values[i])
+}
+```
+
+::: {.r-stack}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-rss-01-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-rss-02-1.png){.fragment width="600" height="600"}
+
+![](session-lm-presentation_files/figure-revealjs/fig-lm-rss-03-1.png){.fragment width="600" height="600"}
+
+:::
+
+## $R^2$: summary of the fitted model
+
+:::: {.columns}
+
+::: {.column width="40%"}
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+par(mfrow=c(2,1))
+
+
+# TSS
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]", main = "TSS", cex.main = 0.8)
+abline(h=mean(plasma), col="purple")
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], mean(plasma))
+}
+
+# RSS
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]", main = "RSS", cex.main = 0.8)
+abline(lm(plasma ~ weight), col="red")
+model <- lm(plasma ~ weight)
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], model$fitted.values[i])
+}
+
+
+```
+:::
+
+::: {.column width="60%"}
+<br>
+
+- **TSS**, denoted **Total corrected sum-of-squares** is the residual sum-of-squares for Model 0
+$$S(\hat{\beta_0}) = TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2 = S_{yy}$$ corresponding the to the sum of squared distances to the purple line
+
+- **RSS**, the residual sum-of-squares, is defined as:
+$$RSS = \displaystyle \sum_{i=1}^{n}(y_i - \{\hat{\beta_0} + \hat{\beta}_1x_{1i} + \dots + \hat{\beta}_px_{pi}\}) = \sum_{i=1}^{n}(y_i - \hat{y_i})^2$$
+and corresponds to the squared distances between the observed values $y_i, \dots,y_n$ to fitted values $\hat{y_1}, \dots \hat{y_n}$, i.e. distances to the red fitted line
+:::
+
+::::
+
+## $R^2$: summary of the fitted model
+
+:::: {.columns}
+
+::: {.column width="40%"}
+```{r}
+#| fig-width: 8
+#| fig-height: 12
+
+par(mfrow=c(2,1))
+
+# TSS
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]", main = "TSS", cex.main = 0.8)
+abline(h=mean(plasma), col="purple")
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], mean(plasma))
+}
+
+# RSS
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]", main = "RSS", cex.main = 0.8)
+abline(lm(plasma ~ weight), col="red")
+model <- lm(plasma ~ weight)
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], model$fitted.values[i])
+}
+
+
+```
+:::
+
+::: {.column width="60%"}
+<br>
+
+::: {#def-r2}
+
+## $R^2$
+
+A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}$$ where:
+
+- RSS is the residual sum-of-squares for Model 1, the fitted model of interest
+- TSS is the sum of squares of the **null model**
+
+:::
+
+:::
+
+::::
+
+## $R^2$: summary of the fitted model
+
+::: incremental
+- $R^2$ quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model
+- $R^2$ is also referred as **coefficient of determination**
+- It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data
+- Values of $R^2$ approaching 1 indicate the model to be a good fit
+- Values of $R^2$ less than 0.5 suggest that the model gives rather a poor fit to the data
+:::
+
+## $R^2$ and correlation coefficient
+
+. . .
+
+::: {#thm-r2}
+## $R^2$
+
+In the case of simple linear regression:
+
+Model 1: $Y_i = \beta_0 + \beta_1x + \epsilon_i$
+$$R^2 = r^2$$
+where:
+
+- $R^2$ is the coefficient of determination
+- $r^2$ is the sample correlation coefficient
+
+:::
+
+
+::: {.notes}
+What other coefficient is expressed on a 0-1 scale?
+:::
+
+## $R^2(adj)$
+
+::: incremental
+
+- in the case of multiple linear regression, where there is more than one explanatory variable in the model
+- we are using the adjusted version of $R^2$ to assess the model fit as the number of explanatory variables increase, $R^2$ also increases
+- $R^2(adj)$ takes this into account, i.e. adjusts for the fact that there is more than one explanatory variable in the model
+:::
+
+. . .
+
+
+::: {#thm-r2adj}
+
+## $R^2(adj)$ 
+
+For any multiple linear regression
+$$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as
+$$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$ where
+
+- $p$ is the number of independent predictors, i.e. the number of variables in the model, excluding the constant
+
+$R^2(adj)$ can also be calculated from $R^2$:
+$$R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}$$
+
+:::
+
+## $R^2$ 
+*Live demo*
+```{.r}
+htwtgen <- read.csv("data/lm/heights_weights_gender.csv")
+head(htwtgen)
+attach(htwtgen)
+
+## Simple linear regression
+model.simple <- lm(Height ~ Weight, data=htwtgen)
+
+# TSS
+TSS <- sum((Height - mean(Height))^2)
+
+# RSS
+# residuals are returned in the model type names(model.simple)
+RSS <- sum((model.simple$residuals)^2)
+R2 <- 1 - (RSS/TSS)
+
+print(R2)
+print(summary(model.simple))
+
+```
+
+
+## $R^2$ 
+*Live demo*
+```{.r}
+htwtgen <- read.csv("data/lm/heights_weights_gender.csv")
+head(htwtgen)
+attach(htwtgen)
+
+## Multiple regression
+model.multiple <- lm(Height ~ Weight + Gender, data=htwtgen)
+n <- length(Weight)
+p <- 1
+
+RSS <- sum((model.multiple$residuals)^2)
+R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1))
+
+print(R2_adj)
+print(summary(model.multiple))
+
+```
+
+# Checking model assumptions
+
+## The assumptions of a linear model
+
+::: incremental
+- up until now we were fitting models and discussed how to assess the model fit
+- before making use of a fitted model for explanation or prediction, it is wise to check that the model provides an adequate description of the data
+- informally we have been using box plots and scatter plots to look at the data
+- there are however formal definitions of the assumptions
+:::
+
+## The assumptions of a linear model
+
+. . .
+
+<br>
+
+**Linearity:**
+
+- The relationship between $X$ and $Y$ is linear
+
+. . .
+ 
+**Independence of errors** 
+
+- $Y$ is independent of errors, there is no relationship between the residuals and $Y$
+
+. . .
+
+**Normality of errors**
+
+- The residuals must be approximately normally distributed
+
+. . .
+
+**Equal variances**
+
+- The variance of the residuals is the same for all values of $X$
+
+
+
+## Checking assumptions {.smaller}
+
+**Residuals**, $\hat{\epsilon_i} = y_i - \hat{y_i}$ are the **main ingredient to check model assumptions**. 
+
+. . .
+
+
+```{r}
+#| collapse: true
+#| fig-align: center
+#| fig-width: 6
+#| fig-height: 6
+
+# read in data
+data.protein <- read.csv("data/lm/protein.csv")
+
+protein <- data.protein$Protein # our Y
+gestation <- data.protein$Gestation # our X
+
+model <- lm(protein ~ gestation)
+
+# plot diagnostic plots of the linear model
+# by default plot(model) calls four diagnostics plots
+# par() divides plot window in 2 x 2 grid
+par(mfrow=c(2,2))
+plot(model)
+
+```
+
+
+## Selecting best model 
+
+Now we have learnt what linear models are, how to find estimates and interpret the model coefficients. And we now know how to assess the model. 
+
+. . .
+
+
+::: {#exr-selecting}
+
+## Features selection
+
+Imagine you have gene expression measurements for 12 genes and you want to build the best linear regression model to study protein levels of protein P. You can use any combinations of genes. How would you go about building the model and how would you decide which model is the best one? 
+
+:::
+
+
+## Selecting best model
+
+::: incremental
+
+- As a rule of thumb, we want a model that **fits the data best and is as simple as possible**, meaning it contains only relevant predictors.
+- In practice, this means, that for smaller data sets, e.g. with up to 10 predictors, one works with **manually** trying different models, including different subsets of predictors, interactions terms and/or their transformations. 
+- When the number of predictors is large, one can try **automated approaches of feature selection** like forward selection or stepwise regression (see exercises for demo). 
+- On Friday, we use **regularization techniques** that allow including all parameters in the model but constraining (regularizing) coefficient estimates towards zero for the less relevant predictors, preventing building complex models and thus overfitting. 
+
+:::
+
+## Thank you for listening
+
+*Any questions?*
