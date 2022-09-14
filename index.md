@@ -2,7 +2,7 @@
 layout: default
 title:  'Introduction to biostatistics and machine learning'
 ---
-
+ 
 
 ##### <img border="0" src="icons/info.svg" width="40" height="40"> Introduction to biostatistics and machine learning
 This is a generic website containing teaching and learning materials used during the "Introduction to biostatistics and machine learning" course organised by NBIS, National Bioinformatics Infrastructure Sweden. The course is open for PhD students, postdocs, researchers and other employees in need of biostatistical skills within all Swedish universities. The materials are geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods.
