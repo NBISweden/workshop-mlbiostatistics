@@ -1,6 +1,6 @@
 ---
 title: "Exercises: Principal component analysis"
-author: "Eva Freyhult, Mun-Gwan Hong"
+author: "Mun-Gwan Hong"
 date: "2022-09-15"
 output:
   html_document:
@@ -17,310 +17,218 @@ library(ggplot2)
 knitr::opts_chunk$set(
   include = params$show_the_output, # control the output
   cache.path = "cache/",   # auto. created unless exists
-  results = "asis",   # for HTML
+  results = "markup",
   message = FALSE,    # no message from the code
-  warning = FALSE    # no warning from the code
+  warning = FALSE,    # no warning from the code
+  fig.dim = c(8, 8)
 )
+options(digits=2)
 ```
 
 
 #### Exercise 1
 
-Edgar Anderson's iris data will be used for exercises here.
-The data is already available with R, which stored in `iris`.
+Let's start principal component analysis (PCA) with Edgar Anderson's iris data,
+which is already available as `iris` in R.
 
 a) Examine the contents and data types of the data set *iris*.
+   R functions `str`, `summary` and `pairs` can be useful for this.
 
-```
-nci_data <- read.table(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"),
-  sep = ",",
-  row.names = 1,
-  header = TRUE
-)
-nci_label <- scan(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label.txt"),
-  what = ""
-)
-```
-
-```{r, echo=FALSE}
-nci_data <- read.table(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"),
-  sep = ",",
-  row.names = 1,
-  header = TRUE
-)
-nci_label <- scan(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label.txt"),
-  what = ""
-)
-```
-
-
-
-```{r, results='markup', fig.dim=c(8, 8)}
-https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-021-23893-4/MediaObjects/41467_2021_23893_MOESM6_ESM.xlsx
-
-
-
+```{r, fig.dim=c(8, 8)}
 str(iris)
 summary(iris)
 pairs(iris)
 ```
 
-b) Try to find three clusters in the data of sepal and petal widths using a k-means algorithm.
-   You can use the function `kmeans` in R.
-   It allows to choose an algorithm with the argument `algorithm` (e.g. `algorithm = "Forgy"`).
-
-
-
-PCA only works on the numerical data. You can extract the four numerical variables using 
-
-    iris[,1:4]
-    
-The grouping information can be extracted using 
-
-    iris[,5]
-
-Now you have all you need!
-
-## Exercise 1
-
-How does the data look? Do you see any pattern!? Any differences between groups?
-
-Produce a plot showing the differences between the groups. You will have to do a PCA and make a plot of PCA scores (components)
-
-## Exercise 2
-
-What is the most important variable in component 4? What does it show? What is the meaning of it?
-
-## Exercise 3
-
-What is the most important variable affected by the species of lowers?
-
-## Exercise 4
-
-Remove the first component and reconstruct the data. Now repeat exercises 1 to 3!
-
-Good luck! 
-
-
-
-[![Iris](images/iris-flower-1592163215Z1C.jpg)](https://www.publicdomainpictures.net/en/view-image.php?image=342859&picture=iris-flower)
-
-&nbsp;
-
-a) Examine the contents and data types of the data set *iris*.
-
-```{r, results='markup', fig.dim=c(5, 5)}
-str(iris)
-summary(iris)
-plot(Sepal.Width ~ Petal.Width, iris, col = Species)
-df0 <- iris[, c('Sepal.Width', 'Petal.Width')]
-```
-
-b) Try to find three clusters in the data of sepal and petal widths using a k-means algorithm.
-   You can use the function `kmeans` in R.
-   It allows to choose an algorithm with the argument `algorithm` (e.g. `algorithm = "Forgy"`).
+b) As Setosa is somewhat different from the other two species, we will limit our analysis to these two. 
+   Leave the data of Versicolor and Virginica only, and examine the contents of the data.
 
 ```{r}
-## Number of clusters
-n_clust <- 3
-## k-means with k = 3 and Forgy's algorithm
-km <- kmeans(df0, centers = n_clust, algorithm = "Forgy")
-## k-means with k = 3 and Hartigan and Wong's algorithm (as the default)
-km <- kmeans(df0, centers = n_clust)
+vv <- iris[iris$Species %in% c("versicolor", "virginica"), ]
+pairs(vv)
 ```
 
-c) Plot the data and color by cluster ID
+c) The first 4 columns contains 4 different measures and the last column has species.
+   Split the data into a numeric matrix `m` and a character vector `species`. 
+   
+```{r}
+m <- as.matrix(vv[, 1:4])
+species <- vv[, 5]
+```
+
+d) Transform each variable to have the same mean 0 and the same standard deviation using `scale`.
 
 ```{r}
-df <- df0
-## The cluster identities are stored in km$cluster, same order as input 
-df$Cluster <- factor(km$cluster)
-## Plot using base R graphics
-plot(Sepal.Width ~ Petal.Width, df, col = Cluster)
-## alternatively, plot using ggplot
-ggplot(df, aes(Petal.Width, Sepal.Width, color = Cluster)) + 
-  geom_point()
+csm <- scale(m)
 ```
 
-d) Repeat the same analysis a few times. Do you get the same clusters all the time?
-   Use `table` to check it allowing different cluster numbers.
-
-```{r, results='markup', fig.dim=c(7, 4)}
-## the same analysis
-km2 <- kmeans(df0, centers = n_clust)
-## Compare the results. Note cluster numbers can be changed.
-table(km$cluster, km2$cluster)
-
-## Visualize the difference
-if(sum(table(km$cluster, km2$cluster) > 0) != n_clust) { # different
-  df2 <- df0
-  df2$Cluster <- factor(km2$cluster)
-  df$model  <- "1st model"
-  df2$model <- "2nd model"
-  df3 <- rbind(df, df2)
-  ggplot(df3, aes(Petal.Width, Sepal.Width, color = Cluster)) + 
-    geom_point() + 
-    facet_grid(~ model)
-}
-```
-
-e) Try the argument `nstart` out and compare how stable two runs are.
-   By setting the argument to 4, the algorithm will automatically try four different (random) starting points. 
-
-```{r, results='markup'}
-km3.1 <- kmeans(df0, centers = n_clust, nstart = 4)
-km3.2 <- kmeans(df0, centers = n_clust, nstart = 4)
-table(km3.1$cluster, km3.2$cluster)
-```
-
-f) Try different values for $k$, run the k-means algorithm and collect the WSS (`tot.withinss`).
-   Plot WSS vs $k$. 
-   The WSS is always decreasing as $k$ increases, but the curve can still give you a hint of which $k$ to choose.
-   The Elbow method for selecting $k$ is to look at this curve and choose the $k$ that you find at the bend of the curve, at the 'elbow'.
-   Which $k$ would you pick based on this?
-  
-```{r}
-wss <- sapply(1:10, function(k) kmeans(df0, centers = k, nstart = 4)$tot.withinss)
-plot(1:10, wss, type = "b")
-```
-
-g) Compute the Silhouette width of the first object (or observation) when $k$ is 2.
-
-```{r, results='markup'}
-k <- 2
-cl <- kmeans(df0, k)$cluster
-## Euclidean distances
-d <- sapply(1:nrow(df0), function(ii) sqrt(sum((df0[1, ] - df0[ii, ])^2)))
-## a_i = 1 / (|Ca| - 1) * sum(d(i, j))  in the same cluster Ca
-ai <- sum(d[cl == cl[1]]) / (sum(cl == cl[1]) - 1)
-## other cluster IDs
-other_cl <- unique(cl[cl != cl[1]])
-## b_i = min( mean(d(i, Cb)) )  average distance to another cluster Cb
-bi <- min(sapply(other_cl, function(ocl) mean(d[cl == ocl])))
-si <- (bi - ai) / max(ai, bi)
-print(si)
-```
-
-h) (Optional) Compute average Silhouette width of all objects adjusting $k$ from 2 to 10 and choose optimal $k$.
-   Euclidean distance can be computed by `dist`. 
-   Check the help of the function using `?dist`.
-
-```{r, results='markup'}
-n <- nrow(df0)
-dm <- as.matrix(dist(df0))   # matrix output for row wise analysis
-sil <- sapply(2:10, function(k) {
-  cl <- kmeans(df0, k)$cluster
-  si <- sapply(1:n, function(ii) {
-    ## a_i = 1 / (|Ca| - 1) * sum(d(i, j))  in the same cluster Ca
-    ai <- sum(dm[ii, cl == cl[ii]]) / (sum(cl == cl[ii]) - 1)
-    ## other cluster IDs
-    other_cl <- unique(cl[cl != cl[ii]]) 
-    ## b_i = min( mean(d(i, Cb)) )  average distance to another cluster Cb
-    bi <- min(sapply(other_cl, function(ocl) mean(dm[ii, cl == ocl])))
-    ## s_i
-    (bi - ai) / max(ai, bi)
-  })
-  mean(si)
-})
-print(sil)
-plot(2:10, sil)
-```
-
-i) (Optional) Try `fviz_nbclust` of the R-package `factoextra` and choose optimal $k$ based on average Silhouette width.
+e) Compute eigenvectors and eigenvalues of the variance-covariance matrix of the transformed (or scaled) `m` using `cov` and `eigen`.
 
 ```{r}
-# install.packages("factoextra")  # if the package was not installed before
-factoextra::fviz_nbclust(df0, kmeans, method="sil")
+s <- cov(csm)
+e <- eigen(s)
+print(e)
 ```
+
+f) Compute the scores of the first principal component (PC). 
+   Matrix dot product in R is `%*%` as `A %*% B` for $\mathbf{A} \mathbf{B}$.
+
+```{r}
+pc1 <- csm %*% e$vectors[, 1]
+head(pc1)
+```
+
+g) Compute the proportion of variance explained by each PC and find the rotation matrix or loading matrix.
+
+```{r}
+e$values / sum(e$values)
+e$vectors   # rotation matrix
+e$vectors %*% diag(sqrt(e$values))  # loading matrix
+```
+
+h) Using `prcomp`, perform PCA.
+   Don't forget to add `scale. = TRUE` in the arguments of the function. 
+   The default is `scale. = FALSE` though the help of the function states scaling is recommended.
+
+```{r}
+pca <- prcomp(m, scale. = TRUE)
+```
+
+i) Compare the scores from our manual computation using eigenvector and from `prcomp`.
+
+```{r}
+all.equal(pca$x[, 1], pc1[, 1])
+```
+
+j) Compute the proportion of explained variance using the output from `prcomp`.
+   Compare the results with that of g).
+
+```{r}
+pca$sdev^2 / sum(pca$sdev^2)
+```
+
+k) Find the rotation matrix or loading matrix from the output of `prcomp` and compare it with that of g).
+
+```{r}
+pca$rotation   # rotation matrix
+pca$rotation %*% diag(pca$sdev)    # loadings
+```
+
+l) Draw a PCA score plot for PC1 and PC2.
+   Add colors by `species`.
+   What does the plot show?
+
+```{r}
+plot(pca$x[, 1:2], pch = 16, col = species)
+```
+```{r, results='asis', echo=FALSE}
+cat("\nTwo species were separated by the first PC.\n\n")
+```
+
+m) Draw a PCA score plot for PC2 and PC3.
+
+```{r}
+plot(pca$x[, 2:3], pch = 16, col = species)
+```
+
+n) Draw a scree plot.
+
+```{r}
+plot(pca)
+```
+
+o) Draw a bi-plot.
+   Can you tell 
+   1) which variables are the most important for PC1?
+   2) which variables are highly correlated?
+
+```{r}
+biplot(pca)
+```
+```{r, results='asis', echo=FALSE}
+cat("\n1) `Sepal.Length`, `Petal.Length` and `Petal.Width` are the most important variables",
+    "for PC1, as their loadings are far from zero.\n")
+cat("2) They are strongly correlated as they are next to each other in loading plot.\n\n")
+```
+
+You may find the loadings displayed in the `biplot` are in different scale from those you computed. 
+It is primarily due to the scaling by function `biplot`. 
+Please refer to https://stats.stackexchange.com/questions/276645/arrows-of-underlying-variables-in-pca-biplot-in-r for the question. 
+
 
 &nbsp;
 
 #### Exercise 2
 
-The NCI60 data set consists of gene expression values for 6830 genes for 64 cell lines.
-Using this data set, we investigate a few hierarchical clustering distances and linkage methods.
-The data can be downloaded in R using the following command
+NCI60 data set consists of gene expression values for 6830 genes for 64 cell lines.
+Using this data set, repeat the analysis using `prcomp` of Exercise 1.
+You can download the data using the command below.
 
 ```
-nci_data <- read.table(
+m <- t(as.matrix(read.table(
   url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"),
-  sep = ",",
-  row.names = 1,
-  header = TRUE
-)
-nci_label <- scan(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label.txt"),
-  what = ""
-)
+  sep = ",", row.names = 1, header = TRUE
+)))
 ```
 
-```{r, echo=FALSE}
-nci_data <- read.table(
+```{r nci_data_loading, echo=FALSE, cache=TRUE}
+m <- t(as.matrix(read.table(
   url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"),
-  sep = ",",
-  row.names = 1,
-  header = TRUE
-)
-nci_label <- scan(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.label.txt"),
-  what = ""
-)
+  sep = ",", row.names = 1, header = TRUE
+)))
 ```
 
-&nbsp;
-
-a) What is the size of the data matrix? 
-   Do every column represent a gene or a cell line?
-
-```{r, results='markup'}
-dim(nci_data)
-nci_data[1:5, 1:5]
-## ANS : Rows are genes, and columns are cell lines
-```
-
-b) Compute the Euclidean distance **between cell lines**.
-   This can be accomplished using the function `dist`.
-   Read the help text `?dist`.
-   This function computes the distance between rows of the input data matrix.
-   If the rows represent cell lines, you can run `dist(nci_data)`.
-   But, if your cell lines are represented by columns, you need to transpose the data matrix first `t(nci_data)`.
+a) Examine the contents and data types of the data set `nci`.
+   Check the dimension of the data first. 
+   This is much larger than `iris`.
 
 ```{r}
-d <- dist(t(nci_data))
+str(m)
+summary(m[, 1:10])
 ```
 
-c) Cluster the cell lines using complete linkage hierarchical clustering, use the function `hclust`.
+b) Using `prcomp`, perform PCA.
 
 ```{r}
-hc <- hclust(d, method = "complete")   # no need to specify the method
+pca <- prcomp(m, scale. = TRUE)
 ```
 
-d) Plot the dendrogram of the clustering result (The help for `hclust` includes the function for the plot)
-   - Try changing the labels to something more informative using `nci_label`. 
-   - Investigate the argument `hang`, what happens if you set it to -1?
+c) Compute the proportion of variance explained by each PC.
 
 ```{r}
-plot(hc)
-plot(hc, labels = nci_label)
-plot(hc, labels = nci_label, hang = -1)
+pca$sdev^2 / sum(pca$sdev^2)
 ```
 
-e) Try the linkage methods "single", "average" and "ward.D" in addition to "complete". Compare the results. Which method is 'best'?
+d) Find the rotation matrix.
+   Show the first 5 columns and rows only.
 
 ```{r}
-hc_s <- hclust(d, method = "single")
-plot(hc_s, labels = nci_label, main = "Single")
-hc_a <- hclust(d, method = "average")
-plot(hc_a, labels = nci_label, main = "Average")
-hc_w <- hclust(d, method = "ward.D")
-plot(hc_w, labels = nci_label, main = "ward.D")
+pca$rotation[1:5, 1:5]
 ```
 
-Pick the tree resulting from the method you think is 'best'. How many clusters are there?
+e) Draw a PCA score plot for PC1 and PC2.
 
-You can cut the tree on any level to get between 1 and 64 clusters. The function `cutree` either on a specific height (dissimilarity) or to get a specific number of clusters.
+```{r}
+plot(pca$x[, 1:2])
+```
+
+f) Draw a PCA score plot for PC2 and PC3.
+
+```{r}
+plot(pca$x[, 2:3])
+```
+
+g) Draw a scree plot.
+
+```{r}
+plot(pca)
+```
+
+h) Draw a bi-plot.
+   Note it can take long time. 
+
+```{r}
+biplot(pca)
+```
+
 
