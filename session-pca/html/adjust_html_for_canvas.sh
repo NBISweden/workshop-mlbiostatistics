@@ -1,5 +1,5 @@
 #!/bin/zsh
-COURSE_GITHUB_IO="https://nbisweden.github.io/workshop-mlbiostatistics/session-clustering/html"
+COURSE_GITHUB_IO="https://nbisweden.github.io/workshop-mlbiostatistics/session-pca/html"
 
 for html_out in chapters exercises exercises-solutions
 do
