@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Introduction to linear models - Exercises (introduction to linear models)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./lm-coeff.html" rel="next">
+<link href="./lm-intro.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Exercises (introduction to linear models)</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Introduction to linear models</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Preface</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-intro-exercises.html" class="sidebar-item-text sidebar-link active">Exercises (introduction to linear models)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-coeff.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression coefficients</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-coeff-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exercises (Regression coefficients)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-diagn.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Model diagnostics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lm-diagn-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Exercises (Model diagnostics)</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#answers-to-selected-exercises" id="toc-answers-to-selected-exercises" class="nav-link active" data-scroll-target="#answers-to-selected-exercises">Answers to selected exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Exercises (introduction to linear models)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+
+</div>
+<p><strong>Data for exercises</strong> are on Canvas under Files -&gt; data_exercises –&gt; linear-models</p>
+<div id="exr-protein" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 1 (Protein levels in pregnancy) </strong></span>The researchers were interested whether protein levels in expectant mothers are changing throughout the pregnancy. Observations have been taken on 19 healthy women and each woman was at different stage of pregnancy (gestation).</p>
+<p>Assuming linear model:</p>
+<ul>
+<li><span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span>, where <span class="math inline">\(Y_i\)</span> corresponds to protein levels in i-th observation</li>
+</ul>
+<p>and taking summary statistics:</p>
+<ul>
+<li><span class="math inline">\(\sum_{i=1}^{n}x_i = 456\)</span></li>
+<li><span class="math inline">\(\sum_{i=1}^{n}x_i^2 = 12164\)</span></li>
+<li><span class="math inline">\(\sum_{i=1}^{n}x_iy_i = 369.87\)</span></li>
+<li><span class="math inline">\(\sum_{i=1}^{n}y_i = 14.25\)</span></li>
+<li><span class="math inline">\(\sum_{i=1}^{n}y_i^2 = 11.55\)</span></li>
+</ul>
+<ol type="a">
+<li>find the least square estimates of <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span></li>
+<li>knowing that e.s.e(<span class="math inline">\(\hat{\beta}) = 0.003295\)</span></li>
+</ol>
+<p>can we:</p>
+<ul>
+<li><ol type="i">
+<li>reject the null hypothesis that the is no relationship between protein level and gestation, i.e.&nbsp;perform a hypothesis test to test <span class="math inline">\(H_0:\beta = 0\)</span>;</li>
+</ol></li>
+<li><ol start="2" type="i">
+<li>can we reject the null hypothesis that <span class="math inline">\(\beta = 0.02\)</span>, i.e.&nbsp;perform a hypothesis test to test <span class="math inline">\(H_0:\beta = 0.02\)</span></li>
+</ol></li>
+</ul>
+<ol start="3" type="a">
+<li>write down the linear model in the vector-matrix notation and identify response, parameter, design and error matrices</li>
+<li>read in “protein.csv” data into R, set Y as protein (response) and calculate using matrix functions the least squares estimates of model coefficients</li>
+<li>use <code>lm()</code> function in R to check your calculations</li>
+<li>use the fitted model in R to predict the value of protein levels at week 20. Try plotting the data, fitted linear model and the predicted value to assess whether your prediction is to be expected.</li>
+</ol>
+</div>
+<div id="exr-potato" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 2 (Glucose levels in potatoes) </strong></span>The glucose level in potatoes depends on their storage time and the relationship is somehow curvilinear as shown below. As we believe that the quadratic function might describe the relationship, assume linear model in form <span class="math inline">\(Y_i = \alpha + \beta x_i + \gamma x_i^2 + \epsilon_i \quad i=1,\dots,n\)</span> where <span class="math inline">\(n=14\)</span> and</p>
+<ol type="a">
+<li>write down the model in vector-matrix notation</li>
+<li>load data from “potatoes.csv” and use least squares estimates to obtain estimates of model coefficients</li>
+<li>use <code>lm()</code> function to verify your calculations</li>
+<li>perform a hypothesis test to test <span class="math inline">\(H_0:\gamma=0\)</span>; and comment whether there is a significant quadratic relationship</li>
+<li>predict glucose concentration at storage time 4 and 16 weeks. Plot the data, the fitted model and the predicted values</li>
+</ol>
+</div>
+<div class="cell" data-fig-heigth="5">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data.potatoes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/lm/potatoes.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data.potatoes<span class="sc">$</span>Weeks, data.potatoes<span class="sc">$</span>Glucose, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">"Storage time [weeks]"</span>, <span class="at">ylab=</span><span class="st">"Glucose [g/kg]"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-potatoes" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="lm-intro-exercises_files/figure-html/fig-potatoes-1.png" class="img-fluid figure-img" width="480"></p>
+<p></p><figcaption class="figure-caption">Figure 1: Sugar in potatoes: relationship between storage time and glucose content</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="exr-recognize" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 3 (Linear models form) </strong></span>Which of the following models are linear models and why?</p>
+<ol type="a">
+<li><span class="math inline">\(Y_i=\alpha + \beta x_i + \epsilon_i\)</span></li>
+<li><span class="math inline">\(Y_i=\beta_0 + \beta_1 x_{i,1} + \beta_2 x_{i,2} + \epsilon_i\)</span></li>
+<li><span class="math inline">\(Y_i=\alpha + \beta x_i + \gamma x_i^2 + \epsilon_i\)</span></li>
+<li><span class="math inline">\(Y_i=\alpha + \gamma x_i^\beta + \epsilon_i\)</span></li>
+</ol>
+</div>
+<hr>
+<section id="answers-to-selected-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="answers-to-selected-exercises">Answers to selected exercises</h2>
+<div class="solution proof">
+<p><span class="proof-title"><em>Solution</em>. </span><a href="#exr-protein">Exercise&nbsp;<span>1</span></a></p>
+</div>
+<ol type="a">
+<li></li>
+</ol>
+<ul>
+<li><span class="math inline">\(S_{xx} = \sum_{i=1}^{n}x_i^2-\frac{(\sum_{i=1}^{n}x_i)^2}{n} = 12164 - \frac{456^2}{19} = 1220\)</span></li>
+<li><span class="math inline">\(S_{xy} = \sum_{i=1}^nx_iy_i-\frac{\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n} = 369.87 - \frac{(456 \cdot 14.25)}{19} = 27.87\)</span></li>
+<li><span class="math inline">\(\hat{\beta} = \frac{S_{xy}}{S_{xx}} = 27.87 / 1220 = 0.02284\)</span></li>
+<li><span class="math inline">\(\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x} = \frac{14.25}{19}-\frac{27.87}{1220}\cdot \frac{456}{19} = 0.20174\)</span></li>
+</ul>
+<ol start="2" type="a">
+<li><ol type="i">
+<li></li>
+</ol></li>
+</ol>
+<p>We can calculate test statistics following:</p>
+<ul>
+<li><span class="math inline">\(\frac{\hat{\beta} - \beta}{e.s.e(\hat{\beta})} \sim t(n-p) = \frac{0.02284 - 0}{0.003295} = 6.934\)</span> where the value follows Student’s t distribution with <span class="math inline">\(n-p = 19 - 2 = 17\)</span> degrees of freedom. We can now estimate the a p-value using Student’s t distribution table or use R function</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">6.934</span>, <span class="at">df=</span><span class="dv">17</span>, <span class="at">lower=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.414315e-06</code></pre>
+</div>
+</div>
+<p>As p-value &lt;&lt; 0.001 there is sufficient evidence to reject <span class="math inline">\(H_0\)</span> in favor of <span class="math inline">\(H_1\)</span>, thus we can conclude that there is a significant relationship between protein levels and gestation</p>
+<ol start="2" type="a">
+<li><ol start="2" type="i">
+<li></li>
+</ol></li>
+</ol>
+<p>Similarly, we can test <span class="math inline">\(H_0:\beta = 0.02\)</span>, i.e.&nbsp;<span class="math inline">\(\frac{\hat{\beta} - \beta}{e.s.e(\hat{\beta})} \sim t(n-p) = \frac{0.02284 - 0.02}{0.20174} = 0.01407753\)</span>. Now the test statistics is small</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">0.01407753</span>, <span class="at">df=</span><span class="dv">17</span>, <span class="at">lower=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.988932</code></pre>
+</div>
+</div>
+<p>p-value is large and hence there is no sufficient evidence to reject <span class="math inline">\(H_0\)</span> and we can conclude that <span class="math inline">\(\beta = 0.02\)</span></p>
+<ol start="3" type="a">
+<li>We can rewrite the linear model in vector-matrix formation as <span class="math inline">\(\mathbf{Y}= \mathbf{\beta}\mathbf{X} + \mathbf{\epsilon}\)</span> where:</li>
+</ol>
+<p>response <span class="math inline">\(\mathbf{Y}=\begin{bmatrix}  y_1 \\  y_2 \\  \vdots \\  y_{19} \end{bmatrix}\)</span></p>
+<p>parameters <span class="math inline">\(\boldsymbol\beta=\begin{bmatrix}  \alpha \\  \beta \end{bmatrix}\)</span></p>
+<p>design matrix <span class="math inline">\(\mathbf{X}=\begin{bmatrix}  1 &amp; x_1 \\  1 &amp; x_2 \\  \vdots &amp; \vdots \\  1 &amp; x_{19} \end{bmatrix}\)</span></p>
+<p>errors <span class="math inline">\(\boldsymbol\epsilon=\begin{bmatrix}  \epsilon_1 \\  \epsilon_2 \\  \vdots \\  \epsilon_{19} \end{bmatrix}\)</span></p>
+<ol start="4" type="a">
+<li>The least squares estimates in vector-matrix notation is <span class="math inline">\(\hat{\boldsymbol\beta}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}\)</span> and we can calculate this in R</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>data.protein <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/lm/protein.csv"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># print out top observations</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data.protein)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Protein Gestation
+1    0.38        11
+2    0.58        12
+3    0.51        13
+4    0.38        15
+5    0.58        17
+6    0.67        18</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define Y and X matrices given the data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data.protein) <span class="co"># nu. of observations</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span>  <span class="fu">as.matrix</span>(data.protein<span class="sc">$</span>Protein, <span class="at">ncol=</span><span class="dv">1</span>) <span class="co"># response</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span>  <span class="fu">as.matrix</span>(<span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">length=</span>n), data.protein<span class="sc">$</span>Gestation)) <span class="co"># design matrix</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(X) <span class="co"># double check that the design matrix looks like it should</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    1   11
+[2,]    1   12
+[3,]    1   13
+[4,]    1   15
+[5,]    1   17
+[6,]    1   18</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># least squares estimate</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>beta.hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)<span class="sc">%*%</span><span class="fu">t</span>(X)<span class="sc">%*%</span>Y <span class="co"># beta.hat is a matrix that contains our alpha and beta in the model</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           [,1]
+[1,] 0.20173770
+[2,] 0.02284426</code></pre>
+</div>
+</div>
+<ol start="5" type="a">
+<li>We use <code>lm()</code> function to check our calculations</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit linear regression model and print model summary</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>protein <span class="ot">&lt;-</span> data.protein<span class="sc">$</span>Protein <span class="co"># our Y</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>gestation <span class="ot">&lt;-</span> data.protein<span class="sc">$</span>Gestation <span class="co"># our X</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(protein <span class="sc">~</span> gestation)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = protein ~ gestation)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.16853 -0.08720 -0.01009  0.08578  0.20422 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 0.201738   0.083363   2.420    0.027 *  
+gestation   0.022844   0.003295   6.934 2.42e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1151 on 17 degrees of freedom
+Multiple R-squared:  0.7388,    Adjusted R-squared:  0.7234 
+F-statistic: 48.08 on 1 and 17 DF,  p-value: 2.416e-06</code></pre>
+</div>
+</div>
+<ol start="6" type="a">
+<li></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>new.obs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">gestation =</span> <span class="dv">20</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>y.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(model, <span class="at">newdata =</span> new.obs)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># we can visualize the data, fitted linear model (red), and the predicted value (blue)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(gestation, protein, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">"gestation [weeks]"</span>, <span class="at">ylab=</span><span class="st">"protein levels [mgml-1]"</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(gestation, model<span class="sc">$</span>fitted.values, <span class="at">col=</span><span class="st">"red"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(new.obs, y.pred, <span class="at">col=</span><span class="st">"blue"</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">cex =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm-intro-exercises_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="solution proof">
+<p><span class="proof-title"><em>Solution</em>. </span><a href="#exr-potato">Exercise&nbsp;<span>2</span></a></p>
+</div>
+<ol type="a">
+<li>We can rewrite the linear model in vector-matrix formation as <span class="math display">\[\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon\]</span></li>
+</ol>
+<p>where: response <span class="math inline">\(\mathbf{Y}=\begin{bmatrix}  y_1 \\  y_2 \\  \vdots \\  y_{14} \end{bmatrix}\)</span></p>
+<p>parameters <span class="math inline">\(\boldsymbol\beta=\begin{bmatrix}  \alpha \\  \beta \\  \gamma \end{bmatrix}\)</span></p>
+<p>design matrix <span class="math inline">\(\mathbf{X}=\begin{bmatrix}  1 &amp; x_1 &amp; x_1^2\\  1 &amp; x_2 &amp; x_2^2\\  \vdots &amp; \vdots &amp; \vdots \\  1 &amp; x_{14} &amp; x_{14}^2 \end{bmatrix}\)</span></p>
+<p>errors <span class="math inline">\(\boldsymbol\epsilon=\begin{bmatrix}  \epsilon_1 \\  \epsilon_2 \\  \vdots \\  \epsilon_{14} \end{bmatrix}\)</span></p>
+<ol start="2" type="a">
+<li>load data to from “potatoes.csv” and use least squares estimates for obtain estimates of model coefficients</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data.potatoes <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/lm/potatoes.csv"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># define matrices</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data.potatoes)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span>  data.potatoes<span class="sc">$</span>Glucose</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>X1 <span class="ot">&lt;-</span> data.potatoes<span class="sc">$</span>Weeks</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">&lt;-</span> (data.potatoes<span class="sc">$</span>Weeks)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(n)), X1, X2)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># least squares estimate</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># beta here refers to the matrix of model coefficients incl. alpha, beta and gamma</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>beta.hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)<span class="sc">%*%</span><span class="fu">t</span>(X)<span class="sc">%*%</span>Y</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         [,1]
+   200.169312
+X1 -19.443122
+X2   1.030423</code></pre>
+</div>
+</div>
+<ol start="3" type="a">
+<li>we use <code>lm()</code> function to verify our calculations:</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X1 <span class="sc">+</span> X2)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ X1 + X2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-17.405 -11.250  -8.071  12.911  29.286 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 200.1693    15.0527  13.298 4.02e-08 ***
+X1          -19.4431     3.1780  -6.118 7.54e-05 ***
+X2            1.0304     0.1406   7.329 1.49e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 16.4 on 11 degrees of freedom
+Multiple R-squared:  0.8694,    Adjusted R-squared:  0.8457 
+F-statistic: 36.61 on 2 and 11 DF,  p-value: 1.373e-05</code></pre>
+</div>
+</div>
+<ol start="4" type="a">
+<li>perform a hypothesis test to test <span class="math inline">\(H_0:\gamma=0\)</span>; and comment whether we there is a significant quadratic term</li>
+</ol>
+<ul>
+<li><span class="math inline">\(\frac{\hat{\gamma} - \gamma}{e.s.e(\hat{\gamma})} \sim t(n-p) = \frac{1.030423 - 0}{0.1406} = 7.328755\)</span> where the value follows Student’s t distribution with <span class="math inline">\(n-p = 19 - 2 = 17\)</span> degrees of freedom. We can now estimate the a p-value using Student’s t distribution table or use a function in R</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">7.328755</span>, <span class="at">df=</span><span class="dv">14-3</span>, <span class="at">lower=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.487682e-05</code></pre>
+</div>
+</div>
+<p>As p-value &lt;&lt; 0.001 there is sufficient evidence to reject <span class="math inline">\(H_0\)</span> in favor of <span class="math inline">\(H_1\)</span>, thus we can conclude that there is a significant quadratic relationship between glucose and storage time</p>
+<ol start="5" type="a">
+<li>predict glucose concentration at storage time 4 and 16 weeks</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>new.obs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X1 =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">16</span>), <span class="at">X2 =</span> <span class="fu">c</span>(<span class="dv">4</span><span class="sc">^</span><span class="dv">2</span>, <span class="dv">16</span><span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>pred.y <span class="ot">&lt;-</span> <span class="fu">predict</span>(model, <span class="at">newdata =</span> new.obs)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data.potatoes<span class="sc">$</span>Weeks, data.potatoes<span class="sc">$</span>Glucose, <span class="at">xlab=</span><span class="st">"Storage time [weeks]"</span>, <span class="at">ylab=</span><span class="st">"Glucose [g/kg]"</span>, <span class="at">pch=</span><span class="dv">19</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(data.potatoes<span class="sc">$</span>Weeks, model<span class="sc">$</span>fitted.values, <span class="at">col=</span><span class="st">"red"</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(new.obs[,<span class="dv">1</span>], pred.y, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm-intro-exercises_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./lm-intro.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./lm-coeff.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression coefficients</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

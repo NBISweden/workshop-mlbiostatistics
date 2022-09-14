@@ -21,10 +21,10 @@
   <meta name="twitter:description" content="Chapter 1 Generalized linear models | Introduction to GLM" />
   
 
-<meta name="author" content="Olga Dethlefsen" />
+<meta name="author" content="Olga Dethlefsen, Julie Lorent" />
 
 
-<meta name="date" content="2022-09-11" />
+<meta name="date" content="2022-09-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -231,8 +231,8 @@ Figure 1.2: Yanny and Laurel auditory illusion data, Yanny (1), Laurel (0)
 and given the properties of logarithms this is also equivalent to:
 <span class="math display">\[p_i = \frac{exp(\beta_0 + \beta_1x_i)}{1 + exp(\beta_0 + \beta_1x_i)}\]</span></li>
 <li>In essence, the GLM generalizes linear regression by allowing the linear model to be related to the response variable via a <strong>link function</strong>.</li>
-<li>Here, the <strong>link function</strong> <span class="math inline">\(log(\frac{p_i}{1-p_i})\)</span> provides the link between the binomial distribution of <span class="math inline">\(Y_i\)</span> (hearing Yanny) the linear predictor (age)</li>
-<li>Thus <strong>GLM model</strong> can be written as <span class="math display">\[g(\mu_i)=\mathbf{X}\boldsymbol\beta\]</span> where <code>g()</code> is the link function.</li>
+<li>Here, the <strong>link function</strong> <span class="math inline">\(log(\frac{p_i}{1-p_i})\)</span> provides the link between the binomial distribution of <span class="math inline">\(Y_i\)</span> (hearing Yanny) and the linear predictor (age)</li>
+<li>Thus the <strong>GLM model</strong> can be written as <span class="math display">\[g(\mu_i)=\mathbf{X}\boldsymbol\beta\]</span> where <code>g()</code> is the link function.</li>
 <li>We use <code>glm()</code> function in R to fit GLM models</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="generalized-linear-models.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit logistic regression model</span></span>
@@ -350,7 +350,7 @@ Figure 1.3: Fitted logistic model to the Yanny and Laurel data
 <ul>
 <li>In logistic regression we often interpret the model coefficients by taking <span class="math inline">\(e^{\hat{\beta}}\)</span></li>
 <li>and we talk about <strong>odd ratios</strong></li>
-<li>e.g. we can say, given our above model, <span class="math inline">\(e^{-0.02444} = 0.9758562\)</span> that for each unit increase in age the odds of hearing Laurel get multiplied by 0.98</li>
+<li>e.g. we can say, given our above model, <span class="math inline">\(e^{-0.02444} = 0.9758562\)</span> that for each unit increase in age the odds of hearing Yanny get multiplied by 0.98</li>
 </ul>
 <p><strong>Other covariates</strong></p>
 <ul>
@@ -487,13 +487,13 @@ Suppose we wish to model <span class="math inline">\(Y_i\)</span> the number of 
 <li>E_all: expected number of cases of all types of cancer for the IG based on the population size and demographics of the IG in 2013</li>
 <li>pm10: air pollution</li>
 <li>smoke: percentage of people in an area that smoke</li>
-<li>ethic: percentage of people who are non-white</li>
-<li>logpice: natural log of average house price</li>
+<li>ethnic: percentage of people who are non-white</li>
+<li>log.price: natural log of average house price</li>
 <li>easting and northing: co-ordinates of the central point of the IG divided by 10000</li>
 </ul>
 <p>We can model the <strong>rate of occurrence of cancer</strong> using the very same <code>glm</code> function:¨
 - now we use <strong>poisson family distribution</strong> to model counts
-- and we will include an <strong>offset term</strong> to model as we are modeling the rate of occurrence of the cancer that has to be adjusted by different number of people living in different regions</p>
+- and we will include an <strong>offset term</strong> to the model as we are modeling the rate of occurrence of the cancer that has to be adjusted by different number of people living in different regions</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="generalized-linear-models.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in and preview data</span></span>
 <span id="cb11-2"><a href="generalized-linear-models.html#cb11-2" aria-hidden="true" tabindex="-1"></a>cancer <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/lm/cancer.csv&quot;</span>)</span>
 <span id="cb11-3"><a href="generalized-linear-models.html#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cancer)</span>
@@ -544,9 +544,9 @@ Suppose we wish to model <span class="math inline">\(Y_i\)</span> the number of 
 </ul>
 <p><strong>Rate ratio</strong></p>
 <ul>
-<li>similarly to logistic regression it common to look at the <span class="math inline">\(e^\beta\)</span></li>
+<li>similarly to logistic regression, it is common to look at the <span class="math inline">\(e^\beta\)</span></li>
 <li>for instance we are interested in the effect of air pollution on health, we could look at the pm10 coefficient</li>
-<li>coefficient is positive, 0.0500269, indicating that cancer incidence rate increase with increased air poluttion</li>
+<li>coefficient is positive, 0.0500269, indicating that cancer incidence rate increase with increased air pollution</li>
 <li>the rate ratio allows us to quantify by how much, here by a factor of <span class="math inline">\(e^{0.0500269} = 1.05\)</span></li>
 </ul>
 <hr />
@@ -556,7 +556,8 @@ Suppose we wish to model <span class="math inline">\(Y_i\)</span> the number of 
 
 <div class="exercise">
 <p><span id="exr:glm-rerun" class="exercise"><strong>Exercise 1.1  </strong></span>
-Make sure you can run and understand the above code for logistic and Poisson regression</p>
+Make sure you can run and understand the above code for logistic and Poisson regression
+The data files can be downloaded in Canvas from Files/data-exercises/linear-models. An Rmd file with the code from the book chapter is provided in Files/exercises/GLM</p>
 </div>
 
 <div class="exercise">

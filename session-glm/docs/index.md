@@ -1,9 +1,9 @@
 ---
 title: "Introduction to GLM"
-author: "Olga Dethlefsen"
+author: "Olga Dethlefsen, Julie Lorent"
 site: bookdown::bookdown_site
 documentclass: book
-date: "2022-09-11"  
+date: "2022-09-14"  
 bibliography: [book.bib]
 biblio-style: apalike
 link-citations: yes

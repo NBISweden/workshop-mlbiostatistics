@@ -1,0 +1,97 @@
+# Exercises (Model diagnostics)
+
+**Data for exercises** are on Canvas under Files -> data_exercises --> linear-models
+
+
+::: {#exr-brozek}
+
+## Brozek score
+
+Researchers collected age, weight, height and 10 body circumference measurements for 252 men in an attempt to find an alternative way of calculate body fat as oppose to measuring someone weight and volume, the latter one by submerging in a water tank. Is it possible to predict body fat using easy-to-record measurements?
+
+Use lm() function and fit a linear method to model brozek, score estimate of percent body fat
+
+- find $R^2$ and $R^2(adj)$
+- assess the diagnostics plots to check for model assumptions
+- delete observation #86 with the highest Cook's distance and re-fit the model (model.clean)
+- look at the model summary. Are all variables associated with brozek score?
+- try improving the model fit by removing variables with the highest p-value first and re-fitting the model until all the variables are significantly associated with the response (p value less than 0.1); note down the $R^2(adj)$ values while doing so
+- compare the output models for model.clean and final model
+
+:::
+
+
+To access and preview the data:
+```{r, collapse=TRUE}
+data(fat, package = "faraway")
+```
+
+## Answers to selected exercises {-}
+
+::: {.solution}
+
+@exr-brozek
+
+:::
+
+
+```{r}
+#| collapse: true
+#| code-fold: false
+#| fig-align: center
+
+# access and preview data
+data(fat, package = "faraway")
+head(fat)
+
+# fit linear regression model
+model.all <- lm(brozek ~ age + weight + height + neck + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+# print model summary
+print(summary(model.all))
+
+# diagnostics plots
+par(mfrow=c(2,2))
+plot(model.all)
+
+# remove potentially influential observations
+obs <- c(86)
+fat2 <- fat[-obs, ]
+
+# re-fit the model
+model.clean <- lm(brozek ~ age + weight + height + neck + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+# diagnostics plots
+par(mfrow=c(2,2))
+plot(model.clean)
+
+# model summary
+print(summary(model.clean))
+
+# re-fit the model (no height)
+model.red1 <- lm(brozek ~ age + weight + neck + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+print(summary(model.red1))
+
+# re-fit the model (no knee)
+model.red2 <- lm(brozek ~ age + weight + neck + abdom + hip + thigh + ankle + biceps + forearm + wrist, data = fat)
+print(summary(model.red2))
+
+# re-fit the model (no ankle)
+model.red3 <- lm(brozek ~ age + weight + neck + abdom + hip + thigh  + biceps + forearm + wrist, data = fat)
+print(summary(model.red3))
+
+# re-fit the model (no biceps)
+model.red4 <- lm(brozek ~ age + weight + neck + abdom + hip + thigh  + forearm + wrist, data = fat)
+print(summary(model.red4))
+
+# re-fit the model (no hip)
+model.red5 <- lm(brozek ~ age + weight + neck + abdom  + thigh  + forearm + wrist, data = fat)
+print(summary(model.red5))
+
+# compare model.clean and final model
+print(summary(model.clean))
+print(summary(model.red5))
+
+```
+
+*Note: we have just run a very simple feature selection using stepwise regression. In this method, using backward elimination, we build a model containing all the variables and remove them one by one based on defined criteria (here we have used p-values) and we stop when we have a justifiable model or when removing a predictor does not change the chosen criterion significantly.*
