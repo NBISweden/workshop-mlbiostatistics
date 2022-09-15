@@ -1,0 +1,193 @@
+# Exercises {.unnumbered}
+
+
+::: {#exr-knn}
+
+## Breast Cancer classifier
+
+Given BreastCancer data shown below build the best  KNN classification model that you can to predict the cancer type (benign or malignant). 
+
+Note: you may need to do some data cleaning.
+
+- First column contains patients IDs that should not be used
+- Data set contains some missing values. You can keep only the complete cases e.g. using na.omit() function. 
+
+:::
+
+
+```{r}
+#| code-fold: false
+#| collapse: true
+
+# install "mlbench" package 
+library(mlbench)
+
+# Look at the Breast Cancer data
+# more about data is here: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Original)
+data(BreastCancer)
+dim(BreastCancer)
+levels(BreastCancer$Class)
+head(BreastCancer)
+
+```
+
+
+::: {#exr-lm}
+
+## Training regression model
+
+Let's look again at the "fat" data set from the "faraway" package. This time we would like to use regression to predict the Brozek scores given new observations as accurately as possible. 
+
+Split data into train (60%), validation (20%) and test (20%). Assess three models on the validation set using RMSE. Which model seems to be the best in terms of predicting the Brozek scores. What would be the expected performance on the new (test) data? 
+
+1. Model 1: use "age" only as predictor
+2. Model 2: use "age", "weight" and "heigth" as predictors
+3. Model 3: use "age", and "wrist" as predictors
+
+:::
+
+
+## Answers to selected exercises {.unnumbered}
+
+::: {.solution}
+@exr-knn
+:::
+
+
+```{r}
+#| eval: true
+#| collapse: true
+#| cold-fold: false
+#| message: false
+#| warning: false
+
+library(splitTools)
+library(class)
+
+# set random seed to be able to repeat analysis
+randseed <- 123
+set.seed(randseed)
+
+# clean data by removing first column of IDs
+data.cancer <- BreastCancer[, -1]
+
+# keep only complete cases
+data.cancer <- na.omit(data.cancer)
+
+# split data into train, validation and test
+inds <- partition(data.cancer$Class,
+                  p = c(train = 0.5, valid = 0.25, test = 0.25),
+                  seed = randseed)
+
+# preview lists with splits
+str(inds)
+
+# make train, validation and test sets
+data.train <- data.cancer[inds$train, ]
+data.valid <- data.cancer[inds$valid,]
+data.test <- data.cancer[inds$test, ]
+
+# check their dimensions
+dim(data.train)
+dim(data.valid)
+dim(data.test)
+
+# and print our group summaries
+summary(data.train$Class)
+summary(data.valid$Class)
+summary(data.test$Class)
+
+# find optimal value of k
+k.values <- seq(1, 51, 2)
+class.rate <- rep(0, length(k.values))
+for (k in seq_along(k.values))
+{
+
+  pred.class <- knn(train = data.train[, -10],
+                    test = data.valid[, -10],
+                    cl = data.train[,10], k=k.values[k])
+
+  class.rate[k] <- sum((pred.class==data.valid[,10]))/length(pred.class)
+}
+
+# for which value of k we reach the highest classification rate
+k.best <- k.values[which.max(class.rate)]
+print(k.best)
+
+# plot classification rate as a function of k
+plot(k.values, class.rate, type="l", xlab="k", ylab="class. rate")
+
+# how would our model perform on the future data using the optimal k?
+pred.class <- knn(train = data.train[, -10], data.test[, -10], data.train[,10], k=k.best)
+class.rate <- sum((pred.class==data.test[,10]))/length(pred.class)
+print(class.rate)
+
+```
+
+Other solutions could include:
+
+- trying and comparing models with different number of variables
+- trying to implement k-fold cross validation or LOOVC to assess model performance when selecting the optimal value of $k$
+
+
+::: {.solution}
+@exr-lm
+:::
+
+```{r}
+#| collapse: true
+#| code-fold: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(splitTools)
+
+# access data
+# data(fat, package = "faraway")
+# data.fat <- fat
+
+data.fat <- read_csv("data/brozek.csv")
+
+# split into train, validation and test: stratify by Brozek score
+inds <- partition(data.fat$brozek,
+                  p = c(train = 0.6, valid = 0.2, test = 0.2),
+                  seed = randseed)
+str(inds)
+
+data.train <- data.fat[inds$train, ]
+data.valid <- data.fat[inds$valid,]
+data.test <- data.fat[inds$test, ]
+
+# Model 1
+m1 <- lm(brozek ~ age, data = data.train) # fit model on train
+m1.pred <- predict(m1, newdata = data.valid[,-1]) # predict brozek score using validation set
+m1.rmse <- sqrt((1/nrow(data.valid))*sum((data.valid$brozek - m1.pred)^2)) # calculate RMSE
+
+# Model 2
+m2 <- lm(brozek ~ age + weight + height, data = data.train) # fit model on train
+m2.pred <- predict(m2, newdata = data.valid[,-1]) # predict brozek score using validation set
+m2.rmse <- sqrt((1/nrow(data.valid))*sum((data.valid$brozek - m2.pred)^2)) # calculate RMSE
+
+# Model 3
+m3 <- lm(brozek ~ age + wrist, data = data.train) # fit model on train
+m3.pred <- predict(m3, newdata = data.valid[,-1]) # predict brozek score using validation set
+m3.rmse <- sqrt((1/nrow(data.valid))*sum((data.valid$brozek - m3.pred)^2)) # calculate RMSE
+
+# Compare models
+rmse <- data.frame(model = c("Model 1", "Model 2", "Model 3"), rmse = c(m1.rmse, m2.rmse, m3.rmse))
+rmse
+
+# Out of the three models, Model 2, has the smallest RMSE and is thus selected as best
+
+# Expected performance on the test data
+m.pred <- predict(m2, newdata = data.test[,-1])
+sqrt((1/nrow(data.test))*sum((data.test$brozek - m.pred)^2))
+
+```
+
+Note:
+It is possible to use glm() function to fit linear regression. The advantage of this is that one can use easily use cross validation with cv.glm(). More about that on Friday.
+
+
+

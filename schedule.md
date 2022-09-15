@@ -101,7 +101,7 @@ title:  'Schedule'
 
 *14.30 - 15.00 break*
 
-**15:00 - 15.30** [Introduction to supervised learning: classification and regression](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html)
+**15:00 - 15.30** [Introduction to supervised learning: classification and regression](session-supervise/docs/index.html)
 
 **15.30 - 16.30** [Exercises](https://olgadet.github.io/bookdown-mlbiostatistics/classification-with-knn-and-decision-trees.html#exercises-classification)
 
