@@ -3,11 +3,10 @@
 - calculate and get user fees approved
 - set dates for application open, application closed, notification sent to students
 - prepare course website on Canvas
-- update Github website with the latest info [https://nbisweden.github.io/workshop-mlbiostatistics/] (extra)
 - prepare and open course application [e.g. via google forms]
 - prepare .doc for SciLifeLab announcement and email education@scilifelab.uu.se
 - prepare and test Zulip / Slack channel (if online)
-- add students to Canvas (Jessica Lindberg?)
+- add students to Canvas (Jessica Lindberg / Jenny Augustsson)
 - prepare feedback survey
 - arrange internet access (guest accounts)
 - door sign
