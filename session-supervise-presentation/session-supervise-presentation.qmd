@@ -1,0 +1,350 @@
+---
+title: "Introduction to supervised learning"
+# author: Olga Dethlefsen
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default, custom.scss]
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(gridExtra)
+
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") 
+
+```
+
+## What is supervised learning?
+
+::: incremental
+-   When we talked earlier about PCA and clustering, we were interested in finding patterns in the data. We treated data set as a whole, using all the samples, and we did not use samples labels in any way to find the components with the highest variables (PCA) or the number of clusters (k-means).
+-   In supervised learning, we are using sample **labels** to build (train) our models. When then use these trained models for interpretation and **prediction**.
+:::
+
+## Supervised classification
+
+::: incremental
+-   Classification methods are algorithms used to categorize (classify) objects based on their measurements.
+-   E.g. given a set of gene expression measurements we may want to be able to say whether a cancer patient falls into category of cancer stages I, II, III or IV.
+-   Classification methods belong under **supervised learning** as we usually start off with **labeled** data, i.e. observations with measurements for which we know the labels (class) of.
+:::
+
+## Supervised classification
+
+::: incremental
+-   Let's for each observations $i$ collect pair of information $\{\mathbf{x_i}, g_i\}$
+-   where $\{\mathbf{x_i}\}$ is a set of exploratory variables e.g. a gene expression data
+-   and $g_i \in \{1, \dots, G\}$ is the class label for each observation (known), e.g. cancer stage I, II, III or IV
+-   Then we want to find a **classification rule** $f(.)$ (model) such that $$f(\mathbf{x_i})=g_i$$
+:::
+
+## KNN example
+*example of a classification algorithm*
+```{r}
+#| label: fig-knn-create-points
+#| fig-cap: An example of k-nearest neighbours algorithm with k=3; in the top new observation (blue) is closest to three red triangales and thus classified as a red triangle; in the bottom, a new observation (blue) is closest to 2 black dots and 1 red triangle thus classified as a black dot (majority vote)
+
+# Example data
+n1 <- 10
+n2 <- 10
+set.seed(1)
+x <- c(rnorm(n1, mean=0, sd=1), rnorm(n2, mean=0.5, sd=1))
+y <- rnorm(n1+n2, mean=0, sd=1)
+
+group <- rep(1, (n1+n2))
+group[1:n1] <- 0
+idx.1 <- which(group==0)
+idx.2 <- which(group==1)
+
+# new points
+p1 <- c(1.5, 0.5)
+p2 <- c(0, 0.6)
+
+# distance 
+dist.1 <- c()
+dist.2 <- c()
+for (i in 1:length(x))
+{
+  dist.1[i] <- round(sqrt((p1[1]-x[i])^2 + (p1[2]-y[i])^2),2)
+  dist.2[i] <- round(sqrt((p2[1]-x[i])^2 + (p2[2]-y[i])^2),2)
+}
+
+# find nearest friends
+n.idx1 <- order(dist.1)
+n.idx2 <- order(dist.2)
+
+```
+
+```{r}
+#| label: fig-knn-00
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# a) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+#points(p1[1], p1[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-01
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# b) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-02
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# c) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+
+```
+
+```{r}
+#| label: fig-knn-03
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# d) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=17, col="red", cex=3)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+
+```
+
+:::{.r-stack}
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-00-1.png){.fragment width="700" height="600"}
+
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-01-1.png){.fragment width="700" height="600"}
+
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-02-1.png){.fragment width="700" height="600"}
+
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-03-1.png){.fragment width="700" height="600"}
+:::
+
+
+## KNN example
+*example of a classification algorithm*
+
+```{r}
+#| label: fig-knn-10
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+```
+
+```{r}
+#| label: fig-knn-20
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-30
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+```{r}
+#| label: fig-knn-40
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=15, col="black", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+:::{.r-stack}
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-10-1.png){.fragment width="700" height="600"}
+
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-20-1.png){.fragment width="700" height="600"}
+
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-30-1.png){.fragment width="700" height="600"}
+
+![](session-supervise-presentation_files/figure-revealjs/fig-knn-40-1.png){.fragment width="700" height="600"}
+:::
+
+## Data splitting
+
+::: incremental
+-   Part of the issue of fitting complex models to data is that the model can be continually tweaked to adapt as well as possible.
+-   As a results the trained model may not be generalizable to future data due to the added complexity that only works for given unique data set, leading to so called **overfitting**.
+-   To deal with overconfident estimation of future performance we randomly split data into training data, validation data and test data.
+:::
+
+## Data splitting
+
+*train, validation & test sets*
+
+-   Common split strategies include 50%/25%/25% and 33%/33%/33% splits for training/validation/test respectively
+-   **Training data**: this is data used to fit (train) the classification model, i.e. derive the classification rule
+-   **Validation data**: this is data used to select which parameters or types of model perform best, i.e. to validate the performance of model parameters
+-   **Test data**: this data is used to give an estimate of future prediction performance for the model and parameters chosen
+
+![](figures/split.png)
+
+## Data splitting {.smaller}
+
+*k-fold*
+
+-   It could happen that despite random splitting in train/validation/test dataset one of the subsets does not represent data. e.g. gets all the difficult observation to classify.
+-   Or that we do not have enough data in each subset after performing the split.
+-   In **K-fold cross-validation** we split data into $K$ roughly equal-sized parts.
+-   We start by setting the validation data to be the first set of data and the training data to be all other sets.
+-   We estimate the validation error rate / correct classification rate for the split.
+-   We then repeat the process $K-1$ times, each time with a different part of the data set to be the validation data and the remainder being the training data.
+
+![](figures/split-kfold.png)
+
+::: notes
+-   We finish with $K$ different error of correct classification rates.
+-   In this way, every data point has its class membership predicted once.
+-   The final reported error rate is usually the average of $K$ error rates.
+:::
+
+## Data splitting
+
+*Leave One Out Cross-Validation*
+
+![](figures/split-loocv.png)
+
+## Evaluating Classification Model Performance
+
+::: incremental
+-   To train the model we need some way of evaluating how well it works so we know how to tune the model parameters, e.g. change the value of $k$ in KNN.
+-   There are few measures being used that involve looking at the truth (labels) and comparing it to what was predicted by the model.
+-   Common measures include: correct (overall) classification rate, missclassification rate, class specific rates, cross classification tables, sensitivity and specificity and ROC curves.
+:::
+
+## Evaluating Classification Model Performance
+
+**Correct (miss)classification rate**
+
+-   A simple way to evaluate in which we count for all the $n$ predictions how many times we got the classification right. $$Correct\; Classifcation \; Rate = \frac{\sum_{i=1}^{n}1[f(x_i)=g_i]}{n}$$ where:
+
+-   $1[]$ is an indicator function equal to 1 if the statement in the bracket is true and 0 otherwise
+
+. . .
+
+<br>
+
+Missclassification Rate = 1 - Correct Classification Rate
+
+## Putting it all together with KNN
+
+*Live demo*
+
+::: incremental
+-   Let's train KNN model on the iris data set to be able to use it for prediction
+-   by training, we mean finding the best value of $k$
+-   and by prediction, we mean that when taking an unknown species of iris and measuring length and width of petals and sepals we can tell whether it is setosa, versicolor or virgnica.
+:::
+
+## Going back to regression
+
+*Could we use supervise learning for regression?*
+
+## Going back to regression
+
+Yes! We do both supervised classification and regression when building predictive models.
+
+## Going back to regression
+
+-   The idea of using data splits to train the model holds for fitting (training) regression models.
+-   If we were to use regression in supervised learning context, we would use data splits to train and assess the regression model.
+-   For instance, given a number of variables of interest, we could try to find the best regression model using train data to fit the model and assess on the validation data; while keeping the test to assess the performance on the final model. Or we could use cross validation (We have seen before how to fit the model and assess the model fit, e.g. with $R^2$.)
+-   Other popular regression performance metrics include **RMSE**, root mean square error $$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y_i})^2}$$
+-   and **MAE**, mean absolute error, $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y_i}|$$
+
+## Note on exercise
+
+Exercise 01: practice data splitting strategies when working with the Breast Cancer data. Try out and compare:
+
+-   
+
+    i)  splitting into train, validation and test
+
+-   
+
+    ii) k-folds
+
+-   
+
+    iii) LOOVC
+
+## Thank you for listening
+
+*Any questions?*
