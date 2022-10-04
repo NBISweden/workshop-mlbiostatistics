@@ -1,0 +1,282 @@
+---
+title: "R-quiz"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+library(magrittr)
+library(faraway)
+```
+
+
+## Introduction to quiz 
+
+This quiz tests basic R skills that we rely on during the course. To follow the course you should be able to get most of the question right without much of the effort, i.e. without needing to google for the answers or possible solutions. You can take the quiz as many times as you like. 
+
+
+## Questions: using help() 
+
+### Q
+Use help() to find out more about `install.packages()` function. Which of the below is **NOT** an argument of the install.packages()
+
+- pkgs
+- dependencies
+- dir (correct)
+- method
+
+### Q
+Use help() to find out more about `read.csv()` function. Which of the below is **NOT** an argument of the `read.csv()`?
+
+- file
+- sep 
+- text
+- footer (correct)
+
+## Questions: using R as calculator
+
+### Q
+Use R as calculator to compute (rounded to two decimal places):
+
+$\ln 2$
+
+```{r}
+log(2) %>%
+  round(2)
+```
+
+### Q
+Use R as calculator to compute (rounded to two decimal places):
+
+$e^2$
+
+```{r}
+exp(2) %>%
+  round(2)
+```
+
+### Q
+Use R as calculator to compute (rounded to two decimal places):
+
+$\sqrt{10}$
+```{r}
+sqrt(19) %>%
+  round(2)
+```
+
+### Q
+Use R as calculator to compute (rounded to two decimal places):
+
+$3.5^9$
+
+```{r}
+3.5^9 %>%
+  round(2)
+```
+
+## Questions: vectors I
+
+### Q
+Given a vector **x** = [1, 2, 3, 9, 10, 11, 13, 999, -10] what is the sum of all its elements?
+```{r}
+x <- c(1, 2, 3, 9, 10, 11, 13, 999, -10)
+sum(x)
+```
+
+### Q
+Given a vector **x** = [1, 2, 3, 9, 10, 11, 13, 999, -10] what is the average, rounded to two decimal places, of all its elements?
+```{r}
+x <- c(1, 2, 3, 9, 10, 11, 13, 999, -10)
+mean(x) %>%
+  round(2)
+```
+
+
+## Questions: vectors II
+
+### Q 
+
+Run the below two lines of code in R to create a vector **x** containing 100 random values of A, B and NA. How many A values are in the created vector **x**?
+
+```{r}
+set.seed(123)
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
+```
+
+```{r}
+set.seed(123)
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
+sum(x == "A", na.rm = T)
+```
+
+### Q 
+
+Run the below two lines of code in R to create a vector **x** containing 100 values of A, B or NAs. How many B values are in the created vector **x**?
+
+```{r}
+set.seed(123)
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
+```
+
+```{r}
+set.seed(123)
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
+sum(x == "B", na.rm = T)
+```
+
+## Questions: matrices
+
+*add creating a matrix? matrix operations?*
+
+## Questions: import data
+
+### Q 
+
+Download `diabetes` data from [here](https://uppsala.instructure.com/files/3891026/download?download_frd=1). The data comes from `faraway` package and it was collected as part of a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA. You can read more about the data [https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html](https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html).
+
+What is total cholesterol (chol) value for the subject with id = 15522? 
+
+```{r}
+#| include: false
+data(diabetes)
+data.diabetes <- diabetes
+write_csv(data.diabetes, file = "data/data-diabetes.csv")
+```
+
+```{r}
+#| message: false
+#| warning: false 
+
+data.diabetes <- read_csv("data/data-diabetes.csv")
+
+data.diabetes %>%
+  filter(id == "15522") %>%
+  select("id", "chol", "waist") %>%
+  print()
+
+```
+
+
+Download `diabetes` data from [here](https://uppsala.instructure.com/files/3891026/download?download_frd=1). The data comes from `faraway` package and it was collected as part of a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA. You can read more about the data [https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html](https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html).
+
+What is total cholesterol (chol) value for the subject with id = 16004? 
+
+```{r}
+#| message: false
+#| warning: false
+
+data.diabetes <- read_csv("data/data-diabetes.csv")
+
+data.diabetes %>%
+  filter(id == "16004") %>%
+  select("id", "chol", "waist") %>%
+  print()
+
+```
+
+
+## Questions: data transformations
+
+### Q
+Start with the `diabetes` data. Write code to: 
+
+1. Keep only subjects (IDs) for which complete information is available, i.e. no missing data in any of the variables. 
+2. Create a new variable called `group`. The subject's group value should be "diabetes" if the Glycosolated hemoglobin (glyhb) is greater than 7.0 and "healthy" otherwise. 
+
+What is the average total cholesterol (chol) for the "diabetic" subjects?
+
+```{r}
+
+data.diabetes %>%
+  na.omit() %>%
+  mutate(group = ifelse(glyhb > 7, "diabetic", "healthy")) %>%
+  group_by(group) %>%
+  summarize(mean_chol = mean(chol))
+
+```
+
+
+### Q
+Start with the `diabetes` data. Write code to: 
+
+1. Keep only subjects (IDs) for which complete information is available, i.e. no missing data in any of the variables. 
+2. Create a new variable called `group`. The subject's group value should be "diabetes" if the Glycosolated hemoglobin (glyhb) is greater than 7.0 and "healthy" otherwise. 
+
+What is the average total cholesterol (chol) for the "healthy" subjects?
+
+```{r}
+
+data.diabetes %>%
+  na.omit() %>%
+  mutate(group = ifelse(glyhb > 7, "diabetic", "healthy")) %>%
+  group_by(group) %>%
+  summarize(mean_chol = mean(chol))
+
+```
+
+
+## Questions: iterations
+
+### Q
+
+Use the code below to draw 100 values from the normal distribution with mean 0 and standard deviation 10 and store them in a vector `x`. Write a `for loop` that adds a value to the negative elements only. If the negative value is found at the first index, a value of 1 should be added. If it is found on the third place, a value of 3 should be added. If it is found on the fifth place, a value of 5 should be added etc. 
+
+What is the sum of all the elements of **x** after running the loop?
+
+```{r}
+
+set.seed(123)
+x <- rnorm(100, mean = 0, sd = 10)
+x <- round(x, 1)
+print(x)
+
+y <- x
+for (i in 1:length(x)){
+  if (x[i] < 0){
+    y[i] <- y[i] + i
+  }
+}
+
+print(sum(y))
+
+```
+
+
+### Q
+
+Use the code below to draw 100 values from the uniform distribution with min=0 and max=1 stores them in a vector `x`. Write a `for loop` that adds a value to the negative elements only. If the negative value is found at the first index, a value of 0.1 should be added. If it is found on the third place, a value of 0.3 should be added. If it is found on the fitht place, a value of 0.5 should be added etc.  
+
+What is the sum of all the elements of **x** after running the loop?
+
+```{r}
+
+set.seed(123)
+x <- runif(100, min = -1, max = 1)
+x <- round(x, 1)
+print(x)
+
+y <- x
+for (i in 1:length(x)){
+  if (x[i] < 0){
+    y[i] <- y[i] + i/10
+  }
+}
+
+print(sum(y))
+
+```
+
+
+## Questions: function
+
+*maybe add later?*
+
+## Questions: plotting
+
+*add a scatter plot and a box plot?*
+
