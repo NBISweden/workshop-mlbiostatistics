@@ -23,7 +23,7 @@ This quiz tests basic R skills that we rely on during the course. To follow the 
 ## Questions: using help() 
 
 ### Q
-Use help() to find out more about `install.packages()` function. Which of the below is **NOT** an argument of the install.packages()
+Use help() or ?() to find out more about `install.packages()` function. Which of the below is **NOT** an argument of the install.packages()
 
 - pkgs
 - dependencies
@@ -31,12 +31,29 @@ Use help() to find out more about `install.packages()` function. Which of the be
 - method
 
 ### Q
-Use help() to find out more about `read.csv()` function. Which of the below is **NOT** an argument of the `read.csv()`?
+Use help() or ?() to find out more about `read.csv()` function. Which of the below is **NOT** an argument of the `read.csv()`?
 
 - file
 - sep 
-- text
+- fill
 - footer (correct)
+
+### Q
+Use help() or ?() to find out more about `read.csv()` function. Which of the below is **NOT** an argument of the `read.csv()`?
+
+- file
+- sep 
+- fill
+- footer (correct)
+
+### Q
+Use help() or ?() to find out more about `sample()` function. Which of the below is **NOT** an argument of the `read.csv()`?
+
+- n, the number of items to choose from
+- size, a non-negative integer giving the number of items to choose
+- replace, logical data type, TRUE for sampling with replacement
+- useHash, logical data type, TRUE for using hash-version of the algorithm (correct)
+
 
 ## Questions: using R as calculator
 
@@ -50,7 +67,7 @@ log(2) %>%
   round(2)
 ```
 
-### Q
+### Q 
 Use R as calculator to compute (rounded to two decimal places):
 
 $e^2$
@@ -79,59 +96,154 @@ $3.5^9$
   round(2)
 ```
 
-## Questions: vectors I
+## Questions: vectors I (numeric)
 
 ### Q
-Given a vector **x** = [1, 2, 3, 9, 10, 11, 13, 999, -10] what is the sum of all its elements?
+Given a vector **x** = [1, 2, 3, NA, 9, 10, 11, 13, 999, -10, NA] what is the sum of all its elements?
 ```{r}
-x <- c(1, 2, 3, 9, 10, 11, 13, 999, -10)
-sum(x)
+x <- c(1, 2, 3, NA, 9, 10, 11, 13, 999, -10, NA)
+sum(x, na.rm = TRUE)
 ```
 
 ### Q
-Given a vector **x** = [1, 2, 3, 9, 10, 11, 13, 999, -10] what is the average, rounded to two decimal places, of all its elements?
+Given a vector **x** = [1, 2, 3, NA, 9, 10, 11, 13, 999, -10, NA] what is the average, rounded to two decimal places, of all its elements?
 ```{r}
-x <- c(1, 2, 3, 9, 10, 11, 13, 999, -10)
-mean(x) %>%
+x <- c(1, 2, 3, NA, 9, 10, 11, 13, 999, -10, NA)
+mean(x, na.rm = T) %>%
+  round(2)
+```
+
+### Q
+Given a vector **x** = [1.23, 9.99, -1.03, 2.33, NA, NA, 4.0, 0.57] what is the average, rounded to two decimal places, of all its elements?
+```{r}
+x <- c(1.23, 9.99, -1.03, 2.33, NA, NA, 4.0, 0.57)
+mean(x, na.rm = T) %>%
   round(2)
 ```
 
 
-## Questions: vectors II
+## Questions: vectors II (counts)
 
 ### Q 
 
-Run the below two lines of code in R to create a vector **x** containing 100 random values of A, B and NA. How many A values are in the created vector **x**?
+Run the below two lines of code in R to create a vector **x** containing 100 random values of A, B and NA. 
+
+What is the ratio of As to Bs, i.e. number of As divided by number of Bs, rounded to two decimal places?
 
 ```{r}
 set.seed(123)
-x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
-```
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE, prob = c(0.6, 0.3, 0.1))
 
-```{r}
-set.seed(123)
-x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
-sum(x == "A", na.rm = T)
+A <- sum(x == "A", na.rm = T)
+B <- sum(x == "B", na.rm = T)
+print(round(A/B, 2))
+
 ```
 
 ### Q 
 
-Run the below two lines of code in R to create a vector **x** containing 100 values of A, B or NAs. How many B values are in the created vector **x**?
+What is the ratio of Bs to As, i.e. number of Bs divided by number of As, rounded to two decimal places?
 
 ```{r}
 set.seed(123)
-x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE, prob = c(0.6, 0.3, .1))
+
+A <- sum(x == "A", na.rm = T)
+B <- sum(x == "B", na.rm = T)
+print(round(B/A, 2))
+
 ```
+
+### Q 
+
+What is the ratio of missing values, NAs, to non-missing values, i.e. number of NAs divided by number of As and Bs, rounded to two decimal places?
 
 ```{r}
 set.seed(123)
-x <- sample(c("A", "B", NA), size = 100, replace = TRUE)
-sum(x == "B", na.rm = T)
+x <- sample(c("A", "B", NA), size = 100, replace = TRUE, prob = c(0.6, 0.3, 0.1))
+
+AB <- sum(x == "A" | x == "B", na.rm = T)
+n.na <- sum(is.na(x) == TRUE)
+print(round(n.na/AB, 2))
+
 ```
+
 
 ## Questions: matrices
 
-*add creating a matrix? matrix operations?*
+### Q
+Given a matrix 
+$X = 
+\begin{bmatrix}
+1 & 4  \\
+2 & 5  \\
+3 & 6
+\end{bmatrix}$
+
+Calculate $(X^TX)^{-1}$, that is find transpose of a matrix that results from algebraically multiplying transpose of matrix X by matrix X. 
+
+*Hint: start by creating X matrix in R. For taking the inverse, you can use solve() function*
+
+What is the value of the $X_{1,1}$ element, rounded to two decimal places?
+
+```{r}
+
+X <- matrix(data = 1:6, nrow = 3)
+R <- round(solve(t(X)%*%(X)),2)
+print(R[1,1])
+
+```
+
+
+### Q
+
+Given a matrix 
+$X = 
+\begin{bmatrix}
+1 & 4  \\
+2 & 5  \\
+3 & 6
+\end{bmatrix}$
+
+Calculate $(X^TX)^{-1}$, that is find transpose of a matrix that results from multiplying (algebraically) transpose of matrix X by matrix X. 
+
+*Hint: start by creating X matrix in R. For taking the inverse, you can use solve() function*
+
+What is the value of the $X_{1,2}$ element, rounded to two decimal places?
+
+```{r}
+
+X <- matrix(data = 1:6, nrow = 3)
+R <- round(solve(t(X)%*%(X)),2)
+print(R[1,2])
+
+```
+
+### Q
+
+Given a matrix 
+$X = 
+\begin{bmatrix}
+1 & 4  \\
+2 & 5  \\
+3 & 6
+\end{bmatrix}$
+
+Calculate $(X^TX)^{-1}$, that is find transpose of a matrix that results from algebraically multiplying transpose of matrix X by matrix X. 
+
+*Hint: start by creating X matrix in R. For taking the inverse, you can use solve() function*
+
+What is the value of the $X_{2,2}$ element, rounded to two decimal places?
+
+```{r}
+
+X <- matrix(data = 1:6, nrow = 3)
+R <- round(solve(t(X)%*%(X)),2)
+print(R[2,2])
+
+```
+
+
 
 ## Questions: import data
 
@@ -161,6 +273,7 @@ data.diabetes %>%
 
 ```
 
+### Q
 
 Download `diabetes` data from [here](https://uppsala.instructure.com/files/3891026/download?download_frd=1). The data comes from `faraway` package and it was collected as part of a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA. You can read more about the data [https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html](https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html).
 
@@ -179,6 +292,25 @@ data.diabetes %>%
 
 ```
 
+### Q
+
+Download `diabetes` data from [here](https://uppsala.instructure.com/files/3891026/download?download_frd=1). The data comes from `faraway` package and it was collected as part of a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA. You can read more about the data [https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html](https://search.r-project.org/CRAN/refmans/faraway/html/diabetes.html).
+
+How old was the subject with id=16004 at the time of the study? 
+
+```{r}
+#| message: false
+#| warning: false
+
+data.diabetes <- read_csv("data/data-diabetes.csv")
+
+data.diabetes %>%
+  filter(id == "16004") %>%
+  select("id", "chol", "waist", "age") %>%
+  print()
+
+```
+
 
 ## Questions: data transformations
 
@@ -188,7 +320,7 @@ Start with the `diabetes` data. Write code to:
 1. Keep only subjects (IDs) for which complete information is available, i.e. no missing data in any of the variables. 
 2. Create a new variable called `group`. The subject's group value should be "diabetes" if the Glycosolated hemoglobin (glyhb) is greater than 7.0 and "healthy" otherwise. 
 
-What is the average total cholesterol (chol) for the "diabetic" subjects?
+What is the average total cholesterol (chol), rounded to two decimal places, for the "diabetic" subjects?
 
 ```{r}
 
@@ -196,7 +328,9 @@ data.diabetes %>%
   na.omit() %>%
   mutate(group = ifelse(glyhb > 7, "diabetic", "healthy")) %>%
   group_by(group) %>%
-  summarize(mean_chol = mean(chol))
+  summarize(mean_chol = round(mean(chol),2)) %>%
+  data.frame() %>%
+  print()
 
 ```
 
@@ -207,7 +341,7 @@ Start with the `diabetes` data. Write code to:
 1. Keep only subjects (IDs) for which complete information is available, i.e. no missing data in any of the variables. 
 2. Create a new variable called `group`. The subject's group value should be "diabetes" if the Glycosolated hemoglobin (glyhb) is greater than 7.0 and "healthy" otherwise. 
 
-What is the average total cholesterol (chol) for the "healthy" subjects?
+What is the average total cholesterol (chol), rounded to two decimal places, for the "healthy" subjects?
 
 ```{r}
 
@@ -215,9 +349,207 @@ data.diabetes %>%
   na.omit() %>%
   mutate(group = ifelse(glyhb > 7, "diabetic", "healthy")) %>%
   group_by(group) %>%
-  summarize(mean_chol = mean(chol))
+  summarize(mean_chol = round(mean(chol),2)) %>%
+  data.frame() %>%
+  print()
 
 ```
+
+
+### Q
+Start with the `diabetes` data. Write code to: 
+
+1. Keep only subjects (IDs) for which complete information is available, i.e. no missing data in any of the variables. 
+2. Create a new variable called `group_age`. The subject's group value should be "young-adult" if $age \le 35$,  "middle-aged" if $35 > age \le 60$ and "older-adult" otherwise. 
+
+What is the average total cholesterol (chol), rounded to two decimal places, for the "young-adult" subjects?
+
+
+```{r}
+
+data.diabetes %>%
+  na.omit() %>%
+  mutate(group_age = cut(age, c(0, 35, 60, Inf),  c("young-adult", "middle-age", "older-adult"), include.lowest=TRUE)) %>%
+  group_by(group_age) %>% 
+  summarize(mean_chol = round(mean(chol),2)) %>%
+  data.frame() %>%
+  print()
+
+
+```
+
+
+### Q
+Start with the `diabetes` data. Write code to: 
+
+1. Keep only subjects (IDs) for which complete information is available, i.e. no missing data in any of the variables. 
+2. Create a new variable called `group_age`. The subject's group value should be "young-adult" if $age \le 35$,  "middle-aged" if $35 > age \le 60$ and "older-adult" otherwise. 
+
+What is the average total cholesterol (chol), rounded to two decimal places, for the "older-adult" subjects?
+
+
+```{r}
+
+data.diabetes %>%
+  na.omit() %>%
+  mutate(group_age = cut(age, c(0, 35, 60, Inf),  c("young-adult", "middle-age", "older-adult"), include.lowest=TRUE)) %>%
+  group_by(group_age) %>% 
+  summarize(mean_chol = round(mean(chol),2)) %>%
+  data.frame() %>%
+  print()
+
+
+```
+
+
+## Questions: plotting
+
+### Q (histogram)
+Testing: plotting with ggplot()
+
+Start with the `diabetes` data. Write a code, using ggplot(), to make a histogram for age values, separate for female and males. Note, do not remove any missing values and use bins = 15 for geom_histogram(). Which statement is true?
+
+- A shows histogram for "females" and C for "males" (correct)
+- A shows histogram for "males" and C for "females"
+- B shows histogram for "females" and D for "males"
+- B shows histogram for "males" and D for "females"
+
+
+```{r}
+
+nbins <- 15
+
+p1 <- data.diabetes %>%
+  dplyr::filter(gender == "female") %>%
+  ggplot(aes(age)) + 
+  geom_histogram(bins = nbins) 
+
+p2 <- data.diabetes %>%
+  na.omit() %>%
+  dplyr::filter(gender == "female") %>%
+  ggplot(aes(age)) + 
+  geom_histogram(bins = nbins) 
+
+p3 <- data.diabetes %>%
+  dplyr::filter(gender == "male") %>%
+  ggplot(aes(age)) + 
+  geom_histogram(bins = nbins) 
+
+p4 <- data.diabetes %>%
+  na.omit() %>%
+  dplyr::filter(gender == "male") %>%
+  ggplot(aes(age)) + 
+  geom_histogram(bins = nbins) 
+
+
+library(ggpubr)
+ggarrange(p1, p2, p3, p4, labels = c("A", "B", "C", "D"))
+  
+
+```
+
+
+### Q (scatter plot)
+
+Start with the `diabetes` data. Write a code, using ggplot(), to make a scatter plot of age values (on x-axis) vs. chol values (on y-axis), separate for female and males. Note, do not remove any missing values.
+
+Which statement is true?
+
+
+```{r}
+
+
+data.diabetes %>%
+  group_by(gender) %>%
+  summarize(mean = mean(chol, na.rm = T), sd = sd(chol, na.rm = T))
+
+p1 <- data.diabetes %>%
+  dplyr::filter(gender == "male") %>%
+  ggplot(aes(x = age, y = chol)) + 
+  geom_point() 
+
+p2 <- data.diabetes %>%
+  na.omit() %>%
+  dplyr::filter(gender == "male") %>%
+  ggplot(aes(x = age, y = chol)) + 
+  geom_point() 
+
+p3 <- data.diabetes %>%
+  dplyr::filter(gender == "female") %>%
+  ggplot(aes(x = age, y = chol)) + 
+  geom_point() 
+
+p4 <- data.diabetes %>%
+  #na.omit() %>%
+  dplyr::filter(gender == "female") %>%
+  mutate(chol2 = rnorm(234, mean = 207, sd = 45)) %>%
+  ggplot(aes(x = age, y = chol2)) + 
+  geom_point() +
+  ylab("chol")
+
+ggarrange(p1, p2, p3, p4, labels = c("A", "B", "C", "D"))
+
+
+```
+
+
+- A shows scatter plot for "males" and C for "females" (correct)
+- A shows scatter plot for "females" and C for "males"
+- B shows scatter plot for "males" and D for "females"
+- B shows scatter plot for "females" and D for "males"
+
+
+### Q boxplot
+Start with the `diabetes` data. Write a code, using ggplot(), to make a box plot of height values separate for female and males. Note, do not remove any missing values.
+
+Which statement is true?
+
+
+```{r}
+
+
+data.diabetes %>%
+  group_by(gender) %>%
+  summarize(mean = mean(height, na.rm = T), sd = sd(height, na.rm = T)) %>%
+  print()
+
+p1 <- data.diabetes %>%
+  dplyr::filter(gender == "male") %>%
+  ggplot(aes(y = height)) + 
+  geom_boxplot()
+
+p2 <- data.diabetes %>%
+  mutate(height2 = rnorm(403, mean = 69, sd = 3)) %>%
+  dplyr::filter(gender == "male") %>%
+  ggplot(aes(y = height2)) + 
+  geom_boxplot() + 
+  ylab("height")
+
+p3 <- data.diabetes %>%
+  dplyr::filter(gender == "female") %>%
+  ggplot(aes(y = height)) + 
+  geom_boxplot()
+
+p4 <- data.diabetes %>%
+  #na.omit() %>%
+  dplyr::filter(gender == "female") %>%
+  mutate(height2 = rnorm(234, mean = 63, sd = 3)) %>%
+  ggplot(aes(y = height2)) + 
+  geom_boxplot() +
+  ylab("height")
+
+ggarrange(p1, p3, p2, p4, labels = c("A", "B", "C", "D"))
+
+
+```
+
+
+- A shows box plot for "males" and B for "females" (correct)
+- A shows box plot for "females" and B for "males" 
+- A shows box plot for "males" and D for "females" 
+- C shows box plot for "females" and D for "males" 
+
+
 
 
 ## Questions: iterations
@@ -272,11 +604,45 @@ print(sum(y))
 ```
 
 
+### Q
+
+Use the code below to draw 100 values from the uniform distribution with min=0 and max=1 stores them in a vector `x`. 
+
+Write a `for loop` that adds a value to the negative elements and subtracts a value from the positive elements. 
+
+If a negative value is found at the first index, a value of 0.1 should be added. If it is found on the third place, a value of 0.3 should be added. If it is found on the fifth place, a value of 0.5 should be added etc.  
+
+If a positive value is found at the first index, a value of 0.1 should be subtracted. If it is found on the third place, a value of 0.3 should be subtracted. If it is found on the fifth place, a value of 0.5 should be subtracted etc.  
+
+What is the sum of all the elements of **x** after running the loop?
+
+```{r}
+
+set.seed(123)
+x <- runif(100, min = -1, max = 1)
+x <- round(x, 1)
+print(x)
+
+y <- x
+for (i in 1:length(x)){
+  if (x[i] < 0){
+    y[i] <- y[i] + i/10
+  }else if (x[i] > 0){
+    y[i] <- y[i] - i/10
+  }
+
+}
+
+print(sum(y))
+
+```
+
+
+
+
+
+
+
 ## Questions: function
 
 *maybe add later?*
-
-## Questions: plotting
-
-*add a scatter plot and a box plot?*
-
