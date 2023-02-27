@@ -101,7 +101,7 @@ title:  'Schedule'
 
 *14.30 - 15.00 break*
 
-**15:00 - 15.30** [Introduction to supervised learning: classification and regression](session-supervise/docs/index.html) [.presentation](session-supervise-presentation/session-supervise-presentation.html)
+**15:00 - 15.30** [Supervised learning](session-supervise/docs/index.html)
 
 **15.30 - 16.30** [Exercises](session-supervise/docs/intro-exercises.html)
 
@@ -112,7 +112,7 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09.30 - 12.00** [Feature selection & model evaluation](session-regularization/lecture-regularization.html)
+**09.30 - 12.00** [Feature engineering & selection](session-feature-selection/docs/index.html)
 
 *12:00 - 13:00 lunch*
 

@@ -1,0 +1,250 @@
+# Introduction to supervised learning
+
+## What is supervised learning? 
+- When we talked earlier about PCA and clustering, we were interested in finding patterns in the data. We treated data set as a whole, using all the samples, and we did not use samples labels in any way to find the components with the highest variables (PCA) or the number of clusters (k-means).
+- In supervised learning, we are using samples **labels** to build (train) our models. When then use these trained models for interpretation and **prediction**.
+
+
+## Supervised classification
+
+- Classification methods are algorithms used to categorize (classify) objects based on their measurements.
+- They belong under **supervised learning** as we usually start off with **labeled** data, i.e. observations with measurements for which we know the label (class) of.
+- If we have a pair $\{\mathbf{x_i}, g_i\}$ for each observation $i$, with $g_i \in \{1, \dots, G\}$ being the class label, where $G$ is the number of different classes and $\mathbf{x_i}$ a set of exploratory variables, that can be continuous, categorical or a mix of both, then we want to find a **classification rule** $f(.)$ (model) such that $$f(\mathbf{x_i})=g_i$$
+
+## KNN example
+```{r}
+#| label: fig-knn
+#| fig-cap: An example of k-nearest neighbours algorithm with k=3; in the top new observation (blue) is closest to three red triangales and thus classified as a red triangle; in the bottom, a new observation (blue) is closest to 2 black dots and 1 red triangle thus classified as a black dot (majority vote)
+#| fig-width: 8
+#| fig-height: 8
+#| fig-align: center
+#| echo: false
+#| fig-cap-location: margin
+
+
+# Example data
+n1 <- 10
+n2 <- 10
+set.seed(1)
+x <- c(rnorm(n1, mean=0, sd=1), rnorm(n2, mean=0.5, sd=1))
+y <- rnorm(n1+n2, mean=0, sd=1)
+
+group <- rep(1, (n1+n2))
+group[1:n1] <- 0
+idx.1 <- which(group==0)
+idx.2 <- which(group==1)
+
+# new points
+p1 <- c(1.5, 0.5)
+p2 <- c(0, 0.6)
+
+# distance 
+dist.1 <- c()
+dist.2 <- c()
+for (i in 1:length(x))
+{
+  dist.1[i] <- round(sqrt((p1[1]-x[i])^2 + (p1[2]-y[i])^2),2)
+  dist.2[i] <- round(sqrt((p2[1]-x[i])^2 + (p2[2]-y[i])^2),2)
+}
+
+# find nearest friends
+n.idx1 <- order(dist.1)
+n.idx2 <- order(dist.2)
+
+
+par(mfrow=c(2,2), mar=c(2, 2, 2, 2) + 0.1)
+# a) 
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+# b) 
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+# c) 
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+# d)
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+
+## Data splitting
+
+
+### train, validation & test sets
+
+- Part of the issue of fitting complex models to data is that the model can be continually tweaked to adapt as well as possible.
+- As a results the trained model may not be generalizable to future data due to the added complexity that only works for given unique data set, leading to so called overfitting.
+- To deal with overconfident estimation of future performance we randomly split data into training data, validation data and test data.
+- Common split strategies include 50%/25%/25% and 33%/33%/33% splits for training/validation/test respectively
+- **Training data**: this is data used to fit (train) the classification model, i.e. derive the classification rule
+- **Validation data**: this is data used to select which parameters or types of model perform best, i.e. to validate the performance of model parameters
+- **Test data**: this data is used to give an estimate of future prediction performance for the model and parameters chosen
+
+```{r}
+#| label: fig-data-split
+#| fig-cap: Example of splitting data into train (50%), validation (25%) and test (25%) set
+#| fig-cap-location: margin
+#| fig-align: center
+#| echo: false
+#| out-width: 100%
+
+knitr::include_graphics("figures/split.png")
+```
+
+
+### cross validation
+
+- It could happen that despite random splitting in train/validation/test dataset one of the subsets does not represent data. e.g. gets all the difficult observation to classify.
+- Or that we do not have enough data in each subset after performing the split.
+- In **K-fold cross-validation** we split data into $K$ roughly equal-sized parts.
+- We start by setting the validation data to be the first set of data and the training data to be all other sets.
+- We estimate the validation error rate / correct classification rate for the split.
+- We then repeat the process $K-1$ times, each time with a different part of the data set to be the validation data and the remainder being the training data.
+- We finish with $K$ different error of correct classification rates.
+- In this way, every data point has its class membership predicted once.
+- The final reported error rate is usually the average of $K$ error rates.
+
+```{r}
+#| label: fig-data-split-kfold
+#| fig-cap: Example of k-fold cross validaiton split (k = 3)
+#| fig-cap-location: margin
+#| fig-align: center
+#| echo: false
+#| out-width: 100%
+#| 
+knitr::include_graphics("figures/split-kfold.png")
+```
+
+- Leave-one-out cross-validation is a special case of cross-validation where the number of folds equals the number of instances in the data set.
+```{r}
+#| label: fig-data-split-loocv
+#| fig-cap: Example of LOOCV, leave-out-out cross validation
+#| fig-cap-location: margin
+#| fig-align: center
+#| echo: false
+#| out-width: 100%
+
+knitr::include_graphics("figures/split-loocv.png")
+```
+
+
+## Evaluating Classification Model Performance
+- To train the model we need some way of evaluating how well it works so we know how to tune the model parameters, e.g. change the value of $k$ in KNN.
+- There are few measures being used that involve looking at the truth (labels) and comparing it to what was predicted by the model.
+- Common measures include: correct (overall) classification rate, missclassification rate, class specific rates, cross classification tables, sensitivity and specificity and ROC curves.
+
+**Correct (miss)classification rate**
+
+- The simplest way to evaluate in which we count for all the $n$ predictions how many times we got the classification right.
+$$Correct\; Classifcation \; Rate = \frac{\sum_{i=1}^{n}1[f(x_i)=g_i]}{n}$$ 
+where $1[]$ is an indicator function equal to 1 if the statement in the bracket is true and 0 otherwise
+
+Missclassification Rate = 1 - Correct Classification Rate
+
+## Putting it together: k-nearest neighbours
+
+**Algorithm**
+
+- Decide on the value of $k$
+- Calculate the distance between the query-instance (new observation) and all the training samples
+- Sort the distances and determine the nearest neighbors based on the $k$-th minimum distance
+- Gather the categories of the nearest neighbors
+- Use simple majority of the categories of the nearest neighbors as the prediction value of the new observation
+
+_Euclidean distance is a classic distance used with KNN; other distance measures are also used incl. weighted Euclidean distance, Mahalanobis distance, Manhatan distance, maximum distance etc._
+
+**choosing k**
+
+- for problems with 2 classes, choose an odd number of $k$ to avoid ties
+- use validation data to fit the model for a series of $k$ values
+- pick the value of $k$ which results in the best model (as assessed by the method of choice, e.g. overall classification rate)
+
+Let's see how it works in practice on a classical iris dataset containing measurements on petals and sepals as well as species information (setosa, versicolor, virginica)
+
+```{r}
+#| label: knn-code
+#| fig-width: 6
+#| fig-heigth: 4
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+library(class) # library with knn() function
+library(splitTools) # load library for data splitting
+
+# preview iris dataset
+head(iris)
+tail(iris)
+
+# summary statistics
+summary(iris)
+
+# split data into train 50%, validation 25% and test dataset 25%
+# 
+randseed <- 102
+set.seed(randseed)
+inds <- partition(iris$Species, p = c(train = 0.5, valid = 0.25, test = 0.25), seed = randseed)
+str(inds)
+
+data.train <- iris[inds$train, ]
+data.valid <- iris[inds$valid,]
+data.test <- iris[inds$test, ]
+
+dim(data.train)
+dim(data.valid)
+dim(data.test)
+
+summary(data.train$Species)
+summary(data.valid$Species)
+summary(data.test$Species)
+
+# run knn with different values of k from 1, 3, 5 to 51
+k.values <- seq(1, 51, 2)
+class.rate <- rep(0, length(k.values)) # allocate empty vector to collect correct classification rates
+for (k in seq_along(k.values))
+{
+  
+  pred.class <- knn(train = data.train[, -5], 
+                    test = data.valid[, -5], 
+                    cl = data.train[, 5], k.values[k])
+  
+  class.rate[k] <- sum((pred.class==data.valid[,5]))/length(pred.class)
+}
+
+# for which value of k we reach the highest classification rate
+k.best <- k.values[which.max(class.rate)]
+print(k.best)
+
+# plot classification rate as a function of k
+plot(k.values, class.rate, type="l", xlab="k", ylab="class. rate")
+
+# how would our model perform on the future data using the optimal k?
+pred.class <- knn(train = data.train[, -5], data.test[, -5], data.train[,5], k=k.best)
+class.rate <- sum((pred.class==data.test[,5]))/length(pred.class)
+print(class.rate)
+
+```
+
+
+## Going back to regression
+
+- The idea of using data splits to train the model holds for fitting (training) regression models.
+- Earlier, we used the entire data set to fit the model and we used the fitted model for prediction given a new observation.
+- If we were to use regression in supervised learning context, we would use data splits to train and assess the regression model.
+- For instance, given a number of variables of interest, we could try to find the best regression model using train data to fit the model and assess on the validation data; while keeping the test to assess the performance on the final model. Or we could use cross validation (We have seen before how to fit the model and assess the model fit, e.g. with $R^2$.)
+- Other popular regression performance metrics  include **RMSE**, root mean square error $$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y_i})^2}$$
+- and **MAE**, mean absolute error, $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y_i}|$$
+
+
+
+
+
