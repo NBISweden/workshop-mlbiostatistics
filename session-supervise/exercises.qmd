@@ -1,0 +1,234 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Exercises {.unnumbered}
+
+::: {#exr-knn-cross-validation}
+
+## KNN with k-fold cross-validation
+
+Modify the demo example to select best value of $k$ using 5-fold cross validation. Do we get a different value of the best $k$? Does it improve the performance on the test data?
+
+Hint: you can use "create_folds()" function from "library(splitTools)" to create the folds. 
+
+:::
+
+::: {#exr-lm}
+
+## Supervised regression
+
+Let's revisit regression in a context of supervised learning. Using the `diabetets` data set and data splitting find the best model to predict BMI scores. 
+
+Split the data into train (60%), validation (20%) and test (20%). Assess three regression models on the validation set using RMSE. Which model seems to be the best in terms of predicting BMI? What would be the expected performance on the new unseen data?
+ 
+1. Model 1: use `age` as only as predictor
+2. Model 2: use `age`, `hdl` as predictors
+3. Model 3: use `age`, `hdl` and `waist` as predictors
+
+:::
+
+
+## Answers to exercises {.unnumbered}
+
+::: {.solution}
+exr-knn-cross-validation
+:::
+
+```{r}
+#| label: knn-cross-validation
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-heigth: 8
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kknn)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+  
+# select data for KNN
+data_input <- data_diabetes %>%
+  select(obese, waist, hdl) %>%
+  na.omit()
+
+# set random seed
+randseed <- 123
+set.seed(randseed)
+
+# split data into other (non-test) and test
+splits <- partition(data_input$obese, p = c(other = 0.80, test = 0.20))
+data_test <- data_input[splits$test, ]
+data_other <- data_input[splits$other, ]
+
+# create train and validation folds
+kfolds_train <- create_folds(data_other$obese, k = 5, seed = randseed)
+kfolds_valid <- create_folds(data_other$obese, k = 5, 
+                             invert = TRUE, # gives back indices of the validation samples
+                             seed = randseed) # OBS! use the same seed as above in kfolds_train()
+
+
+# prepare parameters search space
+n <- nrow(data_other)
+k_values <- seq(1, 100, 2) # check every odd value of k between 1 and 50
+
+# allocate empty matrix to collect overall classification rate for each k and 5-folds
+folds <- 5
+cls_rate <- matrix(data = NA, ncol = folds, nrow = length(k_values))
+colnames(cls_rate) <- paste("kfold", 1:folds, sep="")
+rownames(cls_rate) <- paste("k", k_values, sep="")
+
+for (k in seq_along(k_values))
+{
+  # for every value of k 
+  # fit model on every train fold and evaluate on every validation fold
+  for (f in 1:folds){
+    
+    data_train <- data_other[kfolds_train[[f]], ]
+    data_valid <- data_other[kfolds_valid[[f]], ]
+    
+    # fit model given k value
+    model <- kknn(obese ~., data_train, data_valid, 
+                k = k_values[k], 
+                kernel = "rectangular")
+    
+    # extract predicted class (predicted obesity status)
+    cls_pred <- model$fitted.values
+  
+    # define actual class (actual obesity status)
+    cls_true <- data_valid$obese
+  
+    # calculate overall classification rate
+    cls_rate[k, f] <- sum((cls_pred == cls_true))/length(cls_pred)
+    
+  }
+  
+}
+
+# plot average classification rate (across folds) as a function of k
+cls_rate_avg <- apply(cls_rate, 1, mean)
+plot(k_values, cls_rate_avg, type="l", xlab="k", ylab="cls rate (avg)")
+
+# For which value of k do we reach the highest classification rate?
+k_best <- k_values[which.max(cls_rate_avg)]
+print(k_best)
+
+# How would our model perform on the future data using the optimal k?
+model_final <- kknn(obese ~., data_other, data_test, k=k_best, kernel = "rectangular")
+cls_pred <- model_final$fitted.values
+cls_true <- data_test$obese
+
+cls_rate <- sum((cls_pred == cls_true))/length(cls_pred)
+print(cls_rate)
+
+```
+
+
+::: {.solution}
+@exr-lm
+:::
+
+```{r}
+#| label: supervised-regression
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-heigth: 8
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+# input and clean data
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kknn)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+
+# select relevant data and remove missing data
+data_input <- 
+  data_diabetes %>%
+  select(BMI, age, hdl, waist) %>%
+  na.omit()
+glimpse(data_input)
+
+# define calculate_rmse() function
+calculate_rmse <- function(y_true, y_pred){
+  rmse = sqrt(mean((y_true - y_pred)^2))
+}
+
+# split into train, validation and test: stratify by BMI
+randseed <- 123
+inds <- partition(data_input$BMI, 
+                  p = c(train = 0.6, valid = 0.2, test = 0.2),
+                  seed = randseed)
+
+data_train <- data_input[inds$train, ]
+data_valid <- data_input[inds$valid,]
+data_test <- data_input[inds$test, ]
+
+# Model 1
+m1 <- lm(BMI ~ age, data = data_train) # fit model on train
+pred_bmi_1 <- predict(m1, newdata = data_valid) # predict BMI using validation set
+m1_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_1) # calculate RMSE
+
+# Model 2
+m2 <- lm(BMI ~ age + hdl, data = data_train) 
+pred_bmi_2 <- predict(m2, newdata = data_valid) 
+m2_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_2) 
+
+# Model 3
+m3 <- lm(BMI ~ age + hdl + waist, data = data_train) 
+pred_bmi_3 <- predict(m3, newdata = data_valid) 
+m3_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_3) 
+
+# Compare models
+rmse <- data.frame(model = c("Model 1", "Model 2", "Model 3"), rmse = c(m1_rmse, m2_rmse, m3_rmse))
+print(rmse)
+
+# Out of the three models, Model 3, has the smallest RMSE and is thus selected as best
+
+# Expected performance on the test data
+pred_bmi_final <- predict(m3, newdata = data_test)
+rmse_final <- calculate_rmse(data_test$BMI, pred_bmi_final)
+print(rmse_final)
+
+```
+

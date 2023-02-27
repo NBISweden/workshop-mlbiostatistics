@@ -1,0 +1,198 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Demo: KNN model for classification
+
+Let's try to build a classifier to predict obesity (Obese vs Non-obese) given our diabetes data set. To start simple:
+
+- we will see how well we can predict obesity given `waist` and `hdl` variables
+- we will use data splitting into train, validation and test, i.e. not cross-validation with th help of `splitTools()` library
+- we will use KNN algorithm as implemented in `kknn()` function in `library(kknn)`
+
+
+Reading in data
+```{r}
+#| label: knn-read-data
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-height: 8
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kknn)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+  
+# select data for KNN
+data_input <- data_diabetes %>%
+  select(obese, waist, hdl) %>%
+  na.omit()
+
+# How many obese and non-obese in our data set?
+data_input %>%
+  count(obese)
+
+# preview data
+glimpse(data_input)
+
+data_input %>%
+  ggplot(aes(x = waist, y = hdl, fill = obese)) + 
+  geom_point(shape=21, alpha = 0.7, size = 2) + 
+  theme_bw() + 
+  scale_fill_manual(values = c("blue3", "brown1")) + 
+  theme(legend.position = "top")
+
+```
+
+Splitting data
+```{r}
+#| label: knn-data-split
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-height: 8
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+# split data into train (40%), validation (40%) and test (20%)
+# stratify by obese
+randseed <- 123
+set.seed(randseed)
+inds <- partition(data_input$obese, p = c(train = 0.4, valid = 0.4, test = 0.2), seed = randseed)
+str(inds)
+data_train <- data_input[inds$train, ]
+data_valid <- data_input[inds$valid,]
+data_test <- data_input[inds$test, ]
+
+# check dimensions of data
+data_train %>% dim()
+data_valid %>% dim()
+data_test %>% dim()
+
+# check distribution of obese and non-obese
+data_train %>%
+  group_by(obese) %>%
+  count()
+
+data_valid %>%
+  group_by(obese) %>%
+  count()
+
+data_test %>%
+  group_by(obese) %>%
+  count()
+
+```
+
+Training KNN
+```{r}
+#| label: knn-train
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-height: 8
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+# prepare parameters search space
+n <- nrow(data_train)
+k_values <- seq(1, n-1, 2) # check every odd value of k between 1 and number of samples-1
+
+# allocate empty vector to collect overall classification rate for each k
+cls_rate <- rep(0, length(k_values)) 
+
+for (k in seq_along(k_values))
+{
+  
+  # fit model given k value
+  model <- kknn(obese ~., data_train, data_valid, 
+                k = k_values[k], 
+                kernel = "rectangular")
+  
+  # extract predicted class (predicted obesity status)
+  cls_pred <- model$fitted.values
+  
+  # define actual class (actual obesity status)
+  cls_true <- data_valid$obese
+  
+  # calculate overall classification rate
+  cls_rate[k] <- sum((cls_pred == cls_true))/length(cls_pred)
+  
+}
+
+```
+
+Selecting best $k$
+```{r}
+#| label: knn-best-parameters
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-height: 6
+#| fig-align: center
+#| fig-cap: "Overall classification rate as a function of k"
+#| fig-cap-location: margin
+#| code-fold: false
+#| collapse: true
+
+# plot classification rate as a function of k
+plot(k_values, cls_rate, type="l", xlab="k", ylab="cls rate")
+# For which value of k do we reach the highest classification rate?
+k_best <- k_values[which.max(cls_rate)]
+print(k_best)
+
+```
+
+Final model and performance on future unseen data (test data)
+```{r}
+#| label: knn-final-model
+#| warning: false
+#| message: false
+#| fig-width: 7
+#| fig-height: 8
+#| fig-align: center
+#| code-fold: false
+#| collapse: true
+
+# How would our model perform on the future data using the optimal k?
+model_final <- kknn(obese ~., data_train, data_test, k=k_best, kernel = "rectangular")
+cls_pred <- model_final$fitted.values
+cls_true <- data_test$obese
+
+cls_rate <- sum((cls_pred == cls_true))/length(cls_pred)
+print(cls_rate)
+
+```
+
+
+
+
+
+
+
