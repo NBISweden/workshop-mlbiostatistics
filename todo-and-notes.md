@@ -3,9 +3,12 @@ layout: default
 title:  'To Do'
 ---
 
+# Notes
+
 ## Notes from 2022-09
 
 **Overall**
+
 - Make it less to be more!
 - Next course: a year is too much of a gap
 - Provide skeleton files for exercises: quatro
@@ -14,8 +17,8 @@ title:  'To Do'
 - Discuss how to have things rendered together on Github
 - Add "beyond" text to every chapter e.g. linear mixed effect models, PCA -> ICC, t-SNE etc.
 
-
 **Pre-course: Mathematical foundations**
+
 - go through course content and adjust so there is a better match
 - make a better quiz for people to practice
 - write down solution to exercises on Canvas (open at the course start)
@@ -23,14 +26,17 @@ title:  'To Do'
 - fix typos as per Jonas's emails
 
 **Pre-course: R skills**
+
 - move instructions and have examples of .qmd
 - go through course content and list what skills are needed
 - design some exercises to practice these skills and a test so they can judge; maybe already introduce a biological data that are to be analysed during the course
 
 **Welcome slides**
- - Add vision for the course to welcome slides and course announcements
+
+- Add vision for the course to welcome slides and course announcements
 
 **Descriptive stats**
+
 - Potential group discussion points:
   - a) think of robot measure of spread: MAD
   - b) mean vs.  median -> transformations
@@ -45,6 +51,7 @@ title:  'To Do'
 - Prepare a more complex example .qmd file with EDA (and show it during the presentation)?
 
 **Probability & Inference**
+
 - Stop at the experimental design? Exclude sample proportion?
 - Brainstorm  how to to make this part more likeable
 - Doing it together somehow? Shall I do the intro? And/or intermittent check-ups?
@@ -52,6 +59,7 @@ title:  'To Do'
 - Do we want to keep non-parametric methods separate?
 
 **Non-parametric tests**
+
 - Add paired t-test to chapter
 - Use sign test, Wilxocon sign test in non-parametric methods
 - Use the same example across: resampling, parametric and non-parametric methods
@@ -64,8 +72,8 @@ title:  'To Do'
 - Visualisation of Kendal tau? (next round)
 - Tie the session better to Eva’s, follow the same notations? Do a mini revision
 
-
 **Linear models**
+
 - add equation of the straight line to pre-course math
 - better examples to show that linear models can be quite complex
 - better examples for coefficients, change units into metric, show interactions
@@ -75,51 +83,57 @@ title:  'To Do'
 - fix typos as per Jonas's email
 
 **PCA**
+
 - Maybe add covariance matrix already in the precourse
 - Talk correlation and covariance before, maybe in linear models
 - Make it easier to understand eigenvectors and eigenvalues  
 
 **Clustering**
+
 - Better questions and examples for the quiz
 - What are the teaching goals here?
 
 **Introduction to supervised learning**
+
 - Link to scikit-learn main website of main machine learning application and highlight where all these methods fall so it does not feel that biostats and ML are two different words and we focus only last two days on ML
 - Highlight that regression, logistic regression, GLM, feature selection are all part of it
 - Have an overview slide when talking about supervised learning
 - Doing coding demo is important, maybe should win with doing KNN on the whiteboard
 
-
 **Daily quizzes**
+
 - check questions and answers but in principle redesign them to reiterate the message of the day
 - maybe even have more questions to practice, pool of questions?
 - prepare .pdfs with solutions
 
 **Wrap-up slides**
+
 - make some pointing to what's beyond a little bit better
 - for each chapter: point to other methods and explain
 
 **Generic**
+
 - briefly what’s the difference (extension etc.), e.g linear mixed effect models, PCA -> ICC, t-SNE etc.
 
 **Potentially useful**
 A framework for feature selection in clustering
 Daniela M. Witten and Robert Tibshirani
 
-
 -----
-
 
 ### From 2021-10
 
 Probability
+
 - Check notations
 - Add contingency table next to hypergeometric distribution
 
 Statistical inference:
+
 - add more tests like ANOVA and non-parametric
 
 Linear models:
+
 - Better examples to show that linear models can be quite complex, non-linear in relationships (now only having equations)
 - Better example to introduce interaction terms than “height, weight, gender”
 - Better examples of violation of model assumptions
@@ -131,8 +145,8 @@ Linear models:
 - add multi-categorical logistic regression example (extra reading)
 - add mixed effect models example (extra reading)
 
-
 Generic comments:
+
 - If online make sure we check active participation
 - Daily quizzes: check questions and answers; prepare pdf. with solutions
 - Course-wrap up sessions: what’s beyond i.e. different methods  
@@ -143,12 +157,13 @@ Generic comments:
 - prepare list of R packages to install up front
 
 ## Future best set-up
+
 - Online pre-course session
 - Physical course
 - Online follow-up
 
-
 ## Take with to Uppsala
+
 - computer charger that fits into sockets
 - backup conference camera from G7 (if run online, book camera ahead)
 - Bose microphone/speaker
@@ -156,6 +171,7 @@ Generic comments:
 - camera
 
 ## Running things on Zoom
+
 - room camera for exercises
 - spotlight on host for live streaming
 - find a good annotation tool
