@@ -9,7 +9,6 @@
 - prepare and open course application [e.g. via google forms]
 - prepare .doc for SciLifeLab announcement and email education@scilifelab.uu.se
 - prepare and test Zulip / Slack channel (if online)
-- add students to Canvas (Jessica Lindberg / Jenny Augustsson)
 - prepare feedback survey
 - arrange internet access (guest accounts)
 - door sign
@@ -21,6 +20,7 @@
   - ask students to verify spots (and dietary requirements), if spots left email people on the waiting lists
   - add a note about COVID-19
 - finalise and email out pre-course information (e.g. R and R-Studio installations, internet access)  
+- add students to Canvas (Jessica Lindberg)
 - send Jessica Lindberg students with inovices, for invoices and to be added to Canvas
 
 ## finalise bookings and admin
