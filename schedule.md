@@ -7,7 +7,7 @@ title:  'Schedule'
 
 <br/>
 
-[Precourse: mathematical foundations](session-precourse-math/docs/index.html)
+[Pre-course: mathematical foundations](session-precourse-math/docs/index.html)
 
 <br/>
 ##### Monday
