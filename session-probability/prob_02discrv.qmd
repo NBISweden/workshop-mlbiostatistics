@@ -26,80 +26,104 @@ The probability that the random variable, $X$, takes the value $x$ is denoted $P
 
 ::: {#exm-rolldice}
 # The number of dots on a dice
-  
-When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the die is fair. The outcome of one dice roll can be described by a random variable $X$. The probability of a particular outcome $x$ is denoted $P(X=x)$ or $p(x)$. 
+
+When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the die is fair. The outcome of one dice roll can be described by a random variable $X$. The probability of a particular outcome $x$ is denoted $P(X=x)$ or $p(x)$.
 
 The probability mass function of a fair six-sided die can be summarized in a table;
 
-```{r pmfdie}
-kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
+```{r}
+#| label: tbl-pmfdie
+#| tbl-cap: "Probability mass function of a fair six-sided dice."
+kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
 ```
 
 or in a barplot;
 
-```{r dice, fig.height=3, fig.width=7, fig.cap="Probability mass function of a fair dice.", out.width="45%", fig.align='center'}
-plot(data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)) + scale_x_continuous(breaks = 1:6))
+```{r fig-dicepmf, fig.height=3, fig.width=7, fig.cap="Probability mass function of a fair six-sided dice.", out.width="45%", fig.align='center'}
+data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)) + scale_x_continuous(breaks = 1:6) + ylab("p(x)")
 ```
 :::
 
 ::: {#exm-nuclsite}
 # Nucleotide in a given site
-  
+
 The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike the sides on a die the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, $X$. The probability mass function can be summarized in a table or a bar plot.
 
-```{r nucl, fig.height=3, fig.width=7, fig.cap="Probability mass function of a nucleotide site.", out.width="45%", fig.align='center'}
+```{r}
+#| layout-ncol: 2
+#| layout-valign: bottom
+#| fig.height: 3
+#| fig.width: 7
 p <- c(A=0.4, C=0.2, T=0.1, G=0.3)
 kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
+#```
+#
+#```{r fig-nucl, , fig.cap="Probability mass function of a nucleotide site.", out.width="45%", fig.align='center'}
 data.frame(p) %>% rownames_to_column("x") %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw()
 ```
 :::
 
-::: {#exm-smoke}
-# The smoking status of a random mother
+<!-- ::: {#exm-smoke} -->
 
-The random variable has two possible outcomes; non-smoker (0) and smoker (1). The probability of a random mother being a smoker is 0.39.
+<!-- # The smoking status of a random mother -->
 
-```{r pmfsmoker}
-kable(matrix(c("0","0.61","1","0.39"),ncol=2, dimnames=list(c('x','p(x)'), c('non-smoker','smoker')))) %>% kable_styling(full_width = FALSE)
-```
-:::
+<!-- The random variable has two possible outcomes; non-smoker (0) and smoker (1). The probability of a random mother being a smoker is 0.39. -->
+
+<!-- ```{r pmfsmoker} -->
+
+<!-- kable(matrix(c("0","0.61","1","0.39"),ncol=2, dimnames=list(c('x','p(x)'), c('non-smoker','smoker')))) %>% kable_styling(full_width = FALSE) -->
+
+<!-- ``` -->
+
+<!-- ::: -->
 
 ::: {#exm-bacteria}
 # CFU
 
-The number of bacterial colony forming units (CFU) on a plate is a random number.
+The number of bacterial colony forming units (CFU) on a plate is a random number that can be described by a pmf such as in @fig-CFU.
 
-```{r CFU, fig.cap="Probability mass distribution of the number of bacterial colonies on an agar plate.", fig.height=3, fig.width=7}
+```{r fig-CFU, fig.cap="Probability mass distribution of the number of bacterial colonies on an agar plate.", fig.height=3, fig.width=7}
 x=1:50
 ggplot(data.frame(x=x, fx=dpois(x, lambda=25)), aes(x,fx)) + geom_bar(stat="identity") + theme_bw() + ylab("p(x)")
 ```
 :::
 
-
 The probability mass function can be used to compute the probability of an event, such as the events
 
 -   *get an even number when rolling a die* - sum up the probabiliy for 2, 4, and 6, p(even)=p(2)+p(4)+p(6)=0.5
--   *less than 15 bacterial colonies on the agar plate* - sum upp the probabilities \$P(X\<15) = \sum\_{k=0}\^{14} p(k) = \$ `r ppois(14, 25)`.
+
+-   *less than 15 CFUs on an agar plate* - sum upp the probabilities $P(X<15) = \sum_{k=0}^{14} p(k) = `r ppois(14, 25)`$
 
 The **cumulative distribution function (CDF)** is defined for numeric discrete random variables as $F(x) = P(X<=x)$. <!-- For common distributions there are functions in R for computing CDFs (we will get back to this). -->
 
 ## Expected value and variance
 
-For a numeric discrete random variable, the **expected value** of the random variable can be computed, when the probability mass function is know. The expected value is the mean of a random variable and is denoted $E[X]$ or $\mu$ and can be computed by summing up all possible outcome values weighted by their probability;
+Two common properties of a probability distrubution, such as a probability mass function, are the **expected value** and the **variance**.
 
-$$E[X] = \mu = \sum_{i=1}^N x_i p(x_i)$$ For a **uniform distribution**, where every outcome has the same probability (in the urn model, every outcome is represented by one ball), the expected value can be computed as the sum of all outcome values divided by the total number of outcome values;
+<!-- For a numeric discrete random variable, the **expected value** of the random variable can be computed, when the probability mass function is know.  -->
 
-$$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i$$ \### Linear transformations and combinations
+The **expected value** is the average outcome of a random variable over many trials and is denoted $E[X]$ or $\mu$ and can be computed by summing up all possible outcome values weighted by their probability;
+
+$$E[X] = \mu = \sum_{i=1}^n x_i p(x_i),$$ where $n$ is the number of outcomes.
+
+For a **uniform distribution**, where every outcome has the same probability , the expected value can be computed as the sum of all outcome values divided by the total number of outcome values.
+
+The expected value can also be computed as the population mean, i.e. by summing over outcome value for every object in the population (this is of course only possible if the population is countable);
+
+$$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i,$$ where $N$ is the number of objects in the population.
+
+The **variance** is a measure of spread defined as the expected value of the squared difference of the random variable and its expected value;
+
+$$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i).$$ 
+The **standard deviation** is the square root of the **variance**. The standard deviation of a random variable is usually denoted $\sigma. The standard deviation is always positive and on the same scale as the outcome values.
+
+### Linear transformations and combinations
 
 $$E(aX) = a E(X)$$
 
 $$E(X + Y) = E(X) + E(Y)$$
 
 $$E[aX + bY] = aE[X] + bE[Y],$$ where $a$ and $b$ are constants.
-
-The **variance** is a measure of spread and the variance of a random variable is defined as the expected value of the squared difference of the random variable and its mean. The
-
-$$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i)$$ \### Linear transformations and combinations
 
 $$var(aX) = a^2 var(X)$$
 
@@ -109,7 +133,7 @@ $$var(aX + bY) = a^2var(X) + b^2var(Y)$$
 
 ## Simulate distributions
 
-Once the distribution is known, we can compute probabilities, such as $P(X=x), P(X<x)$ and $P(X \geq x)$. If the distribution is not known, simulation might be the solution.
+Once a random variables probability distribution is known, probabilities, such as $P(X=x), P(X<x)$ and $P(X \geq x)$, and properties, such as expected value and variance, of the random variable can be computed. If the distribution is not known, simulation might be the solution.
 
 ::: {#exm-cointoss}
 # Simulate coin toss
@@ -185,7 +209,6 @@ sum(Nheads >= 15)
 From this we conclude that
 
 $P(X \geq 15) =$ `r sum(Nheads>=15)`/`r length(Nheads)` = `r sum(Nheads>=15)/length(Nheads)`
-
 :::
 
 Resampling can also be used to compute other properties of a random variable, such as the expected variable.
