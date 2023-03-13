@@ -6,9 +6,9 @@ editor_options:
 
 # Introduction
 
--   Quite often we are not only interested in building the best predictive model but we would also like to know which features are the key ones, e.g. which genes measurements allow us to tell healthy and tumor tissues apart.
+-   Quite often we are not only interested in building the best predictive model but we would also like to know which features are the key ones, e.g. which gene measurements allow us to tell healthy and tumor tissues apart.
 -   We have already seen some examples of feature selection when we talked about regression (e.g. forward selection) but these may not be best in the context of omics data, where typically number of features exceeds the number of samples the features are measures for ($p \gg n$).
--   Additionally, features selection often goes hand in hand with the feature engineering part of the supervised learning.
+-   Additionally, feature selection often goes hand in hand with the feature engineering part of the supervised learning.
 -   Let's explain briefly what is feature engineering is, define main groups of feature selection and dive into regularized regression, one of the embedded methods of feature selection. Finally, we will put everything together into a more realistic predictive modeling case study using `tidymodels` framework.
 
 ## Feature engineering
@@ -45,7 +45,7 @@ data_diabetes <- input_diabetes %>%
 
 Feature engineering refers to techniques in machine learning that are used to prepare data for modeling and in turn improve the performance of machine learning models. Depending on the data, question of interest and modeling strategy such as chosen algorithm, these techniques may include:
 
--   **scaling** of numerical features, e.g. scaling to 0 and 1 scale to prevent features with larger scales dominating the model. By default we used scaling with `kknn()` function as it is based on calculating Euclidean distance.
+-   **scaling** of numerical features, e.g. scaling to mean 0 and standard deviation 1 scale to prevent features with larger scales dominating the model. By default we used scaling with `kknn()` function as it is based on calculating Euclidean distance.
 -   **normalization** and/or **transformations**
 -   representing categorical variables with **dummy variables** or **one-hot encoding** to create numerical features. For instance a categorical variable `obese` with three possible vales (underweight, healthy, overweight) can be transformed into two binary variables: "is_healthy", and "is_overweight", where the value of each variable is 1 if the observation belongs to that category and 0 otherwise. Only $k-1$ binary variables to encode $k$ categories. In one-hot encoding $k$ binary variables are created.
 
@@ -73,7 +73,7 @@ data_dummy %>%
 
 ```
 
--   **handing missing data** via imputations (mean, median, KNN-based) or deleting strategies such as list-wise deletion (complete-case analysis) or pair-wise deletion (available-case analysis)
+-   **handling missing data** via imputations (mean, median, KNN-based) or deleting strategies such as list-wise deletion (complete-case analysis) or pair-wise deletion (available-case analysis)
 - **handling imbalanced data** e.g. via down-sampling and up-sampling strategies or generating synthetic instances e.g. with SMOTE [@fernandez2018smote] or ADASYN [@4633969]
 ```{r}
 #| label: imbalanced-data
@@ -123,9 +123,9 @@ Feature selection is the process of selecting the most relevant and informative 
 
 Regularized regression expands on the regression by adding a penalty term or terms to shrink the model coefficients of less important features towards zero. This can help to prevent overfitting and improve the accuracy of the predictive model. Depending on the penalty added, we talk about **Ridge**, **Lasso** or **Elastic Nets** regression.
 
-Previously when talking about regression, we saw that the least squares fitting procedure estimates model coefficients $\beta_0, \beta_1, \cdots, \beta_p$ using the values that minimize the residual sum of squares: $$RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{i=1}^{p}\beta_jx_{ij} \right)^2$$ {#eq-lm}
+Previously when talking about regression, we saw that the least squares fitting procedure estimates model coefficients $\beta_0, \beta_1, \cdots, \beta_p$ using the values that minimize the residual sum of squares: $$RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2$$ {#eq-lm}
 
-In **regularized regression** the coefficients are estimated by minimizing slightly different quantity. In **Ridge regression** we estimate $\hat\beta^{L}$ that minimizes $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{i=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge}
+In **regularized regression** the coefficients are estimated by minimizing slightly different quantity. In **Ridge regression** we estimate $\hat\beta^{L}$ that minimizes $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge}
 
 where:
 
@@ -215,7 +215,7 @@ data_plot %>%
 
 ## Bias-variance trade-off
 
-Ridge regression's advantages over least squares estimates stems from **bias-variance trade-off**, another fundamental concept in machine learning that.
+Ridge regression's advantages over least squares estimates stems from **bias-variance trade-off**, another fundamental concept in machine learning.
 
 -   The bias-variance trade-off describes the relationship between model complexity, prediction accuracy, and the ability of the model to generalize to new data.
 -   **Bias** refers to the error that is introduced by approximating a real-life problem with a simplified model. A high bias model is one that makes overly simplistic assumptions about the underlying data, resulting in *under-fitting* and poor accuracy.
@@ -223,11 +223,11 @@ Ridge regression's advantages over least squares estimates stems from **bias-var
 -   The goal of machine learning is to find a model with **the right balance between bias and variance**, which can generalize well to new data.
 -   The bias-variance trade-off can be visualized in terms of MSE, means squared error of the model. The **MSE** can be decomposed into: $$MSE(\hat\beta) := bias^2(\hat\beta) + Var(\hat\beta) + noise$$
 -   The irreducible error is the inherent noise in the data that cannot be reduced by any model, while the bias and variance terms can be reduced by choosing an appropriate model complexity. The trade-off lies in finding the right balance between bias and variance that minimizes the total MSE.
--   In practice, this trade-off can be addressed by **regularizing the model**, selecting an appropriate model complexity, or by using ensemble methods that combine multiple models to reduce the variance (e.g. Random Forest). Ultimately, the goal is to find a model that is both accurate and generalization.
+-   In practice, this trade-off can be addressed by **regularizing the model**, selecting an appropriate model complexity, or by using ensemble methods that combine multiple models to reduce the variance (e.g. Random Forest). Ultimately, the goal is to find a model that is both accurate and generalizing.
 
 ```{r}
 #| label: fig-bias-variance
-#| fig-cap: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. all, A Introduction to statistical learning
+#| fig-cap: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning
 #| fig-cap-location: margin
 #| fig-align: center
 #| echo: false
@@ -238,9 +238,9 @@ knitr::include_graphics("figures/bias-variance.png")
 
 ## Ridge, Lasso and Elastic Nets
 
-In **Ridge** regression we minimize: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{i=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge2} where $\lambda \sum_{j=1}^{p}\beta_j^2$ is also known as **L2** regularization element or $l_2$ penalty
+In **Ridge** regression we minimize: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge2} where $\lambda \sum_{j=1}^{p}\beta_j^2$ is also known as **L2** regularization element or $l_2$ penalty
 
-In **Lasso** regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{i=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j|$$ {#eq-lasso} where $\lambda \sum_{j=1}^{p}|\beta_j|$ is also known as *L1* regularization element or $l_1$ penalty
+In **Lasso** regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j|$$ {#eq-lasso} where $\lambda \sum_{j=1}^{p}|\beta_j|$ is also known as **L1** regularization element or $l_1$ penalty
 
 Lasso regression was introduced to help model interpretation. With Ridge regression we improve model performance but unless $\lambda = \infty$ all beta coefficients are non-zero, hence all variables remain in the model. By using $l_1$ penalty we can force some of the coefficients estimates to be exactly equal to 0, hence perform **variable selection**
 
@@ -284,7 +284,7 @@ data_plot %>%
 
 ```
 
-**Elastic Net** use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{i=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 $$ {#eq-elastic-net}
+**Elastic Net** use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 $$ {#eq-elastic-net}
 
 In the `glmnet` library we can fit Elastic Net by setting parameters $\alpha$. Actually, under the hood `glmnet` minimizes a cost function: $$\sum_{i_=1}^{n}(y_i-\hat y_i)^2 + \lambda \left ( (1-\alpha) \sum_{j=1}^{p}\beta_j^2 + \alpha \sum_{j=1}^{p}|\beta_j|\right )$$ where:
 

@@ -69,7 +69,7 @@ And we will leave feature engineering and feature selection for the next session
 
 ```{r knn-example}
 #| label: fig-knn
-#| fig-cap: An example of k-nearest neighbours algorithm with k=3; A) in the top a new sample (blue) is closest to three red triangales samples based on its gene A and gene B measurments and thus is classified as a red (B); in the bottom (C), a new sample (blue) is closest to 2 black dots and 1 red triangle based on its gene A and B measurments and is thus classified by majority vote as a black dot (D).
+#| fig-cap: An example of k-nearest neighbours algorithm with k=3; A) in the top a new sample (blue) is closest to three red triangle samples based on its gene A and gene B measurments and thus is classified as a red (B); in the bottom (C), a new sample (blue) is closest to 2 black dots and 1 red triangle based on its gene A and B measurments and is thus classified by majority vote as a black dot (D).
 #| fig-width: 8
 #| fig-height: 8
 #| fig-align: center
@@ -146,7 +146,7 @@ points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
 ## Data splitting
 
 -   Part of the issue of fitting complex models to data is that the model can be continually tweaked to adapt as well as possible.
--   As a results the trained model may not generalize well on future data due to the added complexity that only works for a given unique data set, leading to **overfitting**.
+-   As a result the trained model may not generalize well on future data due to the added complexity that only works for a given unique data set, leading to **overfitting**.
 -   To deal with overconfident estimation of future performance we can implement various data splitting strategies.
 
 ### train, validation & test sets {.unnumbered}
@@ -175,7 +175,7 @@ knitr::include_graphics("figures/data-split.png")
 -   We start by setting the validation data to be the first set of data and the training data to be all other sets.
 -   We estimate the validation error rate / correct classification rate for the split.
 -   We then repeat the process $k-1$ times, each time with a different part of the data set to be the validation data and the remainder being the training data.
--   We finish with $k$ different error of correct classification rates.
+-   We finish with $k$ different error or correct classification rates.
 -   In this way, every data point has its class membership predicted once.
 -   The final reported error rate is usually the average of $k$ error rates.
 
@@ -188,6 +188,7 @@ knitr::include_graphics("figures/data-split.png")
 #| out-width: 100%
 #| 
 knitr::include_graphics("figures/data-split-kfolds.png")
+##Eva: k=1,2,3 look identical. Can the splits be indicated somehow, circle the validation fold or something similar? I see 20 different objects, so I would expect 6 or 7 objects in each validation set. Use 'validation set' and 'training set' instead of 'validation fold' etc.
 ```
 
 ### repeated cross validation {.unnumbered}
@@ -211,7 +212,7 @@ knitr::include_graphics("figures/data-split-loocv.png")
 ## Evaluating classification
 
 -   To train the model we need some way of evaluating how well it works so we know how to tune the model parameters, e.g. change the value of $k$ in KNN.
--   There are few measures being used that involve looking at the truth (labels) and comparing it to what was predicted by the model.
+-   There are a few measures being used that involve looking at the truth (labels) and comparing it to what was predicted by the model.
 -   Common measures include: correct (overall) classification rate, missclassification rate, class specific rates, cross classification tables, sensitivity and specificity and ROC curves.
 
 **Correct (miss)classification rate**
@@ -245,15 +246,21 @@ Based on the confusion matrix, we can derive common performance metrics of a bin
 - **ROC AUC**: the receiver operating characteristic (ROC) curve is a graphical representation of the trade off between sensitivity and specificity for different threshold values. The area under the ROC curve (AUC) is a performance metric that ranges from 0 to 1, with a higher value indicating better performance. AUC is a measure of how well the classifier is able to distinguish between positive and negative samples.
 
 ## Evaluating regression
-The idea of using data splits to train the model holds for fitting regression models. We can use data splits to train and assess regression models. For instance thinking back about the regression examples we have seen in previous section, we could try to find the best regression model to predict BMI given all other variables in the diabetes data set such as age, waist or cholesterol measurements. In the next section we will also learn about regularized regression where a penalty term is added to improve the generalization of a regression mode; the penalty term(s) is optimized during the training of the model. Some common performance metric used in supervised regression include: 
+The idea of using data splits to train the model holds for fitting regression models. We can use data splits to train and assess regression models. For instance thinking back about the regression examples we have seen in previous section, we could try to find the best regression model to predict BMI given all other variables in the diabetes data set such as age, waist or cholesterol measurements. In the next section we will also learn about regularized regression where a penalty term is added to improve the generalization of a regression model; the penalty term(s) is optimized during the training of the model. Some common performance metric used in supervised regression include: 
 
-
+- **R-squared**: As seen in the linear regression session.
+$$
+R^2=1-\frac{RSS}{TSS} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}
+$$
 - **Adjusted R-squared**: seen before
+$$
+R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\frac{n-1}{n-p-1}
+$$
 - **Mean Squared Error (MSE)**: average squared difference between the predicted values and the actual values. 
-$$RMSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y_i})^2$$
+$$MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2$$
 - **Root Mean Squared Error (RMSE)**: square root of the MSE 
-$$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y_i})^2}$$
-- **MAE**: average absolute difference between the predicted values and the actual values $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y_i}|$$
+$$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}$$
+- **MAE**: average absolute difference between the predicted values and the actual values $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|$$
 - **Mean Absolute Percentage Error (MAPE)**: average percentage difference between the predicted values and the actual values.
 
 
