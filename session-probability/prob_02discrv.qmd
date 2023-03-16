@@ -8,6 +8,7 @@ library(reshape2)
 library(knitr)
 library(kableExtra)
 library(tidyverse)
+library(ggthemes)
 
 knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/prob02_", cache=TRUE)
 options(digits=2)
@@ -50,15 +51,19 @@ data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") +
 The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike the sides on a die the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, $X$. The probability mass function can be summarized in a table or a bar plot.
 
 ```{r}
-#| layout-ncol: 2
-#| layout-valign: bottom
-#| fig.height: 3
-#| fig.width: 7
+#| label: tbl-nucl
+#| tbl-cap: "Probability mass function of a nucleotide site."
 p <- c(A=0.4, C=0.2, T=0.1, G=0.3)
-kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling(full_width = FALSE)
-#```
-#
-#```{r fig-nucl, , fig.cap="Probability mass function of a nucleotide site.", out.width="45%", fig.align='center'}
+kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
+```
+
+```{r fig-nucl}
+#| label: fig-nucl
+#| fig-cap: "Probability mass function of a nucleotide site."
+#| fig-height: 3
+#| fig-width: 7
+#| out-width: "45%"
+#| fig-align: 'center'
 data.frame(p) %>% rownames_to_column("x") %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw()
 ```
 :::
@@ -114,7 +119,11 @@ $$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i,$$ where $N$ is the number of objects
 
 The **variance** is a measure of spread defined as the expected value of the squared difference of the random variable and its expected value;
 
-$$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i).$$ 
+$$var(X) = \sigma^2 = E[(X-E[X])^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i).$$ 
+The variance can also be computed by summing over the outcome value for every object in the population;
+
+$$var(X) = \sigma^2 = \frac{1}{N}\sum_{i=1}^N (x_i-\mu)^2,$$ where $N$ is the number of objects in the population.
+
 The **standard deviation** is the square root of the **variance**. The standard deviation of a random variable is usually denoted $\sigma. The standard deviation is always positive and on the same scale as the outcome values.
 
 ### Linear transformations and combinations
@@ -133,7 +142,7 @@ $$var(aX + bY) = a^2var(X) + b^2var(Y)$$
 
 ## Simulate distributions
 
-Once a random variables probability distribution is known, probabilities, such as $P(X=x), P(X<x)$ and $P(X \geq x)$, and properties, such as expected value and variance, of the random variable can be computed. If the distribution is not known, simulation might be the solution.
+Once a random variable's probability distribution is known, probabilities, such as $P(X=x), P(X<x)$ and $P(X \geq x)$, and properties, such as expected value and variance, of the random variable can be computed. If the distribution is not known, simulation might be the solution.
 
 ::: {#exm-cointoss}
 # Simulate coin toss
@@ -142,9 +151,9 @@ In a single coin toss the probabity of heads is 0.5. In 20 coin tosses, what is 
 
 <!-- Biological example. Randomize patients into control and treatment group, 50 % In a bacterial sample, every single bacteria can either be antibiotic resistant or not. In a sample 50% of the bacteria are antibiotic resistant, grow them on an agar plat and pick 20 colonies  -->
 
-The outcome of a single coin toss is a random variable, $X$ with two possible outcomes $\{H, T\}$. We know that $P(X=H) = 0.5$. The random variable of interest is the number of heads in 20 coin tosses, $Y$. The probability that we need to compute is $P(Y \geq 15)$.
+The outcome of a single coin toss is a random variable, $X$, with two possible outcomes $\{H, T\}$. We know that $P(X=H) = 0.5$. The random variable of interest is the number of heads in 20 coin tosses, $Y$. The probability that we need to compute is $P(Y \geq 15)$.
 
-```{r coinurn, echo=FALSE, fig.cap="A coin toss. Urn model with one black ball (heads) and one white ball (tails).", out.width = '20%', fig.align="lecenter"}
+```{r fig-coinurn, echo=FALSE, fig.cap="A coin toss. Urn model with one black ball (heads) and one white ball (tails).", out.width = '20%', fig.align="center"}
 knitr::include_graphics("figures/coinurn.png")
 ```
 
@@ -198,7 +207,7 @@ hist(Nheads, breaks=0:20-0.5)
 
 Now, let's get back to the question; when tossing 20 coins, what is the probability of at least 15 heads?
 
-$P(X \geq 15)$
+$P(Y \geq 15)$
 
 Count how many times out of our `r length(Nheads)` experiments the number is 15 or greater
 
@@ -208,7 +217,7 @@ sum(Nheads >= 15)
 
 From this we conclude that
 
-$P(X \geq 15) =$ `r sum(Nheads>=15)`/`r length(Nheads)` = `r sum(Nheads>=15)/length(Nheads)`
+$P(Y \geq 15) =$ `r sum(Nheads>=15)`/`r length(Nheads)` = `r sprintf("%.4f", sum(Nheads>=15)/length(Nheads))`
 :::
 
 Resampling can also be used to compute other properties of a random variable, such as the expected variable.
@@ -226,7 +235,13 @@ The probability of success and failure can be equal, like in the coin example, b
 
 ## Parametric discrete distributions
 
-### Bernoulli trial
+A discrete parametric distribution is a probability distribution described by a set of parameters. In many situations data can be assumed to follow a parametric distribution.
+
+### Uniform
+
+In a uniform distribution every possible outcome has the same probability. With $n$ different outcomes, the probability for each outcome is $1/n$.
+
+### Bernoulli
 
 A Bernoulli trial is a random experiment with two outcomes; success and failure. The probability of success, $P(success) = p$, is constant. The probability of failure is $P(failure) = 1-p$.
 
@@ -234,7 +249,7 @@ When coding it is convenient to code success as 1 and failure as 0.
 
 The outcome of a Bernoulli trial is a discrete random variable, $X$.
 
-$$p(x) = \left\{
+$$P(X=x) = p(x) = \left\{
 \begin{array}{ll}
 p & \mathrm{if}\,x=1\mathrm,\,success\\
 1-p & \mathrm{if}\,x=0\mathrm,\,failure
@@ -247,12 +262,12 @@ kable(matrix(c('x','0','1','p(x)','1-p','p'), byrow=TRUE, ncol=3)) %>% kable_sty
 
 Using the definitions of expected value and variance it can be shown that;
 
-$$E[X] = p\\
-var(X) = p(1-p)$$
+$$E[X] = p$$
+$$var(X) = p(1-p)$$
 
 A Bernoulli trial can be simulated, as seen in previous section, using the function `sample`.
 
-### Binomial distribution
+### Binomial
 
 The number of successes in a series of independent and identical Bernoulli trials is a **binomial** random variable, $X$.
 
@@ -268,10 +283,10 @@ The probability mass function is
 
 $$P(X=k) = {n \choose k} p^k (1-p)^{n-k}$$ It can be shown that
 
-$$E[X] = np\\
-var(X) = np(1-p)$$
+$$E[X] = np$$
+$$var(X) = np(1-p)$$
 
-A binomial random variableis the number of successes when sampling $n$ objects *with* replacement from an urn with objects of two types, of which the interesting type (success) has probability $p$.
+A binomial random variable is the number of successes when sampling $n$ objects *with* replacement from an urn with objects of two types, of which the interesting type (success) has probability $p$.
 
 The probability mass function, $P(X=k)$ can be computed using the R function `dbinom` and the cumulative distribution function $P(X \leq k)$ can be computed using `pbinom`.
 
@@ -280,6 +295,41 @@ Examples fo binomial random variables;
 -   The number of patients responding to a treatment out of $n$ patients in a study, if the probability of a patient responding to treatment is $p$.
 -   The number of patients experiencing a side effect out of $n$ patients in a study, if the probability of a side effect is $p$.
 -   the number of mutations in a gene of length $n$, if the mutations are independent and identically distributed and the probability of a mutation at every single position is $p$.
+
+### Poisson distribution
+
+The Poisson distribution describe the number of times a rare event occurs in a large number of trials. Commonly used to describe the number of events during a given time period.
+
+A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period can be modelled using the Poisson distribution.
+
+The probability mass function has a single parameter, $\lambda$, the expected value, and can be described as;
+
+$$P(X=k) = \frac{\lambda}{k!}e^{-\lambda}$$
+
+The expected value $\lampbda = n \pi$, where $n$ is the number of objects sampled from the population and $\pi$ is the probability of a single object.
+
+The variance is equal to the expected value;
+
+$$var(X) = E[X] = \lamba = n \pi$$
+
+The Poisson distribution can approximate the binomial distribution if $n$ is large ($n>10$) and $\pi$ is small ($\pi < 0.1$).
+
+Examples of Poisson random variables;
+
+-   A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period is a Poisson random variable.
+-   Number of reads aligned to a gene region
+
+### Negative binomial
+
+A negative binomial distribution describes the number of failures that occur before a specified number of successes ($r$) has occurred, in a sequence of independent and identically distributed Bernoilli trials.
+
+In R: `dnbinm, pnbinom, qnbinom`
+
+### Geometric
+
+The geometric distribution is a special case of the negative binomial distribution, where $r=1$.
+
+In R: `dgeom, pgeom, qgeom`
 
 ### Hypergeometric distribution
 
@@ -292,30 +342,34 @@ $$P(X=k) = \frac{{Np\choose{k}}{{N-Np}\choose{n-k}}}{N\choose{n}}$$ can be compu
 Examples of hypergeometric random variables;
 
 -   In a student group of 25 individuals, 10 are R beginners. If 5 individuals are randomly choosen to belong to group A, the number of R beginners in group A is a hypergeometric random variable.
--   A drug company is producing 1000 pills per day, 5% have an amount of active substance below a threshold. In a random sample of 10 pill, how many contain to little active substance? The number of pills with to little active substance is a hypergeometric random variable.
--   You investigate the differential expression of 10000 genes, 150 of these genes blong to the superinteresting pathway XXX. You run a black-box algorithm that report 80 differentially expressed (DE) genes. If the black-box algorithm choose DE genes at random, the number of DE genes that blong to pathway XXX is a hypergeometric random variable.
+-   A drug company is producing 1000 pills per day, 5% have an amount of active substance below an acceptable threshold. In a random sample of 10 pills, how many contain to little active substance? The number of pills with to little active substance is a hypergeometric random variable.
+-   You investigate the differential expression of 10000 genes, 150 of these genes belong to the super interesting pathway XXX. You run a black-box algorithm that report 80 differentially expressed (DE) genes. If the black-box algorithm choose DE genes at random, the number of DE genes that belong to pathway XXX is a hypergeometric random variable.
 
-### Poisson distribution
 
-The Poisson distribution describe the number of times a rare event occurs in a large number of trials.
 
-A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period can be modelled using the Poisson distribution.
+### Summary of discrete distributions
 
-The probability mass function;
+The binomial, hypoergeometric, negative binomial and poisson distributions have similarities. For large N (large population) the hypergeometric and binomial distributions are very similar. The Poisson distribution has equal variance and mean, whereas the binomial has a variance less than the mean and the negative binomial has a variance greater than the mean.
 
-$$P(X=k) = \frac{\mu}{k!}e^{-\mu},$$ where $\mu$ is the expected value, which is $\mu = n \pi$, where $n$ is the number of objects sampled from the population and $\pi$ is the probability of a single object.
+```{r}
+#| label: fig-distr
+#| fig-cap: "Probability mass functions for the binomial distribution (n=20, p=0.1, 0.3 or 0.5), hypergeometric distribution (N=100, n=20, p=0.1, 0.3 or 0.5), negative binomial distribution (n=20, r=n*p, p=0.1, 0.3 or 0.5) and Poisson distribution (n=20, p=0.1, 0.3 or 0.5)."
+#| fig-width: 7
+N=100
+n=20
+x <- 0:n
+probs <- c(0.1, 0.3, 0.5)
+df <- rbind(data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dbinom(x, n, prob)), .groups="drop") |> mutate(distribution="Binomial"),
+data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dpois(x, n*prob)), .groups="drop") |> mutate(distribution="Poisson"),
+data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dnbinom(x, n*(1-prob), 1-prob)), .groups="drop") |> mutate(distribution="Negative binomial"),
+data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dhyper(x, round(N*prob), round(N*(1-prob)), n)), .groups="drop") |> mutate(distribution="Hypergeometric"))
 
-The Poisson distribution can approximate the binomial distribution if $n$ is large ($n>10$) and $\pi$ is small ($\pi < 0.1$).
+df|>ggplot(aes(x=x, y=px, color=distribution, shape=factor(prob))) + geom_point(size=5) + geom_line() + theme_bw() + scale_color_colorblind() + ylab("p(x)") + scale_shape_discrete("")
+```
 
-Examples of Poisson random variables;
 
--   A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period is a Poisson random variable.
--   Number of reads aligned to a gene region
+Probability mass functions, $P(X=x)$, for the binomial, hypergeometric, negative binomial and Poisson distributions can in R can be computed using functions `dbinom`, `dhyper`, `dnbinom` and `dpois`, respectively.
 
-### Distributions in R
+Cumulative distribution functions, $P(X \leq x)$ can be computed using `pbinom`, `phyper`, `pnbinom` and `ppois`.
 
-Probability mass functions, $P(X=x)$, for the binomial, hypergeometric and Poisson distributions can in R can be computed using functions `dbinom`, `dhyper`, and `dpois`, respectively.
-
-Cumulative distribution functions, $P(X \leq x)$ can be computed using `pbinom`, `phyper` and `ppois`.
-
-Also, functions for computing an $x$ such that $P(X \leq x) = q$, where $q$ is a probability of interest are available using `qbinom`, `qhyper`, and `qpois`.
+Also, functions for computing an $x$ such that $P(X \leq x) = q$, where $q$ is a probability of interest are available using `qbinom`, `qhyper`, `qnbinom` and `qpois`.
