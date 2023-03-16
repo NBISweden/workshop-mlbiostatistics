@@ -1,0 +1,268 @@
+---
+title: "Introduction to biostatistics and machine learning"
+author: "Welcome"
+format:
+  revealjs: 
+    theme: [default, custom.scss]
+    incremental: false   
+    slide-number: true
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(cache = FALSE)
+
+```
+
+## Introduction to biostatistics and machine learning
+
+::: incremental
+-   12th - 16th, September, 2022
+-   BMC, Husargatan 3, Uppsala
+-   Room: Trippelrummet: E10:1307/8/9
+:::
+
+. . .
+
+::: {.fragment .highlight-current-red}
+-   with an exception on Tuesday after lunch --\> A9:117a\
+:::
+
+<br/><br/>
+
+## About us
+
+. . .
+
+-   [Olga Dethlefsen](https://nbis.se/about/staff/olga-dethlefsen/)
+-   [Eva Freyhult](https://nbis.se/about/staff/eva-freyhult/)
+-   [Bengt Sennblad](https://nbis.se/about/staff/bengt-sennblad/)
+-   [Payam Emami](https://nbis.se/about/staff/payam-emami/)
+-   [Mun-Gwan Hong](https://nbis.se/about/staff/mungwan-hong/)
+-   [Julie Lorent](https://nbis.se/about/staff/julie-lorent/)
+
+<br/>
+
+. . .
+
+-   NBIS: National Bioinformatics Infrastructure Sweden
+-   SciLifeLab Bioinformatics Platform
+-   <https://www.scilifelab.se/units/nbis/>
+
+<br/><br/>
+
+<!-- ## What about you? -->
+
+<!-- Names and teams  -->
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+rm(list=ls())
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(scales)
+library(tidyverse)
+
+data.input <- read_csv("background-2022.csv")
+
+data.inp <- data.input %>%
+  rename("R" = `R experience`) %>% 
+  mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced")))
+
+```
+
+```{r, echo=F, message=F, warning=F, fig.align="center", fig.keep="all", fig.height=4.5}
+
+colornames <- brewer.pal(n=4, "Set1")
+
+data.inp$R <- factor(data.inp$R, levels = c("None", "Beginner", "Intermediate", "Advanced"))
+data.inp$Position <- factor(data.inp$Position)
+data.inp$University <- factor(data.inp$University)
+
+# barplot: summary of position counts
+data.plot <- data.inp %>%
+  group_by(Position) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+
+g1 <- data.plot %>%
+  ggplot(aes(x = Position, y = n, group = Position)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=6, "Set1")) + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("Employment") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+  
+
+# barplot: summary of university
+data.plot <- data.inp %>%
+  group_by(University) %>% 
+  summarize(n = n())  %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep=""))
+
+g2 <- data.plot %>%
+  ggplot(aes(x = University, y = n)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("University") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+
+  
+# barplot: summary of R experience
+data.plot <- data.inp %>%
+  group_by(R) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+
+g3 <- data.plot %>%
+  ggplot(aes(x = R, y = n)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("R experience") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+
+```
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 6
+
+print(g1)
+```
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 6
+print(g2)
+```
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 6
+#| fig-width: 6
+print(g3)
+```
+
+## What about you?
+
+![](wordcloud.png)
+
+## Teaching approach
+
+::: incremental
+-   we try to focus on fundamentals, thinking that if you get the basics right you will have no problems reading up more advanced things
+-   we try to focus on active learning with us talking less and you doing more
+-   **help us to build a stimulating learning environment** by actively participating. We love when you ask questions!
+:::
+
+## Not enough time
+
+There is not enough time during the course to complete all the exercises.
+
+::: incremental
+-   good to prioritize
+-   we can schedule a follow-up online session some time after the course, if there is interest
+-   we will come back to this on Friday
+:::
+
+## Canvas Demo
+
+-   Schedule
+-   Modules
+-   Chat
+-   Discussion
+-   Files
+-   Announcements
+-   Quiz
+
+*please change your name under the Profile*
+
+<br/><br/>
+
+## Internet & access cards
+
+::: incremental
+-   Eduroam
+-   WiFi network UU-Guest
+-   No access cards
+:::
+
+## Certificate requirements
+
+::: incremental
+-   presence in all sessions during the week
+    -   we may allow skipping up to 4h during the week
+-   active participation during the week
+-   completing "Daily challenge" quiz
+    -   opens daily at 15.00
+    -   closes at 09:00 the following day
+:::
+
+. . .
+
+*Note that we are not able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.*
+
+<br/><br/>
+
+## Course website
+
+::: incremental
+-   <https://uppsala.instructure.com/courses/70535> (current)
+-   <https://nbisweden.github.io/workshop-mlbiostatistics/> (generic)
+:::
+
+## Questions?
+
+## Let's check our homework
+
+In groups: 
+
+- compare the homework notes, any questions? 
+- no homework done? Can you answer the below questions instead?
+
+1. The variance, $\sigma$, of a set of $n$ observations is defined as "the mean squared distance from the mean value". How would you write it down using the Sigma notation?
+2. Use your equation to calculate the variance, rounded to three decimal places, for these 5 height observations: 1.62, 1.70, 1.80, 1.65, 1.77 (m). 
+
