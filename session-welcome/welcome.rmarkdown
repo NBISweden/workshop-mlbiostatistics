@@ -1,0 +1,1559 @@
+---
+title: "Introduction to Biostatistics and Machine Learning"
+author: "24th - 28th, April 2023"
+format:
+  revealjs: 
+    theme: [default, custom.scss]
+    incremental: false   
+    slide-number: true
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(cache = FALSE)
+
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(scales)
+library(tidyverse)
+library(latex2exp)
+library(plot3D)
+
+```
+
+
+# Welcome
+
+<!-- P1. Introductions: welcome, shortly about us, shortly about students, rounds of introductions -->
+
+<!-- P2. Practicalities: Schedule, Canvas, Access, Certificates -->
+
+<!-- P3. Teaching approach / ideas behind the course / what do we want to get across / content highlights -->
+
+## Introduction to Biostatistics and Machine Learning
+
+<br/><br/>
+
+::: columns
+::: {.column width="60%"}
+-   24th - 28th, April 2023
+-   BMC, Husargatan 3, Uppsala
+-   Room: Trippelrummet: E10:1307/8/9
+:::
+
+::: {.column width="40%"}
+![Image by Alex Knigth](images/robot-alex-knight.jpg){fig-align="left" width="391"}
+:::
+:::
+
+## About us
+
+<br/><br/>
+
+. . .
+
+::: columns
+::: {.column width="60%"}
+-   [Olga Dethlefsen](https://nbis.se/about/staff/olga-dethlefsen/)
+-   [Eva Freyhult](https://nbis.se/about/staff/eva-freyhult/)
+-   [Payam Emami](https://nbis.se/about/staff/payam-emami/)
+-   [Julie Lorent](https://nbis.se/about/staff/julie-lorent/)
+-   [Mun-Gwan Hong](https://nbis.se/about/staff/mungwan-hong/)
+
+<br/><br/>
+
+-   NBIS: National Bioinformatics Infrastructure Sweden
+-   SciLifeLab Bioinformatics Platform
+-   <https://www.scilifelab.se/units/nbis/>
+:::
+
+::: {.column width="40%"}
+![](images/nbis.png){width="391"}
+:::
+:::
+
+<br/><br/>
+
+<!-- ## What about you? -->
+
+<!-- Names and teams  -->
+
+## What about you?
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+rm(list=ls())
+
+data.input <- read_csv("background-2023.csv")
+
+data.inp <- data.input %>%
+  #rename("R" = `R experience`) %>% 
+  mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced")))
+
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+# clean data
+colornames <- brewer.pal(n=4, "Set1")
+data.inp$R <- factor(data.inp$R, levels = c("None", "Beginner", "Intermediate", "Advanced"))
+data.inp$Position <- factor(data.inp$Position)
+data.inp$University <- factor(data.inp$University)
+
+# barplot: summary of position counts
+data.plot <- data.inp %>%
+  group_by(Position) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+
+ncols <- length(unique(data.plot$Position))
+order <- data.plot %>% arrange(desc(n)) %>% pull(Position)
+
+g1 <- data.plot %>%
+  mutate(Position = factor(Position, levels = order)) %>%
+  ggplot(aes(x = Position, y = n, group = Position)) +
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=ncols, "Set1")) +
+  xlab("") + 
+  ylab("") + 
+  ggtitle("Employment") +
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+  
+
+# barplot: summary of university
+data.plot <- data.inp %>%
+  group_by(University) %>% 
+  summarize(n = n())  %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep=""))
+
+order <- data.plot %>% arrange(desc(n)) %>% pull(University)
+
+g2 <- data.plot %>%
+  mutate(University = factor(University, levels = order)) %>%
+  ggplot(aes(x = University, y = n)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("University") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+
+  
+# barplot: summary of R experience
+data.plot <- data.inp %>%
+  group_by(R) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+
+order <- data.plot %>% arrange(desc(n)) %>% pull(R)
+
+g3 <- data.plot %>%
+  #mutate(R = factor(R, levels = order)) %>%
+  ggplot(aes(x = R, y = n)) + 
+  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("R experience") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  #ylim(0, max(data.plot$n) + 2) + 
+  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+
+```
+
+
+## What about you?
+
+<br/><br/>
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 5
+#| fig-width: 6
+#| fig-align: center
+
+print(g1)
+```
+
+
+## What about you?
+
+<br/><br/>
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 5
+#| fig-width: 6
+#| fig-align: center
+print(g2)
+```
+
+
+## What about you?
+
+<br/><br/>
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 5
+#| fig-width: 6
+#| fig-align: center
+print(g3)
+```
+
+
+## What about you?
+
+<br/><br/>
+
+
+```{r}
+#| echo: false
+
+library(kableExtra)
+
+#print(names)
+
+data.tbl <- data.inp %>%
+  select(`First Name`, University)
+
+```
+
+
+::: columns
+::: {.column width="50%"}
+
+```{r}
+#| echo: false
+
+data.tbl %>% 
+  slice(1:13) %>%
+  kbl() %>% kable_paper()
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| echo: false
+
+data.tbl %>% 
+  slice(14:nrow(data.tbl)) %>%
+  kbl() %>% kable_paper()
+
+```
+
+:::
+:::
+
+# Practicalities
+
+## Room
+
+<br/><br/>
+
+. . .
+
+::: columns
+::: {.column width="60%"}
+-   same room entire week
+-   please drink coffee and eat snacks outside
+-   we will lock the room when going for lunch
+-   bathrooms locations
+-   no access cards to the building (apologies!)
+:::
+
+::: {.column width="40%"}
+![Image by Andrea de Santis](images/robot-andrea-de-santis.jpg){fig-align="left" width="291"}
+:::
+:::
+
+## Internet
+
+<br/><br/>
+
+::: columns
+::: {.column width="60%"}
+-   Eduroam
+-   WiFi network UU-Guest
+:::
+
+::: {.column width="40%"}
+![](images/wifi.png){fig-align="left" width="200"}
+:::
+:::
+
+## Course website
+
+<br/><br/>
+
+::: incremental
+-   <https://uppsala.instructure.com/courses/74597>
+-   you should be now enrolled and be able to access materials incl. quizzes
+:::
+
+## Canvas Demo
+
+<br/><br/>
+
+-   Schedule
+-   Modules
+-   Chat
+-   Discussion
+-   Files
+-   Announcements
+-   Quiz
+
+*please change your name under the Profile*
+
+<br/><br/>
+
+## Certificate requirements
+
+<br/><br/>
+
+::: columns
+::: {.column width="60%"}
+::: {.fragment .fade-in}
+1.  presence in all sessions during the week
+    -   we may allow skipping up to 4h during the week
+:::
+
+::: {.fragment .fade-in}
+2.  completing "Daily challenge" quiz
+    -   opens daily at 15.00
+    -   closes at 09:00 the following day
+:::
+
+::: {.fragment .fade-in}
+3.  active participation during the week
+:::
+:::
+
+::: {.column width="40%"}
+![](images/certificate.png){fig-align="center" width="200"}
+:::
+:::
+
+. . .
+
+*Note that we are not able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.*
+
+<br/><br/>
+
+## Payam's Active Participation rule
+
+<br/><br/>
+
+. . .
+
+::: columns
+::: {.column width="70%"}
+1.  there are no wrong answers
+2.  except: "I do not know" or its equivalents
+3.  so when asked a question, say something because 1.
+:::
+
+::: {.column width="30%"}
+![Image by @thisisengineering](images/robot-hand.jpg){fig-align="left" width="191"}
+:::
+:::
+
+. . .
+
+**Help us building a stimulating learning environment** by actively participating. We love when you talk and ask questions!
+
+## Not enough time
+
+<br/><br/>
+
+::: columns
+::: {.column width="70%"}
+There is (probably) not enough time during the course to complete all the exercises.
+
+-   It may be good to prioritize.
+-   We can schedule a follow-up online session.
+-   We will come back to this on Friday.
+:::
+
+::: {.column width="30%"}
+![generated by DALL $\cdot$ E 2](images/DALLE-time-01.png){fig-align="left" width="291"}
+:::
+:::
+
+# Course: background, aim & content
+
+## Background
+
+<br/><br/>
+
+. . .
+
+*"If you torture the data long enough, it will confess to anything"*
+
+*Ronald Coase, British Economist*
+
+## Background
+
+<br/><br/>
+
+::: columns
+::: {.column width="60%"}
+Some common problems we have been observing are due to:
+
+-   incorrect study design e.g. absence of adequate controls
+-   forming incorrectly null and alternative hypothesis\
+-   applying statistical methods without understanding
+-   misinterpreting the output of the statistical methods
+-   circular analysis, e.g. testing hypotheses on same sample that led to the generation of the hypotheses in the first place
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="30%"}
+![image by Richa Bhatia](images/bell-curve.png){fig-align="left" width="300"}
+:::
+:::
+
+## Background
+
+<br/><br/>
+
+. . .
+
+*"Today, of course, we have high-speed computers and prepackaged statistical routines to perform the necessary calculations.* ***Yet, statistical software will no more make one a statistician than would a scalpel turn one into a neurosurgeon.*** *Allowing these tools to do our thinking for us is a sure recipe for disaster."*
+
+*from Common Errors in Statistics (and How to Avoid Them) by Philip I. Good and James W. Hardin*
+
+## Aim
+
+<br/><br/>
+
+. . .
+
+We aim to **focus on fundamentals** since we believe that getting the basics right will help with avoiding common errors and will allow self studying of more advanced topics.
+
+## Aim
+
+::: columns
+::: {.column width="50%"}
+**What do we want you to gain from this course?**
+
+::: {.fragment .fade-in}
+-   Framework for statistical learning: learn a selection of method & develop an understanding to apply methods correctly and explore them independently
+:::
+
+::: {.fragment .fade-in}
+-   Appreciation of theory incl. not being afraid of equations
+:::
+
+::: {.fragment .fade-in}
+<!-- $$x^2 + \left ( \frac{5y}{4}-\sqrt{|x|} \right )^2 = 1$$ -->
+
+
+```{r}
+#| echo: false
+#| fig-width: 4.5
+#| fig-height: 4.5
+#| fig-align: center
+
+x <- seq(-1, 1, length.out = 100)
+y = 4/5*(sqrt(1-x^2)+sqrt(abs(x)))
+
+MASS::eqscplot(0:1, 0:1, type="n", xlim=c(-1,1), ylim=c(-0.8,1.5), las = 1, xlab="", ylab = "", main = TeX(r'($x^2 + \left ( \frac{5y}{4}-\sqrt{|x|} \right )^2 = 1$)'))
+curve(4/5*sqrt(1-x^2)+sqrt(abs(x)), from=-1, to=1, add=TRUE, col="darkgreen", lwd = 8)
+curve(4/5*-sqrt(1-x^2)+sqrt(abs(x)), from=-1, to=1, add=TRUE, col="darkgreen", lwd = 8)
+
+#text(0, 0.5,  TeX(r'($x^2 + \left ( \frac{5y}{4}-\sqrt{|x|} \right )^2 = 1$)'))
+
+```
+
+:::
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+**How?**
+
+::: {.fragment .fade-in}
+-   We will look in detail into selected methods
+:::
+
+::: {.fragment .fade-in}
+-   Over the week we will build up our understanding of different aspects of a typical data analysis project and demonstrate how to combine all the steps to build a predictive model.
+:::
+:::
+:::
+
+## Content
+
+. . .
+
+<br/><br/>
+
+*Let's consider some common cases...*
+
+## Content
+
+. . .
+
+<br/><br/>
+
+**Case 1: Mouse Knockout Experiment**
+
+## Content: Mouse Knockout Experiment
+
+*Case 1: Mouse Knockout Experiment*
+
+*Does LDL receptor gene affect the total plasma cholesterol?*
+
+. . .
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### Setup
+
+We have access to data from an experiment:
+
+-   10 wild type (WT) mice
+-   10 LDLR knockout (KO) mice
+
+where plasma concentration of total cholesterol was measured at one time point after feeding on high fat diet
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+![generated by DALL $\cdot$ E 2](images/DALLE-mice.png){fig-align="left" width="291"}
+:::
+:::
+
+## Content: Mouse Knockout Experiment
+
+<br/><br/>
+
+### Visualize results
+
+::: columns
+::: {.column width="40%"}
+
+```{r mice-scatter}
+#| echo: false
+#| fig-height: 9
+#| fig-width: 9
+
+
+# Normal levels of total blood cholesterol in mice 
+# 26-82.4 mg/dl
+
+mycols <- brewer.pal(4, "Set1")
+
+set.seed(85)
+
+mean = c(70, 50)
+stddev = c(10, 10)
+mice = data.frame(
+  chol = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
+  model = c(rep("KO", 10), rep("WT", 10)),
+  names = c(paste0("KO", 1:10), paste0("WT", 1:10))
+)
+row.names(mice)=mice$names
+
+# to get randomly ordered x-axis
+mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
+ggplot(mice, aes(y=chol, x=names))+
+  geom_point(size = 3, color = "black") +
+  xlab("") +
+  ylab("total cholestrol [mg/dl]") +
+  theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20))
+  
+
+```
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+::: {.fragment .fade-in}
+-   Not so informative.
+:::
+
+::: {.fragment .fade-in}
+-   Let's improve!
+:::
+:::
+:::
+
+## Content: Mouse Knockout Experiment
+
+<br/><br/>
+
+::: columns
+::: {.column width="40%"}
+
+```{r mice-boxplot}
+#| echo: false
+#| fig-height: 9
+#| fig-width: 9
+
+ggplot(mice, aes(y=chol, x=model, color = model))+
+  geom_jitter(width = 0.1, height = 0, size = 2) + 
+  geom_boxplot(size = 2, alpha = 0) +
+  xlab("") +
+  ylab("total cholestrol [mg/dl]") +
+  theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+  
+  
+```
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+::: {.fragment .fade-in}
+### Improved visualization
+:::
+
+::: {.fragment .fade-in}
+-   Collect KO and WT separately as columns in a box plot
+:::
+
+::: {.fragment .fade-in}
+-   Visualize **distribution** of sample values using **descriptive statistics** such as median and quartiles
+:::
+
+::: {.fragment .fade-in}
+### We will talk more:
+
+-   exploratory data analysis
+-   summarizing data with descriptive statistics
+-   visualizing data
+:::
+:::
+:::
+
+<!-- Interpretation -->
+
+## Content: Mouse Knockout Experiment
+
+<br/><br/>
+
+::: columns
+::: {.column width="40%"}
+
+```{r mice-boxplot-again}
+#| echo: false
+#| fig-height: 9
+#| fig-width: 9
+
+ggplot(mice, aes(y=chol, x=model, color = model)) +
+  geom_jitter(width = 0.1, height = 0, size = 2) + 
+  geom_boxplot(size = 2, alpha = 0) +
+  xlab("") +
+  ylab("total cholestrol [mg/dl]") +
+  theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+  
+  
+```
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="50%"}
+### Interpretation
+
+::: {.fragment .fade-in}
+-   Intuitively, there is a **clear difference** between KO and WT based on the box plot
+:::
+:::
+:::
+
+## Content: Mouse Knockout Experiment
+
+<br/><br/>
+
+::: columns
+::: {.column width="40%"}
+
+```{r mice-boxplot-no-difference}
+#| echo: false
+#| fig-height: 9
+#| fig-width: 9
+
+set.seed(85)
+
+mean = c(60, 60)
+stddev = c(10, 10)
+mice = data.frame(
+  chol = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
+  model = c(rep("KO", 10), rep("WT", 10)),
+  names = c(paste0("KO", 1:10), paste0("WT", 1:10))
+)
+row.names(mice)=mice$names
+
+# to get randomly ordered x-axis
+mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
+
+ggplot(mice, aes(y=chol, x=model, color = model))+
+  geom_jitter(width = 0.1, height = 0, size = 2) + 
+  geom_boxplot(size = 2, alpha = 0) +
+  xlab("") +
+  ylab("total cholestrol [mg/dl]") +
+  theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+  
+  
+```
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="50%"}
+### Interpretation
+
+::: {.fragment .fade-in}
+-   Intuitively, there is **no difference** between KO and WT based on the box plot
+:::
+:::
+:::
+
+## Content: Mouse Knockout Experiment
+
+<br/><br/>
+
+::: columns
+::: {.column width="40%"}
+
+```{r mice-boxplot-less-difference}
+#| echo: false
+#| fig-height: 9
+#| fig-width: 9
+
+set.seed(85)
+
+mean = c(70, 60)
+stddev = c(10, 10)
+mice = data.frame(
+  chol = c(rnorm(10, mean[1], stddev[1]), rnorm(10, mean[2], stddev[2])),
+  model = c(rep("KO", 10), rep("WT", 10)),
+  names = c(paste0("KO", 1:10), paste0("WT", 1:10))
+)
+row.names(mice)=mice$names
+
+# to get randomly ordered x-axis
+mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
+
+ggplot(mice, aes(y=chol, x=model, color = model))+
+  geom_jitter(width = 0.1, height = 0, size = 2) +
+  geom_boxplot(size = 2, alpha = 0) +
+  xlab("") +
+  ylab("total cholestrol [mg/dl]") +
+  theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(axis.title = element_text(size = 20)) +
+  theme(axis.text = element_text(size = 20)) +
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) +
+  scale_color_manual(values = mycols[1:2])
+
+
+```
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+### Interpretation
+
+::: {.fragment .fade-in}
+-   And now we get uncertain...
+:::
+
+::: {.fragment .fade-in}
+-   Probability gives us a scale for measuring uncertainty
+:::
+
+::: {.fragment .fade-in}
+-   Probability theory is fundamentally important to inferential statistical analysis
+:::
+
+::: {.fragment .fade-in}
+### We will talk more:
+
+-   probability theory
+-   discrete and continuous random variables
+:::
+:::
+:::
+
+## Content: Mouse Knockout Experiment
+
+<br/><br/>
+
+::: columns
+::: {.column width="40%"}
+
+```{r mice-boxplot-less-difference-again}
+#| echo: false
+#| fig-height: 9
+#| fig-width: 9
+
+
+ggplot(mice, aes(y=chol, x=model, color = model))+
+  geom_jitter(width = 0.1, height = 0, size = 2) +
+  geom_boxplot(size = 2, alpha = 0) +
+  xlab("") +
+  ylab("total cholestrol [mg/dl]") +
+  theme_linedraw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(axis.title = element_text(size = 20)) +
+  theme(axis.text = element_text(size = 20)) +
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) +
+  scale_color_manual(values = mycols[1:2])
+
+
+```
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+### Inference
+
+::: {.fragment .fade-in}
+-   Formulate null $H_0$ and $H_a$ hypothesis:
+
+    -   $H_0$: $\mu_1 = \mu_2$
+    -   $H_a$: $\mu_1 \neq \mu_2$
+:::
+
+::: {.fragment .fade-in}
+-   Select appropriate test statistics $T$ and calculate corresponding p-value
+:::
+
+::: {.fragment .fade-in}
+-   Draw conclusions whether there is enough evidence of rejecting $H_0$
+:::
+
+::: {.fragment .fade-in}
+### We will talk more:
+
+-   statistical tests
+-   using permutations, parametric test and non-parametric test
+-   multiple testing
+:::
+:::
+:::
+
+## We'll learn that statistical test are like criminal trials
+
+::: columns
+::: {.column width="70%"}
+::: {.fragment .fade-in}
+Two possible true states:
+
+1.  Defendant committed the crime
+2.  Defendant did not commit the crime
+:::
+
+::: {.fragment .fade-in}
+Two possible verdicts: guilty or not guilty
+:::
+
+::: {.fragment .fade-in}
+Initially the defendant is assumed to be not guilty!
+:::
+
+::: {.fragment .fade-in}
+-   Prosecution must present evidence "beyond reasonable doubt" for a guilty verdict
+-   We never prove that someone is not guilty.
+:::
+
+::: {.fragment .fade-in}
+::: {.fragment .highlight-red}
+Same with statistical tests:
+
+-   we can reject $H_0$ hypothesis if there is enough evidence given the data
+-   or we conclude that there is not enough evidence to reject $H_0$
+:::
+:::
+:::
+
+::: {.column width="30%"}
+![](images/criminal.png){fig-align="left" width="191"}
+:::
+:::
+
+## Content
+
+<br/><br/>
+
+**Case 2: Protein expression**
+
+## Content: Protein expression
+
+*Case 2: Protein expression*
+
+*Is there a relationship between BRCA1 protein expression and mRNA expression in breast tissue?*
+
+. . .
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### Setup
+
+We have access to data from a breast cancer study:
+
+-   BRCA1 protein expression based on immunolohistochemical staining
+-   mRNA expression from RNA-seq
+
+for 10 000 study participants
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+# alpha = 1.5
+# beta = 1.5
+# beta2 = 0.5
+# stddev = 1
+
+alpha = 1.5
+beta = 1.5
+beta2 = 0.5
+stddev = 1
+
+
+rlin<-function(x, n=1, a=alpha, b=beta, s=stddev){
+  m = a+b*x + 100
+  return(rnorm(n, m, s))
+}
+
+rlog<-function(x, n=1, a=alpha, b=beta){
+  p = exp(-(a+b*x))
+  return(rnorm(n, 1/(1+p), 0.2))
+#  return(rbinom(n, 1, 1/(1+p)))
+}
+
+log<-function(x, n=1, a=alpha, b=beta){
+  p = exp(-(a+b*x))
+  return(1/(1+p))
+}
+
+x = rnorm(10000, 0, 2)
+ylin1 = unlist(lapply(x, rlin))
+
+ylin2 = unlist(lapply(x, function(x) rlin(x, s=10)))
+ylog = unlist(lapply(x, rlog))
+ylin3 = unlist(lapply(x, function(x) rlin(x, b=beta2)))
+
+df = data.frame(x=x, ylin1  = ylin1, ylin2=ylin2,  ylog=ylog, ylin3=ylin3)
+p1 <- ggplot(df, aes(x=x, y=ylin1)) +
+  xlab("mRNA") +
+  ylab("protein") + 
+  geom_point()
+
+#p2 = p1 + geom_abline(intercept=alpha, slope=beta, col="red", size = 2)
+p2 <- p1 + geom_smooth(method = "lm", color = "red", size = 2)
+
+p3 = ggplot(df, aes(x=x, y=ylin2)) +
+  xlab("mRNA") +
+  ylab("protein") + 
+  geom_point() + 
+  geom_abline(intercept=alpha, slope=beta, col="red", size = 2)
+
+p4=ggplot(df, aes(x=x, y=ylog)) +
+  xlab("mRNA") +
+  ylab("breast cancer") + 
+  geom_point() + 
+  stat_function(fun=log, col="red", size = 2)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+
+p11 <- p1 + 
+  theme_linedraw() +
+  #theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+plot(p11)
+
+```
+
+:::
+:::
+
+## Content: Protein expression
+
+*Case 2: Protein expression*
+
+*Is there a relationship between BRCA1 protein expression and mRNA expression in breast tissue?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more:
+
+-   fitting linear model: $[Prot] = \alpha +\beta [mRNA] + \epsilon$
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+
+p22 <- p2 + 
+  theme_linedraw() +
+  #theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+plot(p22)
+
+```
+
+:::
+:::
+
+## Content: Protein expression
+
+*Case 2: Protein expression*
+
+*Is there a relationship between BRCA1 protein expression and mRNA expression in breast tissue?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more:
+
+-   fitting linear model: $[Prot] = \alpha +\beta [mRNA] + \epsilon$
+-   hypothesis testing <!-- -   using model for predictions <!-- - expanding linear model to logistic regression with GLM -->
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+
+p33 <- p3 + 
+  theme_linedraw() +
+  #theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+plot(p33)
+
+```
+
+:::
+:::
+
+## Content: Protein expression
+
+*Case 2: Protein expression*
+
+*Is there a relationship between BRCA1 protein expression and mRNA expression in breast tissue?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more:
+
+-   fitting linear model: $[Prot] = \alpha +\beta [mRNA] + \epsilon$
+-   hypothesis testing
+-   using model for predictions <!-- -   expanding linear model to logistic regression with GLM, generalized linear models -->
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+
+plot(p22)
+
+# p44 <- p4 + 
+#   theme_linedraw() +
+#   #theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+#   theme(axis.title = element_text(size = 20)) + 
+#   theme(axis.text = element_text(size = 20)) + 
+#   theme(legend.position = "top", legend.title = element_blank()) +
+#   theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+#   scale_color_manual(values = mycols[1:2])
+# plot(p44)
+
+```
+
+:::
+:::
+
+## Content: Protein expression
+
+*Case 2: Protein expression*
+
+*Is there a relationship between BRCA1 protein expression and mRNA expression in breast tissue?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more:
+
+-   fitting linear model: $[Prot] = \alpha +\beta [mRNA] + \epsilon$
+-   hypothesis testing
+-   using model for predictions
+-   expanding linear model to logistic regression with GLM, generalized linear models
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+
+p44 <- p4 +
+  theme_linedraw() +
+  #theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(axis.title = element_text(size = 20)) +
+  theme(axis.text = element_text(size = 20)) +
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) +
+  scale_color_manual(values = mycols[1:2])
+plot(p44)
+
+```
+
+:::
+:::
+
+## Content: Protein expression
+
+*Case 2: Protein expression*
+
+*Is there a relationship between BRCA1 protein expression and mRNA expression in breast tissue?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more:
+
+-   fitting linear model: $[Prot] = \alpha +\beta [mRNA] + \epsilon$
+-   hypothesis testing
+-   using model for predictions
+-   expanding linear model to logistic regression with GLM, generalized linear models
+-   multivariate regression: $[Prot] = \alpha +\beta_1[mRNA] + \beta_2[age] + \cdots + \epsilon$
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 8
+
+nrow = 10000
+alpha = 0.0
+beta=1.2
+gamma = -1.5
+stddev = 1
+rmul<-function(x, y, n=1, a=alpha, b=beta, c = gamma, s=stddev){
+  m = a + b*x + c*y
+  return(rnorm(n, m, s))
+}
+
+x = runif(nrow, 0, 10)
+y = runif(nrow, 0, 10)
+z = unlist(lapply(1:nrow, function(i) rmul(x[i], y[i])))
+df = data.frame(x=x,y=y, z=z)
+
+scatter3D(x=df$x, z=df$z, y=df$y, xlab="mRNA", ylab="age", zlab="protein", phi=20, theta=-50, zlim=c(-20,20), cex.lab = 2)
+
+```
+
+:::
+:::
+
+## Content
+
+<br/><br/>
+
+**Case 3: predicting depression**
+
+## Content: predicting depression
+
+*Case 3: predicting depression*
+
+*Can we predict depression based on the methylation, and if so, methylation in which regions can be linked with depression?*
+
+. . .
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### Setup
+
+We have access to data from a depression study:
+
+-   methylation measurements for the \> 850 000 sites (EPIC array)
+-   clinical data
+
+for the 100 participants diagnosed with major depressive disorder and 50 healthy controls
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+:::
+:::
+
+## Content: predicting depression
+
+*Case 3: predicting depression*
+
+*Can we predict depression based on the methylation, and if so, methylation in which regions can be linked with depression?*
+
+. . .
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more
+
+-   dimensionality reduction
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+pca = prcomp(iris[,1:4], scale=T)
+pca_plot <- data.frame(x = pca$x[,"PC1"], y = pca$x[,"PC2"], 
+                       Groups = factor(x=(iris$Species=="setosa"), 
+                                       labels=c("batch 1","batch 2")))
+
+p.pca <- ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y), alpha = 0.8, size = 2) +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_linedraw() +
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "top", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) #+ 
+  #scale_color_manual(values = mycols[1:2])
+
+p.pca
+
+```
+
+:::
+:::
+
+## Content: predicting depression
+
+*Case 3: predicting depression*
+
+*Can we predict depression based on the methylation, and if so, methylation in which regions can be linked with depression?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more
+
+-   dimensionality reduction
+-   clustering
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 6
+pca = prcomp(iris[,1:4], scale=T)
+pca_plot <- data.frame(x = pca$x[,"PC1"], y = pca$x[,"PC2"], 
+                       Groups = factor(x=(iris$Species=="setosa"), 
+                                       labels=c("batch 1","batch 2")))
+
+p.clust <- ggplot(pca_plot) +
+  geom_point(aes(x=x, y=y, color = Groups), alpha = 0.8, size = 2) +
+  xlab("PC1") +
+  ylab("PC2") +
+  theme_linedraw() +
+  theme(axis.title = element_text(size = 20)) + 
+  theme(axis.text = element_text(size = 20)) + 
+  theme(legend.position = "none", legend.title = element_blank()) +
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_manual(values = mycols[1:2])
+
+p.clust
+
+```
+
+:::
+:::
+
+## Content: predicting depression
+
+*Case 3: predicting depression*
+
+*Can we predict depression based on the methylation, and if so, methylation in which regions can be linked with depression?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more
+
+-   dimensionality reduction
+-   clustering
+-   supervised learning
+:::
+
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+```{mermaid}
+flowchart TD
+  A(Data) --> B(Data splitting)
+  B --> C(Feature engineering & selection)
+  C --> D[Choosing ML algorithms]
+  D --> E[Tuning & evaluating]
+  E --> F[Final prediction model]
+  E --> G[Top ranked features]
+```
+
+:::
+:::
+
+## Content: predicting depression
+
+*Case 3: predicting depression*
+
+*Can we predict depression based on the methylation, and if so, methylation in which regions can be linked with depression?*
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+### We will talk more
+
+-   dimensionality reduction
+-   clustering
+-   supervised learning
+    - regularization, Random Forest 
+    - overfitting
+    - tidymodels
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+
+
+```{mermaid}
+
+flowchart TD
+  A(Data) --> B(Data splitting)
+  B --> C(Feature engineering & selection)
+  C --> D[Choosing ML algorithms]
+  D --> E[Tuning & evaluating]
+  E --> F[Final prediction model]
+  E --> G[Top ranked features]
+  
+```
+
+
+:::
+:::
+
+
+
+## Content
+
+<br/><br/>
+
+::: columns
+::: {.column width="50%"}
+
+### Monday
+- descriptive statistics
+- probability theory
+<br/><br/>
+
+### Tuesday
+- inference statistics
+<br/><br/>
+
+### Wednesday
+- linear models
+
+:::
+
+
+::: {.column width="50%"}
+
+### Thursday
+- dimensionality reduction & clustering
+- supervised learning
+<br/><br/>
+
+### Friday
+- feature engineering & selection
+- regularization
+- Random Forest
+
+:::
+:::
+
+
+## Welcome
+![](images/robot-welcome.png){fig-align="left" width="200"}
+
+# Questions?
+
+# Group discussion
+
+## Group discussion
+
+<br/><br/>
+
+1.  How did you find pre-course math foundations? Try to help each other out if there are any questions.
+
+2.  What is the main thing you're interested in learning this week? Can you agree on priority topic per group?
+
+# Questions?
+
