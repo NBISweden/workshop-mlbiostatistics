@@ -212,44 +212,72 @@ As a result of the central limit theorem, the distribution of fractions or mean 
 
 <!-- ``` -->
 
-::: {#exm-BMIdistr}
-# Mean BMI
+::: {#exm-skewed}
+# A skewed distribution
 
-In a population of 252 men we can study the distribution of BMI.
+A left skewed distribution has a heavier left tail than right tail. An example might be age at death of natural causes.
 
-```{r fatdata}
-fat <- read.table("http://jse.amstat.org/datasets/fat.dat.txt")
-colnames(fat) <- c("case","body.fat","body.fat.siri","density","age","weight","height","BMI","ffweight","neck","chest","abdomen","hip","thigh","knee","ankle" ,"bicep","forearm","wrist" )
+```{r}
+#| label: fig-leftskewed
+#| fig-cap: "A left skewed distribution. Can for example show the distribution of age of a mouse who died of natural causes."
+#| fig.width: 5
+miceage <- 2*(2-rgamma(10000, 3, 9))
+data.frame(age=miceage) |> ggplot(aes(x=age)) + geom_density() + theme_bw()
 ```
 
-```{r BMIhist, out.width="60%"}
-pl <- ggplot(fat, aes(x=BMI)) + geom_histogram(aes(y=stat(density)), binwidth=2, color="white") + theme_bw()
-plot(pl)
-```
+Randomly sample 3, 5, 10, 15, 20, 30 values and compute the mean value, $m$. Repeat many times to get the distribution of mean values.
 
-```{r BMI, echo=TRUE}
-##Population mean
-(mu <- mean(fat$BMI))
-##Population variance
-(sigma2 <- var(fat$BMI)/nrow(fat)*(nrow(fat)-1))
-##Population standard variance
-(sigma <- sqrt(sigma2))
-```
-
-Randomly sample 3, 5, 10, 15, 20, 30 men and compute the mean value, $m$. Repeat many times to get the distribution of mean values.
-
-```{r owexample, out.width="70%", fig.width=7, fig.show="hold"}
-#hist(fat$BMI)
-bmi <- fat$BMI
-n <- c(3,5,10,15,20, 30)
-rs <- sapply(n, function(k) replicate(10000, mean(sample(bmi, k))))
-colnames(rs) <- paste(sprintf("n=%i, m=%.4f", n, colMeans(rs)))
-plot(ggplot(melt(rs, varnames=c("rep", "n")), aes(x=value, color=factor(n))) + geom_density() + theme_bw() + facet_wrap(~n) + theme(legend.position="none"))
+```{r}
+#| label: fig-meanskew
+#| fig-cap: "Distribution of sample means, where the means are computed based on random samples of sizes 3, 5, 10, 15, 20 and 30, respectively."
+#| fig.width: 5
+#| fig.height: 5
+rs <- data.frame(n = c(3,5,10,15,20,30)) |> group_by(n) |> summarize(m=replicate(10000, mean(sample(miceage, n))), .groups="drop")
+rs |> ggplot(aes(x=m, fill=factor(n))) + geom_histogram(bins=50) + theme_bw() + facet_wrap(~factor(n))+ theme(legend.position="none")
 ```
 
 Note, mean is just the sum divided by the number of samples $n$.
 
 :::
+
+<!-- ::: {#exm-BMIdistr} -->
+<!-- # Mean BMI -->
+
+<!-- In a population of 252 men we can study the distribution of BMI. -->
+
+<!-- ```{r fatdata} -->
+<!-- fat <- read.table("http://jse.amstat.org/datasets/fat.dat.txt") -->
+<!-- colnames(fat) <- c("case","body.fat","body.fat.siri","density","age","weight","height","BMI","ffweight","neck","chest","abdomen","hip","thigh","knee","ankle" ,"bicep","forearm","wrist" ) -->
+<!-- ``` -->
+
+<!-- ```{r BMIhist, out.width="60%"} -->
+<!-- pl <- ggplot(fat, aes(x=BMI)) + geom_histogram(aes(y=stat(density)), binwidth=2, color="white") + theme_bw() -->
+<!-- plot(pl) -->
+<!-- ``` -->
+
+<!-- ```{r BMI, echo=TRUE} -->
+<!-- ##Population mean -->
+<!-- (mu <- mean(fat$BMI)) -->
+<!-- ##Population variance -->
+<!-- (sigma2 <- var(fat$BMI)/nrow(fat)*(nrow(fat)-1)) -->
+<!-- ##Population standard variance -->
+<!-- (sigma <- sqrt(sigma2)) -->
+<!-- ``` -->
+
+<!-- Randomly sample 3, 5, 10, 15, 20, 30 men and compute the mean value, $m$. Repeat many times to get the distribution of mean values. -->
+
+<!-- ```{r owexample, out.width="70%", fig.width=7, fig.show="hold"} -->
+<!-- #hist(fat$BMI) -->
+<!-- bmi <- fat$BMI -->
+<!-- n <- c(3,5,10,15,20, 30) -->
+<!-- rs <- sapply(n, function(k) replicate(10000, mean(sample(bmi, k)))) -->
+<!-- colnames(rs) <- paste(sprintf("n=%i, m=%.4f", n, colMeans(rs))) -->
+<!-- plot(ggplot(melt(rs, varnames=c("rep", "n")), aes(x=value, color=factor(n))) + geom_density() + theme_bw() + facet_wrap(~n) + theme(legend.position="none")) -->
+<!-- ``` -->
+
+<!-- Note, mean is just the sum divided by the number of samples $n$. -->
+
+<!-- ::: -->
 
 ## $\chi^2$-distribution
 
@@ -265,9 +293,9 @@ dX <- data.frame(x=x, n=rep(c(2, 3,4,5,7, 10), each=length(x))) %>%
 ggplot(dX, aes(x=x, y=fx, color=factor(paste0("n=",n), levels=paste0("n=",sort(unique(n)))))) + geom_line() + theme_bw() + scale_color_discrete("") + ylim(c(0,0.5))
 ```
 
-```{example, label="chisq", echo=FALSE}
+::: {#exm-chisq}
 The sample variance $S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i-\bar X)^2$ is such that $\frac{(n-1)S^2}{\sigma^2}$ is $\chi^2$ distributed with $n-1$ degrees of freedom.
-```
+::
 
 <!-- Example. $\chi^2$-test for variance -->
 
@@ -283,9 +311,9 @@ dX <- data.frame(x=x, n1=rep(c(2,4,10), each=length(x)), n2=rep(c(2,4,10), each=
 ggplot(dX, aes(x=x, y=fx, color=factor(sprintf("n1=%i, n2=%i",n1, n2), levels=sprintf("n1=%i, n2=%i",rep(sort(unique(n1)), each=3), sort(unique(n2)))))) + geom_line() + theme_bw() + scale_color_discrete("") + ylim(c(0,0.8))
 ```
 
-```{example, label="Fdist", echo=TRUE}
+::: {#exm-Fdistr}
 The ratio of two sample variances is F-distributed
-```
+:::
 
 <!-- Example. F-test of equality of variances -->
 
@@ -301,11 +329,9 @@ dT <- data.frame(x=x, n=rep(c(2, 3,5,7, 10, 15, 20, 30), each=length(x))) %>%
 ggplot(dT, aes(x=x, y=fx, color=factor(paste0("n=",n), levels=paste0("n=",sort(unique(n)))))) + geom_line() + theme_bw() + scale_color_discrete("")
 ```
 
-```{example, label="tdistr", echo=TRUE}
-**t-distribution**
-  
+:::{#exm-tdistr}
   The ratio between sample mean and sample variance is t-distributed.
-```
+:::
 
 ## Distributions in R
 
