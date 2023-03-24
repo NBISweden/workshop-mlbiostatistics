@@ -1,0 +1,160 @@
+#Exercises: Point and interval estimates {.unnumbered}
+
+::: {#exr-CIHb}
+You measure the Hb value in 10 50-year old men and get the following observations; 145, 165, 134, 167, 158, 176, 156, 189, 143, 123 g/L.
+
+a) Compute a 95% bootstrap interval for the mean Hb value.
+b) Compute the sample mean Hb value
+c) Compute the sample variance
+d) Compute the sample standard deviation
+b) Assume that Hb is normally distributed and compute a point estimate and a 95% confidence interval for the mean Hb value.
+
+::: {.panel-tabset}
+# ​
+
+# Solution
+
+a)  
+
+```{r histmboot, echo=TRUE}
+obs <- c(145, 165, 134, 167, 158, 176, 156, 189, 143, 123)
+mboot <- replicate(1000, {
+  x <- sample(obs, size=10, replace=TRUE)
+  mean(x)
+})
+hist(mboot)
+## 95% confidence interval
+quantile(mboot, c(0.025, 0.975))
+```
+
+b)  Sample mean
+
+```{r, echo=TRUE}
+(m <- mean(obs))
+```
+
+c)  Sample variance
+
+```{r, echo=TRUE}
+(v <- var(obs))
+```
+
+d)  Sample standard deviation
+
+```{r, echo=TRUE}
+(s <- sd(obs))
+```
+
+e)  The point estimate is the sample mean, $m=`r m`$.
+
+The sample size is small ($n=10$) and the population standard deviation unknown, hence we use the t-statistic;
+
+$$T = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$ and compute the 95% confidence interval as
+
+$$\mu = m \pm t_{\alpha/2} \frac{s}{\sqrt{n}}$$
+
+```{r, echo=TRUE}
+n <- length(obs)
+t <- qt(0.975, df=9)
+##95% confidence interval 
+c(m - t*s/sqrt(n), m + t*s/sqrt(n))
+```
+
+:::
+:::
+
+::: {#exr-CIprop}
+In the pollen example we calculated a 95% confidence interval.
+
+  a) How can we get a narrower confidence interval?
+  b) We computed a 95% interval, what if we want a 90% confidence interval?
+  c) or a 99% confidence interval?
+
+::: {.panel-tabset}
+# ​
+
+# Solution
+a)  Calculate a 90% confidence interval instead. Or sample more people than 100.
+
+b)  Change the z number,
+
+$$\pi = p \pm z SE$$
+
+For a 90% confidence interval use z=1.64
+
+```{r, echo=TRUE}
+p <- 0.42
+n <- 100
+SE <- sqrt(p*(1-p)/n)
+z <- qnorm(0.95)
+c(p - z*SE, p + z*SE)
+```
+
+c)  or a 99% confidence interval?
+
+```{r, echo=TRUE}
+z <- qnorm(0.995)
+c(p - z*SE, p + z*SE)
+```
+
+:::
+:::
+
+::: {#exr-CIscale}
+A scale has a normally distributed error with mean 0 and standard deviation 2.3 g. You measure an object 10 times and observe the mean weight 43 g.
+
+a) Compute a 95% confidence interval of the objects weight
+b) Compute a 90% confidence interval of the objects weight
+
+::: {.panel-tabset}
+# ​
+
+# Solution
+
+The measured weight is a random variable $X \sim N(\mu, \sigma)$. You know that $\sigma = 2.3$, $\mu$ is the weight of the object.
+
+a)  Compute a 95% confidence interval of the sample weight
+
+```{r, echo=TRUE}
+## 95% confidence interval
+m <- 42
+sigma <- 2.3
+n <- 10
+z <- qnorm(0.975)
+c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
+```
+
+b)  Compute a 90% confidence interval of the sample weight
+
+```{r, echo=TRUE}
+z <- qnorm(0.95)
+c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
+```
+
+:::
+:::
+
+
+::: {#exr-BMCsmokers}
+
+You observe 150 students at BMC of which 25 are smokers. Compute a 95% confidence interval for the proportion of smokers among BMC students.
+
+::: {.panel-tabset}
+# ​
+
+# Solution
+Point estimate of proportion smokers; $p=25/150=1/6$.
+
+$\pi = p \pm z SE$
+
+```{r, echo=TRUE}
+p <- 25/150
+n <- 150
+z <-qnorm(0.975)
+SE <- sqrt(p*(1-p)/n)
+## 95% CI
+c(p - z*SE, p + z*SE)
+```
+
+:::
+:::
