@@ -1,0 +1,313 @@
+# Introduction to hypothesis tests
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(reshape2)
+library(knitr)
+library(kableExtra)
+library(latex2exp)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/infe_")
+options(digits=4)
+```
+
+
+To perform a **hypothesis test** is to evaluate a hypothesis based on a random sample.
+
+Typically, the hypotheses that are tested are assumptions about properties of the population, such as proportion, mean, mean difference, variance etc.
+
+## The null and alternative hypothesis
+
+There are two hypotheses involved in a hypothesis test, the **null hypothesis,** $H_0$, and the **alternative hypothesis,** $H_1$.
+
+The null hypothesis is in general neutral; "no change", "no difference between the groups", "no association". In general we want to show that $H_0$ is false.
+
+The alternative hypothesis expresses what the researcher is interested in, such as "the treatment has an effect", "there is a difference between the groups", "there is an association". The alternative hypothesis can also be directional, e.g. "the treatment has a positive effect".
+
+## Significance level and error types
+
+A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong. There are two types of errors;
+
+**Type I error** is a false positive, a false alarm that occurs when $H_0$ is rejected when it is actually true. Examples: *"The test says that you are covid-19 positive, when you actually are not", "The test says that the drug has a positive effect on patient symptoms, but it actually has not"*.
+
+**Type II error** is a false negative, a miss that occurs when $H_0$ is accepted, when it is actually false. Examples: *The test says that you are covid-19 negative, when you actually have covid-19", "The test says that the drug has no effect on patient symptoms, when it actually has"*.
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3), caption="Error types") %>% kable_styling(full_width = FALSE)
+```
+
+The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$\|$H_0$ is true).
+
+The significance level is the risk of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controlled by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want many missed hits (type II error).
+
+The significance level should be set before the hypothesis test is performed. Common values to use are 0.05 or 0.01.
+
+If the p-value is above the significance level, $p>\alpha$, $H_0$ is accepted.
+
+If the p-value is below the significance level, $p \leq \alpha$, $H_0$ is rejected.
+
+Another property of a statistical test is the **statistical power**, defined as power = P(Reject H0\|H0 is false).
+
+## To perform a hypothesis test
+
+1.  Define $H_0$ and $H_1$
+2.  Select an appropriate **significance level**, $\alpha$
+3.  Select an appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+4.  Assume that the $H_0$ is true and compute the **sampling distribution** of $T$.
+5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ (the so called **null distribution**) and compute a **p-value**.
+6.  Based on the p-value either accept or reject $H_0$.
+
+The **sampling distribution** is the distribution of a sample statistic (e.g mean or proportion). The sampling distribution can be obtained by drawing a large number of samples from a population.
+
+A **null distribution** is a sampling distribution when the null hypothesis is true.
+
+```{r examplenull, out.width="70%", fig.show="hold", fig.width=5, fig.align="center", fig.cap="A null distribution"}
+x<-seq(-3,3,0.01)
+df <- data.frame(x=x, f=dnorm(x, 0, 1))
+plot(ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)"))
+```
+
+The **p-value** is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+
+```{r examplepval, out.width="70%", fig.align="center", fig.show="hold", fig.cap="The p-value is the probability to observe $x_{obs}$ or something more extreme, if the null hypothesis is true. The p-value is illustrated for a one-tailed test (left) and for a two-tailed test (right).", fig.width=5, warning=FALSE, out.width="50%"}
+pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("P(X$\\geq$x_{obs})"), x=1.8, y=0.11, hjust=0)
+plot(pl + scale_x_continuous(breaks=c(-2,0,1.5,2), labels=c("-2","0","xobs", "2")) + theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_line(color = c("grey92", "grey92", NA, "grey92"))))
+
+pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("P(X$\\leq$-x_{obs})"), x=-1.8, y=0.11, hjust=1)
+plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","0","xobs", "2")) +
+     theme(panel.grid.minor = element_blank(),
+              panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92"))))
+```
+
+## Hypothesis test using resampling
+
+The sampling distribution of a test statistic under the null hypothesis is sometimes known or can be approximated. When the null distribution is unknown, another option is to simulate the null distribution using resampling. This is done by simulating a model under the null hypothesis and drawing random samples from this model repeatedly. Let's take a look at a few examples;
+
+### Proportions, pollen allergy example
+
+Let's assume we know that the proportion of pollen allergy in Sweden is $0.3$. We suspect that the number of pollen allergic has increased in Uppsala in the last couple of years and want to investigate this.
+
+Observe 100 people from Uppsala, 42 of these were allergic to pollen. Is there a reason to believe that the proportion of pollen allergic in Uppsala $\pi > 0.3$?
+
+##### Null and alternative hypotheses {.unnumbered}
+
+$H_0:$ The proportion of pollen allergy in Uppsala is the same as in Sweden as a whole.
+
+$H_1:$ The proportion of pollen allergy in Uppsala is greater than in Sweden as a whole.
+
+or expressed differently;
+
+$$H_0:\, \pi=\pi_0$$
+
+$$H_1:\, \pi>\pi_0$$ where $\pi$ is the unknown proportion of pollen allergy in the Uppsala population and $\pi_0 = 0.3$ is the proportion of pollen allergy in Sweden.
+
+##### Test statistic {.unnumbered}
+
+Here we are interested in the proportion of pollen allergic in Uppsala. An appropriate test statistic could be the number of pollen allergic in a sample of size $n=100$, $X$. As an alternative we can use the proportion of pollen allergic in a sample of size $n$,
+
+$$P = \frac{X}{n}$$
+
+Let's use $P$ as our test statistic and compute the observed value, $p_{obs}$. In our sample of 100 people from Uppsala, the proportion allergic to pollen is $p=42/100=0.42$.
+
+##### Null distribution {.unnumbered}
+
+The sampling distribution of $P$ under $H_0$ (i.e. when the null hypothesis is true) is what we call the null distribution.
+
+$H_0$ state that $\pi=0.3$. We can model this using an urn model as follows;
+
+```{r pollenurn, echo=FALSE, fig.cap="An urn model of the null hypothesis $\\pi=0.3$. The black balls represent allergic and the white balls non-allergic.", out.width = "20%", fig.align="center"}
+knitr::include_graphics("figures/pollenurn.png")
+```
+
+Using this model, we can simulate taking a sample of size 100 many times.
+
+```{r sumpollenurn, echo=TRUE, message=FALSE}
+## Urn
+urn <- rep(c(0, 1), c(7, 3))
+## Sample 100 times with replacement
+x <- sample(urn, 100, replace=TRUE)
+## Compute proportion of samples that are allergic (1)
+mean(x)
+## Set the seed to get the same result if we redo the analysis
+set.seed(13)
+## Repeat drawing sample of size 100 and computing proporion allergic 100000 times
+p <- replicate(100000, mean(sample(rep(c(0, 1), c(7, 3)), 100, replace=TRUE)))
+```
+
+Plot the distribution
+
+```{r pollensampledistr, out.width="45%", fig.align="center", fig.cap="The sampling distribution."}
+ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + theme_bw()
+```
+
+##### Compute p-value {.unnumbered}
+
+Compare the observed value, $p_{obs} = 0.42$ to the null distribution.
+
+```{r histpollennull, out.width="50%", fig.align="center", fig.cap="The sampling distribution. The observed value is marked by a red vertical line."}
+ggplot(data.frame(p=p), aes(x=p)) + geom_histogram(color="white", binwidth=0.02) + geom_vline(xintercept=0.42, color="red") + theme_bw()
+```
+
+The p-value is the probability of getting the observed value or higher, if the null hypothesis is true.
+
+Use the null distribution to calculate the p-value, $P(P \geq 0.42|H_0)$.
+
+```{r pollenp, echo=TRUE, message=FALSE}
+## How many times 
+sum(p >= 0.42)
+## p-value
+pval <- mean(p >= 0.42)
+```
+
+p = $P(P \geq 0.42|H_0)$ = `r format(pval, digits=4)`
+
+##### Accept or reject $H_0$? {.unnumbered}
+
+As the p-value is $< \alpha = 0.05$ the null hypotheis is rejected. This means that we can conclude that there is reason to belive that the porportion of pollen allergic in Uppsala is greater than 30%.
+
+### Mean values, permutation test example
+
+**Do high fat diet lead to increased body weight?**
+
+The effect of high-fat diet on the body weight of mice is studied in an experiment. The study setup is as follows:
+
+1.  24 female mice are ordered from a lab.
+2.  Randomly, 12 of the 24 mice are assigned to receive high-fat diet, the remaining 12 are controls (ordinary diet).
+3.  Body weight is measured after one week.
+
+```{r mice, echo=FALSE, eval=FALSE}
+## Full mouse population can be downloaded from
+mp <- read.csv("https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/mice_pheno.csv")
+## Select all female mice
+pop.F <- mp %>% filter(Sex=="F")
+## Select all the female mice on high fat diet
+pop.F.hf <- (pop.F %>% filter(Diet=="hf"))[, "Bodyweight"]
+## Select all the female mice on ordinary diet
+pop.F.n <- (pop.F %>% filter(Diet=="chow"))[, "Bodyweight"]
+
+## Select the seed so that we all get the same random mice!
+set.seed(1)
+## Select 12 HF mice
+xHF <- round(sample(pop.F.hf, 12))
+## Select 12 O mice
+xN <- round(sample(pop.F.n, 12))
+```
+
+The observed values, mouse weights in grams, are summarized below;
+
+```{r miceobs, echo=FALSE}
+## 12 HF mice
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+```
+
+```{r}
+kable(rbind("high-fat"=xHF, "ordinary"=xN), digits=1) %>% kable_styling(font_size=14)
+```
+
+##### Null and alternative hypotheses {.unnumbered}
+
+$$
+\begin{aligned}
+H_0: \mu_d = \mu_c \iff \mu_d - \mu_c = 0\\
+H_1: \mu_d>\mu_c \iff \mu_d-\mu_c > 0
+\end{aligned}
+$$
+
+where $\mu_d$ is the (unknown) mean body weight of the high-fat mouse population and $\mu_c$ is the mean body-weight of the control mouse population.
+
+Studied population: Female mice that can be ordered from a lab.
+
+##### Test statistic {.unnumbered}
+
+Here we are interested in the mean difference between high-fat and control mice and an appropriate test statistic can be the mean diffrence, $D = \bar X_d - \bar X_c$, where
+
+-   $\bar X_d$ is a random variable describing the mean weight of 12 (randomly selected) mice on high-fat diet. $E[\bar X_d] = E[X_d] = \mu_d$
+-   $\bar X_c$ is a random variable describing the Mean weight of 12 (randomly selected) mice on ordinary diet. $E[\bar X_c] = E[X_c] = \mu_c$
+
+The mean difference $D = \bar X_d - \bar X_c$ is also a random variable.
+
+Observed values;
+
+```{r, echo=TRUE}
+## 12 HF mice
+xD <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xC <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+
+##Compute mean body weights of the two samples
+mD <- mean(xD)
+mC <- mean(xC) 
+## Compute mean difference
+dobs <- mD - mC
+```
+
+Mean weight of sample control mice (ordinary diet): $\bar x_c = `r sprintf("%.2f", mC)`$
+
+Mean weight of sample mice on high-fat diet: $\bar x_d = `r sprintf("%.2f", mD)`$
+
+Difference in sample mean weights: $d_{obs} = \bar x_d - \bar x_c = `r dobs`$
+
+##### Null distribution {.unnumbered}
+
+If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the same diet. What can we expect if all mice are fed with the same type of food?
+
+This can be accomplished using permutation
+
+The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
+
+Assume $H_0$ is true, i.e. assume all mice are equivalent and
+
+1.  Randomly reassign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control'.
+2.  Compute difference in mean weights
+
+If we repeat 1-2 many times we get the null distribution of difference in mean weights.
+
+```{r dnull, echo=TRUE, message=FALSE}
+## All 24 body weights in a vector
+x <- c(xHF, xN)
+## Mean difference
+dobs <- mean(x[1:12]) - mean(x[13:24])
+## Permute once
+y <- sample(x)
+##Compute mean difference
+mean(y[1:12]) - mean(y[13:24])
+##Repeat the above many times
+dnull.perm <- replicate(n = 100000, {
+  y <- sample(x)
+  ##Mean difference
+  mean(y[1:12]) - mean(y[13:24])
+})
+```
+
+Plot the null distribution and the observed difference.
+
+```{r permtest, fig.cap="Null distribution of the mean difference $D$.", out.width="50%"}
+ggplot(data.frame(d=dnull.perm), aes(x=d)) +
+  geom_histogram(bins=25, color="white") +
+  theme_bw() +
+  geom_vline(xintercept=dobs, color="red")
+##Alternatively plot using hist
+## hist(dnull.perm)
+```
+
+##### Compute p-value {.unnumbered}
+
+What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
+
+```{r micepval, echo=TRUE, message=FALSE}
+## Compute the p-value
+pval <- mean(dnull.perm>=dobs)
+```
+
+$$P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = `r sprintf("%.3g",pval)`$$
+
+##### Accept or reject $H_0$? {.unnumbered}
+
+As $`r format(pval, digits=3)`>0.05$ the null hypothesis is accepted, there is no evidence that the high-fat diet increase body weight in mice.
+
+<!-- ## Parametric hypothesis tests -->
+
+
+
