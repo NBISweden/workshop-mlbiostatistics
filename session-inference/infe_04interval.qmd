@@ -1,37 +1,83 @@
-# Point and interval estimates
+# Point and interval estimates {#sec-estimates}
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(kableExtra)
+library(ggforce)
 ```
+
 
 ## Point estimate
 
-As seen in previous chapter, the sample proportion and sample mean are unbiased estimates of the corresponding population statistics. When we only have a sample, the sample estimate will be our best guess, a **point estimate**, of the population value, but it will not be without error, but the larger the sample, the smaller the error.
+Unknown population parameters can be inferred from estimates from samples from the population  of interest. The sample estimate will be our best guess, a **point estimate**, of
 
+::: {#exm-pollen-pointestimate}
+# Pollen
 If we are interested in how large proportion of the Uppsala population is allergic to pollen, we can investigate this by studying a random sample, e.g. randomly select 100 persons in Uppsala. It is important to actually sample randomly, ideally every individual in the population should have the same probability of being sampled.
 
 In our sample, we observed that 42 of the 100 has a pollen allergy. Hence, the observed sample proportion is $p=0.42$.
 
 <!-- What does this say about the population proportion $\pi$? -->
   
-  Based on this observation our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$. We know that there is an uncertainty in this measurement, if the experiment is repeated we would select 100 other persons and our point estimate would be slightly different.
+Based on this observation our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$. There is an uncertainty in this measurement, if the experiment is repeated 100 other persons would be selected and our point estimate would be slightly different.
+:::
+
+::: {#exm-meanweight}
+# Weight
+
+The mean weight of a mouse population, $\mu$ is unknown. By taking a sample of size $n$ and measure the mean weight of the mice in the sample, $m$, we measure a point estimate of the population mean.
+:::
+
+## Bias and precision
+
+The sample proportion and sample mean are unbiased point estimates of the corresponding population parameters. It will not be without error, but the larger the sample, the smaller the error.
+
+The expected value of an **unbiased** point estimate is the the population parameter that it estimates, This means that if you would repreat the sampling many times and compute the point estimate of interest, e.g. sample mean, the average of sample means would be the population mean.
+
+```{r}
+#| label: bioasprecision
+#| fig-cap: "Bias and precision."
+bias <- c(Biased=1.5, Unbiased=0)
+precision= c(Precise=0.5, Unprecise=2)
+df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutate(m=bias[B], s=precision[P]) |> group_by(B, P) |> summarize(x=rnorm(10, mean=m, sd=s), y=rnorm(10, mean=m, sd=s)) 
+
+ggplot() + geom_point(data=df, aes(x=x, y=y, color=B, shape=P)) + facet_grid(B~P) + geom_circle(data=data.frame(x0=0, y0=0,r=1:6), aes(x0=x0,y0=y0,r=r)) + theme_classic() + theme(panel.grid=element_blank(), axis.ticks  = element_blank(), axis.text=element_blank())
+```
+
+Even an unbiased point estimate is not perfect, it will have a cettain amount of uncertainty.
+
+
 
 ## Confidence interval
 
 A confidence interval is a type of interval estimate associated with a confidence level.
 
 ::: {#def-CI}
-**Confidence interval** An interval that with probability $1 - \alpha$ cover the population parameter $\theta$, is called a **confidence interval for $\theta$ with confidence level $1 - \alpha$**.
+**A confidence interval for $\theta$ with confidence level $1 - \alpha$** is an interval that with probability $1 - \alpha$ cover the population parameter $\theta$.
 :::
 
-```{r CI95, fig.width=7, fig.height=3, fig.cap="A 95% confidence interval will have 95% chance to cover the true value."}
+```{r fig-CI95, fig.width=7, fig.height=3, fig.cap="A 95% confidence interval will have 95% chance to cover the true value."}
 set.seed(13)
 p <- replicate(100, mean(sample(0:1, 100, p=c(.7,.3), replace=TRUE)))
 ggplot(data.frame(x=1:40, p=p[61:100]) %>% mutate(ymin=p-1.96*sqrt((p*(1-p))/100), ymax=p+1.96*sqrt((p*(1-p))/100)), aes(x=x, ymin=ymin, ymax=ymax, color=0.3>ymin & 0.3<ymax)) + geom_errorbar() + geom_hline(yintercept=0.3) + xlab("") + ylab("p") + theme_bw() + theme(legend.position="none")
 ```
 
-### Bootstrap interval
+<!-- xx -->
+
+If the sampling distribution of studied statistic is known the confidence interval can be computed.
+
+
+```{r fig-samplingdistr, out.width="50%", fig.cap="The sampling distribution of $\theta$. The probability that the observed value of a random sample falls in the "}
+w<-seq(-3.5,3.5,.01)
+df.nwt <- data.frame(w=w, f=dnorm(w))
+plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df.nwt %>% filter(abs(w)<qnorm(0.975))) + annotate("label",label=sprintf("95 %%"), x=0, y=0.1, hjust=0.5) + theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()))
+```
+
+
+
+
+
+### Bootstrap interval {#sec-bootstrapinterval}
 
 If the distribution of the random variable of interest is unknown, a bootstrap confidence interval can be computed instead.
 
