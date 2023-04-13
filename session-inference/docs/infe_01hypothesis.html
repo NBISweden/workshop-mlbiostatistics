@@ -197,28 +197,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./infe_exr3_interval_solutions.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Exercises: Point and interval estimates {.unnumbered}</span></a>
+  <a href="./infe_exr3_interval_solutions.html" class="sidebar-item-text sidebar-link">Exercises: Point and interval estimates</a>
   </div>
 </li>
     </ul>
     </div>
-</nav>
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
+    <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
   <li><a href="#the-null-and-alternative-hypothesis" id="toc-the-null-and-alternative-hypothesis" class="nav-link active" data-scroll-target="#the-null-and-alternative-hypothesis"><span class="toc-section-number">1.1</span>  The null and alternative hypothesis</a></li>
-  <li><a href="#significance-level-and-error-types" id="toc-significance-level-and-error-types" class="nav-link" data-scroll-target="#significance-level-and-error-types"><span class="toc-section-number">1.2</span>  Significance level and error types</a></li>
-  <li><a href="#to-perform-a-hypothesis-test" id="toc-to-perform-a-hypothesis-test" class="nav-link" data-scroll-target="#to-perform-a-hypothesis-test"><span class="toc-section-number">1.3</span>  To perform a hypothesis test</a></li>
-  <li><a href="#hypothesis-test-using-resampling" id="toc-hypothesis-test-using-resampling" class="nav-link" data-scroll-target="#hypothesis-test-using-resampling"><span class="toc-section-number">1.4</span>  Hypothesis test using resampling</a>
+  <li><a href="#to-perform-a-hypothesis-test" id="toc-to-perform-a-hypothesis-test" class="nav-link" data-scroll-target="#to-perform-a-hypothesis-test"><span class="toc-section-number">1.2</span>  To perform a hypothesis test</a></li>
+  <li><a href="#the-p-value" id="toc-the-p-value" class="nav-link" data-scroll-target="#the-p-value"><span class="toc-section-number">1.3</span>  The p-value</a></li>
+  <li><a href="#significance-level-and-error-types" id="toc-significance-level-and-error-types" class="nav-link" data-scroll-target="#significance-level-and-error-types"><span class="toc-section-number">1.4</span>  Significance level and error types</a></li>
+  <li><a href="#hypothesis-testing-using-resampling" id="toc-hypothesis-testing-using-resampling" class="nav-link" data-scroll-target="#hypothesis-testing-using-resampling"><span class="toc-section-number">1.5</span>  Hypothesis testing using resampling</a>
   <ul class="collapse">
-  <li><a href="#proportions-pollen-allergy-example" id="toc-proportions-pollen-allergy-example" class="nav-link" data-scroll-target="#proportions-pollen-allergy-example"><span class="toc-section-number">1.4.1</span>  Proportions, pollen allergy example</a></li>
-  <li><a href="#mean-values-permutation-test-example" id="toc-mean-values-permutation-test-example" class="nav-link" data-scroll-target="#mean-values-permutation-test-example"><span class="toc-section-number">1.4.2</span>  Mean values, permutation test example</a></li>
+  <li><a href="#resampling-from-a-population-under-h_0" id="toc-resampling-from-a-population-under-h_0" class="nav-link" data-scroll-target="#resampling-from-a-population-under-h_0"><span class="toc-section-number">1.5.1</span>  Resampling from a population under <span class="math inline">\(H_0\)</span></a></li>
+  <li><a href="#bootstrap-resampling" id="toc-bootstrap-resampling" class="nav-link" data-scroll-target="#bootstrap-resampling"><span class="toc-section-number">1.5.2</span>  Bootstrap resampling</a></li>
+  <li><a href="#permutation" id="toc-permutation" class="nav-link" data-scroll-target="#permutation"><span class="toc-section-number">1.5.3</span>  Permutation</a></li>
   </ul></li>
   </ul>
 </nav>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -240,24 +242,77 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<p>To perform a <strong>hypothesis test</strong> is to evaluate a hypothesis based on a random sample.</p>
-<p>Typically, the hypotheses that are tested are assumptions about properties of the population, such as proportion, mean, mean difference, variance etc.</p>
+<p><strong>Statistical inference</strong> is to draw conclusions regarding properties of a population based on observations of a random sample from the population.</p>
+<p>A <strong>hypothesis test</strong> is a type of inference about evaluating if a hypothesis about a population is supported by the observations of a random sample (i.e by the data available).</p>
+<p>Typically, the hypotheses that are tested are assumptions about properties of the population, such as proportion, mean, mean difference, variance etc. A hypothesis test can for example test if the population mean is greater than 0.</p>
+<p>In summary, a hypothesis test involves defining a null and alternative hypothesis, selecting an appropriate test statistic and computing the observed value of this statistic. Finally, the probability of the observed value (or something more extreme) if the null hypothesis is true is computed and based on this probability and a predefined significance level, the null hypothesis is either accept or reject.</p>
 <section id="the-null-and-alternative-hypothesis" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="the-null-and-alternative-hypothesis"><span class="header-section-number">1.1</span> The null and alternative hypothesis</h2>
 <p>There are two hypotheses involved in a hypothesis test, the <strong>null hypothesis,</strong> <span class="math inline">\(H_0\)</span>, and the <strong>alternative hypothesis,</strong> <span class="math inline">\(H_1\)</span>.</p>
-<p>The null hypothesis is in general neutral; “no change”, “no difference between the groups”, “no association”. In general we want to show that <span class="math inline">\(H_0\)</span> is false.</p>
-<p>The alternative hypothesis expresses what the researcher is interested in, such as “the treatment has an effect”, “there is a difference between the groups”, “there is an association”. The alternative hypothesis can also be directional, e.g.&nbsp;“the treatment has a positive effect”.</p>
+<p>The null hypothesis is in general neutral; <em>“no change”</em>, <em>“no difference between the groups”</em>, <em>“no association”</em>. In general we want to show that <span class="math inline">\(H_0\)</span> is false.</p>
+<p>The alternative hypothesis expresses what the researcher is interested in, such as <em>“the treatment has an effect”</em>, <em>“there is a difference between the groups”</em>, <em>“there is an association”</em>. The alternative hypothesis can also be directional, e.g.&nbsp;“the treatment has a positive effect”.</p>
+<!-- A hypothesis test try to answer the question *with the observed data, is there reason to believe that the null hypothesis is false?*. This question is answered by assuming that the null hypothesis is true and computing the probability of our observation or something more extreme. -->
 </section>
-<section id="significance-level-and-error-types" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="significance-level-and-error-types"><span class="header-section-number">1.2</span> Significance level and error types</h2>
+<section id="to-perform-a-hypothesis-test" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="to-perform-a-hypothesis-test"><span class="header-section-number">1.2</span> To perform a hypothesis test</h2>
+<ol type="1">
+<li>Define <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span></li>
+<li>Select an appropriate <strong>significance level</strong>, <span class="math inline">\(\alpha\)</span></li>
+<li>Select an appropriate test statistic, <span class="math inline">\(T\)</span>, and compute the observed value, <span class="math inline">\(t_{obs}\)</span></li>
+<li>Assume that the <span class="math inline">\(H_0\)</span> is true and compute the <strong>sampling distribution</strong> of <span class="math inline">\(T\)</span>.</li>
+<li>Compare the observed value, <span class="math inline">\(t_{obs}\)</span>, with the computed sampling distribution under <span class="math inline">\(H_0\)</span> (the so called <strong>null distribution</strong>) and compute a <strong>p-value</strong>.</li>
+<li>Based on the p-value either accept or reject <span class="math inline">\(H_0\)</span>.</li>
+</ol>
+<p>The <strong>sampling distribution</strong> is the distribution of a sample statistic (e.g mean or proportion). The sampling distribution can be obtained by drawing a large number of samples from a population.</p>
+<p>A <strong>null distribution</strong> is a sampling distribution when the null hypothesis is true.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-nulldistr" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Rfigures/infe_fig-nulldistr-1.png" class="img-fluid figure-img" style="width:70.0%"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.1: A null distribution</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="the-p-value" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="the-p-value"><span class="header-section-number">1.3</span> The p-value</h2>
+<p>The <strong>p-value</strong> is the probability of observing a value at least as extreme as the observed value, if <span class="math inline">\(H_0\)</span> is true.</p>
+<div id="fig-examplepval" class="cell quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-examplepval-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Rfigures/infe_fig-examplepval-1.png" class="img-fluid figure-img" data-ref-parent="fig-examplepval" width="3000"></p>
+<p></p><figcaption class="figure-caption">(a) One-tailed</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-examplepval-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Rfigures/infe_fig-examplepval-2.png" class="img-fluid figure-img" data-ref-parent="fig-examplepval" width="3000"></p>
+<p></p><figcaption class="figure-caption">(b) Two-tailed</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.2: The p-value is the probability to observe <span class="math inline">\(x_{obs}\)</span> or something more extreme, if the null hypothesis is true. The p-value is illustrated for a one-tailed test (left) and for a two-tailed test (right).</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="significance-level-and-error-types" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="significance-level-and-error-types"><span class="header-section-number">1.4</span> Significance level and error types</h2>
 <p>A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong. There are two types of errors;</p>
 <p><strong>Type I error</strong> is a false positive, a false alarm that occurs when <span class="math inline">\(H_0\)</span> is rejected when it is actually true. Examples: <em>“The test says that you are covid-19 positive, when you actually are not”, “The test says that the drug has a positive effect on patient symptoms, but it actually has not”</em>.</p>
-<p><strong>Type II error</strong> is a false negative, a miss that occurs when <span class="math inline">\(H_0\)</span> is accepted, when it is actually false. Examples: <em>The test says that you are covid-19 negative, when you actually have covid-19”, “The test says that the drug has no effect on patient symptoms, when it actually has”</em>.</p>
+<p><strong>Type II error</strong> is a false negative, a miss that occurs when <span class="math inline">\(H_0\)</span> is accepted, when it is actually false. Examples: <em>“The test says that you are covid-19 negative, when you actually have covid-19”, “The test says that the drug has no effect on patient symptoms, when it actually has”</em>.</p>
 <div class="cell">
 <div class="cell-output-display">
+<div id="tbl-errortypes" class="anchored">
 
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption>Error types</caption>
+<table class="table table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;"><caption>Table&nbsp;1.1:  Error types. </caption>
 <tbody>
   <tr>
    <td style="text-align:left;">  </td>
@@ -279,61 +334,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 </div>
-<p>The significance level, <span class="math inline">\(\alpha\)</span> = P(false alarm) = P(Reject <span class="math inline">\(H_0\)</span>|<span class="math inline">\(H_0\)</span> is true).</p>
-<p>The significance level is the risk of false alarm, i.e.&nbsp;to say “I have a hit”, “I found a difference”, when the the null hypothesis (“there is no difference”) is true. The risk of false alarm is controlled by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don’t want many missed hits (type II error).</p>
-<p>The significance level should be set before the hypothesis test is performed. Common values to use are 0.05 or 0.01.</p>
+</div>
+<p>The probability of type I and II errors are denoted <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, respectively.</p>
+<p><span class="math display">\[\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})\]</span> <span class="math display">\[\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_1 \textrm{ is true})\]</span></p>
+<p>The significance level, <span class="math inline">\(\alpha\)</span>, is the risk of false alarm, i.e.&nbsp;to say <em>“I have a hit”</em>, <em>“I found a difference”</em>, when the the null hypothesis (<em>“there is no difference”</em>) is true.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-alphabeta" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Rfigures/infe_fig-alphabeta-1.png" class="img-fluid figure-img" width="3000"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.3: The probability density functions under H0 and H1, respectively. The probability of type I error (<span class="math inline">\(\alpha\)</span>) and type II error (<span class="math inline">\(\beta\)</span>) are indicated.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The risk of false alarm is controlled by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don’t want many missed hits (type II error).</p>
+<p>The significance level should be set before the hypothesis test is performed. Common values to use are <span class="math inline">\(\alpha=0.05\)</span> or 0.01.</p>
 <p>If the p-value is above the significance level, <span class="math inline">\(p&gt;\alpha\)</span>, <span class="math inline">\(H_0\)</span> is accepted.</p>
 <p>If the p-value is below the significance level, <span class="math inline">\(p \leq \alpha\)</span>, <span class="math inline">\(H_0\)</span> is rejected.</p>
-<p>Another property of a statistical test is the <strong>statistical power</strong>, defined as power = P(Reject H0|H0 is false).</p>
+<p>Another property of a statistical test is the <strong>statistical power</strong>, defined as</p>
+<p><span class="math display">\[\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_1\textrm{ is true}).\]</span></p>
 </section>
-<section id="to-perform-a-hypothesis-test" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="to-perform-a-hypothesis-test"><span class="header-section-number">1.3</span> To perform a hypothesis test</h2>
-<ol type="1">
-<li>Define <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span></li>
-<li>Select an appropriate <strong>significance level</strong>, <span class="math inline">\(\alpha\)</span></li>
-<li>Select an appropriate test statistic, <span class="math inline">\(T\)</span>, and compute the observed value, <span class="math inline">\(t_{obs}\)</span></li>
-<li>Assume that the <span class="math inline">\(H_0\)</span> is true and compute the <strong>sampling distribution</strong> of <span class="math inline">\(T\)</span>.</li>
-<li>Compare the observed value, <span class="math inline">\(t_{obs}\)</span>, with the computed sampling distribution under <span class="math inline">\(H_0\)</span> (the so called <strong>null distribution</strong>) and compute a <strong>p-value</strong>.</li>
-<li>Based on the p-value either accept or reject <span class="math inline">\(H_0\)</span>.</li>
-</ol>
-<p>The <strong>sampling distribution</strong> is the distribution of a sample statistic (e.g mean or proportion). The sampling distribution can be obtained by drawing a large number of samples from a population.</p>
-<p>A <strong>null distribution</strong> is a sampling distribution when the null hypothesis is true.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="Rfigures/infe_examplenull-1.png" class="img-fluid figure-img" style="width:70.0%"></p>
-<p></p><figcaption class="figure-caption">A null distribution</figcaption><p></p>
-</figure>
-</div>
-</div>
-</div>
-<p>The <strong>p-value</strong> is the probability of observing a value at least as extreme as the observed value, if <span class="math inline">\(H_0\)</span> is true.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="Rfigures/infe_examplepval-1.png" class="img-fluid figure-img" style="width:50.0%"></p>
-<p></p><figcaption class="figure-caption">The p-value is the probability to observe <span class="math inline">\(x_{obs}\)</span> or something more extreme, if the null hypothesis is true. The p-value is illustrated for a one-tailed test (left) and for a two-tailed test (right).</figcaption><p></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="Rfigures/infe_examplepval-2.png" class="img-fluid figure-img" style="width:50.0%"></p>
-<p></p><figcaption class="figure-caption">The p-value is the probability to observe <span class="math inline">\(x_{obs}\)</span> or something more extreme, if the null hypothesis is true. The p-value is illustrated for a one-tailed test (left) and for a two-tailed test (right).</figcaption><p></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="hypothesis-test-using-resampling" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="hypothesis-test-using-resampling"><span class="header-section-number">1.4</span> Hypothesis test using resampling</h2>
-<p>The sampling distribution of a test statistic under the null hypothesis is sometimes known or can be approximated. When the null distribution is unknown, another option is to simulate the null distribution using resampling. This is done by simulating a model under the null hypothesis and drawing random samples from this model repeatedly. Let’s take a look at a few examples;</p>
-<section id="proportions-pollen-allergy-example" class="level3" data-number="1.4.1">
-<h3 data-number="1.4.1" class="anchored" data-anchor-id="proportions-pollen-allergy-example"><span class="header-section-number">1.4.1</span> Proportions, pollen allergy example</h3>
-<p>Let’s assume we know that the proportion of pollen allergy in Sweden is <span class="math inline">\(0.3\)</span>. We suspect that the number of pollen allergic has increased in Uppsala in the last couple of years and want to investigate this.</p>
+<section id="hypothesis-testing-using-resampling" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="hypothesis-testing-using-resampling"><span class="header-section-number">1.5</span> Hypothesis testing using resampling</h2>
+<p>The null distribution, the sampling distribution of a test statistic under the null hypothesis, is sometimes known or can be approximated. When the null distribution is unknown, another option is to estimate the null distribution using resampling.</p>
+<section id="resampling-from-a-population-under-h_0" class="level3" data-number="1.5.1">
+<h3 data-number="1.5.1" class="anchored" data-anchor-id="resampling-from-a-population-under-h_0"><span class="header-section-number">1.5.1</span> Resampling from a population under <span class="math inline">\(H_0\)</span></h3>
+<p>If it is possible to simulate sampling under the null hypothesis, resampling can be used to estimate the null distribution, just like we did in the previous session about estimating probabilties and probability distributions using resampling.</p>
+<p>This is done by setting up a model under the null hypothesis (e.g.&nbsp;using an urn model) and drawing random samples from this model repeatedly.</p>
+<div id="exm-resamplingpollen" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.1 (Proportions, pollen allergy) </strong></span>Let’s assume we know that the proportion of pollen allergy in Sweden is <span class="math inline">\(0.3\)</span>. We suspect that the number of pollen allergic has increased in Uppsala in the last couple of years and want to investigate this.</p>
 <p>Observe 100 people from Uppsala, 42 of these were allergic to pollen. Is there a reason to believe that the proportion of pollen allergic in Uppsala <span class="math inline">\(\pi &gt; 0.3\)</span>?</p>
 <section id="null-and-alternative-hypotheses" class="level5 unnumbered">
 <h5 class="unnumbered anchored" data-anchor-id="null-and-alternative-hypotheses">Null and alternative hypotheses</h5>
@@ -343,11 +373,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><span class="math display">\[H_0:\, \pi=\pi_0\]</span></p>
 <p><span class="math display">\[H_1:\, \pi&gt;\pi_0\]</span> where <span class="math inline">\(\pi\)</span> is the unknown proportion of pollen allergy in the Uppsala population and <span class="math inline">\(\pi_0 = 0.3\)</span> is the proportion of pollen allergy in Sweden.</p>
 </section>
+<section id="significance-level" class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="significance-level">Significance level</h5>
+<p>Here we let <span class="math inline">\(\alpha = 0.05\)</span>.</p>
+</section>
 <section id="test-statistic" class="level5 unnumbered">
 <h5 class="unnumbered anchored" data-anchor-id="test-statistic">Test statistic</h5>
 <p>Here we are interested in the proportion of pollen allergic in Uppsala. An appropriate test statistic could be the number of pollen allergic in a sample of size <span class="math inline">\(n=100\)</span>, <span class="math inline">\(X\)</span>. As an alternative we can use the proportion of pollen allergic in a sample of size <span class="math inline">\(n\)</span>,</p>
 <p><span class="math display">\[P = \frac{X}{n}\]</span></p>
-<p>Let’s use <span class="math inline">\(P\)</span> as our test statistic and compute the observed value, <span class="math inline">\(p_{obs}\)</span>. In our sample of 100 people from Uppsala, the proportion allergic to pollen is <span class="math inline">\(p=42/100=0.42\)</span>.</p>
+<p>Let’s use <span class="math inline">\(P\)</span> as our test statistic and compute the observed value, <span class="math inline">\(p_{obs}\)</span>. In our sample of 100 people from Uppsala, the proportion allergic to pollen is <span class="math inline">\(p_{obs}=42/100=0.42\)</span>.</p>
 </section>
 <section id="null-distribution" class="level5 unnumbered">
 <h5 class="unnumbered anchored" data-anchor-id="null-distribution">Null distribution</h5>
@@ -355,10 +389,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><span class="math inline">\(H_0\)</span> state that <span class="math inline">\(\pi=0.3\)</span>. We can model this using an urn model as follows;</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div id="fig-pollenurn" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="figures/pollenurn.png" class="img-fluid figure-img" style="width:20.0%"></p>
-<p></p><figcaption class="figure-caption">An urn model of the null hypothesis <span class="math inline">\(\pi=0.3\)</span>. The black balls represent allergic and the white balls non-allergic.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.4: An urn model of the null hypothesis <span class="math inline">\(\pi=0.3\)</span>. The black balls represent allergic and the white balls non-allergic.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -372,7 +406,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Compute proportion of samples that are allergic (1)</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.29</code></pre>
+<pre><code>[1] 0.26</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Set the seed to get the same result if we redo the analysis</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
@@ -382,10 +416,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Plot the distribution</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div id="fig-pollensampledistr" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="Rfigures/infe_pollensampledistr-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
-<p></p><figcaption class="figure-caption">The sampling distribution.</figcaption><p></p>
+<p><img src="Rfigures/infe_fig-pollensampledistr-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.5: The sampling distribution.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -396,10 +430,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Compare the observed value, <span class="math inline">\(p_{obs} = 0.42\)</span> to the null distribution.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div id="fig-histpollennull" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="Rfigures/infe_histpollennull-1.png" class="img-fluid figure-img" style="width:50.0%"></p>
-<p></p><figcaption class="figure-caption">The sampling distribution. The observed value is marked by a red vertical line.</figcaption><p></p>
+<p><img src="Rfigures/infe_fig-histpollennull-1.png" class="img-fluid figure-img" style="width:50.0%"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.6: The sampling distribution. The observed value is marked by a red vertical line.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -421,11 +455,99 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h5 class="unnumbered anchored" data-anchor-id="accept-or-reject-h_0">Accept or reject <span class="math inline">\(H_0\)</span>?</h5>
 <p>As the p-value is <span class="math inline">\(&lt; \alpha = 0.05\)</span> the null hypotheis is rejected. This means that we can conclude that there is reason to belive that the porportion of pollen allergic in Uppsala is greater than 30%.</p>
 </section>
+</div>
 </section>
-<section id="mean-values-permutation-test-example" class="level3" data-number="1.4.2">
-<h3 data-number="1.4.2" class="anchored" data-anchor-id="mean-values-permutation-test-example"><span class="header-section-number">1.4.2</span> Mean values, permutation test example</h3>
-<p><strong>Do high fat diet lead to increased body weight?</strong></p>
-<p>The effect of high-fat diet on the body weight of mice is studied in an experiment. The study setup is as follows:</p>
+<section id="bootstrap-resampling" class="level3" data-number="1.5.2">
+<h3 data-number="1.5.2" class="anchored" data-anchor-id="bootstrap-resampling"><span class="header-section-number">1.5.2</span> Bootstrap resampling</h3>
+<p><strong>Bootstrap</strong> is a resampling technique that resamples with replacement from the available data (random sample) to construct new simulated samples. These bootstrapped samples can be used to estimate sampling distributions that can be used to estimate properties such as standard error and interval estimates, but also to perform hypothesis testing.</p>
+<p>We will get back to constructing bootstrap interval estimates in <a href="infe_04interval.html#sec-bootstrapinterval"><span>Section&nbsp;4.3.1</span></a>. Here we will focus on hypothesis testing using bootstrap.</p>
+<p>Bootstrapping can be used to construct the null distribution in hypothesis testing. To do so, we first need to modify the observed sample according to the null hyothesis, before resampling with replacement.</p>
+<p>For a one sample test of means the hypotheses can be;</p>
+<p><span class="math display">\[H_0: \mu=\mu_0\]</span> <span class="math display">\[H_1: \mu&gt;\mu_0\]</span> Let our observed random sample of size <span class="math inline">\(n\)</span> be <span class="math inline">\(x_1, x_2, \dots, x_n\)</span>, with sample mean <span class="math inline">\(m_{obs} = \bar x\)</span>. For simplicity we can use sample mean as out test statistic.</p>
+<p>To contruct a sampling distribution when <span class="math inline">\(H_0\)</span> is true we would need a modified sample with mean <span class="math inline">\(\mu_0\)</span>, which can be constructed by computing <span class="math inline">\(x_i'=x_i-m_{obs} + \mu_0\)</span>. A null distribution can then be estimated using bootstrapping as follows;</p>
+<ol type="1">
+<li>Take a random sample of size <span class="math inline">\(n\)</span> with replacement from <span class="math inline">\(x_1', x_2', \dots, x_n'\)</span>. Note that the same value might be selected more than once as we sample with replacement. Denote our bootstrap resample <span class="math inline">\(x^*\)</span>.</li>
+<li>Compute the mean value of the bootstrap resample <span class="math inline">\(x^*\)</span> and denote the mean <span class="math inline">\(m^*\)</span>.</li>
+</ol>
+<p>Repeat 1 and 2 many times to get a distribution of mean values <span class="math inline">\(m^*\)</span>, a bootstrap estimate of the null distribution of sample means. Many times can e.g.&nbsp;be <span class="math inline">\(B=1000\)</span>.</p>
+<p>The p-value can be estimated as the number of times <span class="math inline">\(m^* \geq m_{obs}\)</span> divided by <span class="math inline">\(B\)</span></p>
+<p><span class="math display">\[p = \frac{\sum_{k=1}^B I(m^*_k \geq m_{obs})}{B}.\]</span></p>
+<div id="exm-meanbootstrap" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.2 (Mean value, bootstrap) </strong></span>Men with a waist circumference greater than 94 cm have been shown to have an increased risk of cardiovascular disease. Based on the following waist circumferences of 12 diabetic men, is there reason to believe that the mean waist circumference of diabetic men is greater than 94 cm?</p>
+<div class="cell">
+
+</div>
+<p>97, 97, 89, 84, 124, 107, 99, 122, 102, 114, 109, 84</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">97</span>, <span class="dv">97</span>, <span class="dv">89</span>, <span class="dv">84</span>, <span class="dv">124</span>, <span class="dv">107</span>, <span class="dv">99</span>, <span class="dv">122</span>, <span class="dv">102</span>, <span class="dv">114</span>, <span class="dv">109</span>, <span class="dv">84</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="null-and-alternartive-hypotheses" class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="null-and-alternartive-hypotheses">Null and alternartive hypotheses</h5>
+<p><span class="math display">\[H_0: \mu=94\]</span> <span class="math display">\[H_1: \mu&gt;94\]</span></p>
+</section>
+<section id="significance-level-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="significance-level-1">Significance level</h4>
+<p>Here we let <span class="math inline">\(\alpha = 0.05\)</span>.</p>
+<section id="test-statistic-1" class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="test-statistic-1">Test statistic</h5>
+<p>Here we will use the sample mean, <span class="math inline">\(m\)</span>, as test statistic.</p>
+<p><span class="math inline">\(m_{obs} = 102.3\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mobs <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="null-distribution-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="null-distribution-1">Null distribution</h4>
+<p>Assume that the <span class="math inline">\(H_0\)</span> is true and compute the <strong>sampling distribution</strong> of sample means <span class="math inline">\(m\)</span>. We will estimate the null distributiuon using bootstrap resampling.</p>
+<p>First modify the sample we have to have mean 94 cm (according to the null distribution), we do this by subtracting <span class="math inline">\(m_{obs}\)</span> and adding 94 to the observations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>xnull <span class="ot">&lt;-</span> x <span class="sc">-</span> mobs <span class="sc">+</span> <span class="dv">94</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Resample with replacement to get a bootstrap sample of size 12 (same as the original sample) and compute the mean.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 91.33</code></pre>
+</div>
+</div>
+<p>Repeat 1000 times.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>mnull <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>, <span class="fu">mean</span>(<span class="fu">sample</span>(xnull, <span class="at">replace=</span><span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Plot the null distribution in a histogram and compare with the observed value <span class="math inline">\(m_{obs}\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">m=</span>mnull), <span class="fu">aes</span>(<span class="at">x=</span>m)) <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins=</span><span class="dv">25</span>, <span class="at">color=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept=</span>mobs, <span class="at">color=</span><span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-bootmnull" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Rfigures/infe_fig-bootmnull-1.png" class="img-fluid figure-img" width="2100"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.7: Null distribution of mean waist circumferencs in cm. Observed mean is marked with a red vertical line.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="compute-p-value-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="compute-p-value-1">Compute p-value</h4>
+<p>The p-value is the probability of seeing the observed value or something more extreme.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">mean</span>(mnull<span class="sc">&gt;=</span>mobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As the computed p-value <span class="math inline">\(&lt;\alpha=0.05\)</span> the null hypothesis is rejected and we conclude that there is reason to belive that diabetic men have a mean waist circumference greater than 94 cm.</p>
+</section>
+</div>
+</section>
+<section id="permutation" class="level3" data-number="1.5.3">
+<h3 data-number="1.5.3" class="anchored" data-anchor-id="permutation"><span class="header-section-number">1.5.3</span> Permutation</h3>
+<p>Another resampling techinque is permutation. A permutation test answers the question whether an observed effect could be due only to the random sampling. Permutations are commonly used in clinical settings where a treatment group is compared to a control group.</p>
+<p>A permtuation test involves comparing two (or more) groups, usually by computing the difference of a property of the two groups, e.g.&nbsp;a mean difference, where the null hypotheis is that there is no difference between the groups (with regards to the studied property).</p>
+<p>In a permutation test the null distribution is computed by permuting (rearranging) the observations so that they are randomly assigned to the two groups and computing the test statistic _(e.g.&nbsp;mean difference). This can be achieved by keeping the order of the group labels and resampling (without replacement) the observations.</p>
+<p>The null distribution is a distribution of test statistics that could be explained by the random sampling. If the observed effect is much more extreme than what could be explained just by the random sampling, we can conclude that there is a difference between the groups (the treatment has an effect).</p>
+<div id="exm-meanpermute" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.3 (Do high fat diet lead to increased body weight?) </strong></span>The effect of high-fat diet on the body weight of mice is studied in an experiment. The study setup is as follows:</p>
 <ol type="1">
 <li>24 female mice are ordered from a lab.</li>
 <li>Randomly, 12 of the 24 mice are assigned to receive high-fat diet, the remaining 12 are controls (ordinary diet).</li>
@@ -489,8 +611,8 @@ H_1: \mu_d&gt;\mu_c \iff \mu_d-\mu_c &gt; 0
 <p>where <span class="math inline">\(\mu_d\)</span> is the (unknown) mean body weight of the high-fat mouse population and <span class="math inline">\(\mu_c\)</span> is the mean body-weight of the control mouse population.</p>
 <p>Studied population: Female mice that can be ordered from a lab.</p>
 </section>
-<section id="test-statistic-1" class="level5 unnumbered">
-<h5 class="unnumbered anchored" data-anchor-id="test-statistic-1">Test statistic</h5>
+<section id="test-statistic-2" class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="test-statistic-2">Test statistic</h5>
 <p>Here we are interested in the mean difference between high-fat and control mice and an appropriate test statistic can be the mean diffrence, <span class="math inline">\(D = \bar X_d - \bar X_c\)</span>, where</p>
 <ul>
 <li><span class="math inline">\(\bar X_d\)</span> is a random variable describing the mean weight of 12 (randomly selected) mice on high-fat diet. <span class="math inline">\(E[\bar X_d] = E[X_d] = \mu_d\)</span></li>
@@ -499,23 +621,23 @@ H_1: \mu_d&gt;\mu_c \iff \mu_d-\mu_c &gt; 0
 <p>The mean difference <span class="math inline">\(D = \bar X_d - \bar X_c\)</span> is also a random variable.</p>
 <p>Observed values;</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 12 HF mice</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>xD <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">23</span>, <span class="dv">18</span>, <span class="dv">31</span>, <span class="dv">24</span>, <span class="dv">39</span>, <span class="dv">26</span>, <span class="dv">36</span>, <span class="dv">29</span>, <span class="dv">23</span>, <span class="dv">32</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 12 control mice</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>xC <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">27</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>, <span class="dv">25</span>, <span class="dv">37</span>, <span class="dv">24</span>, <span class="dv">26</span>, <span class="dv">21</span>, <span class="dv">26</span>, <span class="dv">30</span>, <span class="dv">24</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="do">##Compute mean body weights of the two samples</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>mD <span class="ot">&lt;-</span> <span class="fu">mean</span>(xD)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>mC <span class="ot">&lt;-</span> <span class="fu">mean</span>(xC) </span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Compute mean difference</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>dobs <span class="ot">&lt;-</span> mD <span class="sc">-</span> mC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 12 HF mice</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>xD <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">23</span>, <span class="dv">18</span>, <span class="dv">31</span>, <span class="dv">24</span>, <span class="dv">39</span>, <span class="dv">26</span>, <span class="dv">36</span>, <span class="dv">29</span>, <span class="dv">23</span>, <span class="dv">32</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 12 control mice</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>xC <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">27</span>, <span class="dv">25</span>, <span class="dv">22</span>, <span class="dv">23</span>, <span class="dv">25</span>, <span class="dv">37</span>, <span class="dv">24</span>, <span class="dv">26</span>, <span class="dv">21</span>, <span class="dv">26</span>, <span class="dv">30</span>, <span class="dv">24</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="do">##Compute mean body weights of the two samples</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>mD <span class="ot">&lt;-</span> <span class="fu">mean</span>(xD)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>mC <span class="ot">&lt;-</span> <span class="fu">mean</span>(xC) </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Compute mean difference</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>dobs <span class="ot">&lt;-</span> mD <span class="sc">-</span> mC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Mean weight of sample control mice (ordinary diet): <span class="math inline">\(\bar x_c = 25.83\)</span></p>
 <p>Mean weight of sample mice on high-fat diet: <span class="math inline">\(\bar x_d = 28.00\)</span></p>
 <p>Difference in sample mean weights: <span class="math inline">\(d_{obs} = \bar x_d - \bar x_c = 2.1667\)</span></p>
 </section>
-<section id="null-distribution-1" class="level5 unnumbered">
-<h5 class="unnumbered anchored" data-anchor-id="null-distribution-1">Null distribution</h5>
+<section id="null-distribution-2" class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="null-distribution-2">Null distribution</h5>
 <p>If high-fat diet has no effect, i.e.&nbsp;if <span class="math inline">\(H_0\)</span> was true, the result would be as if all mice were given the same diet. What can we expect if all mice are fed with the same type of food?</p>
 <p>This can be accomplished using permutation</p>
 <p>The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.</p>
@@ -526,42 +648,42 @@ H_1: \mu_d&gt;\mu_c \iff \mu_d-\mu_c &gt; 0
 </ol>
 <p>If we repeat 1-2 many times we get the null distribution of difference in mean weights.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## All 24 body weights in a vector</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(xHF, xN)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Mean difference</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>dobs <span class="ot">&lt;-</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]) <span class="sc">-</span> <span class="fu">mean</span>(x[<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>])</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Permute once</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sample</span>(x)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="do">##Compute mean difference</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]) <span class="sc">-</span> <span class="fu">mean</span>(y[<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">## All 24 body weights in a vector</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(xHF, xN)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Mean difference</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>dobs <span class="ot">&lt;-</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]) <span class="sc">-</span> <span class="fu">mean</span>(x[<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>])</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Permute once</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sample</span>(x)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="do">##Compute mean difference</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]) <span class="sc">-</span> <span class="fu">mean</span>(y[<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.1667</code></pre>
+<pre><code>[1] -3.5</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">##Repeat the above many times</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>dnull.perm <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">100000</span>, {</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">sample</span>(x)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">##Mean difference</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(y[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]) <span class="sc">-</span> <span class="fu">mean</span>(y[<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>])</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">##Repeat the above many times</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>dnull.perm <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">100000</span>, {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">sample</span>(x)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="do">##Mean difference</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(y[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]) <span class="sc">-</span> <span class="fu">mean</span>(y[<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>])</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Plot the null distribution and the observed difference.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div id="fig-permtest" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="Rfigures/infe_permtest-1.png" class="img-fluid figure-img" style="width:50.0%"></p>
-<p></p><figcaption class="figure-caption">Null distribution of the mean difference <span class="math inline">\(D\)</span>.</figcaption><p></p>
+<p><img src="Rfigures/infe_fig-permtest-1.png" class="img-fluid figure-img" style="width:50.0%"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1.8: Null distribution of the mean difference <span class="math inline">\(D\)</span>.</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="compute-p-value-1" class="level5 unnumbered">
-<h5 class="unnumbered anchored" data-anchor-id="compute-p-value-1">Compute p-value</h5>
+<section id="compute-p-value-2" class="level5 unnumbered">
+<h5 class="unnumbered anchored" data-anchor-id="compute-p-value-2">Compute p-value</h5>
 <p>What is the probability to get an at least as extreme mean difference as our observed value, <span class="math inline">\(d_{obs}\)</span>, if <span class="math inline">\(H_0\)</span> was true?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Compute the p-value</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>pval <span class="ot">&lt;-</span> <span class="fu">mean</span>(dnull.perm<span class="sc">&gt;=</span>dobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Compute the p-value</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>pval <span class="ot">&lt;-</span> <span class="fu">mean</span>(dnull.perm<span class="sc">&gt;=</span>dobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><span class="math display">\[P(\bar X_2 - \bar X_1 \geq d_{obs} | H_0) = 0.169\]</span></p>
 </section>
@@ -569,9 +691,10 @@ H_1: \mu_d&gt;\mu_c \iff \mu_d-\mu_c &gt; 0
 <h5 class="unnumbered anchored" data-anchor-id="accept-or-reject-h_0-1">Accept or reject <span class="math inline">\(H_0\)</span>?</h5>
 <p>As <span class="math inline">\(0.169&gt;0.05\)</span> the null hypothesis is accepted, there is no evidence that the high-fat diet increase body weight in mice.</p>
 <!-- ## Parametric hypothesis tests -->
-
-
 </section>
+</div>
+
+
 </section>
 </section>
 
