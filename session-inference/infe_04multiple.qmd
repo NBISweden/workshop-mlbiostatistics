@@ -1,0 +1,109 @@
+---
+editor: source
+---
+
+# Multiple testing
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(kableExtra)
+options(digits=4)
+```
+
+
+## Error types
+
+```{r}
+#| label: tbl-errortypes2
+#| tbl-cap: "The outcome of a statistical test is either to accept or reject the null hypothesis H0. The test result might agree with the truth or not, either H0 is true or false. TN - true negative, TP - true positive, FN - false negative, FP - false positive."
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "Type II error, miss, FN", "Reject H0", "Type I error, false alarm, FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(full_width = FALSE, bootstrap_options = "bordered", position="center")
+```
+
+
+Remember from @sec-errortype that the probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
+
+
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_1 \textrm{ is true})$$
+and the statistical power
+
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_1\textrm{ is true}).$$
+```{r}
+#| label: fig-alphabeta
+#| fig-cap: "The probability density functions under H0 and H1, respectively. The probability  of type I error ($\\alpha$) and type II error ($\\beta$) are indicated."
+#| fig-width: 5
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5)  + geom_area(data=df %>% filter(x<q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + annotate("label", x=1.2, y=0.08, label="beta", parse=TRUE, color="orange")
+```
+
+  
+## Multiple testing
+  
+  If a single test is perform we know that
+  
+  -   P(One type I error) = $\alpha$
+  -   P(No type I error) = $1 - \alpha$
+  
+If $m$ independent tests are performed (e.g. investigate many genes or proteins) the risk of false alarm (type I error) increases;
+  
+  -   P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+  -   P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
+  
+```{r multiple, echo=FALSE, out.width="50%", fig.align="center", fig.width=4, fig.height=4}
+a=0.05
+k <- 1:100
+ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
+```
+
+Two common principles for dealing with multiple testing are control of family-wise error rate or false discovery rate.
+
+-   FWER: family-wise error rate, control the probability of one or more false positive $P(N_{FP}>0)$, e.g. Bonferroni, Holm
+-   FDR: false discovery rate, control the expected value of the proportion of false positives among hits, $E[N_{FP}/(N{FP}+N_{TP})]$, e.g. Benjamini-Hochberg, Storey
+
+## Bonferroni correction
+
+To achieve a family-wise error rate of $FWER \leq \gamma$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \gamma/m$.
+
+Objections: too conservative
+
+## Benjamini-Hochbergs FDR
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling(font_size=14)
+```
+
+The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
+
+Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
+
+1.  Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
+2.  Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
+3.  Declare significance for all tests $1, 2, \dots, j$.
+
+## 'Adjusted' p-values
+
+Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
+
+-   Using Bonferroni's method the 'adjusted' p-values are:
+  
+  $\tilde p_i = \min(m p_i, 1)$.
+
+A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+
+-   Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+  
+  $q_i = \min(\frac{m}{i} p_i, 1)$
+  
+  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
+
+::: {#exm-10000}
+# 10000 independent tests (e.g. genes)**
+
+```{r padjust, results="asis"}
+p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
+kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
+```
+:::

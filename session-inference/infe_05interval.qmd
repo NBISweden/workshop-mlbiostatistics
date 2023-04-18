@@ -1,15 +1,20 @@
+---
+editor: source
+---
+
 # Point and interval estimates {#sec-estimates}
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(kableExtra)
 library(ggforce)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, error=FALSE, warnings=FALSE, dpi=600, fig.path = "Rfigures/infe_")
 ```
 
 
 ## Point estimate
 
-Unknown population parameters can be inferred from estimates from samples from the population  of interest. The sample estimate will be our best guess, a **point estimate**, of
+Unknown population parameters can be inferred from estimates from random samples from the population of interest. The sample estimate will be our best guess, a **point estimate**, of the population parameter.
 
 ::: {#exm-pollen-pointestimate}
 # Pollen
@@ -19,7 +24,7 @@ In our sample, we observed that 42 of the 100 has a pollen allergy. Hence, the o
 
 <!-- What does this say about the population proportion $\pi$? -->
   
-Based on this observation our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$. There is an uncertainty in this measurement, if the experiment is repeated 100 other persons would be selected and our point estimate would be slightly different.
+Based on this random sample our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$. There is an uncertainty in this measurement, if the experiment is repeated 100 other persons would be selected and our point estimate would be slightly different.
 :::
 
 ::: {#exm-meanweight}
@@ -32,23 +37,80 @@ The mean weight of a mouse population, $\mu$ is unknown. By taking a sample of s
 
 The sample proportion and sample mean are unbiased point estimates of the corresponding population parameters. It will not be without error, but the larger the sample, the smaller the error.
 
-The expected value of an **unbiased** point estimate is the the population parameter that it estimates, This means that if you would repreat the sampling many times and compute the point estimate of interest, e.g. sample mean, the average of sample means would be the population mean.
+The expected value of an **unbiased** point estimate is the the population parameter that it estimates, This means that if you would repeat the sampling many times and compute the point estimate of interest, e.g. sample mean, the average of the sample means would be the population mean.
 
 ```{r}
-#| label: bioasprecision
+#| label: fig-biasprecision
 #| fig-cap: "Bias and precision."
+#| message: false
+#| warning: false
+#| echo: false
 bias <- c(Biased=1.5, Unbiased=0)
 precision= c(Precise=0.5, Unprecise=2)
-df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutate(m=bias[B], s=precision[P]) |> group_by(B, P) |> summarize(x=rnorm(10, mean=m, sd=s), y=rnorm(10, mean=m, sd=s)) 
+df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutate(m=bias[B], s=precision[P]) |> group_by(B, P) |> reframe(x=rnorm(10, mean=m, sd=s), y=rnorm(10, mean=m, sd=s)) 
 
-ggplot() + geom_point(data=df, aes(x=x, y=y, color=B, shape=P)) + facet_grid(B~P) + geom_circle(data=data.frame(x0=0, y0=0,r=1:6), aes(x0=x0,y0=y0,r=r)) + theme_classic() + theme(panel.grid=element_blank(), axis.ticks  = element_blank(), axis.text=element_blank())
+ggplot() + geom_point(data=df, aes(x=x, y=y, color=B, shape=P)) + facet_grid(B~P) + geom_circle(data=data.frame(x0=0, y0=0,r=1:6), aes(x0=x0,y0=y0,r=r)) + theme_classic() + theme(panel.grid=element_blank(), axis.ticks  = element_blank(), axis.text=element_blank(), legend.position = "none") + xlab("") + ylab("")
 ```
 
-Even an unbiased point estimate is not perfect, it will have a cettain amount of uncertainty.
+Even an unbiased point estimate is not perfect, it will have a certain amount of uncertainty.
 
 
+## Interval estimates
 
-## Confidence interval
+To show the uncertainty an **interval estimate** for a population parameter can be computed instead of just a point estimate. An interval estimate is an interval of possible values that with high probability contains the true population parameter. An interval estimate is estimated based on sample data. Interval estimation, just like point estimation, is a type of statistical inference.
+
+The width of the interval estimate can be determined from the sampling distribution, i.e. the distribution of the sample property of interest. The dispersion of the sampling distribution is related to the uncertainty of the point estimate and can be used to define the interval estimate. As seen before there are different ways to estimate the sampling distribution.
+
+
+### Bootstrap interval {#sec-bootstrapinterval}
+
+If the distribution of the sample statistic of interest is unknown, a bootstrap confidence interval can be computed instead.
+
+Bootstraping is performed by resampling with replacement from the available random sample. The resampling distribution can then be used to calculate e.g. a 95% bootstrap interval.
+
+This can be done as follows;
+
+1.  Put the entire sample in an urn!
+  
+```{r pollenurn42, echo=FALSE, fig.cap="An urn model with 42 allergy (black) and 58 non-allergy (white). The black balls represent allergic and the white balls non-allergic.", out.width = "20%", fig.align="center"}
+knitr::include_graphics("figures/pollenurn42.png")
+```
+
+In R;
+
+```{r}
+#| echo: true
+## the sample consists of 50 non-allergic (0) and 42 allergic (1).
+x <- rep(0:1, c(58, 42))
+```
+
+2.  Sample from the urn with replacement to compute the bootstrap distribution.
+
+```{r}
+#| echo: true
+pboot <- replicate(1000, mean(sample(x, replace=TRUE)))
+```
+
+```{r boot, fig.cap="Bootstrap resampling distribution.", out.width="45%", fig.align="center"}
+#| echo: true
+ggplot(data.frame(x=pboot), aes(x=x)) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + xlab("p")
+```
+
+3.  Compute the 95% bootstrap interval. This can be done using the percentile method by calculating the 2.5 and 97.5 percentiles, i.e. the values in the resampling distribution for which 2.5% and 97.5%, respectively, of all the values lie to the left of.
+
+```{r calcCIboot}
+#| echo: true
+ciboot <- quantile(pboot, c(0.025, 0.975))
+```
+
+```{r CIboot, fig.cap="Bootstrap resampling distribution and the 95% bootstrap confidence interval.", out.width="45%", fig.align="center"}
+ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=50), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=50, label="95%")
+```
+
+The 95% bootstrap confidence interval of $\pi$; \[`r ciboot`\].
+
+
+### Confidence interval
 
 A confidence interval is a type of interval estimate associated with a confidence level.
 
@@ -76,49 +138,6 @@ plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab
 
 
 
-
-### Bootstrap interval {#sec-bootstrapinterval}
-
-If the distribution of the random variable of interest is unknown, a bootstrap confidence interval can be computed instead.
-
-Bootstraping is performed by resampling with replacement from the available random sample. The resampling distribution can then be used to calculate e.g. a 95% bootstrap interval.
-
-This can be done as follows;
-
-1.  Put the entire sample in an urn!
-  
-```{r pollenurn42, echo=FALSE, fig.cap="An urn model with 42 allergy (black) and 58 non-allergy (white). The black balls represent allergic and the white balls non-allergic.", out.width = "20%", fig.align="center"}
-knitr::include_graphics("figures/pollenurn42.png")
-```
-
-In R;
-
-```{r}
-## the sample consists of 50 non-allergic (0) and 42 allergic (1).
-x <- rep(0:1, c(58, 42))
-```
-
-2.  Sample from the urn with replacement to compute the bootstrap distribution.
-
-```{r }
-pboot <- replicate(1000, mean(sample(x, replace=TRUE)))
-```
-
-```{r boot, fig.cap="Bootstrap resampling distribution.", out.width="45%", fig.align="center"}
-ggplot(data.frame(x=pboot), aes(x=x)) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + xlab("p")
-```
-
-3.  Compute the 95% bootstrap interval. This can be done using the percentile method by calculating the 2.5 and 97.5 percentiles, i.e. the values in the resampling distribution for which 2.5% and 97.5%, respectively, of all the values lie to the left of.
-
-```{r calcCIboot}
-ciboot <- quantile(pboot, c(0.025, 0.975))
-```
-
-```{r CIboot, fig.cap="Bootstrap resampling distribution and the 95% bootstrap confidence interval.", out.width="45%", fig.align="center"}
-ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=50), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=50, label="95%")
-```
-
-The 95% bootstrap confidence interval of $\pi$; \[`r ciboot`\].
 
 ### Confidence interval of proportions
 
