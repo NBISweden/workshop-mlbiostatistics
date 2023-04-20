@@ -5,6 +5,123 @@ title:  'To Do'
 
 # Notes
 
+## 2023 notes
+
+### Overall
+
+- IMP: check daily challenges, especially clustering question
+- future: Provide skeleton files for exercises: quatro
+- IMP: Welcome slide: variance typo, missing ^2 in the last exercise slide
+- future: Discuss how to have things rendered together on Github
+- future: Add "beyond" text to every chapter e.g. linear mixed effect models, PCA -> ICC, t-SNE etc.
+
+### Pre-course: Mathematical foundations
+
+- future: go through course content and adjust so there is a better match
+- future: double-check quiz and add solutions to questions if not there already
+- future: add equation of the straight line to pre-course math
+
+### Pre-course: R skills
+
+- future: list all libraries used throughout the course
+- future: double-check the R quiz & potentially add more questions
+
+### Welcome slides
+
+- updated
+
+### Descriptive stats
+
+- add summary descriptive in data science project context, can also include EDA and IDA; data cleaning, missing values, outliers etc.
+- add some links to learning more about descriptive statistics and data visulizations
+- update exercises
+- update the slides given the writing
+- future: add more plots examples with summary statistics to the box plot chapter
+- notes: potential group discussion points:
+  - a) think of roboust measure of spread: MAD
+  - b) mean vs.  median -> transformations
+- notes: people seemed like to box plot exercise on the whiteboard
+- future: add a picture of histogram with median, mean (arithmetic and geometric), mode
+- future: add a note on geometric mean
+- future: move to distributions: add a note on mean vs. median on skewed distributions
+
+
+## Probability & Inference
+
+- Eva improves
+- future: add transformations after distributions, explained skewed distributions
+
+## Non-parametric tests
+
+- Add paired t-test to chapter
+- Use sign test, Wilxocon sign test in non-parametric methods
+- Use the same example across: resampling, parametric and non-parametric methods
+- Read more about the CI estimates and functions in R
+- Improve exercises and add (next round)
+- Add more on sign test (next round)
+- Fix “weight” spelling (next round)
+- Add examples on Kruskal-Wallis  (next round)
+- Shiny app / Python app to demonstrate W distribution and associated p-values?
+- Visualisation of Kendal tau? (next round)
+- Tie the session better to Eva’s, follow the same notations? Do a mini revision
+
+## Linear models
+
+- IMP: restructure day and use diabetes examples
+- better examples to show that linear models can be quite complex
+- better examples for coefficients, change units into metric, show interactions
+- better examples of model assumptions and violation
+- more about model matrix
+- mention beyond: mixed effect models (maybe write a short intro one day)
+- fix typos as per Jonas's email
+
+## Dimnesion reduction
+
+- Payam is improving this round up
+- Maybe add covariance matrix already in the precourse
+- Talk correlation and covariance before, maybe in linear models
+- Make it easier to understand eigenvectors and eigenvalues  
+
+## Clustering
+
+- Payam is improving this round up
+- Better questions and examples for the quiz
+- What are the teaching goals here?
+
+## Supervised learning
+
+- IMP: Adjust following Eva's feedback
+- Link to scikit-learn main website of main machine learning application and highlight where all these methods fall so it does not feel that biostats and ML are two different words and we focus only last two days on ML
+- Highlight that regression, logistic regression, GLM, feature selection are all part of it
+
+## Feature engineering and selection
+
+- IMP: Adjust following Eva's feedback
+
+## Daily quizzes
+
+- IMP: check questions and answers, especially clustering 
+- check questions and answers but in principle redesign them to reiterate the message of the day
+- maybe even have more questions to practice, pool of questions?
+- prepare .pdfs with solutions
+
+## Wrap-up slides
+
+- add slides with what we have learned and where to go beyond
+- make some pointing to what's beyond a little bit better
+- for each chapter: point to other methods and explain
+
+## Generic
+
+- briefly what’s the difference (extension etc.), e.g linear mixed effect models, PCA -> ICC, t-SNE etc.
+
+## Potentially useful
+
+A framework for feature selection in clustering
+Daniela M. Witten and Robert Tibshirani
+
+-----
+
 ## Notes from 2022-09
 
 **Overall**
