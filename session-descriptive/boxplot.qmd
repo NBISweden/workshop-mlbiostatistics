@@ -1,0 +1,100 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+# Box-and-whisker plot
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(faraway)
+library(scales)
+library(ggbeeswarm)
+library(gridExtra)
+
+# define generic ggplot theme
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top", 
+        axis.title.y = element_text(angle = 0)) 
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+```
+
+A box-and-whisker plot, commonly referred to as box plot, is a **diagram summarizing numerical data through quartiles**. It is shown as a vertical or horizontal rectangle **box**, with the ends of rectangle corresponding to the upper (Q3) and lower (Q1) quartiles of the data values. A line drawn through the rectangle corresponds to the median value (Q2). 
+
+In addition to the box, there can be also lines called **whiskers** extending from the rectangle indicating variability outside the upper and lower quartiles. These can be defined in few ways, for instance they can indicate i) minimum and maximum values or ii) particular percentiles, e.g. 5th and 95th. On the box plot prepared with `R` function `boxplot()` or `geom_boxplot()` the upper whisker extends by default to the largest value no further than 1.5 * IQR from Q3 while the lower whiskers extends by default to the smallest value at most 1.5 * IQR from Q1. 
+
+Data beyond the end of the whiskers are called "outlying" points and are plotted individually.
+
+Below, we can see annotated box plot based on the BMI values for the 130 study participants. 
+
+![Box plot](images/boxplot-annotated.png){#fig-boxplot-annotated}
+
+The code to generate the box plot in `R` is here: 
+
+```{r}
+#| fig-cap: A box-and-whisker plot for the BMI values based on the measurments for the 130 study participants.
+#| label: fig-boxplot
+#| fig-width: 6
+#| fig-height: 6
+#| fig-cap-location: margin
+#| code-fold: false
+
+data_diabetes %>%
+  ggplot(aes(x = "", y = BMI)) + 
+  geom_boxplot(alpha = 1, col = "black", outlier.colour = "red", width = 0.4) + 
+  xlab("") + 
+  theme_classic() + 
+  my.ggtheme
+
+```
+
+We have previously mentioned that when we are dealing with a relatively small data set it is recommended to visually assess all the observations. We can overlay jitter plot on the box plot to get a complete picture of both the data and the quartiles summary statistics.
+```{r}
+#| fig-cap: A box-and-whisker plot overlayed on the jitter plot for the BMI values based on the measurments for the 130 study participants.
+#| label: fig-boxplot-jitter
+#| fig-width: 6
+#| fig-height: 6
+#| fig-cap-location: margin
+#| code-fold: false
+
+data_diabetes %>%
+  ggplot(aes(x = "", y = BMI)) + 
+  geom_boxplot(alpha = 1, col = "black", outlier.colour = "red", width = 0.4) + 
+  geom_jitter(width = 0.2, alpha = 0.3) + 
+  xlab("") + 
+  theme_classic() + 
+  my.ggtheme
+
+```
+
+
+
+
+
+

@@ -5,48 +5,17 @@ editor_options:
 ---
 # Numerical data
 
-```{r, include=T, message=FALSE, warning=FALSE}
+```{r}
+#| message: false
+#| warning: false
+
 # load libraries
 library(tidyverse)
 library(kableExtra)
-library(ggplot2)
+library(faraway)
+library(scales)
 library(ggbeeswarm)
 library(gridExtra)
-```
-
-Numerical data, both discrete and continuous, can be visualized and summarized in many ways. Common plots include histograms, density plots, box plots and scatter plots. Summary statistics include mean, median, quantiles, variance, standard deviation and median absolute deviation.
-
-```{mermaid} 
-flowchart TD
-  A(Numerical data) --> B(Numerical summary)
-  A(Numerical data) --> C(Graphical summary)
-  B(Numerical summary) --> D(Mean <br/> Median <br/> Quantiles <br/> Variance <br/> Standard deviation <br/> Mean absolute deviation <br/> ...)
-  C(Graphical summary) --> E(Histogram <br/> Density plot <br/> Box plot <br/> ...)
-```
-
-::: {#exm-dice}
-## Throwing 10 dice
-
-Let's imagine that we have 10 dice and we throw them all at once. We count and record the total number of dots and repeat the whole process 100 times. 
-
-The counts for the first few runs are:
-```{r}
-# simulate throwing 10 dice, counting dots and repeating the experiment 100 times
-set.seed(123)
-sample.sum10dice <- replicate(100, sum(sample(1:6, 10, replace = TRUE))) 
-data.sum10dice <- data.frame(run = 1:length(sample.sum10dice), sumcounts = sample.sum10dice)
-
-head(data.sum10dice)
-```
-:::
-
-## Strip plot, Jittered strip plot & Beeswarm plot
-When the data set is not very big, i.e. does not contain millions of measurements for a given numerical variable of interest, it can be useful to plot all measurements. This can be done in a **1D scatter plot**, called a strip plot or a dot plot. 
-```{r}
-#| fig-cap: Strip plot showing sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-stripplot
-#| fig-cap-location: margin
-#| fig-width: 6
 
 # define generic ggplot theme
 font.size <- 12
@@ -56,49 +25,96 @@ my.ggtheme <- theme(axis.title = element_text(size = font.size),
         axis.text = element_text(size = font.size), 
         legend.text = element_text(size = font.size), 
         legend.title = element_blank(), 
-        legend.position = "top") 
+        legend.position = "top", 
+        axis.title.y = element_text(angle = 0)) 
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+```
+
+Numerical data, both discrete and continuous, can be visualized and summarized in many ways. Common plots include **histograms, density plots and scatter plots**. Summary statistics include **measures of location** such as mode and median and **measures of spread** such as variance or median absolute deviation. It is also common to visualize summary statistics, e.g. on box plot. 
+
+```{mermaid} 
+%%| label: fig-num-expanded
+%%| fig-align: center
+%%| fig-cap: "Example of numerical summaries and graphical visualization applicable to numerical data"
+%%| fig-cap-location: margin
+
+flowchart TD
+  A(Numerical data) --> B(Numerical summary)
+  A(Numerical data) --> C(Graphical summary)
+  B(Numerical summary) --> D(Measures of location <br/> e.g. mode, average, median)
+  B --> E(Measures of spread <br/> e.g. quartiles, variance, standard deviation)
+  C(Graphical summary) --> F(Histogram <br/> Density plot <br/> Box plot <br/> ...)
+```
+
+## Strip plot, Jittered strip plot & Beeswarm plot
+
+When the data set is not very big, i.e. does not contain millions of measurements for a given numerical variable of interest, it is recommended to visually assess all measurements on a plot. This can be done in a **1D scatter plot**, called also a strip plot or a dot plot. 
+
+For instance the `age` values for the 130 participants in the diabetes study are: 
+```{r}
+print(data_diabetes$age)
+```
+
+Let's visualize these age values using a strip plot.
+
+```{r}
+#| label: fig-stripplot
+#| fig-cap: A strip plot showing age values for the 130 study participants
+#| fig-cap-location: margin
+#| fig-width: 6
 
 # plot strip plot
-data.sum10dice %>%
-  ggplot(aes(x = "", y = sumcounts)) + 
+data_diabetes %>%
+  ggplot(aes(x = "", y = age)) + 
   geom_point() + 
   theme_bw() + 
-  ylab("dot counts (10 dice)") + 
+  ylab("age") + 
   xlab("") + 
   my.ggtheme
 
 ```
 
-As some measurements are repeated, e.g. we count 40 dots in our first attempt in our 40 attempt, the measurements on the strip plot are shown on top of each other and we cannot see them all. A **jittered strip plot** attempts to reduce overlays by randomly moving data points by small amounts to the left and right.
+As year was recorded in years and we have over 100 participants, it happens that some age values are repeated, e.g. we have 2 participants who were 20 years old and 3 that were 30 years old at the time of study. These repeated measurements are shown on top of each other and we cannot see them all. A **jittered strip plot** attempts to reduce such overlays by randomly moving data points by small amounts to the left and right.
 ```{r}
-#| fig-cap: Jittered strip plot showing sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-jitter
+#| fig-cap: A jittered strip plot showing age values for the 130 study participants
+#| label: fig-jitter-age
 #| fig-cap-location: margin
 #| fig-width: 6
 
 # plot jittered strip plot
-data.sum10dice %>%
-  ggplot(aes(x = "", y = sumcounts)) + 
-  geom_jitter(height = 0, width = 0.35) + 
+data_diabetes%>%
+  ggplot(aes(x = "", y = age)) + 
+  geom_jitter(height = 0, width = 0.25) + 
   theme_bw() + 
-  ylab("dot counts (10 dice)") + 
+  ylab("age") + 
   xlab("") + 
   my.ggtheme
 ```
 
-In a jittered strip plot some overlays may still occur, as the data points are moved at random. Further, many data points are moved unnecessarily. In a **beeswarm plot** data points are moved only when necessary, and even then the data point is only moved the minimum distance necessary to avoid overlays
+In a jittered strip plot some overlays may still occur, as the data points are moved at random. Further, many data points are moved unnecessarily. In a **beeswarm plot** data points are moved only when necessary, and even then the data point is only moved by the minimum distance required to avoid overlays.
 ```{r}
-#| fig-cap: Beeswarm showing sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-beeswarm
+#| fig-cap: A beeswarm showing age values for the 130 study participants
+#| label: fig-beeswarm-age
 #| fig-cap-location: margin
 #| fig-width: 6
 
 # plot beeswarm
-data.sum10dice %>%
-  ggplot(aes(x = "", y = sumcounts)) + 
+data_diabetes %>%
+  ggplot(aes(x = "", y = age)) + 
   geom_beeswarm(cex = 2) + 
   theme_bw() + 
-  ylab("dot counts (10 dice)") + 
+  ylab("age") + 
   xlab("") + 
   my.ggtheme
 
@@ -109,164 +125,58 @@ data.sum10dice %>%
 
 A **histogram** bins the data and counts the number of observations that fall into each bin.
 ```{r}
-#| fig-cap: Histogram summarizing the sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-hist
+#| fig-cap: A histogram summarizing age values for the 130 study participants
+#| label: fig-hist-age
 #| fig-cap-location: margin
 #| fig-width: 6
 
 # plot histogram
-data.sum10dice %>%
-  ggplot(aes(x = sumcounts)) + 
+data_diabetes %>%
+  ggplot(aes(x = age)) + 
   geom_histogram(binwidth = 5, center = 32.5, color = "white", fill = col.blue.dark) + 
   theme_bw() + 
-  xlab("dot counts (10 dice)") + 
+  xlab("age") + 
   my.ggtheme
 
-# alternatively un-comment to plot histogram with hist(), base R plot
-# hist(data.sum10dice$counts, main = "", xlab="counts")
 ```
 
 A **density plot** is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.
 ```{r}
-#| fig-cap: Density plot of dot counts across 10 dice
-#| label: fig-dice10-density
+#| fig-cap: A density plot of age values for the 130 study participants
+#| label: fig-age-density
 #| fig-cap-location: margin
 #| fig-width: 6
 
 # plot density plot
-data.sum10dice %>% ggplot(aes(x = sumcounts)) + 
+data_diabetes %>% ggplot(aes(x = age)) + 
   geom_density() + 
   theme_bw() + 
-  xlab("dot counts (10 dice)") + 
+  xlab("age") + 
   my.ggtheme
 
 ```
-
-## Box plot
-
-A box plot, also called a box-and-whisker plot, shows a box covering 50% of the data and the center line is located at the **median**. The median value is a value such that 50% of the measurements are below the median.
-
-The whiskers extend to the most extreme data point or at most 1.5 times the length of the box. (Note that 1.5 is the default in both ggplot and basic R graphics, but it is also a number that can be changed.) Any measurements further out are shown as outliers. A box plot is based on both measures of location and of spread (more about these in the following chapters).
-
-```{r}
-#| fig-cap: Box plot of dot counts across 10 dice thrown 100 times, overlayed on the jittered measurments
-#| label: fig-dice10-boxplot
-#| fig-cap-location: margin
-#| fig-width: 4
-#| include: false
-#| eval: false
-
-p.boxplot <- data.sum10dice %>% ggplot(aes(y = sumcounts, x="")) + 
-  geom_boxplot(alpha = 1, col = "black", outlier.colour = "red", width = 0.4) + 
-  #geom_jitter(width = 0.2, alpha = 0.3) + 
-  theme_classic() + 
-  ylab("dot counts (10 dice)") + 
-  xlab("") + 
-  my.ggtheme + 
-  ylim(c(15, 55))
-
-```
-
-```{r}
-#| fig-cap: Box plot of dot counts across 10 dice thrown 100 times, overlayed on the jittered measurments
-#| label: fig-dice10-boxplot-jitter
-#| fig-cap-location: margin
-#| fig-width: 4
-#| include: false
-#| eval: false
-
-p.boxplot <- data.sum10dice %>% ggplot(aes(y = sumcounts, x="")) + 
-  geom_boxplot(alpha = 1, col = "black", outlier.colour = "red", width = 0.4) + 
-  geom_jitter(width = 0.2, alpha = 0.3) + 
-  theme_classic() + 
-  ylab("dot counts (10 dice)") + 
-  xlab("") + 
-  my.ggtheme + 
-  ylim(c(15, 55))
-
-```
-
-
-![Box plot](figures/fig-boxplot-dotcounts.png){#fig-boxplot}
-
-![Box plot overlayed on a jittered strip plot](figures/fig-boxplot-jittered-dotcounts.png){#fig-boxplot-jitter}
-
-
-::: {#exm-mice-hist}
-## Lab mice (cont.)
-Let's go back to our lab mice example and focus on the weight measurements that we have observed for our male and female mice over a period of time. How can we summarize the data in a graphical way? 
-:::
-
-## Strip plot, jittered stirp plot & beeswarm stratified by group
-
-```{r, message=F, warning=F}
-#| fig-cap: Strip plot, jittered strip plot and beeswarm plot showing mice weights at week 5 stratified by sex
-#| label: fig-mice10-striplot
-#| fig-width: 12
-#| fig-cap-location: margin
-
-# read in mice data
-data.mice <- read_csv("data/mice.csv")
-data.mice <- data.mice %>%
-  mutate(weight = round(weight,2))
-
-# select weights at week 5
-data.mice.week5 <- data.mice %>%
-  filter(week == 5)
-  
-# strip plot stratified by sex
-p.striplot <- data.mice.week5 %>%
-  ggplot(aes(x = sex, y = weight)) + 
-  geom_point() + 
-  theme_bw() + 
-  xlab("") + 
-  ylab("weigth (g)") + 
-  my.ggtheme
-
-# jittered strip plot stratified by sex
-p.jitter <- data.mice.week5 %>%
-  ggplot(aes(x = sex, y = weight)) +
-  geom_jitter(height = 0, width = 0.2) +
-  theme_bw() +
-  xlab("") +
-  ylab("weigth (g)") +
-  my.ggtheme
-
-# beeswarm stratified by sex
-p.beeswarm <- data.mice.week5 %>%
-  ggplot(aes(x = sex, y = weight)) +
-  geom_beeswarm(cex = 3) +
-  theme_bw() +
-  xlab("") +
-  ylab("weigth (g)") +
-  my.ggtheme
-
-grid.arrange(arrangeGrob(p.striplot, p.jitter, p.beeswarm,ncol=3))
-
-```
-
 
 ## Histogram & density plot stratified by group
 ```{r}
-#| fig-cap: Histogram and density plot summarizing the weights of mice at week 5, stratified by sex
-#| label: fig-mice10-hist-den
+#| fig-cap: Histogram and density plots summarizing age values stratified by gender
+#| label: fig-hist-age-gender
 #| fig-width: 12
+#| fig-height: 8
 #| fig-cap-location: margin
 
 # plot histogram
-p.hist <- data.mice.week5 %>%
-  ggplot(aes(x=weight, fill=sex)) + 
+p.hist <- data_diabetes %>%
+  ggplot(aes(x=age, fill=gender)) + 
   geom_histogram(bins=15, color="white", alpha = 0.6) + 
-  xlab("weight (g)") + 
+  xlab("age") + 
   theme_bw() + 
   scale_fill_brewer(palette = "Dark2") + 
   my.ggtheme
 
-
-p.density <- data.mice.week5 %>%
-  ggplot(aes(x=weight, fill=sex)) + 
+p.density <- data_diabetes %>%
+  ggplot(aes(x=age, fill=gender)) + 
   geom_density(alpha = 0.6) + 
-  xlab("weight (g)") + 
+  xlab("age") + 
   theme_bw() + 
   scale_fill_brewer(palette = "Dark2") + 
   my.ggtheme
@@ -276,45 +186,24 @@ grid.arrange(arrangeGrob(p.hist, p.density, ncol=2))
 ```
 
 
-## Box plot stratified by group
-
-```{r}
-#| fig-cap: Box plot of mice weights at week 5 stratified by sex
-#| label: fig-mice-boxplot-by-sex
-#| fig-cap-location: margin
-#| fig-width: 6
-
-# plot box plot
-data.mice.week5 %>%
-  ggplot(aes(y=weight, fill=sex)) + 
-  geom_boxplot(alpha = 0.6) + 
-  xlab("weight (g)") + 
-  theme_bw() + 
-  scale_fill_brewer(palette = "Dark2") + 
-  my.ggtheme
-
-```
-
 ## Scatter plot: 2 numerical variables
 
-Scatter plots are useful when studying a relationship (association) between two numerical variables. Let's add some data on our mice length and have a look at the relationship between mice weight and length at week 10. 
+Scatter plots are useful when studying a relationship (association) between two numerical variables.
+Let's look at the weight and height for our 130 study participants.
+
+
 ```{r}
-#| fig-cap: Scatter plot showing a relationship between mice weight and length at week 10
-#| label: fig-mice-scatter
+#| fig-cap: Scatter plot showing a relationship between weight and height
+#| label: fig-scatter-weight-height
 #| fig-cap-location: margin
 #| fig-width: 6
 
-# simulate mice length data (based on normal distribution)
-data.mice.week10 <- data.mice %>%
-  filter(week == 10) %>%
-  mutate(length = 7.3+weight/20+rnorm(100,0,0.1)) 
-
 # plot scatter plot
-data.mice.week10 %>%
-  ggplot(aes(x = weight, y = length)) + 
+data_diabetes %>%
+  ggplot(aes(x = weight, y = height)) + 
   geom_point() + 
-  xlab("weigth (g)") + 
-  ylab("length (cm)") + 
+  xlab("weight [kg]") + 
+  ylab("height [m]") + 
   theme_bw() + 
   my.ggtheme
 
@@ -322,62 +211,135 @@ data.mice.week10 %>%
 
 
 ```{r}
-#| fig-cap: Scatter plot showing a relationship between mice weight and length at week 10 stratified by sex
-#| label: fig-mice-scatter-by-sex
+#| fig-cap: Scatter plot showing a relationship between weight and height stratified by gender
+#| label: fig-scatter-weight-height-by-gender
 #| fig-cap-location: margin
 #| fig-width: 6
 
 # plot scatter plot
-data.mice.week10 %>%
-  ggplot(aes(x = weight, y = length, color = sex)) +
+data_diabetes %>%
+  ggplot(aes(x = weight, y = height, color = gender)) +
   geom_point() +
-  xlab("weigth (g)") +
-  ylab("length (cm)") +
+  xlab("weight [kg]") +
+  ylab("height [m]") +
   theme_bw() +
   scale_color_brewer(palette = "Dark2") +
   my.ggtheme
 
 ```
 
-Sometimes, it is useful to connect the observations in the order in which they appear, e.g. when analyzing time series data. 
+Sometimes, it is useful to connect the observations in the order in which they appear, e.g. when analyzing time series data. The diabetes data set does not contain any measurements over time but we can simulate some BMI values over time for demonstration purposes. 
+
 
 ```{r}
-#| fig-cap: Line plot over age of mouse vs. weight (g) for four mice in the experiment
-#| label: fig-mice-sline-plot
+#| label: fig-line-plot-BMI
+#| fig-cap: A line plot for BMI simulated values over 12 weeks for 10 randomly selected study participants
 #| fig-cap-location: margin
 #| fig-width: 6
 
-# select four mice, with ids 17, 18 and 19
-data.mice.4 <- data.mice %>%
-  subset(id %in% 16:19)
+# simulate BMI over time
+# select participants with BMI >= 30
+# assign half to control group and half to treatment to reduce weight 
+# add simulated weight loss values to treatment group ca. 0.2 kg per week
+# add simulated weight fluctuations, ca plus / minus 0.1 kg per week
+
+data_diabetes_bmi30 <- data_diabetes %>% 
+  filter(BMI >= 30) %>%
+  select(id, weight, height, BMI) %>%
+  mutate(group=sample(c("control", "treatment"), size=n(), replace=TRUE))
+
+# add 52 weeks of simulated BMI values
+
+no_weeks <- 12
+weight_sim <- matrix(data = NA, 
+                     nrow = nrow(data_diabetes_bmi30), 
+                     ncol = no_weeks, 
+                     dimnames = list(data_diabetes_bmi30$id, paste("week", 1: no_weeks, sep=""))) # initiate matrix to store simulated BMI values
+weight_sim[, 1] <- data_diabetes_bmi30$weight # first column: baseline weight
+
+for (n in 1:nrow(data_diabetes_bmi30)){
   
-# plot a line plot
-data.mice.4 %>%
-  ggplot(aes(x=week, y=weight, group=id)) + 
-  geom_point() + 
+  for (p in 2:ncol(weight_sim)){
+    
+    # if control group: just fluctuate weight by random values between 0 and 0.2 kg
+    # if treatment: decrease by random values between 0.1 and 0.5 kg from
+    
+    if (data_diabetes_bmi30$group[n] == "treatment"){
+     
+      loss <- runif(1, 0.1, 0.5) %>% round(1)
+      weight_sim[n, p] <- weight_sim[n, p-1] - loss
+      
+    } else{
+      
+      fluctuation <- runif(1, -0.2, 0.2) %>% round(1)
+      weight_sim[n, p] <- weight_sim[n, p-1] + fluctuation
+      
+    }
+  
+  }
+}
+
+# convert to tibble
+weight_sim <- weight_sim %>%
+  as_tibble(rownames = "id") %>%
+  mutate(id = as.numeric(id))
+
+# join data_diabetes_bmi30 with simulated
+# keep 5 treatment and 5 control participants
+data_diabets_sim <- data_diabetes_bmi30 %>%
+  as_tibble() %>% 
+  left_join(weight_sim, by = "id")
+
+# plot BMI over time
+data_plot <- data_diabets_sim %>%
+  slice_sample(n = 10) %>%
+  select(-weight, -BMI) %>% 
+  pivot_longer(-c("id", "group", "height"), names_to = "week", values_to = "weight") %>% 
+  mutate(BMI = weight / (height^2)) %>%
+  mutate(week = gsub("week", "", week)) %>%
+  mutate(week = as.numeric(week)) 
+
+data_plot %>%
+  ggplot(aes(x = week, y = BMI, group = id)) + 
+  geom_point() +
   geom_line() + 
-  ylab("weigth (g)") + 
-  theme_bw() + 
+  xlab("week") +
+  ylab("BMI") +
+  theme_bw() +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_continuous(breaks= pretty_breaks()) + 
   my.ggtheme
-  
+
 ```
 
 ```{r}
-#| fig-cap: Line plot over age of mouse vs. weight (g) for four mice in the experiment
-#| label: fig-mice-sline-plot-by-sex
+#| fig-cap: A line plot for BMI simulated values over 12 weeks for 5 randomly selected study participants from control and treatment group
+#| label: fig-line-plot-BMI-by-group
 #| fig-cap-location: margin
 #| fig-width: 6
 
-# plot a line plot
-data.mice.4 %>%
-  ggplot(aes(x=week, y=weight, group=id, color = sex)) + 
-  geom_point() + 
+data_plot <- data_diabets_sim %>%
+  group_by(group) %>%
+  slice_sample(n = 5) %>%
+  select(-weight, -BMI) %>% 
+  pivot_longer(-c("id", "group", "height"), names_to = "week", values_to = "weight") %>% 
+  mutate(BMI = weight / (height^2)) %>%
+  mutate(week = gsub("week", "", week)) %>%
+  mutate(week = as.numeric(week)) 
+
+data_plot %>%
+  ggplot(aes(x = week, y = BMI, group = id, colour = group)) + 
+  geom_point() +
   geom_line() + 
-  ylab("weigth (g)") + 
-  theme_bw() + 
-  scale_color_brewer(palette = "Dark2") + 
+  xlab("week") +
+  ylab("BMI") +
+  theme_bw() +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_continuous(breaks= pretty_breaks()) + 
   my.ggtheme
-  
+
 ```
+
+
  
 
