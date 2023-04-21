@@ -1,0 +1,91 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Diabetes data
+
+Before we continue with the descriptive statistics, let's introduce an example data set. 
+We will be looking at the data collected in a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA.
+
+The data is available as part of `faraway` package. 403 African Americans were interviewed in a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia. Available variables include: 
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| include: true
+
+library(tidyverse)
+library(kableExtra)
+library(faraway)
+
+# Diabetes data from faraway() package
+df <- diabetes
+
+c1 <- colnames(df)
+c2 <- c("Subject ID", "Total Cholesterol [mg/dL]", "Stabilize Glucose [mg/dL]", 
+        "High Density Lipoprotein [mg/dL]", "Cholesterol / HDL Ratio", "Glycosolated Hemoglobin [%]", 
+        "County: Buckingham or Louisa", "age [years]", "gender", 
+        "height [in]", "weight [lb]", "frame: small, medium or large", 
+        "First Systolic Blood Pressure", "First Diastolic Blood Pressure", 
+        "Second Systolic Blood Pressure", "Second Diastolic Blood Pressure", 
+        "waist [in]", "hip [in]", 
+        "Postprandial Time [min] when labs were drawn")
+
+tbl <- data.frame(Abbreviation = c1, Description = c2)
+
+tbl %>%
+  kbl() %>% kable_styling()
+  
+```
+
+And the first few observations are: 
+
+```{r}
+
+#| echo: false
+#| warning: false
+#| message: false
+#| include: true
+
+library(tidyverse)
+library(kableExtra)
+library(faraway)
+
+# preview
+glimpse(diabetes)
+
+```
+
+Further: 
+
+- Glycosolated hemoglobin greater than 7.0 is usually taken as a positive diagnosis of diabetes.
+- We can calculate BMI as $BMI = 703 \times (weight \; [lb] \; / (height \;[in])^2)$ and define obesity as $BMI \ge 30$.
+- Alternatively, we can first convert pounds (lb) to kilograms (kg) by multiplying by 0.45 and inches (in) to meters (m) by multiplying by 0.0254 and then calculating BMI as $BMI = (weight \; [kg] \; / (height \;[m])^2)$
+
+In `R` we can add diabetes and obesity status (yes/no) and display first few measurements across all the variables as below: 
+```{r}
+
+# add obesity and diabetes variables
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes")))
+  
+# preview data
+glimpse(data_diabetes)
+
+```
+
+
+We can now use descriptive statistics to understand the diabetes data set more. 
+
+
+
+
