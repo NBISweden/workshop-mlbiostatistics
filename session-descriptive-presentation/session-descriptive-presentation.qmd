@@ -4,7 +4,7 @@ title: "Descriptive statistics"
 format: 
   revealjs:
     slide-number: true
-    # footer: Eva Freyhult, Olga Dethlefsen
+    view-distance: 10
     theme: [default, custom.scss]
     chalkboard: 
       buttons: true
@@ -27,9 +27,29 @@ library(ggplot2)
 library(rmarkdown)
 library(ggbeeswarm)
 library(gridExtra)
+library(ggmosaic)
+library(scales)
 ```
 
 ## Introduction
+
+*Two main types of statistics*
+
+```{r}
+#| echo: false
+#| out-width: 100%
+#| fig-align: center
+knitr::include_graphics("images/stats-types.png")
+```
+
+-   **Descriptive statistics** describes and summarizes the data.
+-   It can be contrasted with **inferential statistics** that uses a sample of data to make inferences about the population that the sample of data is drawn from.
+
+## Introduction
+
+*Descriptive statistics*
+
+<br>
 
 Descriptive statistics is a term describing simple analyses of data to help getting to know the data by:
 
@@ -41,7 +61,9 @@ Descriptive statistics is a term describing simple analyses of data to help gett
 
 . . .
 
-Beyond getting to know the data descriptive statistics is used to:
+<br> Beyond getting to know the data descriptive statistics is used to:
+
+. . .
 
 ::: incremental
 -   uncover potential patterns in the data, incl. outliers
@@ -49,6 +71,10 @@ Beyond getting to know the data descriptive statistics is used to:
 :::
 
 ## Data types
+
+*numerical & categorical data types*
+
+<br>
 
 . . .
 
@@ -59,28 +85,32 @@ One of the first thing we tend to notice about the data is the data type. We dif
 ```{mermaid}
 flowchart LR
   A(Data types) --> B(Categorical)
-  A(Data types) --> C(Numerical)
+  A --> C(Numerical)
 ```
 
 . . .
 
 <br> <br>
 
-::: callout-important
-Depending on the data type we use different methods to describe, summarize and visualize the data. Beyond descriptive statistics, we even use different methods to analyse the data.
-:::
+**Depending on the data type we use different methods to describe, summarize and visualize the data. Beyond descriptive statistics, we even use different methods to analyse the data.**
 
 ## Data types
 
-**Categorical data types are further divided into:**
+*Categorical data*
+
+<br> **Categorical data** can be further divided into:
+
+<br>
 
 ```{mermaid}
 flowchart LR
   A(Data types) --> B(Categorical)
-  A(Data types) --> C(Numerical)
+  A --> C(Numerical)
   B(Categorical) --> D(Nominal i.e. named)
-  B(Categorical) --> E(Ordinal i.e. named and ordered)
+  B --> E(Ordinal i.e. named and ordered)
 ```
+
+<br>
 
 . . .
 
@@ -92,13 +122,11 @@ flowchart LR
 -   Ordinal: named and ordered, categories are mutually exclusive and ordered
     -   *e.g. pain (weak, moderate, severe), very young/young/middle age/old/very old, grade I, II, III, IV*
 
-::: notes
-Ask for examples before showing the second part of the slide
-:::
-
 ## Data types
 
-**Numerical data types are further divided into:**
+*Numerical data*
+
+<br> **Numerical data** can be further divided into: <br>
 
 ```{mermaid}
 flowchart LR
@@ -107,6 +135,8 @@ flowchart LR
   C(Numerical) --> D(Discrete i.e. finite or countable infinite values)
   C(Numerical) --> E(Continuous i.e. infinitely many uncountable values)
 ```
+
+<br>
 
 . . .
 
@@ -118,17 +148,104 @@ flowchart LR
 -   Continuous: infinitely many uncountable values
     -   *e.g. height, weight, concentration*
 
-::: notes
-Ask for examples before showing the second part of the slide
+## Diabetes data set
+
+*Example data set*
+
+<br>
+
+::: columns
+::: {.column width="50%"}
+-   403 participants were interviewed in a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia
+-   The data is available as part of `faraway` package.
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| include: true
+
+library(tidyverse)
+library(kableExtra)
+library(faraway)
+
+# Diabetes data from faraway() package
+df <- diabetes
+
+c1 <- colnames(df)
+c2 <- c("Subject ID", "Total Cholesterol [mg/dL]", "Stabilize Glucose [mg/dL]", 
+        "High Density Lipoprotein [mg/dL]", "Cholesterol / HDL Ratio", "Glycosolated Hemoglobin [%]", 
+        "County: Buckingham or Louisa", "age [years]", "gender", 
+        "height [in]", "weight [lb]", "frame: small, medium or large", 
+        "First Systolic Blood Pressure", "First Diastolic Blood Pressure", 
+        "Second Systolic Blood Pressure", "Second Diastolic Blood Pressure", 
+        "waist [in]", "hip [in]", 
+        "Postprandial Time [min] when labs were drawn")
+
+tbl <- data.frame(Abbreviation = c1, Description = c2)
+
+kbl_font_size <- 14
+
+tbl %>% 
+  kbl(align = "c") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_styling(font_size = kbl_font_size)
+
+```
+:::
+:::
+
+## Diabetes data set
+
+*Example data set*
+
+<br>
+
+::: columns
+::: {.column width="45%"}
+-   Glycosolated hemoglobin $>7.0$ is usually taken as a positive diagnosis of diabetes, so we can add variable `diabetic` (yes/no) reflecting this information.
+-   We can calculate BMI as $BMI = 703 \times (weight \; [lb] \; / (height \;[in])^2)$ and define obesity as $BMI \ge 30$ storing this information in `obese` variable (yes/no).
+-   First few observations omitting samples with missing data (complete case analysis) are shown on the right.
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="50%"}
+```{r}
+
+# add obesity and diabetes variables
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+  
+# preview data
+glimpse(head(data_diabetes))
+```
+:::
 :::
 
 ## Categorical data
 
-Categorical data can be summarized by counting the number of observations of each category and summarizing in a frequency table or graphically in a bar chart. Alternatively we can calculate the the proportions (or percentages) of each category.
+*Summarizing categorical data*
+
+. . .
 
 <br> <br>
 
 ```{mermaid}
+%%| label: fig-cat-summary
+%%| fig-align: center
+%%| fig-cap: "Main method of summarizing categorical data types. Numerical summaries include frequency, summary and contingency tables together with listing proportions and percentages. Graphical summaries include bar charts, pie charts and mosaic plots."
 flowchart TD
   A(Categorical data) --> B(Numerical summary)
   B(Numerical summary) --> D(Table of frequencies <br/> Proportions <br/> Percentages <br/> ...)
@@ -138,158 +255,98 @@ flowchart TD
 
 ## Categorical data
 
-```{r data-cat-simulate-mice-data}
-#| include: false
+*Summarizing categorical data*
 
-# Generate mice data
-set.seed(101) # set random seed
-n <- 100 # number of observations to generate
-week <- 5:24 # number of weeks to generate
-m <- length(week)
+<br>
 
-mice0 <- data.frame(id=1:n, sex=sample(c('male', 'female'), n, replace = TRUE)) %>%
-  mutate(male=1*(sex=="male"), b0=rnorm(n, 15.5, 1), b1=rnorm(n, 0.5, 0.1), b2=rnorm(n, 1.5,0.5), b3=rnorm(n, 0.3, 0.1), a0 = rnorm(n, 44, 4))
-
-mice <- mice0 %>% slice(rep(1:n(), each=m)) %>% mutate(week=rep(week, n))
-mice <- mice %>% mutate(s=rnorm(n*m, 0, 0.2)) %>% mutate(weight=b0+b1*week+b2*male+b3*male*week+s) 
-
-mice <- mice %>% select(id, sex, male, week, weight)
-write_csv(mice, file="data/mice.csv")
-
-```
-
-::: {#exm-mice-10}
-Lab mice: sex
-
-Imagine, we run an experiment, in which follow 100 mice over a period of 24 weeks. To begin with, we record mice sex (male/female). In addition, every week we record the weight (g) of each mouse, starting at week 5. How can we summarize the sex (male/female) variable?
-:::
-
-. . .
+Let's preview again first few measurements of diabetes data set focusing on `gender` and `obese` variables.
 
 <br>
 
 ::: columns
-::: {.column width="50%"}
-```{r, message=FALSE}
-#| label: tbl-mice-sex-head
-#| tbl-cap: Preview of the mice data (first few records)
-
-# read in data
-mice <- read_csv("data/mice.csv")
-mice <- mice %>%
-  mutate(weight = round(weight,2))
-
-# preview data
-head(mice) %>%
-  kable() %>% 
-  kable_styling(full_width = FALSE)
-```
-:::
-
-::: {.column width="50%"}
-```{r, message=FALSE}
-#| label: tbl-mice-sex-tail
-#| tbl-cap: Preview of the mice data (last few records)
-
-# read in data
-mice <- read_csv("data/mice.csv")
-mice <- mice %>%
-  mutate(weight = round(weight,2))
-
-# preview data
-tail(mice) %>%
-  kable() %>% 
-  kable_styling(full_width = FALSE)
-```
-:::
-:::
-
-## Categorical data
-
-Let's focus on only subset of data, the first 10 mice measured at week 5.
-
-::: columns
-::: {.column width="50%"}
+::: {.column width="40%"}
 ```{r}
-#| label: tbl-mice10-sex-preview
-#| tbl-cap: Sex and weigth data for a subset of 10 mice observed at week 5
+#| label: tbl-diabetes-preview
+#| tbl-cap: "Diabetes data: first few observations of gender and obesity status."
 
-# select first 10 mice at week 5
-mice.10 <- mice %>% 
-  filter(week == 5) %>%
-  filter(id %in% 1:10)
-
-# preview data
-head(mice.10, 10) %>% 
-  kable() %>% 
-  kable_styling(full_width = FALSE)
+data_diabetes %>%
+  dplyr::select("id", "gender", "obese") %>%
+  dplyr::slice(1:10) %>%
+  as_tibble() %>%
+  kbl(align = "c") %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = kbl_font_size)
+  
 ```
 :::
 
+::: {.column width="10%"}
+:::
+
 ::: {.column width="50%"}
--   Information about male/female falls under categorical data type.
--   Things we can ask here to summarize the data are:
-    -   how many mice of each category we have, i.e. how many males and how many females?
-    -   what are the males/females percentages (or proportions)?
+-   Information about `gender` and `obese` status falls under categorical data type.
+-   To summarize these variables we can ask questions such as:
+    -   how many participants we have in each category?
+    -   what are the percentages or proportions in each category?
 -   We can also visualize these descriptive statistics in a bar chart of a pie chart.
 :::
 :::
 
 ## Categorical data
 
-. . .
+*Frequency table. Bar and pie charts.*
 
-**Frequency table**
+<br> Frequency table shows the number, percentages and proportions of study participants with BMI $\ge$ 30 and with BMI \< 30.
 
 ```{r}
-
-table.summary <- mice.10 %>% 
-  group_by(sex) %>%
+# count frequencies, percentages and proportions
+table.summary <- data_diabetes %>%
+  group_by(obese) %>%
   tally() %>%
   mutate("percent (%)" = n/sum(n)*100) %>%
   mutate("proportion" = n/sum(n))
 
-kable(table.summary) %>%
+# show table
+kable(table.summary, digits = 1) %>% 
   kable_styling(full_width = TRUE)
-
 ```
+
+. . .
 
 <br>
 
-. . .
-
-**Bar chart & pie chart**
-
-. . .
+::: columns
+::: {.column width="50%"}
+Bar chart
 
 ```{r}
-#| label: fig-mice10
-#| fig-keep: all
-#| fig-height: 6
-#| fig-width: 12
-#| fig-cap: Graphical summaries of number and percentage of mice for each observed sex category (male/female)
-#| fig-subcap:
-#|   - "Bar chart"
-#|   - "Pie chart"
-#| layout-ncol: 2
-
+# set a custom ggplot theme
 font.size <- 30
 my.ggtheme <- theme(axis.title = element_text(size = font.size), 
         axis.text = element_text(size = font.size), 
         legend.text = element_text(size = font.size), 
-        legend.title = element_blank()) 
+        legend.title = element_blank(), 
+        axis.title.y = element_text(angle = 0))
 
 # use ggplot to draw a bar chart
-mice.10 %>%
-  ggplot(aes(x = sex, fill = sex)) +
+data_diabetes %>%
+  ggplot(aes(x = obese, fill = obese)) +
   geom_bar(width = 0.5) +
   scale_fill_brewer(palette = "Paired") + 
   theme_bw() +
   my.ggtheme
 
+```
+:::
+
+::: {.column width="50%"}
+Pie chart
+
+```{r}
+
 # draw pie chart
-mice.10 %>%
-  ggplot(aes(x="", y = sex, fill = sex)) +
+data_diabetes %>%
+  ggplot(aes(x="", y = obese, fill = obese)) +
   geom_bar(width = 1, stat = "identity") +
   theme_bw() +
   coord_polar("y", start=0) +
@@ -299,125 +356,139 @@ mice.10 %>%
   my.ggtheme
 
 ```
-
-::: notes
-Ask how can we numerically summarize the variable? How about graphically?
+:::
 :::
 
 ## Categorical data
 
-::: {#exm-lefthand}
-**Left-handedness**
-
-We are interested in whether left-handedness is associated with suffering from migraine. We collect data on handedness in 30 patients suffering from migraine on regular basis and 40 healthy controls.
-:::
-
-```{r}
-# in fact we just generate some random data on handedness (L/H) and migraine (Yes/No)
-set.seed(1123) # set random seed 
-patients <- sample(c("L", "R"), 30, prob=c(0.3, 0.7), replace=TRUE)
-controls <- sample(c("L", "R"), 40, prob=c(0.1, 0.9), replace=TRUE)
-data.handedness <- rbind(data.frame(group="patient", handedness=patients),
-              data.frame(group="control", handedness=controls)) %>%
-  rownames_to_column("id")
-
-# preview data on handedness and migraine
-# glimpse(data.handedness)
-```
+*Summary and contingency table: 2 categorical variables*
 
 . . .
 
-**Summary table**
+<br>
 
-. . .
+When we are interested in how one categorical variable is related to another categorical variable, we can use a **summary table**. For instance, we can look at the relationship between obesity (yes/no) and diabetes (yes/no). <br>
 
 ```{r}
 
-# count number (and %) of left-handed by group (patients / controls)
-data.handedness %>%
-  group_by(group) %>%
-  dplyr::summarize(Total=n(), `Left-handed` = sum(handedness=="L")) %>% 
-  mutate(`Left handed (%)` = round(`Left-handed` * 100 / Total, 2)) %>%
+data_diabetes %>%
+  group_by(obese) %>%
+  dplyr::summarize(Total=n(), `Diabetic` = sum(gender=="male")) %>% 
+  mutate(`Diabetic (%)` = round(`Diabetic` * 100 / Total, 2)) %>%
   kable() %>%
   kable_styling(full_width = TRUE)
-  
+
 ```
 
 . . .
 
-<br> **Contingency table (cross table)**
+<br> <br>
 
-. . .
-
-Shows the multivariate frequency distribution of variables
+**Contingency table**, sometimes called two-way frequency table, shows the multivariate frequency distribution of variables. <br>
 
 ```{r}
 # use table() function to create contingency table
-table.con <- table(data.handedness$group, data.handedness$handedness)
+table.con <- table(data_diabetes$obese, data_diabetes$diabetic)
 table.con <- addmargins(table.con)
-table.con %>% kable() %>%
-  kable_styling(full_width = TRUE)
-```
+rownames(table.con) <- c("Non-obese", "Obese", "Sum")
+colnames(table.con) <- c("Non-diabetic", "Diabetic", "Sum")
 
-::: notes
-Ask how can we numerically summarize the variable? How about graphically?
-:::
+table.con %>%
+  kable(row.names = TRUE) %>%
+  kable_styling(full_width = TRUE) %>%
+  column_spec(4, bold = T) %>%
+  row_spec(3, bold = T)
+
+```
 
 ## Categorical data
 
-**Bar chart with 2 categorical variables**
+*Bar charts: 2 categorical variables*
 
 . . .
 
-Again, we can visualize the frequencies using bar charts.
+<br>
+
+Bar charts can be used to visualize two and more categorical variables, e.g. by using **stacking**, **side-by-side bars** or **colors**.
+
+<br>
 
 ```{r}
-#| label: fig-handedness-barcharts
-#| fig-cap: Bar charts summarizing handedness variable in control and patients
-#| fig-width: 12
-#| fig-height: 16
-#| fig-subcap:
-#| - "stacked bars"
-#| - "side-by-side bars"
-#| - "bars showing fractions instead of counts"
-#| layout-ncol: 3
+#| label: fig-cat2-barplot
+#| fig-align: center
+#| fig-cap: "Bar charts visualizing two caterogircal variables using stacking, side-by-side bars and colours."
+#| out-height: 10cm
 
-data.handedness %>% 
-  ggplot(aes(x=group, fill=handedness)) + 
+
+p1 <- data_diabetes %>% 
+  ggplot(aes(x=obese, fill=diabetic)) + 
   geom_bar() + 
   theme_bw() + 
-  xlab("") + 
-  scale_fill_brewer(palette = "Paired") + 
-  my.ggtheme
-  
-# another way of using bar charts: side by side bars
-data.handedness %>% 
-  ggplot(aes(x=group, fill=handedness)) + 
+  xlab("obese") + 
+  ylab("count (diabetic)") +
+  ggtitle("Stacked bars") + 
+  scale_fill_brewer(palette = "Paired") 
+
+p2 <- data_diabetes %>% 
+  ggplot(aes(x=obese, fill=diabetic)) + 
   geom_bar(position = "dodge") + 
   theme_bw() + 
-  xlab("") + 
-  scale_fill_brewer(palette = "Paired") + 
-  my.ggtheme
+  xlab("obese") + 
+  ylab("count (diabetic)") +
+  ggtitle("Side-by-side bars") + 
+  scale_fill_brewer(palette = "Paired") 
 
-# another way of using bar charts: showing fractions instead of counts
-data.handedness %>% 
-  ggplot(aes(x=group, fill=handedness)) + 
+p3 <- data_diabetes %>% 
+  ggplot(aes(x=obese, fill=diabetic)) + 
   geom_bar(position = "fill") + 
   theme_bw() + 
-  xlab("") + 
-  ylab("fraction") +
-  scale_fill_brewer(palette = "Paired") + 
-  my.ggtheme
+  xlab("obese") + 
+  ylab("fraction (diabetic)") +
+  ggtitle("Fraction stacked") + 
+  scale_fill_brewer(palette = "Paired") 
+
+
+grid.arrange(p1, p2, p3, ncol = 3)
 
 ```
 
-::: notes
-Ask: can we make a bar chart with 2 categorical variables?
-:::
+## Categorical data
+
+*Mosaic plot*
+
+<br>
+
+<!-- Mosaic plots display contingency tables, here contingency table of obesity and diabetic status among study participants, also including gender. -->
+
+```{r}
+#| label: fig-cat2-mosaic
+#| fig-align: center
+#| fig-cap: "Mosaic plots display contigency tables, here of obesity and diabetic status among study pariticipants (left) and colour-coded by gender (right)."
+
+p1 <- ggplot(data = data_diabetes) +
+  geom_mosaic(aes(x = product(obese), fill=diabetic)) + 
+  theme_bw() + 
+  scale_fill_brewer(palette = "Paired")
+
+p2 <-  ggplot(data = data_diabetes) +
+  geom_mosaic(aes(x = product(obese, gender), fill=diabetic)) + 
+  theme_bw() + 
+   scale_fill_brewer(palette = "Set2") 
+
+grid.arrange(p1, p2, ncol = 2)
+
+ 
+```
 
 ## Numerical data
 
-Numerical data, both discrete and continuous, can be visualized and summarized in many ways. Common plots include histograms, density plots, box plots and scatter plots. Summary statistics include mean, median, quantiles, variance, standard deviation and median absolute deviation.
+*Summarizing numerical data*
+
+. . .
+
+<br>
+
+Numerical data can be visualized and summarized in many ways. Common plots include **histograms, density plots and scatter plots**. Summary statistics include **measures of location** such as mode and median and **measures of spread** such as variance or median absolute deviation. It is also common to visualize summary statistics, e.g. on box plot.
 
 <br>
 
@@ -425,488 +496,489 @@ Numerical data, both discrete and continuous, can be visualized and summarized i
 flowchart TD
   A(Numerical data) --> B(Numerical summary)
   A(Numerical data) --> C(Graphical summary)
-  B(Numerical summary) --> D(Mean <br/> Median <br/> Quantiles <br/> Variance <br/> Standard deviation <br/> Mean absolute deviation <br/> ...)
-  C(Graphical summary) --> E(Histogram <br/> Density plot <br/> Box plot <br/> ...)
+  B(Numerical summary) --> D(Measures of location <br/> e.g. mode, average, median)
+  B --> E(Measures of spread <br/> e.g. quartiles, variance, standard deviation)
+  C(Graphical summary) --> F(Histogram <br/> Density plot <br/> Box plot <br/> ...)
 ```
 
 ## Numerical data
 
-::: {#exm-dice}
-**Throwing 10 dice**
-
-Let's imagine that we have 10 dice and we throw them all at once. We count and record the total number of dots and repeat the whole process 100 times.
-:::
+*Strip plot, Jittered strip plot & Beeswarm plot*
 
 . . .
-
-<br> The counts for the first few runs are:
-
-```{r}
-# simulate throwing 10 dice, counting dots and repeating the experiment 100 times
-set.seed(123)
-sample.sum10dice <- replicate(100, sum(sample(1:6, 10, replace = TRUE))) 
-data.sum10dice <- data.frame(run = 1:length(sample.sum10dice), sumcounts = sample.sum10dice)
-
-kable(head(data.sum10dice))
-```
 
 <br>
 
-. . .
+If it is technically feasible, it is recommended to visually assess all measurements on a plot.
 
-Let's make some plots.
-
-## Numerical data
-
-::: incremental
--   When the data set is not very big, i.e. does not contain millions of measurements for a given numerical variable of interest, it can be useful to plot all measurements in a **1D scatter plot (strip plot)**.
--   A **jittered strip plot** attempts to reduce overlays by randomly moving data points by small amounts to the left and right.
--   In a **beeswarm plot** data points are moved only when necessary, and even then the data point is only moved the minimum distance necessary to avoid overlays.
-:::
+<br>
 
 ```{r}
-#| fig-cap: Strip plot showing sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-stripplot
-#| fig-cap-location: margin
-#| fig-width: 2
-#| fig-height: 3
-#| include: false
+#| label: fig-num-1d
+#| fig-align: center
+#| fig-cap: "Strip plot, jittered strip plot and beeswarm plot showing all measurmentes of age variable (complete cases analysis)."
+#| out-height: 10cm
 
-# define generic ggplot theme
-font.size <- 12
-col.blue.light <- "#a6cee3"
-col.blue.dark <- "#1f78b4"
-my.ggtheme <- theme(axis.title = element_text(size = font.size), 
-        axis.text = element_text(size = font.size), 
-        legend.text = element_text(size = font.size), 
-        legend.title = element_blank(), 
-        legend.position = "top") 
 
 # plot strip plot
-data.sum10dice %>%
-  ggplot(aes(x = "", y = sumcounts)) + 
-  geom_point() + 
+p1 <- data_diabetes %>%
+  ggplot(aes(x = "", y = age)) + 
+  geom_point(size = 3, alpha = 0.8) + 
   theme_bw() + 
-  ylab("dot counts (10 dice)") + 
+  ylab("age") + 
   xlab("") + 
-  my.ggtheme + 
-  ggtitle("strip plot")
+  ggtitle("Strip plot")
 
-```
-
-```{r}
-#| fig-cap: Jittered strip plot showing sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-jitter
-#| fig-cap-location: margin
-#| fig-width: 2
-#| fig-height: 3
-#| include: false
-
-# plot jittered strip plot
-data.sum10dice %>%
-  ggplot(aes(x = "", y = sumcounts)) + 
-  geom_jitter(height = 0, width = 0.35) + 
+p2 <- data_diabetes%>%
+  ggplot(aes(x = "", y = age)) + 
+  geom_jitter(height = 0, width = 0.2, size = 3, alpha = 0.8) + 
   theme_bw() + 
-  ylab("dot counts (10 dice)") + 
-  xlab("") + 
-  my.ggtheme + 
-  ggtitle("jittered strip plot")
-```
+  ylab("age") + 
+  xlab("") +
+  ggtitle("Jittered plot")
 
-```{r}
-#| fig-cap: Beeswarm showing sum of dots across 10 dice being thrown at once 100 times
-#| label: fig-dice10-beeswarm
-#| fig-cap-location: margin
-#| fig-width: 4
-#| fig-height: 3
-#| include: false
-
-# plot beeswarm
-data.sum10dice %>%
-  ggplot(aes(x = "", y = sumcounts)) + 
-  geom_beeswarm(cex = 2) + 
+p3 <- data_diabetes %>%
+  ggplot(aes(x = "", y = age)) + 
+  geom_beeswarm(cex = 2, size = 3, alpha = 0.8) + 
   theme_bw() + 
-  ylab("dot counts (10 dice)") + 
+  ylab("age") + 
   xlab("") + 
-  my.ggtheme + 
-  ggtitle("beeswarm")
+  ggtitle("Beeswarm plot")
 
+grid.arrange(p1, p2, p3, ncol = 3)
 ```
-
-. . .
-
-![](session-descriptive-presentation_files/figure-revealjs/fig-dice10-stripplot-1.png){.absolute top="300" left="10" width="250" height="400"}
-
-. . .
-
-![](session-descriptive-presentation_files/figure-revealjs/fig-dice10-jitter-1.png){.absolute top="300" left="350" width="250" height="400"}
-
-. . .
-
-![](session-descriptive-presentation_files/figure-revealjs/fig-dice10-beeswarm-1.png){.absolute top="300" left="700" width="350" height="400"}
 
 ## Numerical data
 
--   A **histogram** bins the data and counts the number of observations that fall into each bin.
--   A **density plot** is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.
+*Histogram & density plot* <br>
 
-<br>
+. . .
+
+A **histogram** bins the data and counts the number of observations that fall into each bin. A **density plot** is like a smoothed histogram where the total area under the curve is set to 1. A density plot is an approximation of a distribution.
 
 ```{r}
-#| fig-width: 6
-#| layout-ncol: 2
+#| label: fig-hist-den
+#| fig-align: center
+#| fig-cap: "Histogram of the age measurmentes exluding missing data (left) and a corresponding density plot (right)."
+#| out-width: 20cm
+#| out-height: 10cm
 
 # plot histogram
-data.sum10dice %>%
-  ggplot(aes(x = sumcounts)) + 
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+p1 <- data_diabetes %>%
+  ggplot(aes(x = age)) + 
   geom_histogram(binwidth = 5, center = 32.5, color = "white", fill = col.blue.dark) + 
   theme_bw() + 
-  xlab("dot counts (10 dice)") + 
-  my.ggtheme + 
-  ggtitle("Histogram")
+  xlab("age") 
 
 # plot density plot
-data.sum10dice %>% ggplot(aes(x = sumcounts)) + 
+p2 <- data_diabetes %>% ggplot(aes(x = age)) + 
   geom_density() + 
   theme_bw() + 
-  xlab("dot counts (10 dice)") + 
-  my.ggtheme + 
-  ggtitle("Density plot")
+  xlab("age") 
+
+grid.arrange(p1, p2, ncol = 2)
 
 ```
 
 ## Numerical data
 
-::: columns
-::: {.column width="40%"}
--   **A box plot**, also called a box-and-whisker plot, shows a box covering 50% of the data
--   The center line is located at the **median**, a value such that 50% of the measurements are below the median.
--   The whiskers extend to the most extreme data point or at most **1.5 times the length of the box**. Any measurements further out are shown as **outliers**.
--   *Note: 1.5 times is the default used in both ggplot and basic R graphics but it can also be adjusted.*
--   A box plot is based on both measures of location and of spread.
-:::
+*Scatter plot: 2 numerical variables*
 
-::: {.column width="10%"}
-:::
+<br>
 
-::: {.column width="40%"}
+. . .
+
+Scatter plots are useful when studying a relationship (association) between two numerical variables.
+
+. . .
+
 ```{r}
-#| fig-width: 6
-#| fig-height: 8
-#| include: false
-#| eval: false
+#| label: fig-scatter
+#| out-height: 10cm
+#| out-width: 20cm
+#| fig-align: center
+#| fig-cap: "Scatter plot showing relationship between weight and height (left) and including color-coding by gender (right)."
 
-data.sum10dice %>% ggplot(aes(y = sumcounts, x="")) + 
-  geom_boxplot(alpha = 1, outlier.colour = "red", color = col.blue.dark) + 
-  geom_jitter(width = 0.35, alpha = 0.3) + 
-  theme_bw() + 
-  ylab("dot counts (10 dice)") + 
-  xlab("") + 
-  my.ggtheme
+# plot scatter plot
+p1 <- data_diabetes %>%
+  mutate(group = "all") %>%
+  ggplot(aes(x = weight, y = height, color = group)) + 
+  geom_point(size = 3, alpha = 0.8) + 
+  xlab("weight [kg]") + 
+  ylab("height [m]") + 
+  theme_bw() +
+  theme(legend.position = "top") + 
+  scale_color_manual(values = "black")
+
+# plot scatter plot
+p2 <- data_diabetes %>%
+  ggplot(aes(x = weight, y = height, color = gender)) +
+  geom_point(size = 3, alpha = 0.8) +
+  xlab("weight [kg]") +
+  ylab("height [m]") +
+  theme_bw() +
+  scale_color_brewer(palette = "Dark2") + 
+  theme(legend.position = "top")
+
+grid.arrange(p1, p2, ncol = 2)
 
 ```
 
-![](figures/fig-boxplot-dotcounts.png){.absolute top="100" width="450" height="500"}
-:::
-:::
-
 ## Numerical data
 
-<br>
+*Scatter plot: 2 numerical variables cont.* <br>
 
-::: {#fig-boxplot layout-ncol="2"}
-![Box plot](figures/fig-boxplot-dotcounts.png)
+. . .
 
-![Box plot overlayed on a jittered strip plot](figures/fig-boxplot-jittered-dotcounts.png)
+Sometimes, it is useful to connect the observations in the order in which they appear, e.g. when analyzing time series data. The diabetes data set does not contain any measurements over time but we can simulate some BMI values over time for demonstration purposes.
 
-Box plot of dot counts across 10 dice thrown 100 times (left) and with overlayed on the jittered strip plot (right)
-:::
-
-## Numerical data
-
-**Strip plot, jittered stirp plot & beeswarm stratified by group**
+. . .
 
 <br>
 
 ```{r}
-#| fig-width: 12
+#| label: fig-trend
+#| out-width: 20cm
+#| out-height: 10cm
+#| fig-align: center
+#| fig-cap: "Scatter plot for simulated over 12 weeks BMI values for 10 participants in a mock up study (left) and colour-coded by a study group."
 
-# read in mice data
-data.mice <- read_csv("data/mice.csv")
-data.mice <- data.mice %>%
-  mutate(weight = round(weight,2))
 
-# select weights at week 5
-data.mice.week5 <- data.mice %>%
-  filter(week == 5)
+# simulate BMI over time
+# select participants with BMI >= 30
+# assign half to control group and half to treatment to reduce weight 
+# add simulated weight loss values to treatment group ca. 0.2 kg per week
+# add simulated weight fluctuations, ca plus / minus 0.1 kg per week
+
+data_diabetes_bmi30 <- data_diabetes %>% 
+  filter(BMI >= 30) %>%
+  select(id, weight, height, BMI) %>%
+  mutate(group=sample(c("control", "treatment"), size=n(), replace=TRUE))
+
+# add 52 weeks of simulated BMI values
+
+no_weeks <- 12
+weight_sim <- matrix(data = NA, 
+                     nrow = nrow(data_diabetes_bmi30), 
+                     ncol = no_weeks, 
+                     dimnames = list(data_diabetes_bmi30$id, paste("week", 1: no_weeks, sep=""))) # initiate matrix to store simulated BMI values
+weight_sim[, 1] <- data_diabetes_bmi30$weight # first column: baseline weight
+
+for (n in 1:nrow(data_diabetes_bmi30)){
   
-# strip plot stratified by sex
-p.striplot <- data.mice.week5 %>%
-  ggplot(aes(x = sex, y = weight)) + 
-  geom_point() + 
-  theme_bw() + 
-  xlab("") + 
-  ylab("weigth (g)") + 
-  my.ggtheme
+  for (p in 2:ncol(weight_sim)){
+    
+    # if control group: just fluctuate weight by random values between 0 and 0.2 kg
+    # if treatment: decrease by random values between 0.1 and 0.5 kg from
+    
+    if (data_diabetes_bmi30$group[n] == "treatment"){
+     
+      loss <- runif(1, 0.1, 0.5) %>% round(1)
+      weight_sim[n, p] <- weight_sim[n, p-1] - loss
+      
+    } else{
+      
+      fluctuation <- runif(1, -0.2, 0.2) %>% round(1)
+      weight_sim[n, p] <- weight_sim[n, p-1] + fluctuation
+      
+    }
+  
+  }
+}
 
-# jittered strip plot stratified by sex
-p.jitter <- data.mice.week5 %>%
-  ggplot(aes(x = sex, y = weight)) +
-  geom_jitter(height = 0, width = 0.2) +
-  theme_bw() +
-  xlab("") +
-  ylab("weigth (g)") +
-  my.ggtheme
+# convert to tibble
+weight_sim <- weight_sim %>%
+  as_tibble(rownames = "id") %>%
+  mutate(id = as.numeric(id))
 
-# beeswarm stratified by sex
-p.beeswarm <- data.mice.week5 %>%
-  ggplot(aes(x = sex, y = weight)) +
-  geom_beeswarm(cex = 3) +
-  theme_bw() +
-  xlab("") +
-  ylab("weigth (g)") +
-  my.ggtheme
+# join data_diabetes_bmi30 with simulated
+# keep 5 treatment and 5 control participants
+data_diabets_sim <- data_diabetes_bmi30 %>%
+  as_tibble() %>% 
+  left_join(weight_sim, by = "id")
 
-grid.arrange(arrangeGrob(p.striplot, p.jitter, p.beeswarm,ncol=3))
+# plot BMI over time
+data_plot <- data_diabets_sim %>%
+  slice_sample(n = 10) %>%
+  select(-weight, -BMI) %>% 
+  pivot_longer(-c("id", "group", "height"), names_to = "week", values_to = "weight") %>% 
+  mutate(BMI = weight / (height^2)) %>%
+  mutate(week = gsub("week", "", week)) %>%
+  mutate(week = as.numeric(week)) 
 
-```
-
-## Numerical data
-
-**Histogram & density plot stratified by group**
-
-<br>
-
-```{r}
-#| fig-width: 12
-
-# plot histogram
-p.hist <- data.mice.week5 %>%
-  ggplot(aes(x=weight, fill=sex)) + 
-  geom_histogram(bins=15, color="white", alpha = 0.6) + 
-  xlab("weight (g)") + 
-  theme_bw() + 
-  scale_fill_brewer(palette = "Dark2") + 
-  my.ggtheme
-
-
-p.density <- data.mice.week5 %>%
-  ggplot(aes(x=weight, fill=sex)) + 
-  geom_density(alpha = 0.6) + 
-  xlab("weight (g)") + 
-  theme_bw() + 
-  scale_fill_brewer(palette = "Dark2") + 
-  my.ggtheme
-
-grid.arrange(arrangeGrob(p.hist, p.density, ncol=2))
-
-```
-
-## Numerical data
-
-**Box plot stratified by group**
-
-<br>
-
-```{r}
-#| fig-width: 6
-
-# plot box plot
-data.mice.week5 %>%
-  ggplot(aes(y=weight, fill=sex)) + 
-  geom_boxplot(alpha = 0.6) + 
-  xlab("weight (g)") + 
-  theme_bw() + 
-  scale_fill_brewer(palette = "Dark2") + 
-  my.ggtheme
-
-```
-
-## Numerical data
-
-**Scatter plot: 2 numerical variables**
-
-Scatter plots are useful when studying a relationship (association) between two numerical variables. Let's add some data on our mice length and have a look at the relationship between mice weight and length at week 10.
-
-```{r}
-
-# simulate mice length data (based on normal distribution)
-data.mice.week10 <- data.mice %>%
-  filter(week == 10) %>%
-  mutate(length = 7.3+weight/20+rnorm(100,0,0.1)) 
-
-# plot scatter plot
-p.scatter <- data.mice.week10 %>%
-  ggplot(aes(x = weight, y = length)) + 
-  geom_point() + 
-  xlab("weigth (g)") + 
-  ylab("length (cm)") + 
-  theme_bw() + 
-  my.ggtheme
-
-# plot scatter plot
-p.scatter.grp <- data.mice.week10 %>%
-  ggplot(aes(x = weight, y = length, color = sex)) +
+p1 <- data_plot %>%
+  mutate(group = "id") %>%
+  ggplot(aes(x = week, y = BMI, group = id, colour = group)) + 
   geom_point() +
-  xlab("weigth (g)") +
-  ylab("length (cm)") +
+  geom_line() + 
+  xlab("week") +
+  ylab("BMI") +
+  theme_bw() +
+  scale_color_manual(values = "black") + 
+  scale_x_continuous(breaks= pretty_breaks()) + 
+  theme(legend.position = "top")
+
+data_plot <- data_diabets_sim %>%
+  group_by(group) %>%
+  slice_sample(n = 5) %>%
+  select(-weight, -BMI) %>% 
+  pivot_longer(-c("id", "group", "height"), names_to = "week", values_to = "weight") %>% 
+  mutate(BMI = weight / (height^2)) %>%
+  mutate(week = gsub("week", "", week)) %>%
+  mutate(week = as.numeric(week)) 
+
+p2 <- data_plot %>%
+  ggplot(aes(x = week, y = BMI, group = id, colour = group)) + 
+  geom_point() +
+  geom_line() + 
+  xlab("week") +
+  ylab("BMI") +
   theme_bw() +
   scale_color_brewer(palette = "Dark2") +
-  my.ggtheme
+  scale_x_continuous(breaks= pretty_breaks()) +
+  theme(legend.position = "top")
 
-grid.arrange(arrangeGrob(p.scatter, p.scatter.grp, ncol=2))
+grid.arrange(p1, p2, ncol = 2)
 
 ```
 
-## Numerical data
+## Measures of location & spread
 
-Sometimes, it is useful to connect the observations in the order in which they appear, e.g. when analyzing time series data.
-
-```{r}
-
-# select four mice, with ids 17, 18 and 19
-data.mice.4 <- data.mice %>%
-  subset(id %in% 16:19)
-  
-# plot a line plot
-p.time <- data.mice.4 %>%
-  ggplot(aes(x=week, y=weight, group=id)) + 
-  geom_point() + 
-  geom_line() + 
-  ylab("weigth (g)") + 
-  theme_bw() + 
-  my.ggtheme
-  
-# plot a line plot
-p.time.grp <- data.mice.4 %>%
-  ggplot(aes(x=week, y=weight, group=id, color = sex)) + 
-  geom_point() + 
-  geom_line() + 
-  ylab("weigth (g)") + 
-  theme_bw() + 
-  scale_color_brewer(palette = "Dark2") + 
-  my.ggtheme
-
-grid.arrange(arrangeGrob(p.time, p.time.grp, ncol=2))
-  
-```
-
-## Measures of location
+<br>
 
 ```{mermaid}
 flowchart LR
-  A(Average value) --> C(Condensed data)
-  B(Spread) --> C(Condensed data)
+  A(Representative value) --> C(Image of data)
+  B(Spread) --> C(Image of data)
 ```
 
 <br>
 
 ::: incremental
--   It is not always easy to get a "feeling" for a set of numerical measurements unless we summarize the data in a meaningful way. Diagrams, as shown in the previous chapter, are often a good starting point.
--   We can further condense the information by reporting what constitutes a **representative value**. If we also know how widely scattered the observations are around it, we can formulate an image of data.
--   The **average** is a general term for a measure of **location** and some common ways of calculating the average are **mode**, **mean** and **median**.
+-   It is not always easy to get a "feeling" for a set of numerical measurements unless we summarize the data in a meaningful way.
+-   We can further condense the information shown previously on diagrams by reporting what constitutes a **representative value**. If we also know **how widely scattered** the observations are around it, we can formulate an image of data.
+-   The **average** is a general term for a measure of **location** and some common ways of calculating the average are mode, mean and median.
 :::
 
 ## Measures of location
 
-. . .
+*Mode* <br>
 
-**Mode**
-
-. . .
-
-Mode values is the value that most common occurs across the measurements. It can be found for numerical and categorical data types.
+-   Mode values is the value that most common occurs across the measurements. It can be found for **numerical and categorical** data types.
 
 . . .
 
-**Median**
+-   For instance, we can find `age` mode value by counting how many times we observe each age value among the study participants. The top three counts are below and the mode is thus 63.
+
+```{r}
+data_diabetes %>%
+  group_by(age) %>%
+  tally() %>%
+  arrange(desc(n)) %>%
+  slice(1:3) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14)
+```
 
 . . .
-
-Median value divides the ordered data values into two equally sized groups, so 50% of the values are below and 50% are above the median value.
 
 <br>
 
-. . .
-
-::: {#exm-mode-median}
-Given mice weight measurements (rounded up) for the first 6 mice during week 5, what are mode and median values?
+-   Analogously, we can find mode value for the categorical `diabetic status` by counting how many of the participants are diabetic and how many are not.
 
 ```{r}
-data.mice.week5 %>%
-  slice(1:6) %>% 
-  mutate(weight = round(weight)) %>%
-  kable()
+data_diabetes %>%
+  group_by(diabetic) %>%
+  tally() %>%
+  arrange(desc(n)) %>%
+  slice(1:3) %>%
+  kbl %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14)
 ```
-:::
-
-::: notes
-Mode: male Median: 19.7
-:::
 
 ## Measures of location
 
+*Median* <br>
+
+Median value divides the **ordered** data values into two equally sized groups so that 50% of the values are below and 50% are above the median value.
+
+```{=tex}
+\begin{equation}
+    Median =
+    \left\{
+        \begin{array}{cc}
+                \frac{(n+1)}{2}^{th} term & \mathrm{if\ } n \mathrm{\ is\ odd} \\
+                \frac{1}{2}\times \left (\frac{n}{2}^{th} term + (\frac{n}{2}+1)^{th} term \right) & \mathrm{if\ } n \mathrm{\ is\ even}  \\
+        \end{array}
+    \right.
+\end{equation}
+```
 . . .
 
-**Arithmetic mean**
+For instance, the median value for `age` for the first 10 study participants:
 
-. . .
+```{r}
+#| results: asis
+#| tbl-cap: Age values for the first 10 study participants.
+#| tbl-cap-location: margin
+age_10 <- data_diabetes %>%
+  slice(1:10)  # select first 10 participants
 
-**The arithmetic mean**, also commonly referred to as to mean, is calculated by adding up all the values and diving this by the number of values in the data set.
+# show age for 10 first participants
+age_10 %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14) 
+
+```
+
+can be found by ordering observations:
+
+```{r}
+age_10_ordered <- data_diabetes %>%
+  slice(1:10) %>% # select first 10 participants
+  arrange(age) %>% # order by age
+  pull(age) # extract ordered age observations
+
+data_diabetes %>%
+  slice(1:10) %>% # select first 10 participants
+  arrange(age) %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14) %>%
+  column_spec(c(5), background = "gold") %>%
+  column_spec(c(6), background = "gold")
+
+
+```
+
+and averaging $5^{th}$ and $6^{th}$ term in the ordered observations giving a median value of:
+
+```{r}
+#| code-fold: false
+1/2*(age_10_ordered[5] + age_10_ordered[6])
+```
+
+## Measures of location
+
+*Mean & weighted mean* <br>
+
+**The arithmetic mean**, also commonly referred to as **mean**, is calculated by adding up all the values and diving the sum by the number of values in the data set.
 
 Mathematically, for $n$ observations $x_1, x_2, \dots, x_n$, the arithmetic mean value is calculated as: $$\bar x = \frac{x_1+x_2+\dots+x_n}{n} = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$ {#eq-mean}
 
 . . .
 
-**Weighted mean**
+**Weighted mean** allows to add weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
 
 . . .
 
-As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
-
 ## Measures of location
 
-::: {#exm-weighted-mean}
-Imagine that you are interested in estimating the length of a wild type mice in your neighborhood. One day you manage to catch and measure 6 mice and observe lengths of 12, 16, 18, 20, 20, 17 (cm), where 12 and 16 cm were observed for female mice. You have heard that females and males are equally likely to live in your neighborhood. How do you calculate the weighted average to estimate the mice length given your data?
-:::
+*Mean & weighted mean* <br>
+
+::: {#exm-wmean}
+For instance, we may be interested in knowing an average `BMI` value, irrespective of `gender`. It happens that among our study participants women are over represented:
 
 ```{r}
-
-#| include:false
-#| 
-
-data.obs <- data.frame(x = c(12, 16, 18, 20, 20, 17), 
-                       sex = c("F", "F", "M", "M", "M", "M"))
-
-n.females <- 2
-n.males <- 4
-
-w.males <- 0.5 / n.males
-w.females <- 0.5 / n.females
-
-data.obs <- data.obs %>%
-  mutate(w = ifelse(sex == "F", w.females, w.males)) %>%
-  mutate(wx = w*x) 
-
-wx.bar <- sum(data.obs$wx)
-
-results <- data.frame(mean = mean(data.obs$x), 
-                      wmean = wx.bar)
+data_diabetes %>%
+  group_by(gender) %>%
+  tally() %>%
+  kbl() %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14)
 
 ```
 
-::: notes
-mean; 17.16667, weighted mean 16.375
-To get weights: 50/2 for females, 50/4 for males
+Assuming BMI measurements for men and women should have equal influence (50/50) and knowing BMI average for men and women separately:
+
+```{r}
+data_diabetes %>%
+  group_by(gender) %>%
+  summarize(mean_BMI = mean(BMI)) %>%
+  kbl(digits = 2) %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14)
+
+```
+
+What is the weighted BMI mean?
 :::
 
 ## Measures of location
 
-*Note that several very different distributions can still have the same mean value.*
+*Mean, median & outliers*
 
-```{r mean35}
+<br>
+
+Median is usually preferred when data has outliers as it follows from median definition that is less sensitive to outliers. On the other hand, mean value can be distorted when outliers are present.
+
+. . .
+
+<br>
+
+::: {#exm-outlier}
+
+Let's add an outlying value of age (110) to the first 11 study participants, and re-calculate mean and median.
+
+```{r}
+# pull age values for the first 11 study participants
+age_11 <- data_diabetes %>%
+  slice(1:11) %>%
+  select(id, age) %>%
+  pull(age)
+  
+# add outlier value of 110
+age_11_with_outlier <- c(age_11, 110)
+
+# calculate mean and median, with and without outlier
+
+# without outlier
+age_mean_without <- mean(age_11) %>% round(2)
+age_median_without <- median(age_11)
+
+# with outlier
+age_mean_with <- mean(age_11_with_outlier) %>% round(2)
+age_median_with <- median(age_11_with_outlier)
+
+res <- data.frame(mean = c(age_mean_without, age_mean_with), 
+                  median = c(age_median_without, age_median_with), 
+                  row.names = c("without outlier", "with outlier"))
+
+res %>%
+  kbl() %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14)
+
+```
+
+We can see that adding one outlying age value shifted mean age from `r age_mean_without` to `r age_mean_with` while median age value did not change that much with original median value being `r age_median_without` and `r age_median_with` after adding the outlying value.
+:::
+
+## Measures of location
+
+*Mean, median & outliers*
+
+<br>
+
+In addition, it is good to remember that several very different distributions can still have the same mean value.
+
+
+
+```{r mean35, warning=FALSE, message=FALSE, include=T, echo=F}
 #| fig-cap: Examples of various distributions having the same mean value of 3.5
 #| label: fig-mean-distr
+#| fig-width: 20
+#| fig-height: 10
+#| fig-cap-location: margin
 
 df <- data.frame(x=rnorm(200, 3.5, 2))
 df$x <- df$x - mean(df$x) + 3.5
@@ -929,145 +1001,234 @@ colnames(data.plot) <- c("Distr1", "Distr2", "Distr3", "Distr4", "Distr5", "Dist
 data.plot %>%
   rownames_to_column("x") %>%
   pivot_longer(-x, names_to = "Distr") %>%
-  ggplot(aes(x = value)) + 
-  geom_histogram(color="white", bins=30) + 
-  facet_wrap(~Distr, scale = "free") + 
+  ggplot(aes(x = value)) +
+  geom_histogram(color="white", bins=30) +
+  facet_wrap(~Distr, scale = "free") +
   theme_bw() +
-  xlab("")
-  
-```
-
-## Measures of spread
-
-::: columns
-::: {.column width="40%"}
-**Quartiles** are the three values that divide the data values into four equally sized groups.
-
--   **Q1**. Lower quartile. 25% of values are below Q1. Divides the values below the median into equally sized groups.
--   **Q2**. Median. 50% of values are below Q2 and 50% are above Q2
--   **Q3**. Upper quartile. 75% of values are below Q3. Divides the values above the median into equally sized groups.
--   **IQR**. Interquartile range, midspread, middle 50%. IQR = Q3 - Q1.
-
-<br>
-
-```{r}
-# read in mice data
-data.mice <- read_csv("data/mice.csv")
-data.mice <- data.mice %>%
-  mutate(weight = round(weight,2))
-
-# narrow data set to week 5 measurements
-data.mice.week5 <- data.mice %>%
-  filter(week == 5)
-
-# calculate quartiles
-weight.quartiles <- data.mice.week5 %>%
-  summarise(quartiles = quantile(weight, c(0.25, 0.5, 0.75))) %>% 
-  pull(quartiles) %>%
-  print()
-```
-:::
-
-::: {.column width="10%"}
-:::
-
-::: {.column width="40%"}
-```{r}
-#| fig-width: 4
-#| fig-height: 6
-
-# define generic ggplot theme
-font.size <- 12
-my.ggtheme <- theme(axis.title = element_text(size = font.size), 
-        axis.text = element_text(size = font.size), 
-        legend.text = element_text(size = font.size), 
-        legend.title = element_blank(), 
-        legend.position = "top") 
-
-data.mice.week5 %>%
-  ggplot(aes(x = "", y = weight)) + 
-  geom_boxplot() + 
   xlab("") + 
-  ylab("weight (g)") + 
-  theme_bw() + 
   my.ggtheme
 
 ```
-:::
-:::
 
 ## Measures of spread
+*Range, quartiles and IQR*
+<br>
 
-**Variance and standard deviation**
-
-The **variance** of a set of observations is their mean squared distance from the mean value:
-
-$$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2.$$ {#eq-sigma2}
+- The **range** is the difference between the largest and the smallest observations in the data set. 
+- **Quartiles** are the **three values** that divide the data values into **four equally sized groups**.
+- The **interquartile range**, IQR, is the difference between the 1st (Q1) and the 3rd (Q3) quartiles, i.e. between the 25th and 75th percentiles.
 
 <br>
 
+
+![](images/quartiles-anno.png){width = 80%}
+
+```{r}
+#| include: false
+#| eval: false
+
+age_10_ordered <- data_diabetes %>%
+  slice(1:9) %>% # select first 10 participants
+  arrange(age) %>% # order by age
+  pull(age) # extract ordered age observations
+
+data_diabetes %>%
+  slice(1:9) %>% # select first 10 participants
+  arrange(age) %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = T) %>%
+  kable_styling(font_size = 14) %>%
+  column_spec(c(5), background = "gold") 
+
+```
+
+## Measures of spread
+*Variance and standard deviation*
+<br>
+
+The **variance** of a set of observations is their mean squared distance from the mean value:
+
+$$\sigma^2 = \frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2$$ {#eq-sigma2}
+
 ```{r}
 #| label: fig-var
-#| fig-cap: First ten measurments of mice weight at week 5. Grey lines show the distance to the mean value.
+#| fig-cap: First ten age measurements for the study participants. Grey lines show the distance to the mean age value.
+#| fig-cap-location: margin
 
-data.xy <- data.mice.week5 %>% 
-  slice(1:10) %>%
-  rename(y = weight) %>%
+data.xy <- data_diabetes %>%
+  slice(1:10) %>% 
+  mutate(id = as.character(id)) %>%
+  rename(y = age) %>%
   rename(x = id)
-  
+
 y.bar <- mean(data.xy$y)
 
 data.xy %>%
 ggplot(aes(x=x, y=y)) +
   geom_segment( aes(x=x, xend=x, y=y, yend=y.bar), color="grey") +
   geom_point(color=col.blue.dark, size=4) +
-  geom_hline(yintercept=y.bar) + 
+  geom_hline(yintercept=y.bar) +
   theme_bw() +
   theme(
     panel.grid.major.x = element_blank(),
     panel.border = element_blank(),
-    axis.ticks = element_blank(), 
+    axis.ticks = element_blank(),
     axis.text.y = element_blank()) +
   xlab("") +
-  ylab("Length (cm)") +
-  coord_flip() + 
-  my.ggtheme
+  ylab("Age (year)") +
+  coord_flip() 
 
 ```
 
+
 ## Measures of spread
+*Variance and standard deviation*
 
-The variance is measured in the square of the unit in which $x$ was measured. **Standard deviation** is defined as the square root of the variance:
+<br>
 
+**Standard deviation** is defined as the square root of the variance:
+
+<br>
 $$\sigma = \sqrt{\frac{1}{n} \sum_{i=1}^n (x_i - \bar x)^2}$$ {#eq-sigma}
 
-<br> <br>
+
+## Measures of spread
+*Sample variance and standard deviation*
+
+<br>
+
+Typically, we regard the collection of observations $x_1, \dots, x_n$ as a **sample** drawn from a large **population** of possible observations. It has been shown that we obtain a better sample estimate of the population variance and standard deviation if we divide by $(n-1)$. So the denominator $n$ is commonly replaced by $n-1$ and the **sample variance** is calculated instead as:
 
 . . .
 
-Typically, we regard the collection of observations $x_1, \dots, x_n$ as a **sample** drawn from a large **population** of possible observations. It can be shown that we obtain a better sample estimate of the **population standard deviation** if we divide by $(n-1)$ and calculate the **sample standard deviation** instead.
+$$s^2 = {\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$ {#eq-s2}
+
+
+. . .
+
+<br>
+and the **sample standard deviation** is calculated as:
+
+. . .
 
 $$s = \sqrt{\frac{1}{n-1} \sum_{i=1}^n (x_i - \bar x)^2}.$$ {#eq-s}
 
-## IDA & EDA
+## A box-and-whisker plot
+*Boxplot*
 
-**EDA: Exploratory Data Analysis**
+. . .
 
-::: callout-note
-## EDA
+<br>
 
-"...exploratory data analysis is an approach of analyzing data sets to summarize their main characteristics, often using statistical graphics and other data visualization methods. A statistical model can be used or not, but primarily EDA is for seeing what the data can tell us beyond the formal modeling and thereby contrasts traditional hypothesis testing. Exploratory data analysis has been promoted by John Tukey since 1970 to encourage statisticians to explore the data, and possibly formulate hypotheses that could lead to new data collection and experiments..." (Wikipedia)
+:::: {.columns}
+
+::: {.column width="60%"}
+- A box-and-whisker plot is a **diagram summarizing numerical data through quartiles**. 
+- It is shown as a vertical or horizontal rectangle **box**, with the ends of rectangle corresponding to the upper (Q3) and lower (Q1) quartiles of the data values. A line drawn through the rectangle corresponds to the median value (Q2). 
+- There can be also lines called **whiskers** extending from the rectangle indicating variability outside the upper and lower quartiles. These can be defined in few ways^[Whiskers can indicate i) minimum and maximum values or ii) particular percentiles, e.g. 5th and 95th. On the box plot prepared with `R` function `boxplot()` or `geom_boxplot()` the upper whisker extends by default to the largest value no further than 1.5 * IQR from Q3 while the lower whiskers extends by default to the smallest value at most 1.5 * IQR from Q1.].
+- Data beyond the end of the whiskers are called "outlying" points and are plotted individually.
 :::
 
-**IDA: Initial Data Analysis**
-
-::: callout-note
-## IDA
-
-"...EDA is different from initial data analysis (IDA) which focuses more narrowly on checking assumptions required for model fitting and hypothesis testing, and handling missing values and making transformations of variables as needed. EDA encompasses IDA..." (Wikipedia)
+::: {.column width="40%"}
+![](images/boxplot-annotated.png){}
 :::
+
+::::
+
+## A box-and-whisker plot
+*Boxplot*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="60%"}
+- We have recommended to visually assess all the observations. 
+- We can overlay jitter plot on the box plot to get a complete picture of both the data and the quartiles summary statistics.
+- On the right we see a box-and-whisker plot overlayed on the jitter plot for the BMI values based on the measurements for the 130 study participants
+:::
+
+::: {.column width="40%"}
+```{r}
+#| fig-height: 12
+
+data_diabetes %>%
+  ggplot(aes(x = "", y = BMI)) + 
+  geom_boxplot(alpha = 1, col = "black", outlier.colour = "red", width = 0.5, outlier.size = 5) + 
+  geom_jitter(width = 0.2, alpha = 0.5, size = 5) + 
+  xlab("") + 
+  theme_classic() + 
+  my.ggtheme
+
+```
+:::
+
+::::
+
+
+## Lifecycle of data science
+*Descriptive stats in context*
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean data)
+  C --> D(Explore data)
+  D --> E(Inferential statistics)
+  D --> F(Predictive modelling)
+  E --> G(Communicate results)
+  F --> G(Communicate results)
+  
+```
+
+<br>
+
+- Descriptive statistics can be useful in most if not all phases of the project. 
+- We rely the most on descriptive statistics during the exploring data phase. This phase, is often called **Exploratory Data Analysis** and abbreviated as **EDA**. 
+- EDA was introduced in 1970s by John Tukey to encourage statisticians to explore the data, and formulate hypotheses that could lead to new data collection and experiments. 
+- Prior the introduction of EDA, **initial data analysis**, **IDA** was used with a narrow focus on checking data quality and model assumptions required for statistical modeling and hypothesis testing. 
+
+## Lifecycle of data science
+*Descriptive stats in context*
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean data)
+  C --> D(Explore data)
+  D --> E(Inferential statistics)
+  D --> F(Predictive modelling)
+  E --> G(Communicate results)
+  F --> G(Communicate results)
+  G --> A
+  G --> B
+  G --> C
+  G --> D
+  E --> A
+  E --> B
+  E --> C
+  E --> D
+  F --> B
+  F --> C
+  F --> D
+  
+```
+
+. . .
+
+<br>
+
+Data science projects rarely require only one pass through the project phases and often one returns to previous steps many times given the results from the down-stream steps. For instance, one may perform EDA, discover and handle missing data, and redo the EDA. Or one may try some hypothesis tests that would lead to new questions for which one would repeat both EDA and inferential data analysis parts. 
 
 ## Summary
+
+<br>
 
 ::: incremental
 -   Descriptive statistics is usually the first step of data analysis in which we try to familiarize ourselves with the data

@@ -10,156 +10,322 @@ editor_options:
 library(tidyverse)
 library(magrittr)
 library(kableExtra)
-library(ggplot2)
+library(faraway)
 library(ggbeeswarm)
 library(gridExtra)
 library(reshape2)
+
+# define generic ggplot theme
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top", 
+        axis.title.y = element_text(angle = 0)) 
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
 ```
 
 It is not always easy to get a "feeling" for a set of numerical measurements unless we summarize the data in a meaningful way. Diagrams, as shown in the previous chapter, are often a good starting point. We can further condense the information by reporting what constitutes a representative value. If we also know how widely scattered the observations are around it, we can formulate an image of data. The **average** is a general term for a measure of **location** and some common ways of calculating the average are mode, mean and median. 
 
 ## Mode
-Mode values is the value that most common occurs across the measurements. It can be found for numerical and categorical data types. 
+Mode values is the value that most common occurs across the measurements. It can be found for **numerical and categorical** data types. 
+
+For instance, we can find `age` mode value by counting how many times we observe each age value among the study participants. The mode values is the most commonly occurring one, here 63, with 9 participants being 63 at the time of the study. 
+
+```{r}
+#| label: tbl-mode-age
+#| tbl-cap: Top three most observed age values among the study participants.
+#| tbl-cap-location: bottom
+data_diabetes %>%
+  group_by(age) %>%
+  tally() %>%
+  arrange(desc(n)) %>%
+  slice(1:3) %>%
+  kbl() %>%
+  kable_styling()
+```
+
+Analogously, we can find mode value for the categorical `diabetic status` by counting how many of the participants are diabetic and how many are not. Here, the mode is `No` with 100 study participants having glycosolated hemoglobin level lower than 7.0 and 30 above. 
+
+```{r}
+#| label: tbl-mode-obese
+#| tbl-cap: Number of times diabetic status of No and Yes is observed for the study participants.
+#| tbl-cap-location: bottom
+data_diabetes %>%
+  group_by(diabetic) %>%
+  tally() %>%
+  arrange(desc(n)) %>%
+  slice(1:3) %>%
+  kbl %>%
+  kable_styling()
+```
+
 
 ## Median 
-Median value divides the ordered data values into two equally sized groups, so 50% of the values are below and 50% are above the median value. 
+Median value divides the **ordered** data values into two equally sized groups so that 50% of the values are below and 50% are above the median value. For the odd number of observations, the middle value is $(n+1)/2$-th term of the ordered observations. For even number of observations, it is the average of the middle two terms of the ordered observations.
 
-## Arthimetic mean & weighted mean
-**The arithmetic mean**, also commonly referred to as to mean, is calculated by adding up all the values and diving this by the number of values in the data set.
+\begin{equation}
+    Median =
+    \left\{
+        \begin{array}{cc}
+                \frac{(n+1)}{2}^{th} term & \mathrm{if\ } n \mathrm{\ is\ odd} \\
+                \frac{1}{2}\times \left (\frac{n}{2}^{th} term + (\frac{n}{2}+1)^{th} term \right) & \mathrm{if\ } n \mathrm{\ is\ even}  \\
+        \end{array}
+    \right.
+\end{equation} 
+
+For instance, the median value for `age` for the first 10 study participants:
+```{r}
+#| results: asis
+#| tbl-cap: Age values for the first 10 study participants.
+#| tbl-cap-location: margin
+age_10 <- data_diabetes %>%
+  slice(1:10)  # select first 10 participants
+
+# show age for 10 first participants
+age_10 %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_styling() 
+
+```
+can be found by ordering observations: 
+```{r}
+age_10_ordered <- data_diabetes %>%
+  slice(1:10) %>% # select first 10 participants
+  arrange(age) %>% # order by age
+  pull(age) # extract ordered age observations
+
+data_diabetes %>%
+  slice(1:10) %>% # select first 10 participants
+  arrange(age) %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_styling() %>%
+  column_spec(c(5), background = "gold") %>%
+  column_spec(c(6), background = "gold")
+
+
+```
+
+and averaging $5^{th}$ and $6^{th}$ term in the ordered observations giving a median value of: 
+```{r}
+#| code-fold: false
+1/2*(age_10_ordered[5] + age_10_ordered[6])
+```
+
+The median value for `age` for the first 11 study participants:
+```{r}
+#| results: asis
+#| tbl-cap: Age values for the first 10 study participants.
+#| tbl-cap-location: margin
+age_11 <- data_diabetes %>%
+  slice(1:11)  # select first 11 participants
+
+# show age for 10 first participants
+age_11 %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_styling() 
+
+```
+
+can be found by taking $6^{th}$ term from the ordered observations: 
+```{r}
+age_11_ordered <- data_diabetes %>%
+  slice(1:11) %>% # select first 11 participants
+  arrange(age) %>% # order by age
+  pull(age) # extract ordered age observations
+
+data_diabetes %>%
+  slice(1:11) %>% # select first 11 participants
+  arrange(age) %>%
+  select(id, age) %>% 
+  pivot_wider(names_from = id, values_from = age) %>%
+  kbl() %>%
+  kable_styling() %>%
+  column_spec(c(6), background = "gold")
+
+```
+
+giving a median value of: 
+```{r}
+#| code-fold: false
+age_11_ordered[6]
+```
+
+Alternatively, we can use `median()` function to check our calculations:
+```{r}
+#| code-fold: false
+#| collapse: true
+data_diabetes %>%
+  dplyr::slice(1:10) %$%
+  median(age)
+
+data_diabetes %>%
+  dplyr::slice(1:11) %$%
+  median(age)
+
+```
+
+
+## Arthimetic mean
+**The arithmetic mean**, also commonly referred to as  **mean**, is calculated by adding up all the values and diving the sum by the number of values in the data set.
 
 Mathematically, for $n$ observations $x_1, x_2, \dots, x_n$, the arithmetic mean value is calculated as:
 $$\bar x = \frac{x_1+x_2+\dots+x_n}{n} = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$ {#eq-mean}
 
-As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
-
-
-:::{#exm-mice-location}
-
-## Lab mice (cont.)
-
-Let's revisit our lab mice example and focus on data from week 5. What's the mode value of sex variable? What is median value of the first 9 measures of mice weight at week 5? How about for the first 10 measurements? And what is the average weight of mice during that week? 
-
-:::
-
-```{r, warning=F, message=F}
-# read in mice data
-data.mice <- read_csv("data/mice.csv")
-data.mice <- data.mice %>%
-  mutate(weight = round(weight,2))
-
-# narrow data set to week 5 measurements
-data.mice.week5 <- data.mice %>%
-  filter(week == 5)
-
-```
-
-**Mode value**
-
-We can find mode value by counting how many times we observe males and females among our mice. The mode value is the most commonly occurring one, here "females". We have see from counting the values, that we have 53 female and 47 male mice. 
+To calculate the arithmetic mean for `BMI` given our 130 study participants we can follow @eq-mean
 
 ```{r}
-# find mode value
-data.mice.week5 %>%
-  group_by(sex) %>%
-  tally() %>%
-  arrange(desc(n)) %>%
-  print()
-```
+#| code-fold: false
 
-**Median value**
-
-We can find median value by: 
-
-- ordering values
-- and finding the middle value, if the number of measurement is odd 
-- and taking the arithmetic average of the two middle measurements, if the number of measurements is even 
-
-Median value for the first 9 measurements of mice weight at week 5:
-
-```{r}
-# find median value for the first 9 measurements (odd)
-data.mice.week5 %>%
-  slice(1:9) %>% # select first 9 measurements
-  arrange(weight) %>% # arrange by weight
-  slice(5) %>%  # get the middle, fifth measurement
-  pull(weight) %>% 
-  print() # print weight value for the 5th measurement (median)
-  
-# # alternatively use median() function
-# data.mice.week5 %>%
-#   slice(1:9) %>% # select first 9 measurements
-#   arrange(weight) %>% # arrange by weight
-#   pull(weight) %>% 
-#   median()
-
-```
-
-Median value for the first 10 measurements of mice weight at week 5:
-
-```{r}
-# find median value for the first 9 measurements (odd)
-data.mice.week5 %>%
-  slice(1:10) %>% # select first 9 measurements
-  arrange(weight) %>% # arrange by weight
-  slice(5,6) %$%  # get 2 middle values, fifth & sixth
-  mean(weight) %>% 
-  print() # print weight value for the 5th measurement (median)
-  
-```
-
-**Arithmetic mean and weighted mean**
-
-To calculate the arithmetic mean we can follow @eq-mean
-
-```{r}
-# calculate arithmetic mean following equation
-x <- data.mice.week5 %>%
-  pull(weight) # extract weight observations
+# calculate arithmetic mean following the equation
+x <- data_diabetes %>%
+  pull(BMI) # extract BMI observations
 n <- length(x) # number of observations
 x.bar <- sum(x) / n # calculate mean
 print(x.bar)
 
+BMI_mean <- round(x.bar, 2)
 ```
 
 or use basic `mean()` function in R:
 
 ```{r}
-# or alternatively use mean() function
-# calculate arithmetic mean
-data.mice.week5 %$%
-  mean(weight) %>%
+#| code-fold: false
+data_diabetes %$%
+  mean(BMI) %>%
   print()
 ```
 
-The above arithmetic mean value may be however not best to reflect an average mice weight since we do not have equal numbers of males and females in the study. Here we know,or rather assume for the purpose of this example, that it is equally likely to find male and females in mice population and hence, in our experiment, males are underrepresented. 
+## Weighted mean
 
-We can calculate weighted mean to account for group sizes. We assign weights so that they sum up to 100. The males and females group should have equal influence, so 50/50. As we have 53 females, the female weight is $w_f = 50 / 53 = 0.9433962$ and male weight is $w_m = 50 / 47 = 1.06383$. The weighted mean can now be calculated following @eq-mean-weighted and is equal to:
+As all the values equally contribute to the calculations, the arithmetic mean value is easily affected by outliers and is distorted by skewed distributions. Sometimes, the **weighted mean** may be more useful, as it allows add weights to certain values of the variable of interest. We attach a weight, $w_i$ to each of the observed values, $x_i$, in our sample, to reflect this importance and define the weighted mean as: $$\bar{x} = \frac{w_1x_1 + w_2x_2 + \ldots + w_nx_n}{w_1 + w_2 + \ldots + w_n} = \frac{\displaystyle\sum_{i=1}^{n}w_ix_i}{\displaystyle\sum_{i=1}^{n}w_i}$$ {#eq-mean-weighted}
+
+For instance, we may be interested in knowing an average `BMI` value, irrespective of `gender`. It happens that among our study participants women are over represented: 
 
 ```{r}
+#| tbl-cap: Number of male and female study participans.
+#| tbl-cap-location: margin
+#| code-fold: true
+#| collapse: false
 
-# number of females
-n.females <- data.mice.week5 %>%
-  filter(sex == "female") %>%
-  nrow() 
+data_diabetes %>%
+  group_by(gender) %>%
+  tally() %>%
+  kbl() %>%
+  kable_styling()
 
-# number of males
-n.males <- data.mice.week5 %>%
-  filter(sex == "male") %>%
-  nrow() 
+```
+
+Assuming BMI measurements for men and women should have equal influence (50/50), we can calculate `weighted BMI` mean to account for group sizes. We assign weights to BMI observations for men and women so that they sum up to 100. Since we have 73 measurements for women, the corresponding weights are $w_f = 50 / 73 = 0.6849315$ and $w_m = 50 / 57 = 0.877193$ for measurements reported for men. The weighted mean can now be calculated following @eq-mean-weighted and is equal to:
+
+```{r}
+#| code-fold: false
+
+
+# number of women
+n_w <- data_diabetes%>%
+  filter(gender == "female") %>%
+  nrow()
+
+# number of men
+n_m <- data_diabetes%>%
+  filter(gender == "male") %>%
+  nrow()
 
 # add weights to observations
-data.mice.week5.addweight <- data.mice.week5 %>%
-  mutate(w = ifelse(sex == "male", 50/n.males, 50/n.females)) %>% # assign weights
-  mutate(wx = weight * w) %$% # multiply weight by their weights values
-  mean(wx) %>% # average the weighted measurements
+data_diabetes_addweights <- data_diabetes %>%
+  mutate(w = ifelse(gender == "male", 50/n_m, 50/n_w)) %>% # assign weights
+  mutate(wx = BMI * w)  # multiply weight by their weights values
+  
+numerator <- data_diabetes_addweights %$%
+  sum(wx)
+
+denominator <- data_diabetes_addweights %$%
+  sum(w)
+
+BMI_weighted_mean <- numerator / denominator
+  
+BMI_weighted_mean <- BMI_weighted_mean %>%
+  round(2) %>%
   print()
-    
+
 ```
 
 
-:::{.callout-warning}
-Note that several very different distributions can still have the same mean value. 
-:::
+We previously calculated BMI mean of `r BMI_mean` and mean BMI for men and women are:
+```{r}
+#| tbl-cap: Mean BMI values for men and women in the study.
+#| tbl-cap-location: margin
+
+data_diabetes %>%
+  group_by(gender) %>%
+  summarize(mean_BMI = mean(BMI)) %>%
+  kbl(digits = 2) %>%
+  kable_styling()
+
+```
+
+We can note, as expected, that the weighted mean of BMI `r BMI_weighted_mean` is shifted slightly towards mean BMI for men since the BMI measurements for men have been assigned higher weights to account for women being overrepresented in the study. 
+
+## Mean, median & outliers
+
+Median is usually preferred when data has outliers as it follows from median definition that is less sensitive to outliers. On the other hand, mean value can be distorted when outliers are present. Let's add an outlying value of age (110) to the first 11 study participants, and re-calculate mean and median. 
+
+```{r}
+#| tbl-cap: Comparision of mean and median age values before and after adding outlying age value of 110 to the first 11 study participants.
+#| tbl-cap-location: margin
+
+# pull age values for the first 11 study participants
+age_11 <- data_diabetes %>%
+  slice(1:11) %>%
+  select(id, age) %>%
+  pull(age)
+  
+# add outlier value of 110
+age_11_with_outlier <- c(age_11, 110)
+
+# calculate mean and median, with and without outlier
+
+# without outlier
+age_mean_without <- mean(age_11) %>% round(2)
+age_median_without <- median(age_11)
+
+# with outlier
+age_mean_with <- mean(age_11_with_outlier) %>% round(2)
+age_median_with <- median(age_11_with_outlier)
+
+res <- data.frame(mean = c(age_mean_without, age_mean_with), 
+                  median = c(age_median_without, age_median_with), 
+                  row.names = c("without outlier", "with outlier"))
+
+res %>%
+  kbl() %>%
+  kable_styling()
+```
+
+We can see that adding one outlying age value shifted mean age from `r age_mean_without` to `r age_mean_with` while median age value did not change that much with original median value being `r age_median_without` and `r age_median_with` after adding the outlying value.
+
+In addition, it is good to remember that several very different distributions can still have the same mean value.
 
 ```{r mean35, warning=FALSE, message=FALSE, include=T, echo=F}
 #| fig-cap: Examples of various distributions having the same mean value of 3.5
@@ -189,13 +355,13 @@ colnames(data.plot) <- c("Distr1", "Distr2", "Distr3", "Distr4", "Distr5", "Dist
 data.plot %>%
   rownames_to_column("x") %>%
   pivot_longer(-x, names_to = "Distr") %>%
-  ggplot(aes(x = value)) + 
-  geom_histogram(color="white", bins=30) + 
-  facet_wrap(~Distr, scale = "free") + 
+  ggplot(aes(x = value)) +
+  geom_histogram(color="white", bins=30) +
+  facet_wrap(~Distr, scale = "free") +
   theme_bw() +
   xlab("")
-  
-``` 
+
+```
 
 
 
