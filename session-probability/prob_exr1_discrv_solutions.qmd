@@ -1,7 +1,8 @@
 # Exercises: Discrete random variables {.unnumbered}
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(cache=TRUE, fig.width=3.5, fig.height=3.5, dpi=600, fig.path = "Rfigures/probexr01_")
+options(digits=2)
 ```
 
 ## Introduction to probability
@@ -330,25 +331,9 @@ e)  Which is the most likely number of sixes?
 f)  What is the probability to get exactly 2 sixes?
 g)  On average how many sixes do you get when throwing ten dice? 
 (The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. )
-::: -->
-
-::: {#exr-bacteria}
-## Bacterial colonies
-
-In a bacterial sample, 1/6 are antibiotic resistant. From bacterial colonies on an agar plate, you randomly pick 10 colonies and investigate how many that are antibiotic resistant.
-
-a)  Define the random variable of interest
-b)  What are the possible outcomes?
-c)  Using simulation, estimate the probability mass function
-d)  what is the probability to get at least 5 antibiotic resistant colonies?
-e)  Which is the most likely number of antibioitic colonies?
-f)  What is the probability to get exactly 2 antibiotic resistant colonies?
-g)  On average how many antibiotic resistant colonies would you get if the experiment is repeated many time? <!-- The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. -->
 
 ::: panel-tabset
 ### ​
-
-### Hint
 
 ### Answer
 
@@ -388,6 +373,73 @@ mean(N==2)
 g)  1.7
 
 ```{r diceg, echo=TRUE}
+mean(N)
+10*1/6
+```
+:::
+::: -->
+
+
+
+
+::: {#exr-bacteria}
+## Bacterial colonies
+
+In a bacterial sample, 1/6 are antibiotic resistant. From bacterial colonies on an agar plate, you randomly pick 10 colonies and investigate how many that are antibiotic resistant.
+
+a)  Define the random variable of interest
+b)  What are the possible outcomes?
+c)  Using simulation, estimate the probability mass function
+d)  what is the probability to get at least 5 antibiotic resistant colonies?
+e)  Which is the most likely number of antibioitic colonies?
+f)  What is the probability to get exactly 2 antibiotic resistant colonies?
+g)  On average how many antibiotic resistant colonies would you get if the experiment is repeated many time? <!-- The law of large numbers states that if the same experiment is performed many times the average of the result will be close to the expected value. -->
+
+::: panel-tabset
+### ​
+
+### Hint
+
+Think of the dice example, where the probability of getting 'six' on one dice is 1/6.
+
+### Answer
+
+### Solution
+
+a.  $X$, the number of antibiotic resistant colonies out of 10.
+
+b.  ${0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}$
+
+c.  
+
+```{r CFUc, echo=TRUE}
+##Simulate picking 10 colonies and counting the number of antibiotic resistant ones.
+N <- replicate(100000, sum(sample(1:6, size=10, replace=TRUE)==6))
+table(N)
+##The probability mass function
+table(N)/length(N)
+hist(N, breaks=(0:11)-0.5)
+```
+
+d)  0.015
+
+```{r CFUd}
+sum(N>=5)
+sum(N>=5)/length(N)
+mean(N>=5)
+```
+
+e)  1 (Use the PMF to answer this question)
+
+f)  0.29
+
+```{r CFUf, echo=TRUE}
+mean(N==2)
+```
+
+g)  1.7
+
+```{r CFUg, echo=TRUE}
 mean(N)
 10*1/6
 ```
