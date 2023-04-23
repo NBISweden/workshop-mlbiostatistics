@@ -20,15 +20,15 @@ title:  'Schedule'
 
 *12:00 - 13:00 lunch*
 
-**13:00 - 13.30** [Probability: Introduction and discrete distributions](session-probability)
+**13:00 - 13.30** [Probability: Introduction and discrete distributions](session-probability/docs)
 
-**13.30 - 14.30** [Exercises](session-probability/prob-exr1-discrv.html)
+**13.30 - 14.30** [Exercises](session-probability/docs/prob_exr1_discrv_solutions.html}
 
 *14.30 - 15.00 break*
 
-**15:00 - 15:30** [Probability: continuous distributions](session-probability/prob-03contrv.html)
+**15:00 - 15:30** [Probability: continuous distributions](session-probability/docs/prob-03contrv.html)
 
-**13.30 - 16.30** [Exercises](session-probability/prob-exr2-contrv.html)
+**13.30 - 16.30** [Exercises](session-probability/docs/prob-exr2-contrv_solutions.html)
 
 **16.30 - 17.00** Daily challenge
 
@@ -37,25 +37,23 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09:30 - 10.00** [Statistical inference: Hypothesis tests using resampling](session-inference)
+**09:30 - 10.00** [Statistical inference: Hypothesis tests using resampling](session-inference/docs)
 
-**10:00 - 10.45** [Exercises](session-inference/prob-exr1-hypresamp.html)
+**10:00 - 10.45** [Exercises](session-inference/docs/infe-exr1-hyporesampling_solutions.html)
 
-**10:45 - 11.15** [Statistical inference: Parametric tests](session-inference/infe-hypparam.html)
+**10:45 - 11.15** [Statistical inference: Parametric tests](session-inference/docs/infe-03hypparm.html)
 
-**11:15 - 12.00** [Exercises](session-inference/infe-exr2-hypparam.html)
+**11:15 - 12.00** [Exercises](session-inference/docs/infe-exr2-hypoparam_solutions.html)
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 13.30** [Statistical inference: point and interval estimates](session-inference/infe-interval.html)
+**13.00 - 13.30** [Statistical inference: point and interval estimates](session-inference/docs/infe-05interval.html)
 
-**13.30 - 14.30** [Exercises](session-inference/infe-exr3-interval.html)
+**13.30 - 14.30** [Exercises](session-inference/docs/infe-exr3-interval_solutions.html)
 
 *14.30 - 15.00 break*
 
-**15.00 - 15.30** [Multiple testing correction](session-inference/infe-multiple.html)
-
-**15.30 - 16.30** [Non parametric tests](session-rank-tests/docs/index.html) ([.presentation](session-rank-tests-presentation/session-rank-tests-presentation.html))
+**15.00 - 16.30** [Non parametric tests](session-rank-tests/docs/index.html) ([.presentation](session-rank-tests-presentation/session-rank-tests-presentation.html))
 
 **16.30 - 17.00** Daily challenge
 
