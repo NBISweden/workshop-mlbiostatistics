@@ -215,6 +215,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <li><a href="#sec-bootstrapinterval" id="toc-sec-bootstrapinterval" class="nav-link" data-scroll-target="#sec-bootstrapinterval"><span class="toc-section-number">5.3.1</span>  Bootstrap interval</a></li>
   <li><a href="#confidence-interval" id="toc-confidence-interval" class="nav-link" data-scroll-target="#confidence-interval"><span class="toc-section-number">5.3.2</span>  Confidence interval</a></li>
   <li><a href="#confidence-interval-of-proportions" id="toc-confidence-interval-of-proportions" class="nav-link" data-scroll-target="#confidence-interval-of-proportions"><span class="toc-section-number">5.3.3</span>  Confidence interval of proportions</a></li>
+  <li><a href="#confidence-interval-of-mean" id="toc-confidence-interval-of-mean" class="nav-link" data-scroll-target="#confidence-interval-of-mean"><span class="toc-section-number">5.3.4</span>  Confidence interval of mean</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -269,7 +270,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
-<p>Even an unbiased point estimate is not perfect, it will have a cettain amount of uncertainty.</p>
+<p>Even an unbiased point estimate is not perfect, it will have a certain amount of uncertainty.</p>
 </section>
 <section id="interval-estimates" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="interval-estimates"><span class="header-section-number">5.3</span> Interval estimates</h2>
@@ -295,20 +296,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>In R;</p>
 <div class="cell">
-
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## the sample consists of 50 non-allergic (0) and 42 allergic (1).</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">42</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ol start="2" type="1">
 <li>Sample from the urn with replacement to compute the bootstrap distribution.</li>
 </ol>
 <div class="cell">
-
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pboot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>, <span class="fu">mean</span>(<span class="fu">sample</span>(x, <span class="at">replace=</span><span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">x=</span>pboot), <span class="fu">aes</span>(<span class="at">x=</span>x)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">color=</span><span class="st">"white"</span>, <span class="at">binwidth=</span><span class="fl">0.02</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"p"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div id="fig-boot" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="Rfigures/infe_boot-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
-<p></p><figcaption class="figure-caption">Bootstrap resampling distribution.</figcaption><p></p>
+<p><img src="Rfigures/infe_fig-boot-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.2: Bootstrap resampling distribution.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -317,19 +320,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Compute the 95% bootstrap interval. This can be done using the percentile method by calculating the 2.5 and 97.5 percentiles, i.e.&nbsp;the values in the resampling distribution for which 2.5% and 97.5%, respectively, of all the values lie to the left of.</li>
 </ol>
 <div class="cell">
-
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ciboot <span class="ot">&lt;-</span> <span class="fu">quantile</span>(pboot, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div id="fig-CIboot" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
-<p><img src="Rfigures/infe_CIboot-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
-<p></p><figcaption class="figure-caption">Bootstrap resampling distribution and the 95% bootstrap confidence interval.</figcaption><p></p>
+<p><img src="Rfigures/infe_fig-CIboot-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.3: Bootstrap resampling distribution and the 95% bootstrap confidence interval.</figcaption><p></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The 95% bootstrap confidence interval of <span class="math inline">\(\pi\)</span>; [0.32, 0.52].</p>
+<p>The 95% bootstrap confidence interval of <span class="math inline">\(\pi\)</span>; [0.32, 0.51].</p>
 </section>
 <section id="confidence-interval" class="level3" data-number="5.3.2">
 <h3 data-number="5.3.2" class="anchored" data-anchor-id="confidence-interval"><span class="header-section-number">5.3.2</span> Confidence interval</h3>
@@ -342,7 +345,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="fig-CI95" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Rfigures/infe_fig-CI95-1.png" class="img-fluid figure-img" width="4200"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;5.2: A 95% confidence interval will have 95% chance to cover the true value.</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.4: A 95% confidence interval will have 95% chance to cover the true value.</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -354,7 +357,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="fig-samplingdistr" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Rfigures/infe_fig-samplingdistr-1.png" class="img-fluid figure-img" style="width:50.0%"></p>
-<p></p><figcaption class="figure-caption">Figure&nbsp;5.3: The sampling distribution of $ heta$. The probability that the observed value of a random sample falls in the</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.5: The sampling distribution of theta. The probability that the observed value of a random sample falls in the</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -364,24 +367,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3 data-number="5.3.3" class="anchored" data-anchor-id="confidence-interval-of-proportions"><span class="header-section-number">5.3.3</span> Confidence interval of proportions</h3>
 <p>The bootstrap is very useful if you do not know the distribution of our sampled property, but in our proportions example we actually do.</p>
 <p>Remember that we can use the central limit theorem to show that</p>
-<p><span class="math display">\[P \sim N\left(\pi, SE\right) \iff P \sim \left(\pi, \sqrt{\frac{\pi(1-\pi)}{n}}\right)\]</span></p>
+<p><span class="math display">\[P \sim N\left(\pi, SE\right) \iff P \sim N\left(\pi, \sqrt{\frac{\pi(1-\pi)}{n}}\right)\]</span></p>
 <p>It follows that</p>
 <p><span class="math display">\[Z = \frac{P - \pi}{SE} \sim N(0,1)\]</span> Based on what we know of the standard normal distribution, we can compute an interval around the population property <span class="math inline">\(\pi\)</span> such that the probability that a sample property <span class="math inline">\(p\)</span> fall within this interval is <span class="math inline">\(1-\alpha\)</span>.</p>
 <p><span class="math display">\[P(-z_{\alpha/2} &lt; \frac{P - \pi}{SE} &lt; z_{\alpha/2}) = 1 - \alpha\]</span></p>
 <p>For a 95% confidence interval <span class="math inline">\(z_{0.025}=1.96\)</span> (from a table of the standard normal distribution). Other confidence levels of interest include 90% (<span class="math inline">\(z_{0.05}=1.64\)</span>) and 99% (<span class="math inline">\(z_{0.005}=2.58\)</span>). In R, the function ´qnorm` is used to compute <span class="math inline">\(z_{\alpha/2}\)</span>,</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 95% confidence interval, alpha=0.05</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="dv">1</span><span class="fl">-0.05</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 95% confidence interval, alpha=0.05</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="dv">1</span><span class="fl">-0.05</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1.959964</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 90% confidence interval, alpha=0.10</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="dv">1</span><span class="fl">-0.10</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 90% confidence interval, alpha=0.10</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="dv">1</span><span class="fl">-0.10</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1.644854</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 99% confidence interval, alpha=0.01</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="dv">1</span><span class="fl">-0.01</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 99% confidence interval, alpha=0.01</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="dv">1</span><span class="fl">-0.01</span><span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.575829</code></pre>
 </div>
@@ -400,7 +403,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>Back to our example of proportion pollen allergic in Uppsala. <span class="math inline">\(p=0.42\)</span> and <span class="math inline">\(SE=\sqrt{\frac{p(1-p)}{n}} = 0.0493559\)</span>.</p>
 <p>Hence, the 95% confidence interval is <span class="math display">\[\pi = 0.42 \pm 1.96 * 0.05 = 0.42 \pm 0.092\]</span> or <span class="math display">\[(0.42-0.092, 0.42+0.092) = (0.32, 0.52)\]</span></p>
-<p>#### Confidence interval of mean</p>
+</section>
+<section id="confidence-interval-of-mean" class="level3" data-number="5.3.4">
+<h3 data-number="5.3.4" class="anchored" data-anchor-id="confidence-interval-of-mean"><span class="header-section-number">5.3.4</span> Confidence interval of mean</h3>
 <p>The confidence interval of mean can be derived similarly.</p>
 <p>The mean of a sample of <span class="math inline">\(n\)</span> independent and identically normal distributed observations <span class="math inline">\(X_i\)</span> is normally distributed;</p>
 <p><span class="math display">\[\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})\]</span></p>
@@ -419,10 +424,10 @@ P\left(\bar X - t \frac{\sigma}{\sqrt{n}} &lt; \mu &lt; \bar X + t \frac{\sigma}
 <p>The <span class="math inline">\(t\)</span> values for different values of <span class="math inline">\(\alpha\)</span> and degrees of freedom are tabulated and can be computed in R using the function <code>qt</code>.</p>
 <p>For a 95% confidence interval, i.e.&nbsp;<span class="math inline">\(\alpha=0.05\)</span>, and <span class="math inline">\(n=5\)</span>, <span class="math inline">\(t\)</span> is 2.7764451 and can be computed using</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>n<span class="ot">=</span><span class="dv">5</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="fl">0.05</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="do">## t value</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">qt</span>(<span class="dv">1</span><span class="sc">-</span>alpha<span class="sc">/</span><span class="dv">2</span>, <span class="at">df=</span>n<span class="dv">-1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>n<span class="ot">=</span><span class="dv">5</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">=</span> <span class="fl">0.05</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="do">## t value</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">qt</span>(<span class="dv">1</span><span class="sc">-</span>alpha<span class="sc">/</span><span class="dv">2</span>, <span class="at">df=</span>n<span class="dv">-1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.776445</code></pre>
 </div>

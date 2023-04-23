@@ -78,7 +78,7 @@ knitr::include_graphics("figures/pollenurn42.png")
 
 In R;
 
-```{r}
+```{r echo=TRUE}
 #| echo: true
 ## the sample consists of 50 non-allergic (0) and 42 allergic (1).
 x <- rep(0:1, c(58, 42))
@@ -91,7 +91,7 @@ x <- rep(0:1, c(58, 42))
 pboot <- replicate(1000, mean(sample(x, replace=TRUE)))
 ```
 
-```{r boot, fig.cap="Bootstrap resampling distribution.", out.width="45%", fig.align="center"}
+```{r fig-boot, fig.cap="Bootstrap resampling distribution.", out.width="45%", fig.align="center"}
 #| echo: true
 ggplot(data.frame(x=pboot), aes(x=x)) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + xlab("p")
 ```
@@ -103,7 +103,7 @@ ggplot(data.frame(x=pboot), aes(x=x)) + geom_histogram(color="white", binwidth=0
 ciboot <- quantile(pboot, c(0.025, 0.975))
 ```
 
-```{r CIboot, fig.cap="Bootstrap resampling distribution and the 95% bootstrap confidence interval.", out.width="45%", fig.align="center"}
+```{r fig-CIboot, fig.cap="Bootstrap resampling distribution and the 95% bootstrap confidence interval.", out.width="45%", fig.align="center"}
 ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=50), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=50, label="95%")
 ```
 
@@ -129,7 +129,7 @@ ggplot(data.frame(x=1:40, p=p[61:100]) %>% mutate(ymin=p-1.96*sqrt((p*(1-p))/100
 If the sampling distribution of studied statistic is known the confidence interval can be computed.
 
 
-```{r fig-samplingdistr, out.width="50%", fig.cap="The sampling distribution of $\theta$. The probability that the observed value of a random sample falls in the "}
+```{r fig-samplingdistr, out.width="50%", fig.cap="The sampling distribution of theta. The probability that the observed value of a random sample falls in the "}
 w<-seq(-3.5,3.5,.01)
 df.nwt <- data.frame(w=w, f=dnorm(w))
 plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df.nwt %>% filter(abs(w)<qnorm(0.975))) + annotate("label",label=sprintf("95 %%"), x=0, y=0.1, hjust=0.5) + theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()))
@@ -145,7 +145,7 @@ The bootstrap is very useful if you do not know the distribution of our sampled 
 
 Remember that we can use the central limit theorem to show that
 
-$$P \sim N\left(\pi, SE\right) \iff P \sim \left(\pi, \sqrt{\frac{\pi(1-\pi)}{n}}\right)$$
+$$P \sim N\left(\pi, SE\right) \iff P \sim N\left(\pi, \sqrt{\frac{\pi(1-\pi)}{n}}\right)$$
   
   It follows that
 
@@ -188,9 +188,9 @@ Back to our example of proportion pollen allergic in Uppsala. $p=0.42$ and $SE=\
 
 Hence, the 95% confidence interval is $$\pi = 0.42 \pm 1.96 * 0.05 = 0.42 \pm 0.092$$ or $$(0.42-0.092, 0.42+0.092) = (0.32, 0.52)$$
   
-  #### Confidence interval of mean
+### Confidence interval of mean
   
-  The confidence interval of mean can be derived similarly.
+The confidence interval of mean can be derived similarly.
 
 The mean of a sample of $n$ independent and identically normal distributed observations $X_i$ is normally distributed;
 
