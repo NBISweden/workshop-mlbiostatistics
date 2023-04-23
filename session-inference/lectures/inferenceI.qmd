@@ -1,7 +1,9 @@
 ---
+editor: source
 title: "Statistical inference, part I"
 author: "Eva Freyhult"
-date: "2022-09-13"
+date: "2023-04-25"
+date-format: long
 institute: NBIS, SciLifeLab
 format: 
   revealjs:
@@ -16,82 +18,42 @@ require(ggplot2)
 require(reshape2)
 require(knitr)
 require(kableExtra)
+library(gt)
 require(latex2exp)
 knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
 options(digits=4)
 ```
 
-# Statistical inference
+## Introduction to hypothesis tests
 
-Statistical inference is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
+**Statistical inference** is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
 
-## Hypothesis test
-
-To perform a hypothesis test is to evaluate a hypothesis based on a random sample.
+A **hypothesis test** is a type of inference about evaluating if a hypothesis about a population is supported by the observations of a random sample (i.e by the data available).
 
 Typically, the hypotheses that are tested are assumptions about properties of a population, such as proportion, mean, mean difference, variance etc.
 
 ## The null and alternative hypothesis
 
-There are two hypotheses involved in a hypothesis test, the **null hypothesis**, $H_0$, and the **alternative hypothesis**, $H_1$.
+### Null hypothesis
 
 $H_0$, the **null hypothesis** is in general neutral, "no change", "no difference between groups", "no association".
 
 In general we want to show that $H_0$ is false.
 
+### Alternative hypothesis
+
 $H_1$, The **alternative hypothesis** expresses what the researcher is interested in "the treatment has an effect", "there is a difference between groups", "there is an association".
 
 The alternative hypothesis can also be directional "the treatment has a positive effect".
 
-## Error types
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
-```
-
-**Type I error** is a false positive, a false alarm that occurs when $H_0$ is rejected when it is actually true. Examples: *"The test says that you are covid-19 positive, when you actually are not", "The test says that the drug has a positive effect on patient symptoms, but it actually has not"*.
-
-**Type II error** is a false negative, a miss that occurs when $H_0$ is accepted, when it is actually false. Examples: *The test says that you are covid-19 negative, when you actually have covid-19", "The test says that the drug has no effect on patient symptoms, when it actually has"*.
-
-## Significance level
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
-```
-
-The significance level, $\alpha$ = P(false alarm) = P(Reject $H_0$\| $H_0$ is true).
-
-<!-- The significance level is the risk to of false alarm, i.e. to say "I have a hit", "I found a difference", when the the null hypothesis ("there is no difference") is true. The risk of false alarm is controll by setting the significance level to a disired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want to many missed hits (type II error). -->
-
-The significance level should be set before the hypothesis test is performed!
-
-Common values of $\alpha$ are 0.05 or 0.01.
-
-## Statistical power
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=3, ncol=3))
-```
-
-Another property of a statistical test is the **statistical power**
-
-power = P(Reject H0|H0 is false).
-
-
-
 ## To perform a hypothesis test
 
-::: {.smaller style="font-size: 35px"}
+::: {.smaller style="font-size: 35px" .incremental}
 1.  Define $H_0$ and $H_1$
-. . .
-2.  Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
-. . .
-3.  Assume that the $H_0$ is true and compute the sampling distribution of $T$.
-. . .
-4.  Select an appropriate significance level, $\alpha$
-. . .
+2.  Select an appropriate significance level, $\alpha$
+3.  Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+4.  Assume that the $H_0$ is true and compute the sampling distribution of $T$.
 5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
-. . .
 6.  Based on the p-value either accept or reject $H_0$.
 :::
 
@@ -103,7 +65,7 @@ A **sampling distribution** is the distribution of a sample statistic. The sampl
 
 The **null distribution** is a sampling distribution when the null hypothesis is true.
 
-```{r examplenull, out.width="70%", fig.show="hold", fig.width=5, fig.align="center", fig.cap="A null distribution"}
+```{r examplenull, out.width="70%", fig.show="hold", fig.width=5, fig.align="center"}
 x<-seq(-3,3,0.01)
 df <- data.frame(x=x, f=dnorm(x, 0, 1))
 plot(ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)"))
@@ -129,13 +91,276 @@ plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","
               panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92"))))
 ```
 
-## p-value
+## Error types {.auto-animate}
 
-If the p-value is above the significance level, $H_0$ is accepted.
+A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong. There are two types of errors;
 
-If the p-value is below the significance level, $H_0$ is rejected.
+::: {.fragment .fade-in}
+**Type I error** is a false positive, a false alarm that occurs when $H_0$ is rejected when it is actually true. Examples: *"The test says that you are covid-19 positive, when you actually are not", "The test says that the drug has a positive effect on patient symptoms, but it actually has not"*.
+:::
 
-## Simulation example
+::: {.fragment .fade-in}
+**Type II error** is a false negative, a miss that occurs when $H_0$ is accepted, when it is actually false. Examples: *"The test says that you are covid-19 negative, when you actually have covid-19", "The test says that the drug has no effect on patient symptoms, when it actually has"*.
+:::
+
+## Probability of type I and II errors
+
+The probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively.
+
+
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_1 \textrm{ is true})$$
+
+The significance level, $\alpha$, is the risk of false alarm.
+<!-- , i.e. to say *"I have a hit"*, *"I found a difference"*, when the the null hypothesis (*"there is no difference"*) is true. -->
+
+:::{.notes}
+On white board:
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling(full_width = FALSE, bootstrap_options = "bordered", position="center")
+```
+:::
+
+
+## Probability of type I and II errors
+
+```{r}
+#| label: fig-alphabeta
+#| fig-cap: "The probability density functions under H0 and H1, respectively. The probability  of type I error ($\\alpha$) and type II error ($\\beta$) are indicated."
+#| fig-width: 5
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5)  + geom_area(data=df %>% filter(x<q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + annotate("label", x=1.2, y=0.08, label="beta", parse=TRUE, color="orange") + geom_vline(xintercept=q)
+```
+
+:::{.notes}
+The risk of false alarm is controlled by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want many missed hits (type II error).
+:::
+
+## Significance level
+
+The **significance level**, $\alpha$, is the risk of false alarm.
+
+$\alpha$ should be set before the hypothesis test is performed. 
+
+Common values to use are $\alpha=0.05$ or 0.01.
+
+
+
+* If the p-value is above the significance level, $p>\alpha$, $H_0$ is accepted.
+* If the p-value is below the significance level, $p \leq \alpha$, $H_0$ is rejected.
+
+
+
+
+## Statistical power
+
+**Statistical power** is defined as
+
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_1\textrm{ is true}).$$
+
+
+
+```{r}
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=3, y=0.13, label="power", parse=TRUE, color="orange") + geom_vline(xintercept=q)
+```
+
+## Perform a hypothesis test
+
+You suspect that a dice is loaded, i.e. showing 'six' more often than expected of a fair dice. To test this you throw the dice 10 times and count the total number of sixes. You got 5 sixes. Is there reason to belive that the dice is loaded?
+
+1.  Define $H_0$ and $H_1$
+2.  Select an appropriate significance level, $\alpha$
+3.  Select appropriate test statistic, $T$, and $t_{obs}$
+4.  Compute the sampling distribution of $T$ when $H_0$ is true
+5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
+6.  Based on the p-value either accept or reject $H_0$.
+
+:::{.notes}
+$$H0: \pi=1/6, H1: \pi>1/6$$
+$\alpha=0.05$
+
+N - number of sixes as test statistic, nobs=5
+
+Simulate of use Binomial to get null distribution
+
+p= P(N>=5)
+
+Reject H0!
+
+```{r dicec, echo=TRUE}
+##Simulate thowing 10 dice and counting the number of sixes.
+N <- replicate(100000, sum(sample(1:6, size=10, replace=TRUE)==6))
+table(N)
+##The probability mass function
+table(N)/length(N)
+hist(N, breaks=(0:11)-0.5)
+##
+mean(N>=5)
+```
+:::
+
+
+## Hypothesis testing using resampling
+
+The null distribution, the sampling distribution of a test statistic under the null hypothesis, is sometimes known or can be approximated. When the null distribution is unknown, another option is to estimate the null distribution using resampling.
+
+* Simulate from a known $H_0$
+* Bootstrap
+* Permutation
+
+## Bootstrap
+
+**Bootstrap** is a resampling technique that resamples with replacement from the available data (random sample) to construct new simulated samples.
+
+Bootstrapping can be used to simulate a sampling distribution and estimate properties such as standard error and interval estimates, but also to perform hypothesis testing.
+
+
+## Bootstrap example
+
+Men with a waist circumference greater than 94 cm have been shown to have an increased risk of cardiovascular disease. Based on the following waist circumferences of 12 diabetic men, is there reason to believe that the mean waist circumference of diabetic men is greater than 94 cm?
+
+```{r bootdata, fig.height=.3, fig.width=7}
+set.seed(11)
+df=data.frame(i=1:12,x=c(97, 97, 89, 84, 124, 107, 99, 122, 102, 114, 109, 84), boot=0)
+df |> ggplot(aes(x=i, y=1, label=sprintf("%i",x))) + geom_label() + theme_void() + theme(legend.position="none")
+mobs <- mean(df$x)
+```
+
+:::{.fragment .fade.in}
+#### Hypotheses
+
+$$H_0: \mu=94$$
+$$H_1: \mu>94$$
+:::
+:::{.fragment .fade.in}
+#### Significance level {.unnumbered}
+
+let $\alpha = 0.05$.
+:::
+:::{.fragment .fade.in}
+##### Test statistic {.unnumbered}
+
+use the sample mean, $m$, as test statistic.
+
+$mobs = `r mean(df$x)`$
+:::
+
+## Bootstrap example
+
+```{r, fig.height=.3, fig.width=7}
+df |> ggplot(aes(x=i, y=1, label=sprintf("%i",x))) + geom_label() + theme_void() + theme(legend.position="none")
+```
+
+:::{.fragment .fade-in}
+
+#### Null distribution
+
+Assume $H_0$ is true and compute sampling distribution. This can be done by first modifying the observed values;
+
+$xnull = x - mobs + 94$
+
+```{r bootxnull, fig.height=.25, fig.width=7}
+df0=df |> mutate(x=x-mean(x)+94)
+dfboot <- lapply(1:5, function(k) df0 |> mutate(x=sample(x, replace=TRUE), boot=k)) |> bind_rows()
+
+dfm <- dfboot |> group_by(boot) |> summarize(m=mean(x))
+df0 |> ggplot(aes(x=i, y=1, label=sprintf("%.0f",x))) + geom_label() + theme_void() + theme(legend.position="none")
+```
+:::
+
+:::::{.fragment .fade-in}
+<!-- ::::{.columns} -->
+<!-- :::{.column width="90%} -->
+Bootstrap!
+
+```{r fig.height=1.5, fig.width=7}
+dfboot |> ggplot(aes(x=i, y=boot, label=sprintf("%.0f",x))) + geom_label() + theme_void() 
+```
+<!-- ::: -->
+
+<!-- <!-- :::{.column width="20%} --> -->
+<!-- ```{r} -->
+<!-- gt(dfm)  -->
+<!-- ``` -->
+
+<!-- ::: -->
+<!-- :::: -->
+:::::
+
+## Bootstrap example
+::::{.columns}
+:::{.column width="50%}
+#### Null distribution
+
+```{r}
+mboot <- replicate(1000, sample(df0$x, replace=TRUE)|> mean())
+data.frame(mboot=mboot)|>ggplot(aes(x=mboot)) + geom_histogram(color="white") + theme_bw() + geom_vline(xintercept=mobs)
+```
+:::
+:::{.column width="50%}
+
+#### p-value
+
+Probability of $mobs$ or something more exreme; $p = `r mean(mboot>=mobs)`$
+
+#### Accept or reject $H_0$?
+:::
+::::
+
+## Permutation
+
+A permutation test answers the question whether an observed effect could be due only to the random sampling, how samples are assigned to different groups for example.
+
+Permutation tests are commonly used in clinical settings where a treatment group is compared to a control group.
+
+:::::{.columns}
+::::{.column width="60%"}
+
+:::{.fragment .fade-in}
+```{r permdata,, fig.height=.3, fig.width=5}
+set.seed(11)
+df=data.frame(i=1:12,x=c(rnorm(6,27,5), rnorm(6, 22,5)), gr=rep(c("A", "B"), each=6), perm=0)
+dfperm <- lapply(1:5, function(k) df |> mutate(x=sample(x), perm=k)) |> bind_rows()
+df <- bind_rows(df, dfperm)
+dfm <- df |> group_by(perm) |> summarize(mA=mean(x[gr=="A"]), mB=mean(x[gr=="B"]))|> mutate(diff=mA-mB)
+df |> filter(perm==0) |> ggplot(aes(x=i, y=1, label=sprintf("%.1f",x), color=gr)) + geom_label() + theme_void() + theme(legend.position="none")
+```
+:::
+
+:::{.fragment .fade-in}
+Permute!
+
+```{r perm, fig.height=1.4, fig.width=5}
+dfperm |> ggplot(aes(x=i, y=perm, label=sprintf("%.1f",x), color=gr)) + geom_label() + theme_void() + theme(legend.position="none")
+```
+:::
+::::
+
+::::{.column width="30%"}
+:::{.fragment .fade-in}
+```{r}
+gt(dfm)
+```
+:::
+::::
+:::::
+
+
+:::{.notes}
+In a permutation test the null distribution is computed by permuting (rearranging) the observations so that they are no longer associated to the outcome (e.g. group identity).
+
+The null distribution is a distribution of test statistics that could be explained by the random sampling. If the observed effect is much more extreme than what could be explained just by the random sampling, we can conclude that there is a difference between the groups (the treatment has an effect).
+:::
+
+## Permutation example
 
 **Do high fat diet lead to increased body weight?**
 
@@ -307,112 +532,4 @@ kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject
 
 ::::
 
-
-## Multiple testing
-### Error types
-
-:::: {.columns}
-:::{.column width="50%"}
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling()
-```
-:::
-
-::: {.column width="50%}
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=F, ncol=3)) %>% kable_styling()
-```
-
-:::
-
-::::
-
-**Significance level**
-
-$$P(\mbox{reject }\,H_0 | H_0 \,\mbox{is true}) = P(\mbox{type I error}) = \alpha$$
-  
-**Statistical power**
-
-$$P(\mbox{reject } H_0 | H_1 \mbox{ is true}) = P(\mbox{reject } H_0 | H_0 \mbox{ is false}) = 1 - P(\mbox{type II error})$$
-
-## Multiple tests
-
-:::: {.columns}
-::: {.column width="50%"}
-
-### Perform one test:
-  
-  - P(One type I error) = $\alpha$
-  - P(No type I error) = $1 - \alpha$
-  
-### Perform $m$ independent tests:
-  
-  - P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
-  - P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
-  
-:::
-
-::: {.column width="50%"}
-
-```{r multiple, echo=FALSE, out.width="100%", fig.align="center", fig.width=4, fig.height=4}
-a=0.05
-k <- 1:100
-ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
-```
-
-:::
-
-::::
-
-## Multiple test correction
-
-- FWER: family-wise error rate, control the probability of one or more false positive, e.g. Bonferroni, Holm
-- FDR: false discovery rate, control the proportion of false positives among the hits, e.g. Benjamini-Hochberg, Storey
-
-## Bonferroni correction
-
-To achieve a family-wise error rate of $\leq \alpha$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \alpha/m$.
-
-Objections: too conservative
-
-## Benjamini-Hochbergs FDR
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling()
-```
-
-The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
-
-
-Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
-  
-1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
-2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
-3. Declare significance for all tests $1, 2, \dots, j$.
-
-## 'Adjusted' p-values
-  
-Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
-  
-- Using Bonferroni's method the 'adjusted' p-values are:
-  
-  $\tilde p_i = \min(m p_i, 1)$.
-
-A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
-  
-- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
-  
-  $q_i = \min(\frac{m}{i} p_i, 1)$
-  
-  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
-
-<!-- --- -->
-
-## Example, 10000 independent tests (e.g. genes) {-}
-
-```{r padjust, results="asis"}
-p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
-kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
-```
 
