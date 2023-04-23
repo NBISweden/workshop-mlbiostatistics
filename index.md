@@ -9,7 +9,7 @@ This is a generic website containing teaching and learning materials used during
 
 The course is run via Canvas and is advertised via SciLifeLab website [https://www.scilifelab.se/events/#calendar](https://www.scilifelab.se/events/#calendar) and [NBIS website](https://nbis.se/training/events.html).
 
-The latest Canvas course is here: [https://uppsala.instructure.com/courses/70535](https://uppsala.instructure.com/courses/70535).
+The latest Canvas course is here: [https://uppsala.instructure.com/courses/74597](https://uppsala.instructure.com/courses/74597).
 
 
 <br/>
