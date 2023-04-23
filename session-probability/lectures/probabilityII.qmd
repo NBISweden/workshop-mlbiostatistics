@@ -1,7 +1,9 @@
 ---
+editor: source
 title: "Probability theory, part II"
 author: "Eva Freyhult"
-date: "2022-09-12"
+date: "2023-04-24"
+date-format: long
 institute: NBIS, SciLifeLab
 format: 
   revealjs:
@@ -9,8 +11,6 @@ format:
     self-contained: true
     theme: [default, custom.scss]
 ---
-
-
 
 ```{r, include=FALSE}
 require(tidyverse)
@@ -22,9 +22,7 @@ knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, e
 options(digits=2)
 ```
 
-
 ## Continuous random variable
-
 
 A continuous random number is not limited to discrete values, but any continuous number within one or several ranges is possible.
 
@@ -38,8 +36,6 @@ set.seed(11)
 baby <- data.frame(smoke=sample(1000, x=0:2, prob=c(0.45,0.45,0.1), replace=TRUE)) %>% mutate(m=c(3.4, 3.0, 2.5)[smoke+1], wt=rnorm(n(), mean=m, sd=0.5))
 ggplot(baby, aes(x=wt)) + theme_bw() + xlab("x") + ylab("f(x)") + geom_density()
 ```
-
-
 
 ## Probability density function
 
@@ -67,13 +63,12 @@ The area under the curve from $a$ to $b$ is the probability that the random vari
 
 $P(a \leq X \leq b) = \int_a^b f(x) dx$
 
-
 ## Cumulative distribution function
-  
+
 The **cumulative distribution function**, **cdf**, $F(x)$, is defined as:
-  
+
 $$F(x) = P(X \leq x) = \int_{-\infty}^x f(x) dx$$
-  
+
 ```{r wtpdfcdf, out.width="49%", fig.show="hold", fig.width=5, fig.height=3.5}
 #| layout-ncol: 2
 plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df.nwt %>% filter(w<4.0)) + annotate("label",label=sprintf("P(X<4.0) = F(4.0) = %.2f", pnorm(4,3.5,0.5)), x=2.7, y=0.4, hjust=0))
@@ -85,9 +80,9 @@ plot(ggplot(df.nwt, aes(x=w, y=F)) + geom_line() + xlab("x") + ylab("F(x)") + th
 
 As the total probability (over all x) is 1, it follows that $P(X > x) = 1 - P(X \leq x) = 1 - F(x)$ and thus $P(a < X \leq b) = F(b) - F(a)$.
 
-## Parametric continuous distributions
+## Expected value and variance
 
-Two important parameters of a distribution is the expected value, $\mu$, that describe the distributions location and the variance, $\sigma^2$, that describe the spread.
+Two important parameters of a distribution are the **expected value**, $E(X) = \mu$, that describe the distributions location and the **variance**, $\sigma^2$, that describe the spread.
 
 The expected value, or population mean, is defined as;
 
@@ -97,22 +92,32 @@ The variance is defined as the expected value of the squared distance from the p
 
 $$\sigma^2 = E[(X-\mu)^2] = \int_{-\infty}^\infty (x-\mu)^2 f(x) dx$$
 
-The square root of the variance is called the standard deviation, $\sigma$.
+The square root of the variance is called the **standard deviation**, $\sigma$.
+
+## Expected value and variance
+
+As for discrete random variables, if the population is countable, $E(X)$ and $\sigma^2$ can also be computed by summing over all $N$ objects in the population.
+
+$$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i$$
+
+$$\sigma^2 = \frac{1}{N} \sum_{i=1}^N (x_i-\mu)^2$$
+
 
 ## Normal distribution
 
-:::: {.columns}
+::: columns
 ::: {.column width="50%"}
 The normal probability density function
 
 $$f(x) = \frac{1}{\sqrt{2 \pi} \sigma} e^{-\frac{1}{2} \left(\frac{x-\mu}{\sigma}\right)^2}$$
-  
+
 describes the distribution of a normal random variable, $X$, with expected value $\mu$ and standard deviation $\sigma$, $e$ and $\pi$ are two common mathematical constants, $e \approx 2.71828$ and $\pi \approx 3.14159$.
 
 In short we write $X \sim N(\mu, \sigma)$.
 
 The bell-shaped normal distributions is symmetric around $\mu$ and $f(x) \rightarrow 0$ as $x \rightarrow \infty$ and as $x \rightarrow -\infty$.
 :::
+
 ::: {.column width="50%"}
 ```{r norm, out.width="100%", fig.show="hold", fig.align="center"}
 #ggplot(pop.FN, aes(x=Bodyweight)) + geom_histogram(binwidth=1, aes(y=stat(density)), color="white") + theme_bw() + geom_line(data=den.FN, aes(x=x, y=nfx), color="red")
@@ -121,7 +126,7 @@ dN <- data.frame(x=x, fx=dnorm(x))
 plot(ggplot(dN, aes(x=x, y=fx)) + geom_line() + scale_x_continuous(breaks=-3:3, labels=c(expression(mu-3*sigma),expression(mu-2*sigma), expression(mu-1*sigma), expression(mu), expression(mu+sigma), expression(mu + 2*sigma),  expression(mu + 3*sigma))) + xlab("") + ylab("f(x)") + theme_bw())
 ```
 :::
-::::
+:::
 
 ## Normal distribution
 
@@ -138,8 +143,8 @@ ggplot(dN, aes(x=x, y=Fx)) + geom_line() + scale_x_continuous(breaks=-3:3, label
 
 Using transformation rules we can define
 
-$$Z = \frac{X-\mu}{\sigma}, \, Z \sim N(0,1)$$ 
-  
+$$Z = \frac{X-\mu}{\sigma}, \, Z \sim N(0,1)$$
+
 Values for the cumulative standard normal distribution, $F(z)$, are tabulated and easy to compute in R using the function `pnorm`.
 
 ```{r FZ, out.width="50%", fig.width=5, fig.height=3.5, fig.align="center"}
@@ -150,7 +155,7 @@ plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab
 
 ## Standard normal distribution
 
-:::: {.columns}
+::: columns
 ::: {.column width="40%"}
 Properties of the standard normal distribution
 
@@ -159,7 +164,7 @@ $P(Z \leq -z) = P(Z \geq z) = 1 - P(Z \leq z)$
 $P(Z < z) = P(Z \leq z)$
 
 Some value of particular interest:
-  
+
 $$F(1.64) = 0.95\\
 F(1.96) = 0.975$$
 
@@ -172,7 +177,6 @@ $$P(-1.96 < Z < 1.96) = 0.95$$
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 z <- sapply(seq(-3.4, -3.49, -0.01), function(x) seq(x,0,0.1))
 z <- -z[nrow(z):1,]
@@ -180,82 +184,88 @@ z <- sapply(seq(0, 0.09, 0.01), function(x) seq(x,3.49,0.1))
 zscore.df <- apply(pnorm(z), 2, function(x) sprintf("%.4f",x))
 row.names(zscore.df) <- sprintf("%.1f", z[,1])
 colnames(zscore.df) <- seq(0,0.09,0.01)
-kable(zscore.df, caption = "$F(z) = P(Z<=z)$") %>% kable_styling(font_size = 12)
+kable(zscore.df, caption = "F(z) = P(Z<z)") %>% kable_styling(font_size = 12)
+```
+:::
+:::
+
+## Sum of two normal random variables
+
+::::{.columns}
+:::{.column width="60%"}
+If $X \sim N(\mu_1, \sigma_1)$ and $Y \sim N(\mu_2, \sigma_2)$ are two independent normal random variables, then their sum is also a random variable:
+
+$$X + Y \sim N(\mu_1 + \mu_2, \sqrt{\sigma_1^2 + \sigma_2^2})$$
+
+and
+
+$$X - Y \sim N(\mu_1 - \mu_2, \sqrt{\sigma_1^2 + \sigma_2^2})$$
+
+
+:::
+
+:::{.column width="40%"}
+```{r}
+w=seq(-3.5,9,0.01)
+df.nwt <- rbind(data.frame(w=w, f=dnorm(w), X="X1"), data.frame(w=w, f=dnorm(w, m=3, s=2), X="X2"), data.frame(w=w, f=dnorm(w, m=1.5, s=sqrt(1+4)), X="X1+X2")) |> mutate(X=factor(X, levels=c("X1", "X2", "X1+X2")))
+ggplot(df.nwt, aes(x=w, y=f, color=X)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + scale_color_manual("", values=c("red", "blue", "purple")) + theme(legend.position = c(1,1), legend.justification = c(1,1), legend.background = element_rect(fill="transparent"))
 ```
 :::
 ::::
 
-## Sum of two normal random variables
-  
-If $X \sim N(\mu_1, \sigma_1)$ and $Y \sim N(\mu_2, \sigma_2)$ are two independent normal random variables, then their sum is also a random variable:
-  
-$$X + Y \sim N(\mu_1 + \mu_2, \sqrt{\sigma_1^2 + \sigma_2^2})$$
-  
-  and 
+## Sum or many random variables
 
-$$X - Y \sim N(\mu_1 - \mu_2, \sqrt{\sigma_1^2 + \sigma_2^2})$$
-This can be extended to the case with $n$ independent and identically distributed random varibles $X_i \in N(\mu, \sigma)$.
+This can be extended to the case with $n$ independent and identically distributed normal random variables $X_i \in N(\mu, \sigma)$.
 
 $$\sum_{i=1}^n X_i \in N(n\mu, \sqrt{n}\sigma)$$
+and if $n$ is large enough this holds for any independent and identically distributed random variables, even if they are not normally distributed.
 
-## Central limit theorem
+:::{#thm-CLT}
+# Central limit theorem
 
-> The sum of $n$ independent and equally distributed random variables is normally distributed, if $n$ is large enough.
-
-. . .
+The sum of $n$ independent and equally distributed random variables is normally distributed, if $n$ is large enough.
+:::
 
 As a result of central limit theorem, the distribution of fractions or mean values of a sample follow the normal distribution, at least if the sample is large enough (a rule of thumb is that the sample size $n>30$).
 
 ## Central limit theorem, example
 
-In a population of 252 men we can study the distribution of BMI.
+A left skewed distribution has a heavier left tail than right tail. An example might be age at death of natural causes.
 
-```{r fatdata}
-fat <- read.table("http://jse.amstat.org/datasets/fat.dat.txt")
-colnames(fat) <- c("case","body.fat","body.fat.siri","density","age","weight","height","BMI","ffweight","neck","chest","abdomen","hip","thigh","knee","ankle" ,"bicep","forearm","wrist" )
+```{r}
+#| label: fig-leftskewed
+#| fig-cap: "A left skewed distribution. Can for example show the distribution of age of a mouse who died of natural causes."
+#| fig.width: 5
+miceage <- 2*(2-rgamma(10000, 3, 9))
+data.frame(age=miceage) |> ggplot(aes(x=age)) + geom_density() + theme_bw()
 ```
 
-```{r BMIhist, out.width="60%", fig.width=5, fig.height=3.5, fig.align="center"}
-pl <- ggplot(fat, aes(x=BMI)) + geom_histogram(aes(y=stat(density)), binwidth=2, color="white") + theme_bw()
-plot(pl)
-```
-
-
-```{r BMI, eval=FALSE}
-##Population mean
-(mu <- mean(fat$BMI))
-##Population variance
-(sigma2 <- var(fat$BMI)/nrow(fat)*(nrow(fat)-1))
-##Population standard variance
-(sigma <- sqrt(sigma2))
-```
-
-Randomly sample 3, 5, 10, 15, 20, 30 men and compute the mean value, $m$. Repeat many times to get the distribution of mean values.
+Randomly sample 3, 5, 10, 15, 20, 30 observations and compute their mean value, $m$. Repeat many times to get the distribution of mean values.
 
 ## Central limit theorem, example
 
-```{r owexample, out.width="100%", fig.width=7, fig.show="hold"}
-#hist(fat$BMI)
-bmi <- fat$BMI
-n <- c(3,5,10,15,20, 30)
-rs <- sapply(n, function(k) replicate(10000, mean(sample(bmi, k))))
-plot(ggplot(melt(rs, varnames=c("rep", "n")), aes(x=value, color=factor(n))) + geom_density() + theme_bw() + facet_wrap(~n) + theme(legend.position = "none"))
+```{r}
+#| label: fig-meanskew
+#| fig-cap: "Distribution of sample means, where the means are computed based on random samples of sizes 3, 5, 10, 15, 20 and 30, respectively."
+#| fig.width: 7
+#| fig.height: 3.55
+rs <- data.frame(n = c(3,5,10,15,20,30)) |> group_by(n) |> summarize(m=replicate(10000, mean(sample(miceage, n))), .groups="drop")
+rs |> ggplot(aes(x=m, fill=factor(n))) + geom_histogram(bins=50) + theme_bw() + facet_wrap(~factor(n))+ theme(legend.position="none")
 ```
 
+Note, mean is just the sum divided by the number of samples $n$.
 
 ## $\chi^2$-distribution
 
-:::: {.columns}
-::: {.column width="50%}
-If $X_i$ are independent identically distributed random variables $X_i \in N(0,1)$, then 
-$$Y = \sum_{i=1}^n X_i^2$$
-is $\chi^2$ distributed with $n-1$ degrees of freedom.
+::: columns
+::: {.column width="\"50%"}
+The sum of $n$ independent identically distributed normal random variables, $X_i \in N(0,1)$, is a random variable $Y$. $$Y = \sum_{i=1}^n X_i^2$$ is $\chi^2$ distributed with $n-1$ degrees of freedom.
 
 In short $Y \in \chi^2_{n-1}$.
 
 Example: The sample variance $S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i-\bar X)^2$ is such that $\frac{(n-1)S^2}{\sigma^2}$ is $\chi^2$ distributed with $n-1$ degrees of freedom.
-
 :::
+
 ::: {.column width="50%"}
 ```{r Xdistr, fig.width=7, fig.height=7, out.width="100%"}
 x <- seq(-0,5, .01)
@@ -265,17 +275,18 @@ dX <- data.frame(x=x, n=rep(c(2, 3,4,5,7, 10), each=length(x))) %>%
 ggplot(dX, aes(x=x, y=fx, color=factor(paste0("n=",n), levels=paste0("n=",sort(unique(n)))))) + geom_line() + theme_bw() + scale_color_discrete("") + ylim(c(0,0.5)) + theme(legend.position = c(1,1), legend.justification = c(1,1))
 ```
 :::
-::::
+:::
 
 ## F-distribution
 
-:::: {.columns}
-::: {.column width="50%}
+::: columns
+::: {.column width="\"50%"}
 The ratio of two $\chi^2$-distributed variables divided by their degrees of freedom is F-distributed
 
 Example: The ratio of two sample variances is F-distributed
 :::
-::: {.column width="50%}
+
+::: {.column width="\"50%"}
 ```{r Fdistr, fig.width=5, fig.height=5, fig.cap="The F-distribution"}
 x <- seq(-0,5, .01)
 dX <- data.frame(x=x, n1=rep(c(2,4,10), each=length(x)), n2=rep(c(2,4,10), each=length(x)*3)) %>%
@@ -284,12 +295,12 @@ dX <- data.frame(x=x, n1=rep(c(2,4,10), each=length(x)), n2=rep(c(2,4,10), each=
 ggplot(dX, aes(x=x, y=fx, color=factor(sprintf("n1=%i, n2=%i",n1, n2), levels=sprintf("n1=%i, n2=%i",rep(sort(unique(n1)), each=3), sort(unique(n2)))))) + geom_line() + theme_bw() + scale_color_discrete("") + ylim(c(0,0.8)) + theme(legend.position = c(1,1), legend.justification = c(1,1))
 ```
 :::
-::::
+:::
 
 <!-- Example. F-test of equality of variances -->
 
 ## t-distribution
-  
+
 The ratio of a normally distributed variable and the square root of a $\chi^2$-distributed variable is t-distributed.
 
 ```{r exampletdistr, fig.width=5, fig.height=3.5, out.width="70%"}
@@ -299,7 +310,6 @@ dT <- data.frame(x=x, n=rep(c(2, 3,5,7, 10, 15, 20, 30), each=length(x))) %>%
 #dT <- data.frame(x=x, fx=dt(x, df=n-1))
 ggplot(dT, aes(x=x, y=fx, color=factor(paste0("n=",n), levels=paste0("n=",sort(unique(n)))))) + geom_line() + theme_bw() + scale_color_discrete("")
 ```
-
 
 The ratio between sample mean and sample variance is t-distributed.
 
@@ -313,7 +323,7 @@ There are different techniques for performing random sampling, two common techni
 
 ## Simple random sampling
 
-A **simple random sample** is a random subset of individuals from a population, where every individual has the same probability of being choosen. 
+A **simple random sample** is a random subset of individuals from a population, where every individual has the same probability of being choosen.
 
 Simple random sampling using an urn model;
 
@@ -325,12 +335,9 @@ Draw $n$ balls from the urn, without replacement, to get a random sample of size
 knitr::include_graphics("figures/ageurn.png")
 ```
 
-
 ## Stratified random sampling
 
 In **stratified random sampling** the population is first divided into subpopulations based on important attributes, e.g. sex (male/female), age (young/middle aged/old) or BMI (underweight/normal weight/overweight/obese). Simple random sampling is then performed within each subpopulation.
-
-
 
 ```{r urnsex, echo=FALSE, out.width = '15%', fig.align="center", fig.show="hold", fig.cap=" "}
 #| layout-ncol: 2
@@ -339,52 +346,53 @@ knitr::include_graphics("figures/ageurn_female.png")
 ```
 
 <!-- ![male](figures/ageurn_male.png){fig-align="center" width="30%"} -->
+
 <!-- ![female](figures/ageurn_female.png){width=20%} -->
 
+<!-- ## Principles of experimental design -->
 
-## Principles of experimental design
+<!-- It is important to consider **extraneous variables**, when assigning experimental units to treatment or control group. -->
 
-It is important to consider **extraneous variables**, when assigning experimental units to treatment or control group.
+<!-- Extraneous variable are variables that are not your main interest but that might affect the studied experimental outcome or the variable of interest. -->
 
-Extraneous variable are variables that are not your main interest but that might affect the studied experimental outcome or the variable of interest.
+<!-- Such as age, sex, batch, experiment date, laboratory personell etc. -->
 
-Such as age, sex, batch, experiment date, laboratory personell etc.
+<!-- ## Principles of experimental design -->
 
-## Principles of experimental design
+<!-- Fundamental to experimental design are the three principles; **replication**, **randomization** and **blocking**. -->
 
-Fundamental to experimental design are the three principles; **replication**, **randomization** and **blocking**.
+<!-- ## Principles of experimental design -->
 
-## Principles of experimental design
+<!-- ### Replication -->
 
-### Replication
+<!-- Replication is the repetition of the same experiment, with the same conditions. **Biological replicates** are measurements of different biological units under the same conditions, whereas **technical replicates** are repeated measurements of the same biological unit under the same conditions. -->
 
-Replication is the repetition of the same experiment, with the same conditions. **Biological replicates** are measurements of different biological units under the same conditions, whereas **technical replicates** are repeated measurements of the same biological unit under the same conditions.
+<!-- ## Principles of experimental design -->
 
-## Principles of experimental design
+<!-- ### Randomization -->
 
-### Randomization
+<!-- Experimental units are not identical, hence by assigning experimental units to treatment/control at random we can avoid unnecessary bias. It is also important to perform the measurements in random order. -->
 
-Experimental units are not identical, hence by assigning experimental units to treatment/control at random we can avoid unnecessary bias. It is also important to perform the measurements in random order.
+<!-- <!-- - **Completely randomized design**, the experimental units are assigned to treatment and control groups at random. --> -->
 
-<!-- - **Completely randomized design**, the experimental units are assigned to treatment and control groups at random. -->
-<!-- - **Randomized block design**, first group the experimental units based on extraneous variables such as sex, age, BMI, then within each group assign the experimental units to treatment/control at random. -->
+<!-- <!-- - **Randomized block design**, first group the experimental units based on extraneous variables such as sex, age, BMI, then within each group assign the experimental units to treatment/control at random. --> -->
 
-## Principles of experimental design
+<!-- ## Principles of experimental design -->
 
-### Blocking
+<!-- ### Blocking -->
 
-Blocking is grouping experimental units into blocks consisting of units that are similar to one another and assigning units within a block to treatment/control at random.
+<!-- Blocking is grouping experimental units into blocks consisting of units that are similar to one another and assigning units within a block to treatment/control at random. -->
 
-Blocking (e.g. according to age, sex, experimental day) reduces known but irrelevant sources of variation between units and thus allows greater precision in the estimation of the source of variation under study.
+<!-- Blocking (e.g. according to age, sex, experimental day) reduces known but irrelevant sources of variation between units and thus allows greater precision in the estimation of the source of variation under study. -->
 
-. . . 
+<!-- . . . -->
 
-**Block what you can; randomize what you cannot.**
+<!-- **Block what you can; randomize what you cannot.** -->
+
 
 ## Sample properties
 
 Summary statistics can be computed for a sample, such as the sum, proportion, mean and variance.
-
 
 ## Sample proportion
 
@@ -394,37 +402,34 @@ The number of individuals with the property in a simple random sample of size $n
 
 The proportion of individuals in a sample with the property is also a random variable;
 
-$$P = \frac{X}{n}$$
-with expected value 
-$$E[P] = \frac{E[X]}{n} = \frac{n\pi}{n} = \pi$$
+$$P = \frac{X}{n}$$ with expected value $$E[P] = \frac{E[X]}{n} = \frac{n\pi}{n} = \pi$$
 
-## Sample mean and variance
+## Sample mean
 
-For a particular sample of size $n$; $x_1, \dots, x_n$, the sample mean is denoted $m = \bar x$. The sample mean is calculated as;
-  
-  $$m = \bar x = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i$$
-and the sample variance as;
+For a particular sample of size $n$; $x_1, \dots, x_n$, the sample mean is
 
-$$s^2 = \frac{1}{n-1} \sum_{i=1}^n (x_i-m)^2$$
+$$m = \bar x = \frac{1}{n}\displaystyle\sum_{i=1}^n x_i.$$
 
-## Sample mean and variance
+Note that mean of $n$ independent identically distributed random variables, $X_i$, is itself a random variable;
 
-Note that the mean of $n$ independent identically distributed random variables, $X_i$ is itself a random variable;
-  
-$$\bar X = \frac{1}{n}\sum_{i=1}^n X_i,$$
-If $X_i \sim N(\mu, \sigma)$ then $\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right)$.
+$$\bar X = \frac{1}{n}\sum_{i=1}^n X_i.$$
 
-When we only have a sample of size $n$, the sample mean $m$ is our best estimate of the population mean. It is possible to show that the sample mean is an unbiased estimate of the population mean, i.e. the average (over many size $n$ samples) of the sample mean is $\mu$.
+If $X_i \sim N(\mu, \sigma)$, then $\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right)$.
 
-$$E[\bar X] = \frac{1}{n} n E[X] = E[X] = \mu$$
+When we only have a sample, the sample mean $m$ is our best estimate of the population mean. It is possible to show that the sample mean is an **unbiased** estimate of the population mean, i.e. the average (over many size $n$ samples) of the sample mean is $\mu$, i.e. $E[\bar X] = \mu$.
 
-Similarly, the sample variance is an unbiased estimate of the population variance.
 
-## Standard error
+### Sample variance
 
-Sample estimates of mean and variance are unbiased, but not perfect.
+The sample variance is computed as;
 
-The standard deviation of the sampling distribution (the distribution of sample estimates) is called the standard error.
+$$s^2 = \frac{1}{n-1} \sum_{i=1}^n (x_i-m)^2.$$
+
+The sample variance, $S^2$, is also a random variable and it is possible to show that the sample variance is an unbiased estimate of the population variance.
+
+## Sampling distribution
+
+A sampling distribution is a probability distribution of a sample property. A sampling distribution is obtained by sampling many times from the studied population.
 
 ```{r SE, out.width="50%", fig.align="center"}
 #| layout-ncol: 2
@@ -435,14 +440,17 @@ m <- replicate(1000, mean(rnorm(10, m=3.5, sd=0.5)))
 ggplot(data.frame(m=m), aes(x=m)) + geom_histogram(color="white", bins=25) + ggtitle("mean of a sample of size 10") + theme_bw()
 ```
 
+Sample estimates of mean and variance are unbiased, but not perfect.
+
+The standard deviation of the sampling distribution is called the **standard error**.
+
+
 ## Standard error of the mean
 
 For the sample mean, $\bar X$, the variance is
 
-$$E[(\bar X - \mu)^2] = \mathrm{var}(\bar X) = \mathrm{var}(\frac{1}{n}\sum_i X_i) = \frac{1}{n^2} \sum_i \mathrm{var}(X_i) = \frac{1}{n^2} n \mathrm{var}(X) = \frac{\sigma^2}{n}$$
-The standard error of the mean is thus;
+$$E[(\bar X - \mu)^2] = \mathrm{var}(\bar X) = \frac{\sigma^2}{n}$$ The standard error of the mean is thus;
 
-$$SEM = \frac{\sigma}{\sqrt{n}}$$
-Replacing $\sigma$ with the sample standard deviation, $s$, we get an estimate of the standard deviation of the mean;
+$$SEM = \frac{\sigma}{\sqrt{n}}$$ Replacing $\sigma$ with the sample standard deviation, $s$, we get an estimate of the standard deviation of the mean;
 
 $$SEM \approx \frac{s}{\sqrt{n}}$$

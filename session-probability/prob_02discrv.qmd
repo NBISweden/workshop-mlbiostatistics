@@ -1,3 +1,7 @@
+---
+editor: source
+---
+
 # Discrete random variables {#sec-prob02discrv}
 
 ```{r}
@@ -28,12 +32,12 @@ The probability that the random variable, $X$, takes the value $x$ is denoted $P
 ::: {#exm-rolldice}
 # The number of dots on a dice
 
-When rolling a die the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the die is fair. The outcome of one dice roll can be described by a random variable $X$. The probability of a particular outcome $x$ is denoted $P(X=x)$ or $p(x)$.
+When rolling a dice the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the dice is fair. The outcome of one dice roll can be described by a random variable $X$. The probability of a particular outcome $x$ is denoted $P(X=x)$ or $p(x)$.
 
-The probability mass function of a fair six-sided die can be summarized in a table;
+The probability mass function of a fair six-sided dice can be summarized in a table;
 
 ```{r}
-#| label: tbl-pmfdie
+#| label: tbl-pmfdice
 #| tbl-cap: "Probability mass function of a fair six-sided dice."
 kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
 ```
@@ -48,7 +52,7 @@ data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") +
 ::: {#exm-nuclsite}
 # Nucleotide in a given site
 
-The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike the sides on a die the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, $X$. The probability mass function can be summarized in a table or a bar plot.
+The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike the sides on a dice the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, $X$. The probability mass function can be summarized in a table or a bar plot.
 
 ```{r}
 #| label: tbl-nucl
@@ -95,7 +99,7 @@ ggplot(data.frame(x=x, fx=dpois(x, lambda=25)), aes(x,fx)) + geom_bar(stat="iden
 
 The probability mass function can be used to compute the probability of an event, such as the events
 
--   *get an even number when rolling a die* - sum up the probabiliy for 2, 4, and 6, p(even)=p(2)+p(4)+p(6)=0.5
+-   *get an even number when rolling a * - sum up the probabiliy for 2, 4, and 6, p(even)=p(2)+p(4)+p(6)=0.5
 
 -   *less than 15 CFUs on an agar plate* - sum upp the probabilities $P(X<15) = \sum_{k=0}^{14} p(k) = `r ppois(14, 25)`$
 
@@ -103,7 +107,7 @@ The **cumulative distribution function (CDF)** is defined for numeric discrete r
 
 ## Expected value and variance
 
-Two common properties of a probability distrubution, such as a probability mass function, are the **expected value** and the **variance**.
+Two common properties of a probability distribution, such as a probability mass function, are the **expected value** and the **variance**.
 
 <!-- For a numeric discrete random variable, the **expected value** of the random variable can be computed, when the probability mass function is know.  -->
 
@@ -124,7 +128,7 @@ The variance can also be computed by summing over the outcome value for every ob
 
 $$var(X) = \sigma^2 = \frac{1}{N}\sum_{i=1}^N (x_i-\mu)^2,$$ where $N$ is the number of objects in the population.
 
-The **standard deviation** is the square root of the **variance**. The standard deviation of a random variable is usually denoted $\sigma. The standard deviation is always positive and on the same scale as the outcome values.
+The **standard deviation** is the square root of the **variance**. The standard deviation of a random variable is usually denoted $\sigma$. The standard deviation is always positive and on the same scale as the outcome values.
 
 ### Linear transformations and combinations
 
@@ -220,7 +224,7 @@ From this we conclude that
 $P(Y \geq 15) =$ `r sum(Nheads>=15)`/`r length(Nheads)` = `r sprintf("%.4f", sum(Nheads>=15)/length(Nheads))`
 :::
 
-Resampling can also be used to compute other properties of a random variable, such as the expected variable.
+Resampling can also be used to compute other properties of a random variable, such as the expected value.
 
 The **law of large numbers** states that if the same experiment is performed many times the average of the result will be close to the expected value.
 
@@ -296,7 +300,7 @@ Examples fo binomial random variables;
 -   The number of patients experiencing a side effect out of $n$ patients in a study, if the probability of a side effect is $p$.
 -   the number of mutations in a gene of length $n$, if the mutations are independent and identically distributed and the probability of a mutation at every single position is $p$.
 
-### Poisson distribution
+### Poisson
 
 The Poisson distribution describe the number of times a rare event occurs in a large number of trials. Commonly used to describe the number of events during a given time period.
 
@@ -306,11 +310,11 @@ The probability mass function has a single parameter, $\lambda$, the expected va
 
 $$P(X=k) = \frac{\lambda}{k!}e^{-\lambda}$$
 
-The expected value $\lampbda = n \pi$, where $n$ is the number of objects sampled from the population and $\pi$ is the probability of a single object.
+The expected value $\lambda = n \pi$, where $n$ is the number of objects sampled from the population and $\pi$ is the probability of a single object.
 
 The variance is equal to the expected value;
 
-$$var(X) = E[X] = \lamba = n \pi$$
+$$var(X) = E[X] = \lambda = n \pi$$
 
 The Poisson distribution can approximate the binomial distribution if $n$ is large ($n>10$) and $\pi$ is small ($\pi < 0.1$).
 
@@ -321,7 +325,7 @@ Examples of Poisson random variables;
 
 ### Negative binomial
 
-A negative binomial distribution describes the number of failures that occur before a specified number of successes ($r$) has occurred, in a sequence of independent and identically distributed Bernoilli trials.
+A negative binomial distribution describes the number of failures that occur before a specified number of successes ($r$) has occurred, in a sequence of independent and identically distributed Bernoilli trials. $r$ is also called the dispersion parameter.
 
 In R: `dnbinm, pnbinom, qnbinom`
 

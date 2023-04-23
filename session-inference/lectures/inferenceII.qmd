@@ -1,8 +1,10 @@
 ---
+editor: source
 title: "Statistical inference, part II"
 subtitle: "Parametric tests"
 author: "Eva Freyhult"
-date: "2022-09-13"
+date: "2023-04-25"
+date-format: long
 institute: NBIS, SciLifeLab
 format: 
   revealjs:
@@ -36,6 +38,146 @@ We can follow the same steps as before to perform a hypothesis test:
   5. Compare the observed value, $t_{obs}$, with the null distribution and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
   6. Based on the p-value either accept or reject $H_0$.
 
+## One sample, mean
+
+A one sample test of means compares the mean of a sample to a prespecified value.
+
+The hypotheses:
+
+$$H_0: \mu = \mu_0 \\
+H_1: \mu \neq \mu_0$$
+
+The alternative hypothesis, $H_1,$ above is for the two sided hypothesis test. Other options are the one sided $H_1$; $H_1: \mu > \mu_0$ or $H_1: \mu < \mu_0$.
+
+## One sample, mean, mouse example
+
+We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g, is there reason to believe that high fat diet affect mice body weight?
+
+## One sample, mean, mouse example
+
+The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3$
+
+Hence, the mean weight of $n=10$ independent mice from the same population is  
+$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
+
+## One sample, mean, mouse example
+
+The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3$.
+
+Hence, the mean weight of $n=10$ independent mice from the same population is  
+$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
+
+An appropriate test statistic is 
+
+$$Z = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}}$$
+If $\sigma$ is known, $Z\sim N(0,1)$.
+
+
+## One sample t-test
+
+For small $n$ and unknown $\sigma$, the test statistic
+
+$$t = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$
+
+is t-distributed with $df=n-1$ degrees of freedom.
+
+## Two samples, mean
+
+A two sample test of means is used to determine if two population means are equal.
+
+Two independent samples are collected (one from each population) and the means are compared. Can for example be used to determine if a treatment group is different compared to a control group, in terms of the mean of a property of interest.
+
+The hypotheses;
+
+$$H_0: \mu_2 = \mu_1\\
+H_1: \mu_2 \neq \mu_1$$
+
+The above $H_1$ is two-sided. One-sided alternatives could be
+$$H_1: \mu_2 > \mu_1\\
+\mathrm{or}\\
+H_1: \mu_2 < \mu_1$$
+
+## Two samples, mean
+
+Assume that observations from both populations are normally distributed;
+
+$$
+\begin{aligned}
+X_1 \sim N(\mu_1, \sigma_1) \\
+X_2 \sim N(\mu_2, \sigma_2)
+\end{aligned}
+$$
+
+Then it follows that the sample means will also be normally distributed;
+
+$$
+\begin{aligned}
+\bar X_1 \sim N(\mu_1, \sigma_1/\sqrt{n_1}) \\
+\bar X_2 \sim N(\mu_2, \sigma_2/\sqrt{n_2})
+\end{aligned}
+$$
+
+The mean difference $D = \bar X_2 - \bar X_1$ is thus also normally distributed:
+
+$$D = \bar X_2 - \bar X_1 = N\left(\mu_2-\mu_1, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
+
+## Two samples, mean
+
+If $H_0$ is true: $$D = \bar X_2 - \bar X_1 = N\left(0, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
+
+The test statistic: $$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}}$$ is standard normal, i.e. $Z \sim N(0,1)$.
+
+However, note that the test statistic require the standard deviations $\sigma_1$ and $\sigma_2$ to be known.
+
+<!-- --- -->
+
+## Two samples, mean
+### Unknown variances
+
+What if the population standard deviations are not known?
+
+## Two samples, mean
+### Unknown variances, large sample sizes
+
+If the sample sizes are large, we can replace the known standard deviations with our sample standard deviations and according to the central limit theorem assume that 
+
+$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}} \sim N(0,1)$$
+
+and proceed as before.
+
+## Two samples, mean
+### Unknown variances, small sample sizes
+
+Either assume equal variances and proceed with Student's t-test or use Welch's t-test for unequal variances.
+
+## Two samples, mean
+### Unknown equal variances, small sample sizes
+
+**Student's t-test**
+
+Assume equal variances in the two populations and compute the pooled sample standard deviation;
+
+$$
+  s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}
+$$
+  
+and the test statistic
+
+$$t = \frac{\bar X_1 - \bar X_2}{\sqrt{s_p^2(\frac{1}{n_1} + \frac{1}{n_2})}},$$
+  
+which is t-distributed with $n_1+n_2-2$ degrees of freedom.
+
+## Two samples, mean
+### Unknown variances, small sample sizes
+
+**Welch's t-test**
+
+For unequal variances the following test statistic can be used;
+
+$$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
+$t$ is $t$-distributed and the degrees of freedom can be computed using Welch approximation.
+
+Fortunately, the t-test is implemented in R, e.g. in the function `t.test` in the R-package `stats`. This function can compute both Student's t-test with equal variances and Welch's t-test with unequal variances.
 
 ## One sample, proportions, pollen example
 
@@ -177,7 +319,7 @@ As $p<0.05$ $H_0$ is rejected and we conclude that there is reason to believe th
 
 ## One sample, proportions, pollen example
 
-This p-value can also be computed using the exact binomial test;
+In R
 
 ```{r, echo=TRUE}
 binom.test(42, 100, 0.3, alternative="greater")
@@ -192,147 +334,6 @@ Central Limit Theorem
 >The sum of $n$ independent and equally distributed random variables is normally distributed, if $n$ is large enough.
 
 
-
-## One sample, mean
-
-A one sample test of means compares the mean of a sample to a prespecified value.
-
-The hypotheses:
-
-$$H_0: \mu = \mu_0 \\
-H_1: \mu \neq \mu_0$$
-
-The alternative hypothesis, $H_1,$ above is for the two sided hypothesis test. Other options are the one sided $H_1$; $H_1: \mu > \mu_0$ or $H_1: \mu < \mu_0$.
-
-## One sample, mean, mouse example
-
-We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g, is there reason to believe that high fat diet affect mice body weight?
-
-## One sample, mean, mouse example
-
-The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3$
-
-Hence, the mean weight of $n=10$ independent mice from the same population is  
-$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
-
-## One sample, mean, mouse example
-
-The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3)
-
-Hence, the mean weight of $n=10$ independent mice from the same population is  
-$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
-
-An appropriate test statistic is 
-
-$$Z = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}}$$
-If $\sigma$ is known, $Z\sim N(0,1)$.
-
-
-## One sample t-test
-
-For small $n$ and unknown $\sigma$, the test statistic
-
-$$t = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$
-
-is t-distributed with $df=n-1$ degrees of freedom.
-
-## Two samples, mean
-
-A two sample test of means is used to determine if two population means are equal.
-
-Two independent samples are collected (one from each population) and the means are compared. Can for example be used to determine if a treatment group is different compared to a control group, in terms of the mean of a property of interest.
-
-The hypotheses;
-
-$$H_0: \mu_2 = \mu_1\\
-H_1: \mu_2 \neq \mu_1$$
-
-The above $H_1$ is two-sided. One-sided alternatives could be
-$$H_1: \mu_2 > \mu_1\\
-\mathrm{or}\\
-H_1: \mu_2 < \mu_1$$
-
-## Two samples, mean
-
-Assume that observations from both populations are normally distributed;
-
-$$
-\begin{aligned}
-X_1 \sim N(\mu_1, \sigma_1) \\
-X_2 \sim N(\mu_2, \sigma_2)
-\end{aligned}
-$$
-
-Then it follows that the sample means will also be normally distributed;
-
-$$
-\begin{aligned}
-\bar X_1 \sim N(\mu_1, \sigma_1/\sqrt{n_1}) \\
-\bar X_2 \sim N(\mu_2, \sigma_2/\sqrt{n_2})
-\end{aligned}
-$$
-
-The mean difference $D = \bar X_2 - \bar X_1$ is thus also normally distributed:
-
-$$D = \bar X_2 - \bar X_1 = N\left(\mu_2-\mu_1, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
-
-## Two samples, mean
-
-If $H_0$ is true: $$D = \bar X_2 - \bar X_1 = N\left(0, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
-
-The test statistic: $$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}}$$ is standard normal, i.e. $Z \sim N(0,1)$.
-
-However, note that the test statistic require the standard deviations $\sigma_1$ and $\sigma_2$ to be known.
-
-<!-- --- -->
-
-## Two samples, mean
-### Unknown variances
-
-What if the population standard deviations are not known?
-
-## Two samples, mean
-### Unknown variances, large sample sizes
-
-If the sample sizes are large, we can replace the known standard deviations with our sample standard deviations and according to the central limit theorem assume that 
-
-$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}} \sim N(0,1)$$
-
-and proceed as before.
-
-## Two samples, mean
-### Unknown variances, small sample sizes
-
-Either assume equal variances and proceed with Student's t-test or use Welch's t-test for unequal variances.
-
-## Two samples, mean
-### Unknown equal variances, small sample sizes
-
-**Student's t-test**
-
-Assume equal variances in the two populations and compute the pooled sample standard deviation;
-
-$$
-  s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}
-$$
-  
-and the test statistic
-
-$$t = \frac{\bar X_1 - \bar X_2}{\sqrt{s_p^2(\frac{1}{n_1} + \frac{1}{n_2})}},$$
-  
-which is t-distributed with $n_1+n_2-2$ degrees of freedom.
-
-## Two samples, mean
-### Unknown variances, small sample sizes
-
-**Welch's t-test**
-
-For unequal variances the following test statistic can be used;
-
-$$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
-$t$ is $t$-distributed and the degrees of freedom can be computed using Welch approximation.
-
-Fortunately, the t-test is implemented in R, e.g. in the function `t.test` in the R-package `stats`. This function can compute both Student's t-test with equal variances and Welch's t-test with unequal variances.
 
 ## Variance test
 
@@ -360,4 +361,101 @@ is $F$-distributed with $n_1-1$ and $n_2-1$ degrees of freedom.
 
 In R a test of equal variances can be performed using the function `var.test`.
 
+
+## Multiple testing
+
+### Error types
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "Type II error, miss, FN", "Reject H0", "Type I error, false alarm, FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(full_width = FALSE, bootstrap_options = "bordered", position="center")
+```
+
+The probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
+
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
+
+$\alpha$ is the significance level and the statistical power
+
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_0\textrm{ is false}).$$
+
+## Multiple tests
+
+:::: {.columns}
+::: {.column width="50%"}
+
+### Perform one test:
+  
+  - P(One type I error) = $\alpha$
+  - P(No type I error) = $1 - \alpha$
+  
+
+### Perform $m$ independent tests:
+  
+  - P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+  - P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
+  
+:::
+
+::: {.column width="50%"}
+
+```{r multiple, echo=FALSE, out.width="100%", fig.align="center", fig.width=4, fig.height=4}
+a=0.05
+k <- 1:100
+ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
+```
+
+:::
+
+::::
+
+## Multiple testing correction
+
+-   FWER: family-wise error rate, control the probability of one or more false positive $P(N_{FP}>0)$, e.g. Bonferroni, Holm
+-   FDR: false discovery rate, control the expected value of the proportion of false positives among hits, $E[N_{FP}/(N_{FP}+N_{TP})]$, e.g. Benjamini-Hochberg, Storey
+
+## Bonferroni correction
+
+To achieve a family-wise error rate of $FWER \leq \gamma$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \gamma/m$.
+
+Objections: too conservative
+
+## Benjamini-Hochbergs FDR
+
+```{r}
+kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling()
+```
+
+The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
+
+Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
+  
+1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
+2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
+3. Declare significance for all tests $1, 2, \dots, j$.
+
+## 'Adjusted' p-values
+  
+Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
+  
+- Using Bonferroni's method the 'adjusted' p-values are:
+  
+  $\tilde p_i = \min(m p_i, 1)$.
+
+A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+  
+- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+  
+  $q_i = \min(\frac{m}{i} p_i, 1)$
+  
+  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
+
+<!-- --- -->
+
+## Example, 10000 independent tests (e.g. genes) {-}
+
+```{r padjust, results="asis"}
+p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
+kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
+```
 
