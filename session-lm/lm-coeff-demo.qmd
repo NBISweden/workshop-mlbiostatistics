@@ -1,0 +1,163 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Regression coefficients
+
+
+```{r}
+#| message: false
+#| include: false
+#| echo: false
+
+library(tidyverse)
+library(magrittr)
+library(faraway)
+library(ggplot2)  
+library(gridExtra)
+library(kableExtra)
+library(ggiraphExtra)
+
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- 
+  theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top")
+      
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+
+```
+
+<!-- Simple regression -->
+```{r}
+#| label: simple regression examples
+#| eval: false
+#| include: false
+
+# simple regression examples
+m1 <- lm(BMI ~ waist, data = data_diabetes)
+summary(m1)
+par(mfrow = c(2,2))
+plot(m1)
+data_diabetes %>%
+  ggplot(aes(x = waist, y = BMI)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggPredict(m1)
+
+m1 <- lm(BMI ~ age, data = data_diabetes)
+summary(m1)
+par(mfrow = c(2,2))
+plot(m1)
+data_diabetes %>%
+  ggplot(aes(x = age, y = BMI)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggPredict(m1)
+
+```
+
+<!-- Multiple regression -->
+```{r}
+#| label: multiple regression examples
+#| eval: false
+#| include: false
+
+# multiple regression
+m2 <- lm(BMI ~ age + height + chol + stab.glu, data = data_diabetes)
+summary(m2)
+
+m2 <- lm(BMI ~ age, data = data_diabetes)
+summary(m2)
+
+m2 <- lm(BMI ~ age + chol + hdl, data = data_diabetes)
+summary(m2)
+
+m2 <- lm(BMI ~ age + waist + chol + hdl, data = data_diabetes)
+summary(m2)
+```
+
+<!-- Category -->
+```{r}
+#| eval: false
+#| include: false
+
+m3 <- lm(BMI ~ gender, data = data_diabetes)
+summary(m3)
+ggPredict(m3)
+
+m3 <- lm(BMI ~ frame, data = data_diabetes)
+summary(m3)
+ggPredict(m3)
+```
+
+<!-- Category + numerical -->
+```{r}
+#| eval: false
+#| include: false
+
+m4 <- lm(BMI ~ gender + height, data = data_diabetes)
+summary(m4)
+ggPredict(m4)
+
+m4 <- lm(BMI ~ frame + height, data = data_diabetes)
+summary(m4)
+ggPredict(m4)
+
+```
+
+<!-- Category + numerical: interactions -->
+```{r}
+#| eval: false
+#| include: false
+
+m5 <- lm(BMI ~ gender * height, data = data_diabetes)
+summary(m5)
+ggPredict(m5)
+
+m5 <- lm(BMI ~ frame * height, data = data_diabetes)
+summary(m5)
+ggPredict(m5)
+
+m5 <- lm(BMI ~ frame * waist, data = data_diabetes)
+summary(m5)
+ggPredict(m5)
+```
+
+<!-- Logistic regression -->
+```{r}
+#| eval: false
+#| include: false
+
+data_diabetes <- data_diabetes %>%
+  mutate(diabetic = ifelse(diabetic == "Yes", 1, 0))
+
+m6 <- glm(diabetic ~ age, family = binomial(link="logit"), data = data_diabetes)
+summary(m6)
+ggPredict(m6)
+
+m6 <- glm(diabetic ~ age + gender, family = binomial(link="logit"), data = data_diabetes)
+summary(m6)
+ggPredict(m6)
+
+```

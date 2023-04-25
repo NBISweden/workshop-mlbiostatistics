@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 # Exercises (introduction to linear models) {.unnumbered}
 
 ```{r}
@@ -8,6 +13,7 @@
 # load libraries
 library(tidyverse)
 library(magrittr)
+library(faraway)
 library(kableExtra)
 library(gridExtra)
 library(ggplot2)
@@ -20,291 +26,501 @@ my.ggtheme <- theme(axis.title = element_text(size = font.size),
         legend.text = element_text(size = font.size), 
         legend.title = element_blank(), 
         legend.position = "top") 
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+
 ```
 
+:::{#exr-lm-fit}
 
-**Data for exercises** are on Canvas under Files -> data_exercises --> linear-models
+## Fitting linear model
 
-::: {#exr-protein}
+Going back to the diabetes data, fit linear regression models using vector-matrix notations to model BMI based on age [years] and waist [m] measurements. In particular, define design matrix $\mathbf{X}$, vector of observations $\mathbf{Y}$ and vector of parameters $\boldsymbol\beta$ and use $$\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$$ to find beta values estimates. 
 
-## Protein levels in pregnancy
+Check your calculations by fitting the model using `lm()` function.
 
-The researchers were interested whether protein levels in expectant mothers are changing throughout the pregnancy. Observations have been taken on 19 healthy women and each woman was at different stage of pregnancy (gestation).
-
-Assuming linear model:
-
-- $Y_i = \alpha + \beta x_i + \epsilon_i$, where $Y_i$ corresponds to protein levels in i-th observation
-
-and taking summary statistics:
-
-- $\sum_{i=1}^{n}x_i = 456$
-- $\sum_{i=1}^{n}x_i^2 = 12164$
-- $\sum_{i=1}^{n}x_iy_i = 369.87$
-- $\sum_{i=1}^{n}y_i = 14.25$
-- $\sum_{i=1}^{n}y_i^2 = 11.55$
-
-
-a) find the least square estimates of $\hat{\alpha}$ and $\hat{\beta}$
-b) knowing that e.s.e($\hat{\beta}) = 0.003295$
-
-can we:
-
-- i) reject the null hypothesis that the is no relationship between protein level and gestation, i.e. perform a hypothesis test to test $H_0:\beta = 0$;
-- ii) can we reject the null hypothesis that $\beta = 0.02$, i.e.  perform a hypothesis test to test $H_0:\beta = 0.02$
-c) write down the linear model in the vector-matrix notation and identify response, parameter, design and error matrices
-d) read in "protein.csv" data into R, set Y as protein (response) and calculate using matrix functions the least squares estimates of model coefficients
-e) use `lm()` function in R to check your calculations
-f) use the fitted model in R to predict the value of protein levels at week 20. Try plotting the data, fitted linear model and the predicted value to assess whether your prediction is to be expected.
+The below code can get you started.
 
 :::
 
+```{r}
+#| code-fold: false
 
-::: {#exr-potato}
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+```
 
-## Glucose levels in potatoes
 
-The glucose level in potatoes depends on their storage time and the relationship is somehow curvilinear as shown below.
-As we believe that the quadratic function might describe the relationship, assume linear model in form
-$Y_i = \alpha + \beta x_i + \gamma x_i^2 + \epsilon_i \quad i=1,\dots,n$ where $n=14$ and
+:::{#exr-lm-hypothesis}
 
-a) write down the model in vector-matrix notation
-b) load data from "potatoes.csv" and use least squares estimates to obtain estimates of model coefficients
-c) use `lm()` function to verify your calculations
-d) perform a hypothesis test to test $H_0:\gamma=0$; and comment whether there is a significant quadratic relationship
-e) predict glucose concentration at storage time 4 and 16 weeks. Plot the data, the fitted model and the predicted values
+## Hypothesis testing
+
+Your colleague Anna is interested in association between BMI and cholesterol, both total cholesterol (chol) and high density lipoprotein fraction (hdl). She has correctly fitted linear model using lm() function but her computer broke and she only has the below output: 
 
 :::
 
-
-```{r}
-#| label: fig-potatoes
-#| fig-cap: "Sugar in potatoes: relationship between storage time and glucose content"
-#| fig-width: 5
-#| fig-heigth: 5
-
-data.potatoes <- read.csv("data/lm/potatoes.csv")
-plot(data.potatoes$Weeks, data.potatoes$Glucose, pch=19, xlab="Storage time [weeks]", ylab="Glucose [g/kg]")
-
-```
-
-::: {#exr-recognize}
-
-## Linear models form
-
-Which of the following models are linear models and why?
-
-a) $Y_i=\alpha + \beta x_i + \epsilon_i$
-b) $Y_i=\beta_0 + \beta_1 x_{i,1} + \beta_2 x_{i,2} + \epsilon_i$
-c) $Y_i=\alpha + \beta x_i + \gamma x_i^2 + \epsilon_i$
-d) $Y_i=\alpha + \gamma x_i^\beta + \epsilon_i$
-
-::: 
-
-------------
-
-
-
-## Answers to selected exercises 
-
-::: {.solution}
-
-@exr-protein
-
-::: 
-
-a)
-
-- $S_{xx} = \sum_{i=1}^{n}x_i^2-\frac{(\sum_{i=1}^{n}x_i)^2}{n} = 12164 - \frac{456^2}{19} = 1220$
-- $S_{xy} = \sum_{i=1}^nx_iy_i-\frac{\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n} = 369.87 - \frac{(456 \cdot 14.25)}{19} = 27.87$
-- $\hat{\beta} = \frac{S_{xy}}{S_{xx}} = 27.87 / 1220 = 0.02284$
-- $\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x} = \frac{14.25}{19}-\frac{27.87}{1220}\cdot \frac{456}{19} = 0.20174$
-
-b) i.
-
-We can calculate test statistics following:
-
-- $\frac{\hat{\beta} - \beta}{e.s.e(\hat{\beta})} \sim t(n-p) = \frac{0.02284 - 0}{0.003295} = 6.934$ where the value follows Student's t distribution with $n-p = 19 - 2 = 17$ degrees of freedom. We can now estimate the a p-value using Student’s t distribution table or use R function
-```{r}
-#| code-fold: false
-2*pt(6.934, df=17, lower=F)
-```
-As p-value << 0.001 there is sufficient evidence to reject $H_0$ in favor of $H_1$, thus we can conclude that there is a significant relationship between protein levels and gestation
-
-b) ii.
-
-Similarly, we can test $H_0:\beta = 0.02$, i.e. $\frac{\hat{\beta} - \beta}{e.s.e(\hat{\beta})} \sim t(n-p) = \frac{0.02284 - 0.02}{0.20174} = 0.01407753$. Now the test statistics is small
-```{r}
-#| code-fold: false
-2*pt(0.01407753, df=17, lower=F)
-```
-p-value is large and hence there is no sufficient evidence to reject $H_0$ and we can conclude that $\beta = 0.02$
-
-c) We can rewrite the linear model in vector-matrix formation as $\mathbf{Y}= \mathbf{\beta}\mathbf{X} + \mathbf{\epsilon}$ where:
-
-response $\mathbf{Y}=\begin{bmatrix}
-  y_1  \\
-  y_2    \\
-  \vdots \\
-  y_{19}
-\end{bmatrix}$
-
-parameters $\boldsymbol\beta=\begin{bmatrix}
-  \alpha \\
-  \beta
-\end{bmatrix}$
-
-design matrix $\mathbf{X}=\begin{bmatrix}
-  1 & x_1  \\
-  1 & x_2  \\
-  \vdots & \vdots \\
-  1 & x_{19}
-\end{bmatrix}$
-
-errors $\boldsymbol\epsilon=\begin{bmatrix}
-  \epsilon_1  \\
-  \epsilon_2    \\
-  \vdots \\
-  \epsilon_{19}
-\end{bmatrix}$
-
-d) The least squares estimates in vector-matrix notation is $\hat{\boldsymbol\beta}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$ and we can calculate this in R
-
-```{r protein}
-#| code-fold: false
-# read in data
-data.protein <- read.csv("data/lm/protein.csv")
-
-# print out top observations
-head(data.protein)
-
-# define Y and X matrices given the data
-n <- nrow(data.protein) # nu. of observations
-Y <-  as.matrix(data.protein$Protein, ncol=1) # response
-X <-  as.matrix(cbind(rep(1, length=n), data.protein$Gestation)) # design matrix
-head(X) # double check that the design matrix looks like it should
-
-# least squares estimate
-beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y # beta.hat is a matrix that contains our alpha and beta in the model
-print(beta.hat)
-
-```
-
-e) We use `lm()` function to check our calculations
-```{r}
-#| code-fold: false
-
-# fit linear regression model and print model summary
-protein <- data.protein$Protein # our Y
-gestation <- data.protein$Gestation # our X
-
-model <- lm(protein ~ gestation)
-print(summary(model))
-
-```
-
-f)
-```{r}
-#| code-fold: false
-
-
-new.obs <- data.frame(gestation = 20)
-y.pred <- predict(model, newdata = new.obs)
-
-# we can visualize the data, fitted linear model (red), and the predicted value (blue)
-plot(gestation, protein, pch=19, xlab="gestation [weeks]", ylab="protein levels [mgml-1]")
-lines(gestation, model$fitted.values, col="red")
-points(new.obs, y.pred, col="blue", pch=19, cex = 1)
-
+```{.r}
+# Coefficients:
+#               Estimate Std. Error t value Pr(>|t|)
+# (Intercept)  3.471e+01  2.940e+00  11.808  < 2e-16 ***
+# chol         1.965e-05  1.231e-02
+# hdl         -9.371e-02  3.220e-02
 ```
 
 
+Can you help Anna finding out whether `chol` and `hdl` are significantly associated with `BMI`? What are the t-value statistics and the corresponding p-values? Calculate these values without fitting the model and then fit the model to double check your calculations.
+
+
+:::{#exr-lm-assess-fit}
+
+## Evaluate model fit
+
+After helping Anna you got interested in whether your initial model containing `age` and `waist` is a better fit to the data than Anna's model containing `chol` and `hdl`. Evaluate model fit by calculating $R^2(adj)$ based on the equation:
+
+$$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$ where
+
+- $p$ is the number of independent predictors, i.e. the number of variables in the model, excluding the constant and $n$ is the number of observations. 
+
+Check your calculations using `lm()` function.
+
+Hint: If `reg` holds a fitted linear regression model,  you can assess the estimated BMI values by accessing `reg$fitted.values` and residuals via `reg$residuals`. 
+
+:::
 
 
 ::: {.solution}
 
-@exr-potato
+@exr-lm-fit
 
-:::
-
-
-a) We can rewrite the linear model in vector-matrix formation as $$\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon$$
-
-where:
-response $\mathbf{Y}=\begin{bmatrix}
-  y_1  \\
-  y_2    \\
-  \vdots \\
-  y_{14}
-\end{bmatrix}$
-
-parameters $\boldsymbol\beta=\begin{bmatrix}
-  \alpha \\
-  \beta \\
-  \gamma
-\end{bmatrix}$
-
-design matrix $\mathbf{X}=\begin{bmatrix}
-  1 & x_1  & x_1^2\\
-  1 & x_2  & x_2^2\\
-  \vdots & \vdots & \vdots \\
-  1 & x_{14} & x_{14}^2
-\end{bmatrix}$
-
-errors $\boldsymbol\epsilon=\begin{bmatrix}
-  \epsilon_1  \\
-  \epsilon_2    \\
-  \vdots \\
-  \epsilon_{14}
-\end{bmatrix}$
-
-
-b) load data to from "potatoes.csv" and use least squares estimates for obtain estimates of model coefficients
 ```{r}
+#| collapse: true
 #| code-fold: false
 
-data.potatoes <- read.csv("data/lm/potatoes.csv")
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
 
-# define matrices
-n <- nrow(data.potatoes)
-Y <-  data.potatoes$Glucose
-X1 <- data.potatoes$Weeks
-X2 <- (data.potatoes$Weeks)^2
-X <- cbind(rep(1, length(n)), X1, X2)
+# define Y
+Y <- data_diabetes %>% select("BMI") %>% as.matrix()
+
+# define X
+X <- cbind(rep(1, nrow(data_diabetes)), data_diabetes$age, data_diabetes$waist)
 X <- as.matrix(X)
 
-# least squares estimate
-# beta here refers to the matrix of model coefficients incl. alpha, beta and gamma
+# alternatively we case use model.matrix() to define X
+X <- model.matrix(~ age + waist, data = data_diabetes)
+
+# least square estimate
 beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y
 print(beta.hat)
+
+# check calculations using lm() function
+reg_1 <- lm(BMI ~ age + waist, data = data_diabetes)
+summary(reg_1)
+
 ```
 
-c) we use `lm()` function to verify our calculations:
+
+::: 
+
+::: {.solution}
+
+@exr-lm-hypothesis
+
+Under the null hypothesis $H_0: \beta = 0$
+![](figures/linear-models/lm-tstatistics.png)
+
+- $n$ is number of observations
+- $p$ is number of model parameters
+- $\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})}$ is the ratio of the departure of the estimated value of a parameter, $\hat\beta$, from its hypothesized value, $\beta$, to its standard error, called `t-statistics`
+- the `t-statistics` follows Student's t distribution with $n-p$ degrees of freedom
+
+This means that to check if the there is an association between `chol` and `BMI` we check if there is enough evidence to reject the null hypothesis of $H_0: \beta = 0$. Here, t-statistics equals to $\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})} = \frac{1.965\times 10^{05} - 0}{1.231\times 10^{05}} = 0.001596263$ and a corresponding p-values can be found: 
+
 ```{r}
 #| code-fold: false
-model <- lm(Y ~ X1 + X2)
-print(summary(model))
+#| collapse: true
+2*pt(0.001596263, df=130 - 3, lower.tail = F)
 ```
 
-d) perform a hypothesis test to test $H_0:\gamma=0$; and comment whether we there is a significant quadratic term
-- $\frac{\hat{\gamma} - \gamma}{e.s.e(\hat{\gamma})} \sim t(n-p) = \frac{1.030423 - 0}{0.1406} = 7.328755$ where the value follows Student's t distribution with $n-p = 19 - 2 = 17$ degrees of freedom. We can now estimate the a p-value using Student’s t distribution table or use a function in R
+Assuming 5% significance level, we do not have enough evidence to reject the null hypothesis in favor of the alternative as p-value is large $p = 0.99873 > 0.05$. This means we do not observe association between `chol` and `BMI.`
+
+Analogously, for `age` we have t-statistics equal to $\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})} = \frac{-9.371\times 10^{02} - 0}{3.220\times 10^{02}} = -2.910248$ and a corresponding p-value equals to:
 
 ```{r}
 #| code-fold: false
-2*pt(7.328755, df=14-3, lower=F)
+#| collapse: true
+2*pt(-2.910248, df=130 - 3, lower.tail = T)
 ```
-As p-value << 0.001 there is sufficient evidence to reject $H_0$ in favor of $H_1$, thus we can conclude that there is a significant quadratic relationship between glucose and storage time
 
-e) predict glucose concentration at storage time 4 and 16 weeks
+Here, p-value is small and we can thus reject the null hypothesis in favour of the alternative and conclude that there is an association between `hdl` and `BMI`.
+
+To check our calculations we can re-fit the linear model and print the entire summary.
+```{r}
+#| code-fold: false
+#| collapse: true
+reg_2 <- lm(BMI ~ chol + hdl, data = data_diabetes)
+summary(reg_2)
+
+```
+
+::: 
+
+::: {.solution}
+
+@exr-lm-assess-fit
 
 ```{r}
 #| code-fold: false
-new.obs <- data.frame(X1 = c(4, 16), X2 = c(4^2, 16^2))
-pred.y <- predict(model, newdata = new.obs)
+#| collapse: true
 
-plot(data.potatoes$Weeks, data.potatoes$Glucose, xlab="Storage time [weeks]", ylab="Glucose [g/kg]", pch=19)
-lines(data.potatoes$Weeks, model$fitted.values, col="red")
-points(new.obs[,1], pred.y, pch=19, col="blue")
+n <- nrow(data_diabetes)
+p <- 2 # beta for age and beta for waist (model 1)
+p <- 2 # beta for chol and beta for hdl (model 2)
 
+# calculate TSS
+TSS <- sum((data_diabetes$BMI - mean(data_diabetes$BMI))^2)
+
+# calculate RSS and R2_adj (model 1)
+# model BMI ~ age + waist 
+reg_1 <- lm(BMI ~ age + waist, data = data_diabetes)
+reg <- reg_1
+RSS <- sum((reg$residuals)^2)
+R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1))
+print(R2_adj)
+
+# calculate RSS and R2_adj (model 2)
+# model BMI ~ chol + hdl
+reg_2 <- lm(BMI ~ chol + hdl, data = data_diabetes)
+reg <- reg_2
+RSS <- sum((reg$residuals)^2)
+R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1))
+print(R2_adj)
 ```
+
+```{r}
+#| code-fold: false
+#| collapse: true
+#| 
+# check calculations
+summary(reg_1)
+summary(reg_2)
+```
+
+::: 
+
+
+
+
+
+<!-- **Data for exercises** are on Canvas under Files -> data_exercises --> 
+<!-- linear-models --> -->
+
+<!-- ::: {#exr-protein} -->
+
+<!-- ## Protein levels in pregnancy -->
+
+<!-- The researchers were interested whether protein levels in expectant mothers are changing throughout the pregnancy. Observations have been taken on 19 healthy women and each woman was at different stage of pregnancy (gestation). -->
+
+<!-- Assuming linear model: -->
+
+<!-- - $Y_i = \alpha + \beta x_i + \epsilon_i$, where $Y_i$ corresponds to protein levels in i-th observation -->
+
+<!-- and taking summary statistics: -->
+
+<!-- - $\sum_{i=1}^{n}x_i = 456$ -->
+<!-- - $\sum_{i=1}^{n}x_i^2 = 12164$ -->
+<!-- - $\sum_{i=1}^{n}x_iy_i = 369.87$ -->
+<!-- - $\sum_{i=1}^{n}y_i = 14.25$ -->
+<!-- - $\sum_{i=1}^{n}y_i^2 = 11.55$ -->
+
+
+<!-- a) find the least square estimates of $\hat{\alpha}$ and $\hat{\beta}$ -->
+<!-- b) knowing that e.s.e($\hat{\beta}) = 0.003295$ -->
+
+<!-- can we: -->
+
+<!-- - i) reject the null hypothesis that the is no relationship between protein level and gestation, i.e. perform a hypothesis test to test $H_0:\beta = 0$; -->
+<!-- - ii) can we reject the null hypothesis that $\beta = 0.02$, i.e.  perform a hypothesis test to test $H_0:\beta = 0.02$ -->
+<!-- c) write down the linear model in the vector-matrix notation and identify response, parameter, design and error matrices -->
+<!-- d) read in "protein.csv" data into R, set Y as protein (response) and calculate using matrix functions the least squares estimates of model coefficients -->
+<!-- e) use `lm()` function in R to check your calculations -->
+<!-- f) use the fitted model in R to predict the value of protein levels at week 20. Try plotting the data, fitted linear model and the predicted value to assess whether your prediction is to be expected. -->
+
+<!-- ::: -->
+
+
+<!-- ::: {#exr-potato} -->
+
+<!-- ## Glucose levels in potatoes -->
+
+<!-- The glucose level in potatoes depends on their storage time and the relationship is somehow curvilinear as shown below. -->
+<!-- As we believe that the quadratic function might describe the relationship, assume linear model in form -->
+<!-- $Y_i = \alpha + \beta x_i + \gamma x_i^2 + \epsilon_i \quad i=1,\dots,n$ where $n=14$ and -->
+
+<!-- a) write down the model in vector-matrix notation -->
+<!-- b) load data from "potatoes.csv" and use least squares estimates to obtain estimates of model coefficients -->
+<!-- c) use `lm()` function to verify your calculations -->
+<!-- d) perform a hypothesis test to test $H_0:\gamma=0$; and comment whether there is a significant quadratic relationship -->
+<!-- e) predict glucose concentration at storage time 4 and 16 weeks. Plot the data, the fitted model and the predicted values -->
+
+<!-- ::: -->
+
+
+<!-- ```{r} -->
+<!-- #| label: fig-potatoes -->
+<!-- #| fig-cap: "Sugar in potatoes: relationship between storage time and glucose content" -->
+<!-- #| fig-width: 5 -->
+<!-- #| fig-heigth: 5 -->
+
+<!-- data.potatoes <- read.csv("data/lm/potatoes.csv") -->
+<!-- plot(data.potatoes$Weeks, data.potatoes$Glucose, pch=19, xlab="Storage time [weeks]", ylab="Glucose [g/kg]") -->
+
+<!-- ``` -->
+
+<!-- ::: {#exr-recognize} -->
+
+<!-- ## Linear models form -->
+
+<!-- Which of the following models are linear models and why? -->
+
+<!-- a) $Y_i=\alpha + \beta x_i + \epsilon_i$ -->
+<!-- b) $Y_i=\beta_0 + \beta_1 x_{i,1} + \beta_2 x_{i,2} + \epsilon_i$ -->
+<!-- c) $Y_i=\alpha + \beta x_i + \gamma x_i^2 + \epsilon_i$ -->
+<!-- d) $Y_i=\alpha + \gamma x_i^\beta + \epsilon_i$ -->
+
+<!-- :::  -->
+
+<!-- ------------ -->
+
+
+
+<!-- ## Answers to selected exercises  -->
+
+<!-- ::: {.solution} -->
+
+<!-- @exr-protein -->
+
+<!-- :::  -->
+
+<!-- a) -->
+
+<!-- - $S_{xx} = \sum_{i=1}^{n}x_i^2-\frac{(\sum_{i=1}^{n}x_i)^2}{n} = 12164 - \frac{456^2}{19} = 1220$ -->
+<!-- - $S_{xy} = \sum_{i=1}^nx_iy_i-\frac{\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n} = 369.87 - \frac{(456 \cdot 14.25)}{19} = 27.87$ -->
+<!-- - $\hat{\beta} = \frac{S_{xy}}{S_{xx}} = 27.87 / 1220 = 0.02284$ -->
+<!-- - $\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x} = \frac{14.25}{19}-\frac{27.87}{1220}\cdot \frac{456}{19} = 0.20174$ -->
+
+<!-- b) i. -->
+
+<!-- We can calculate test statistics following: -->
+
+<!-- - $\frac{\hat{\beta} - \beta}{e.s.e(\hat{\beta})} \sim t(n-p) = \frac{0.02284 - 0}{0.003295} = 6.934$ where the value follows Student's t distribution with $n-p = 19 - 2 = 17$ degrees of freedom. We can now estimate the a p-value using Student’s t distribution table or use R function -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+<!-- 2*pt(6.934, df=17, lower=F) -->
+<!-- ``` -->
+<!-- As p-value << 0.001 there is sufficient evidence to reject $H_0$ in favor of $H_1$, thus we can conclude that there is a significant relationship between protein levels and gestation -->
+
+<!-- b) ii. -->
+
+<!-- Similarly, we can test $H_0:\beta = 0.02$, i.e. $\frac{\hat{\beta} - \beta}{e.s.e(\hat{\beta})} \sim t(n-p) = \frac{0.02284 - 0.02}{0.20174} = 0.01407753$. Now the test statistics is small -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+<!-- 2*pt(0.01407753, df=17, lower=F) -->
+<!-- ``` -->
+<!-- p-value is large and hence there is no sufficient evidence to reject $H_0$ and we can conclude that $\beta = 0.02$ -->
+
+<!-- c) We can rewrite the linear model in vector-matrix formation as $\mathbf{Y}= \mathbf{\beta}\mathbf{X} + \mathbf{\epsilon}$ where: -->
+
+<!-- response $\mathbf{Y}=\begin{bmatrix} -->
+<!--   y_1  \\ -->
+<!--   y_2    \\ -->
+<!--   \vdots \\ -->
+<!--   y_{19} -->
+<!-- \end{bmatrix}$ -->
+
+<!-- parameters $\boldsymbol\beta=\begin{bmatrix} -->
+<!--   \alpha \\ -->
+<!--   \beta -->
+<!-- \end{bmatrix}$ -->
+
+<!-- design matrix $\mathbf{X}=\begin{bmatrix} -->
+<!--   1 & x_1  \\ -->
+<!--   1 & x_2  \\ -->
+<!--   \vdots & \vdots \\ -->
+<!--   1 & x_{19} -->
+<!-- \end{bmatrix}$ -->
+
+<!-- errors $\boldsymbol\epsilon=\begin{bmatrix} -->
+<!--   \epsilon_1  \\ -->
+<!--   \epsilon_2    \\ -->
+<!--   \vdots \\ -->
+<!--   \epsilon_{19} -->
+<!-- \end{bmatrix}$ -->
+
+<!-- d) The least squares estimates in vector-matrix notation is $\hat{\boldsymbol\beta}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$ and we can calculate this in R -->
+
+<!-- ```{r protein} -->
+<!-- #| code-fold: false -->
+<!-- # read in data -->
+<!-- data.protein <- read.csv("data/lm/protein.csv") -->
+
+<!-- # print out top observations -->
+<!-- head(data.protein) -->
+
+<!-- # define Y and X matrices given the data -->
+<!-- n <- nrow(data.protein) # nu. of observations -->
+<!-- Y <-  as.matrix(data.protein$Protein, ncol=1) # response -->
+<!-- X <-  as.matrix(cbind(rep(1, length=n), data.protein$Gestation)) # design matrix -->
+<!-- head(X) # double check that the design matrix looks like it should -->
+
+<!-- # least squares estimate -->
+<!-- beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y # beta.hat is a matrix that contains our alpha and beta in the model -->
+<!-- print(beta.hat) -->
+
+<!-- ``` -->
+
+<!-- e) We use `lm()` function to check our calculations -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+
+<!-- # fit linear regression model and print model summary -->
+<!-- protein <- data.protein$Protein # our Y -->
+<!-- gestation <- data.protein$Gestation # our X -->
+
+<!-- model <- lm(protein ~ gestation) -->
+<!-- print(summary(model)) -->
+
+<!-- ``` -->
+
+<!-- f) -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+
+
+<!-- new.obs <- data.frame(gestation = 20) -->
+<!-- y.pred <- predict(model, newdata = new.obs) -->
+
+<!-- # we can visualize the data, fitted linear model (red), and the predicted value (blue) -->
+<!-- plot(gestation, protein, pch=19, xlab="gestation [weeks]", ylab="protein levels [mgml-1]") -->
+<!-- lines(gestation, model$fitted.values, col="red") -->
+<!-- points(new.obs, y.pred, col="blue", pch=19, cex = 1) -->
+
+<!-- ``` -->
+
+
+
+
+<!-- ::: {.solution} -->
+
+<!-- @exr-potato -->
+
+<!-- ::: -->
+
+
+<!-- a) We can rewrite the linear model in vector-matrix formation as $$\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon$$ -->
+
+<!-- where: -->
+<!-- response $\mathbf{Y}=\begin{bmatrix} -->
+<!--   y_1  \\ -->
+<!--   y_2    \\ -->
+<!--   \vdots \\ -->
+<!--   y_{14} -->
+<!-- \end{bmatrix}$ -->
+
+<!-- parameters $\boldsymbol\beta=\begin{bmatrix} -->
+<!--   \alpha \\ -->
+<!--   \beta \\ -->
+<!--   \gamma -->
+<!-- \end{bmatrix}$ -->
+
+<!-- design matrix $\mathbf{X}=\begin{bmatrix} -->
+<!--   1 & x_1  & x_1^2\\ -->
+<!--   1 & x_2  & x_2^2\\ -->
+<!--   \vdots & \vdots & \vdots \\ -->
+<!--   1 & x_{14} & x_{14}^2 -->
+<!-- \end{bmatrix}$ -->
+
+<!-- errors $\boldsymbol\epsilon=\begin{bmatrix} -->
+<!--   \epsilon_1  \\ -->
+<!--   \epsilon_2    \\ -->
+<!--   \vdots \\ -->
+<!--   \epsilon_{14} -->
+<!-- \end{bmatrix}$ -->
+
+
+<!-- b) load data to from "potatoes.csv" and use least squares estimates for obtain estimates of model coefficients -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+
+<!-- data.potatoes <- read.csv("data/lm/potatoes.csv") -->
+
+<!-- # define matrices -->
+<!-- n <- nrow(data.potatoes) -->
+<!-- Y <-  data.potatoes$Glucose -->
+<!-- X1 <- data.potatoes$Weeks -->
+<!-- X2 <- (data.potatoes$Weeks)^2 -->
+<!-- X <- cbind(rep(1, length(n)), X1, X2) -->
+<!-- X <- as.matrix(X) -->
+
+<!-- # least squares estimate -->
+<!-- # beta here refers to the matrix of model coefficients incl. alpha, beta and gamma -->
+<!-- beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y -->
+<!-- print(beta.hat) -->
+<!-- ``` -->
+
+<!-- c) we use `lm()` function to verify our calculations: -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+<!-- model <- lm(Y ~ X1 + X2) -->
+<!-- print(summary(model)) -->
+<!-- ``` -->
+
+<!-- d) perform a hypothesis test to test $H_0:\gamma=0$; and comment whether we there is a significant quadratic term -->
+<!-- - $\frac{\hat{\gamma} - \gamma}{e.s.e(\hat{\gamma})} \sim t(n-p) = \frac{1.030423 - 0}{0.1406} = 7.328755$ where the value follows Student's t distribution with $n-p = 19 - 2 = 17$ degrees of freedom. We can now estimate the a p-value using Student’s t distribution table or use a function in R -->
+
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+<!-- 2*pt(7.328755, df=14-3, lower=F) -->
+<!-- ``` -->
+<!-- As p-value << 0.001 there is sufficient evidence to reject $H_0$ in favor of $H_1$, thus we can conclude that there is a significant quadratic relationship between glucose and storage time -->
+
+<!-- e) predict glucose concentration at storage time 4 and 16 weeks -->
+
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+<!-- new.obs <- data.frame(X1 = c(4, 16), X2 = c(4^2, 16^2)) -->
+<!-- pred.y <- predict(model, newdata = new.obs) -->
+
+<!-- plot(data.potatoes$Weeks, data.potatoes$Glucose, xlab="Storage time [weeks]", ylab="Glucose [g/kg]", pch=19) -->
+<!-- lines(data.potatoes$Weeks, model$fitted.values, col="red") -->
+<!-- points(new.obs[,1], pred.y, pch=19, col="blue") -->
+
+<!-- ``` -->
 
 

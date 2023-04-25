@@ -3,200 +3,61 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
-# Model diagnostics
-
-**Aims**
-
-- to introduce concepts of linear models summary and assumptions
-
-**Learning outcomes**
-
-- to able to interpret $R^2$ and $R^2(adj)$ values
-- state the assumptions of a linear model and assess them using residual plots
-
-## Assessing model fit
-- earlier we learned how to estimate parameters in a liner model using least squares
-- now we will consider how to assess the goodness of fit of a model
-- we do that by calculating the amount of variability in the response that is explained by the model
-
-## $R^2$: summary of the fitted model
-- considering a simple linear regression, the simplest model, **Model 0**, we could consider fitting is $$Y_i = \beta_0+ \epsilon_i$$ that corresponds to a line that run through the data but lies parallel to the horizontal axis
-- in our plasma volume example that would correspond the mean value of plasma volume being predicted for any value of weight (in purple)
-
-```{r}
-#| collapse: true
-#| echo: false
-#| fig-width: 6
-#| fig-height: 5
-#| fig-align: center
-
-weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
-plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
-
-plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
-abline(h=mean(plasma), col="purple")
-
-```
-
-- TSS, denoted **Total corrected sum-of-squares** is the residual sum-of-squares for Model 0
-$$S(\hat{\beta_0}) = TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2 = S_{yy}$$ corresponding the to the sum of squared distances to the purple line
-
-```{r}
-#| echo: false
-#| fig-width: 6
-#| fig-height: 5
-#| fig-align: center
-
-plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
-abline(h=mean(plasma), col="purple")
-
-for (i in 1:length(weight)){
-  segments(weight[i], plasma[i], weight[i], mean(plasma))
-}
-
-```
-
-- Fitting **Model 1** of the form $$Y_i = \beta_0 + \beta_1x + \epsilon_i$$ we have earlier defined
-- **RSS**, the residual sum-of-squares as:
-$$RSS = \displaystyle \sum_{i=1}^{n}(y_i - \{\hat{\beta_0} + \hat{\beta}_1x_{1i} + \dots + \hat{\beta}_px_{pi}\}) = \sum_{i=1}^{n}(y_i - \hat{y_i})^2$$
-- that corresponds to the squared distances between the observed values $y_i, \dots,y_n$ to fitted values $\hat{y_1}, \dots \hat{y_n}$, i.e. distances to the red fitted line
-
-```{r, echo=F, fig.align="center", fig.width=5, fig.height=4}
-#| echo: false
-#| fig-width: 6
-#| fig-height: 5
-#| fig-align: center
-
-plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
-abline(lm(plasma ~ weight), col="red")
-model <- lm(plasma ~ weight)
-
-for (i in 1:length(weight)){
-  segments(weight[i], plasma[i], weight[i], model$fitted.values[i])
-}
-
-```
-
-::: {#def-r2}
-
-## $R^2$
-
-A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}$$ where:
-
-- RSS is the residual sum-of-squares for Model 1, the fitted model of interest
-- TSS is the sum of squares of the **null model**
-
-:::
-
-- $R^2$ quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model
-- $R^2$ is also referred as **coefficient of determination**
-- It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data
-- Values of $R^2$ approaching 1 indicate the model to be a good fit
-- Values of $R^2$ less than 0.5 suggest that the model gives rather a poor fit to the data
-
-## $R^2$ and correlation coefficient
-
-::: {#thm-r2}
-## $R^2$
-
-In the case of simple linear regression:
-
-Model 1: $Y_i = \beta_0 + \beta_1x + \epsilon_i$
-$$R^2 = r^2$$
-where:
-
-- $R^2$ is the coefficient of determination
-- $r^2$ is the sample correlation coefficient
-
-:::
-
-
-## $R^2(adj)$
-- in the case of multiple linear regression, where there is more than one explanatory variable in the model
-- we are using the adjusted version of $R^2$ to assess the model fit
-- as the number of explanatory variables increase, $R^2$ also increases
-- $R^2(adj)$ takes this into account, i.e. adjusts for the fact that there is more than one explanatory variable in the model
-
-
-::: {#thm-r2adj}
-
-## $R^2(adj)$ 
-
-For any multiple linear regression
-$$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as
-$$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$ where
-
-- $p$ is the number of independent predictors, i.e. the number of variables in the model, excluding the constant
-
-$R^2(adj)$ can also be calculated from $R^2$:
-$$R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}$$
-
-:::
-
-We can calculate the values in R and compare the results to the output of linear regression
-
-```{r}
-#| collapse: true
-#| code-fold: false
-
-htwtgen <- read.csv("data/lm/heights_weights_genders.csv")
-head(htwtgen)
-attach(htwtgen)
-
-## Simple linear regression
-model.simple <- lm(Height ~ Weight, data=htwtgen)
-
-# TSS
-TSS <- sum((Height - mean(Height))^2)
-
-# RSS
-# residuals are returned in the model type names(model.simple)
-RSS <- sum((model.simple$residuals)^2)
-R2 <- 1 - (RSS/TSS)
-
-print(R2)
-print(summary(model.simple))
-
-## Multiple regression
-model.multiple <- lm(Height ~ Weight + Gender, data=htwtgen)
-n <- length(Weight)
-p <- 1
-
-RSS <- sum((model.multiple$residuals)^2)
-R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1))
-
-print(R2_adj)
-print(summary(model.multiple))
-
-```
 
 ## The assumptions of a linear model
-- up until now we were fitting models and discussed how to assess the model fit
-- before making use of a fitted model for explanation or prediction, it is wise to check that the model provides an adequate description of the data
-- informally we have been using box plots and scatter plots to look at the data
-- there are however formal definitions of the assumptions
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(faraway)
+library(kableExtra)
+library(gridExtra)
+library(ggplot2)
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+
+# reset rownames
+rownames(data_diabetes) <- NULL
+
+```
+
+Up until now we were fitting models and discussed how to assess the model fit. Before making use of a fitted model for explanation or prediction, it is wise to check that the model provides an adequate description of the data. Informally we have been using box plots and scatter plots to look at the data. There are however formal definitions of the assumptions.
 
 **Assumption A: The deterministic part of the model captures all the non-random structure in the data**
 
-- this implies that the **mean of the errors $\epsilon_i$** is zero
-- it applies only over the range of explanatory variables
+- This implies that the **mean of the errors $\epsilon_i$** is zero.
+- Tt applies only over the range of explanatory variables.
 
 **Assumption B: the scale of variability of the errors is constant at all values of the explanatory variables**
 
-- practically we are looking at whether the observations are equally spread on both side of the regression line
+- Practically we are looking at whether the observations are equally spread on both side of the regression line.
 
 **Assumption C: the errors are independent**
 
-- broadly speaking this means that knowledge of errors attached to one observation does not give us any information about the error attached to another
+- Broadly speaking this means that knowledge of errors attached to one observation does not give us any information about the error attached to another.
 
 **Assumptions D: the errors are normally distributed**
 
-- this will allow us to describe the variation in the model's parameters estimates and therefore make inferences about the population from which our sample was taken
+- This will allow us to describe the variation in the model's parameters estimates and therefore make inferences about the population from which our sample was taken.
 
 **Assumption E: the values of the explanatory variables are recorded without error**
 
-- this one is not possible to check via examining the data, instead we have to consider the nature of the experiment
-
+- This one is not possible to check via examining the data, instead we have to consider the nature of the experiment.
 
 
 ## Checking assumptions
@@ -218,37 +79,33 @@ print(summary(model.multiple))
 4. Plots of $\hat{\epsilon_i}$ in the order of the observations were collected
 - this is useful to check whether errors might be correlated over time
 
-Let's look at the "good" example going back to our data of protein levels during pregnancy
+Let's fit a simple model to predict `BMI` given `waist` for the diabetes study and see if the model meets the assumptions of linear models.
+
 
 ```{r}
+#| code-fold: false
 #| collapse: true
-#| fig-align: center
-#| fig-width: 10
-#| fig-height: 10
+#| fig-cap: "Default diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Simple regression to model BMI with waist explanatory variable."
+#| fig-cap-location: margin
+#| fig-height: 8
 
-# read in data
-data.protein <- read.csv("data/lm/protein.csv")
-
-protein <- data.protein$Protein # our Y
-gestation <- data.protein$Gestation # our X
-
-model <- lm(protein ~ gestation)
+# fit simple linear regression model
+model <- lm(BMI ~ waist, data = data_diabetes)
 
 # plot diagnostic plots of the linear model
 # by default plot(model) calls four diagnostics plots
 # par() divides plot window in 2 x 2 grid
 par(mfrow=c(2,2))
 plot(model)
-
 ```
 
-- the residual plots provides examples of a situation where the assumptions appear to be met
-- the linear regression appears to describe data quite well
-- there is no obvious trend of any kind in the residuals vs. fitted values (the shape is scattered)
-- points lie reasonably well along the line in the normal probability plot, hence normality appears to be met
+
+- The residual plots provides examples of a situation where the assumptions appear to be met.
+- The linear regression appears to describe data quite well.
+- There is no obvious trend of any kind in the residuals vs. fitted values (the shape is scattered) with potential few outliers that we may want to decided to exclude later.
+- Points lie reasonably well along the line in the normal probability plot, hence normality appears to be met.
 
 **Examples of assumptions not being met**
-
 
 ```{r}
 #| fig-cap: Example of data with a typical seasonal variation (up and down) coupled wtih a linear trend. The blue line gives the linear regression fit to the data, which clearly is not adequate. In comparison, if we used a non-parametric fit, we will get the red line as the fitted relationship. The residual plot retains pattern, given by orange line, indicating that the linear model is not appropriate in this case
@@ -280,10 +137,10 @@ knitr::include_graphics("figures/linear-models/lm-assumptions-03.png", dpi = 100
 
 
 ## Influential observations
-- Sometimes individual observations can exert a great deal of influence on the fitted model
-- One routine way of checking for this is to fit the model $n$ times, missing out each observation in turn
+- Sometimes individual observations can exert a great deal of influence on the fitted model.
+- One routine way of checking for this is to fit the model $n$ times, missing out each observation in turn.
 - If we removed i-th observation and compared the fitted value from the full model, say $\hat{y_j}$ to those obtained by removing this point, denoted $\hat{y_{j(i)}}$ then
-- observations with a high Cook's distance (measuring the effect of deleting a given observation) could be influential
+- observations with a high Cook's distance (measuring the effect of deleting a given observation) could be influential.
 
 Let's remove some observation with higher Cook's distance from protein data set, re-fit our model and compare the diagnostics plots
 
@@ -293,23 +150,21 @@ Let's remove some observation with higher Cook's distance from protein data set,
 #| fig-height: 8
 
 # observations to be removed (based on Residuals vs. Leverage plot)
-obs <- c(18,7)
+obs <- c(13, 78, 83, 84)
 
 # fit models removing observations
-model.2 <- lm(protein[-obs] ~ gestation[-obs])
+data_diabetes_flr <- data_diabetes[-obs, ]
+
+model_flr <- lm(BMI ~ waist, data = data_diabetes_flr)
 
 # plot diagnostics plot
 par(mfrow=c(2,2))
-plot(model.2)
+plot(model_flr)
 
 ```
 
 
-## Selecting best model
-- We have learned what linear models are, how to find estimates and interpret model coefficients and how to check for the overall relationship between response and predictors. We also know how to assess model fit, check model assumptions and find potential outliers. Given a set of predictors, e.g. many genes, how do we arrive at the best model?
-- As a rule of thumb, we want a model that **fits the data best and is as simple as possible**, meaning it contains only relevant predictors.
-- In practice, this means, that for smaller data sets, e.g. with up to 10 predictors, one works with **manually** trying different models, including different subsets of predictors, interactions terms and/or their transformations. 
-- When the number of predictors is large, one can try **automated approaches of feature selection** like forward selection or stepwise regression, the last one demonstrated in the exercises below. 
-- Finally, as we will learn later in the course, we can use **regularization techniques** that allow including all parameters in the model but constrain (regularizes) coefficient estimates towards zero for the less relevant predictors, preventing building complex models and thus overfitting. 
+
+
 
 

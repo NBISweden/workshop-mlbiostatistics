@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 
 # Introduction to linear models
 
@@ -9,6 +14,7 @@
 # load libraries
 library(tidyverse)
 library(magrittr)
+library(faraway)
 library(kableExtra)
 library(gridExtra)
 library(ggplot2)
@@ -20,18 +26,51 @@ my.ggtheme <- theme(axis.title = element_text(size = font.size),
         axis.text = element_text(size = font.size), 
         legend.text = element_text(size = font.size), 
         legend.title = element_blank(), 
-        legend.position = "top") 
+        legend.position = "top") + 
+        theme_bw()
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+
 ```
 
 ## Why linear models? 
 
 With linear models we can answer questions such as: 
 
-  - is there a relationship between exposure and outcome, e.g. body weight and plasma volume?
+  - is there a relationship between exposure and outcome, e.g. height and weight?
   - how strong is the relationship between the two variables?
   - what will be a predicted value of the outcome given a new set of exposure values?
   - how accurately can we predict outcome?
-  - which variables are associated with the response, e.g. is it body weight and height that can explain the plasma volume or is it just the body weight?
+  - which variables are associated with the response, e.g. is it only height that explains weight or could it be height and age that are both associated with the response?
+  
+```{r}
+#| label: fig-scatter
+#| message: false
+#| warning: false
+#| fig-align: center
+#| fig-cap: "Scatter plot of weight vs. height for the 130 study participants based on the diabetes data set collected to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA."
+#| fig-cap-location: bottom
+
+data_diabetes %>%
+  ggplot(aes(x = height, y = weight)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  my.ggtheme + 
+  xlab("height [m]") + 
+  ylab("weight [kg]")
+
+```
+
 
 ## Statistical vs. deterministic relationship
 
@@ -59,35 +98,78 @@ plot(x_celcius, y_fahr, type="b", pch=19, xlab="Celcius", ylab="Fahrenheit", mai
 # Statistical relationship (increasing)
 x <- seq(from=0, to=100, by=5)
 y_increasing <- 2*x + rnorm(length(x), mean=100, sd=25)
-plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="b) Statistical", cex.main=0.8, las=2)
+plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="b) Statistical", cex.main=0.8, las=1)
 
 # Statistical relationship (decreasing)
 y_decreasing <- -2*x + rnorm(length(x), mean=100, sd=25)
-plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="c) Statistical", cex.main=0.8, las=2)
+plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="c) Statistical", cex.main=0.8, las=1)
 
 # Statistical relationship (random)
 y_random <- - rnorm(length(x), mean=100, sd=25)
-plot(x, y_random, pch=19, xlab="x", ylab="y", main="d) Random", cex.main=0.8, las=2)
+plot(x, y_random, pch=19, xlab="x", ylab="y", main="d) Random", cex.main=0.8, las=1)
 
 ```
 
 ## What linear models are and are not
 
-- A linear model is one in which the parameters appear linearly in the deterministic part of the model
-- e.g. **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled
-- linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
+- In an linear model we model (explain) the relationship between a single continuous variable $Y$ and one or more variables $X$. The $X$ variables can be numerical, categorical or a mixture of both.
+- One very general form for the model would be: 
+$$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
 
-More examples where model parameters appear linearly:
+- For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled.
+- Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
+- Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**. 
+
+
+For instance these are all linear models in where parameters enter linearly:
 
 ```{r}
 #| label: fig-linear-adv
-#| fig-cap: "Example of a linear model: $y_i = x_i^2 + e_i$ showing that linear models can capture more than a straight line relationship"
+#| fig-cap: "Examples of a linear modesl: A) $y_i = x_1 + e_i$, B) $x_1 + I_{x_i} + e_i$ C) $y_i = x_i^2 + e_i$, D) $y_i = x + x_i^3 + e_i$ showing that linear models can get more complex and/or capture more than a straight line relationship."
 #| fig-cap-location: margin
 #| warning: false
-#| column: margin
 #| echo: false
+#| fig-height: 7
 
-# advance 1
+my.ggtheme <- theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "none", 
+        axis.title.y=element_text(angle=0))
+
+# simple linear regression
+x <- seq(-10, 10, 1)
+y <- x + rnorm(length(x), mean(x), 2)
+data.xy <- data.frame(x=x, y = y, ymodel = x)
+p.simple <-  data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  my.ggtheme + 
+  ggtitle("A")
+
+# simple linear regression with group
+x <- seq(0, 10, length.out = 20)
+y1 <- 0 + x + rnorm(length(x), 0, 2)
+y2 <- 0 + 4*x + rnorm(length(x), 0, 2)
+
+x.all <- c(x, x)
+y.all <- c(y1, y2)
+group <- c(rep("CTRL", length(x)), rep("TX", length(x)))
+ymodel <- c(0+x, 0+4*x)
+
+data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel)
+
+p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel)) + 
+  theme_classic() +
+  scale_color_brewer(palette = "Set2") + 
+  my.ggtheme + 
+  ggtitle("B")
+
+# advanced 1
 x <- seq(-10, 10, 1)
 y <- x^2 + rnorm(length(x), mean(x), 10)
 data.xy <- data.frame(x=x, y = y, ymodel = x^2)
@@ -95,9 +177,22 @@ p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) +
   geom_point() +
   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
   theme_classic() +
-  my.ggtheme
+  my.ggtheme + 
+  ggtitle("C")
 
-plot(p.adv1)
+
+# advanced 2
+x <- seq(-10, 10, 1)
+y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05)
+data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000)
+p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  theme_classic() +
+  my.ggtheme + 
+  ggtitle("D")
+
+grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
 
 ```
 
@@ -107,7 +202,7 @@ plot(p.adv1)
 - $Y_i = \alpha + \beta x_i^2 + \gamma x_i^3 + \epsilon$
 - $Y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 y_i + \beta_4 \sqrt {y_i} + \beta_5 x_i y_i + \epsilon$
 
-and an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$
+vs. an example of a non-linear model where parameter $\beta$ appears in the exponent of $x_i$
 
 - $Y_i = \alpha + x_i^\beta +  \epsilon$
 
@@ -134,9 +229,6 @@ There are many terms and notations used interchangeably:
 - In practice, we are finding the best-fitting straight line to describe the relationship between the outcome and exposure
 
 
-
-
-
 :::{#exm-simple-lm}
 ## Weight and plasma volume
 
@@ -144,6 +236,7 @@ Let's look at the example data containing body weight (kg) and plasma volume (li
 
 Example data:
 ```{r}
+#| code-fold: false
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
 
@@ -267,12 +360,12 @@ where:
 :::
 
 
-We can further re-write the above sum of squares to obtain
+<!-- We can further re-write the above sum of squares to obtain -->
 
-- sum of squares of $X$, $$S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2 = \sum_{i=1}^{n}x_i^2-\frac{(\sum_{i=1}^{n}x_i)^2}{n})$$
-- sum of products of $X$ and $Y$
+<!-- - sum of squares of $X$, $$S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2 = \sum_{i=1}^{n}x_i^2-\frac{(\sum_{i=1}^{n}x_i)^2}{n})$$ -->
+<!-- - sum of products of $X$ and $Y$ -->
 
-$$S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})=\sum_{i=1}^nx_iy_i-\frac{\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n}$$
+<!-- $$S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})=\sum_{i=1}^nx_iy_i-\frac{\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n}$$ -->
 
 
 ::: {#exm-lss}
@@ -604,8 +697,9 @@ print(beta.hat)
 - when we estimate coefficients we can also find their **confidence intervals**, typically 95\% confidence intervals, i.e. a range of values that contain the true unknown value of the parameter
 - we can also use linear regression models to predict the response value given a new observation and find **prediction intervals**. Here, we look at any specific value of $x_i$, and find an interval around the predicted value $y_i'$ for $x_i$ such that there is a 95\% probability that the real value of y (in the population) corresponding to $x_i$ is within this interval
 
-::: {exm-prediction-and-intervals}
-## prediction and intervals
+::: {#exm-prediction-and-intervals}
+
+## Prediction and intervals
 
 Let's:
 
@@ -641,3 +735,165 @@ segments(60, prediction.interval[2], 60, prediction.interval[3], lty = 3) # add 
 
 ```
 
+:::
+
+## Assessing model fit
+
+- Earlier we learned how to estimate parameters in a liner model using least squares estimation.
+- Now we will consider how to assess the goodness of fit of a model, i.e. how well does the model explain our data. 
+- We do that by calculating the amount of variability in the response that is explained by the model.
+
+### $R^2$: summary of the fitted model {-}
+- considering a simple linear regression, the simplest model, **Model 0**, we could consider fitting is $$Y_i = \beta_0+ \epsilon_i$$ that corresponds to a line that run through the data but lies parallel to the horizontal axis
+- in our plasma volume example that would correspond the mean value of plasma volume being predicted for any value of weight (in purple)
+
+```{r}
+#| collapse: true
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+#| fig-align: center
+
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(h=mean(plasma), col="purple")
+
+```
+
+- TSS, denoted **Total corrected sum-of-squares** is the residual sum-of-squares for Model 0
+$$S(\hat{\beta_0}) = TSS = \sum_{i=1}^{n}(y_i - \bar{y})^2 = S_{yy}$$ corresponding the to the sum of squared distances to the purple line
+
+```{r}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+#| fig-align: center
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(h=mean(plasma), col="purple")
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], mean(plasma))
+}
+
+```
+
+- Fitting **Model 1** of the form $$Y_i = \beta_0 + \beta_1x + \epsilon_i$$ we have earlier defined
+- **RSS**, the residual sum-of-squares as:
+$$RSS = \displaystyle \sum_{i=1}^{n}(y_i - \{\hat{\beta_0} + \hat{\beta}_1x_{1i} + \dots + \hat{\beta}_px_{pi}\}) = \sum_{i=1}^{n}(y_i - \hat{y_i})^2$$
+- that corresponds to the squared distances between the observed values $y_i, \dots,y_n$ to fitted values $\hat{y_1}, \dots \hat{y_n}$, i.e. distances to the red fitted line
+
+```{r, echo=F, fig.align="center", fig.width=5, fig.height=4}
+#| echo: false
+#| fig-width: 6
+#| fig-height: 5
+#| fig-align: center
+
+plot(weight, plasma, pch=19, xlab="Weight [kg]", ylab="Plasma volume [l]")
+abline(lm(plasma ~ weight), col="red")
+model <- lm(plasma ~ weight)
+
+for (i in 1:length(weight)){
+  segments(weight[i], plasma[i], weight[i], model$fitted.values[i])
+}
+
+```
+
+::: {#def-r2}
+
+## $R^2$ {-}
+
+A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}$$ where:
+
+- RSS is the residual sum-of-squares for Model 1, the fitted model of interest
+- TSS is the sum of squares of the **null model**
+
+:::
+
+- $R^2$ quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model
+- $R^2$ is also referred as **coefficient of determination**
+- It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data
+- Values of $R^2$ approaching 1 indicate the model to be a good fit
+- Values of $R^2$ less than 0.5 suggest that the model gives rather a poor fit to the data
+
+### $R^2$ and correlation coefficient {-}
+
+::: {#thm-r2}
+## $R^2$
+
+In the case of simple linear regression:
+
+Model 1: $Y_i = \beta_0 + \beta_1x + \epsilon_i$
+$$R^2 = r^2$$
+where:
+
+- $R^2$ is the coefficient of determination
+- $r^2$ is the sample correlation coefficient
+
+:::
+
+
+### $R^2(adj)$ {-}
+- in the case of multiple linear regression, where there is more than one explanatory variable in the model
+- we are using the adjusted version of $R^2$ to assess the model fit
+- as the number of explanatory variables increase, $R^2$ also increases
+- $R^2(adj)$ takes this into account, i.e. adjusts for the fact that there is more than one explanatory variable in the model
+
+
+::: {#thm-r2adj}
+
+## $R^2(adj)$
+
+For any multiple linear regression
+$$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as
+$$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$ where
+
+- $p$ is the number of independent predictors, i.e. the number of variables in the model, excluding the constant
+
+$R^2(adj)$ can also be calculated from $R^2$:
+$$R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}$$
+
+:::
+
+<!-- We can calculate the values in R and compare the results to the output of linear regression -->
+
+```{r}
+#| collapse: true
+#| code-fold: false
+#| include: false
+#| eval: false
+
+htwtgen <- read.csv("data/lm/heights_weights_genders.csv")
+head(htwtgen)
+attach(htwtgen)
+
+## Simple linear regression
+model.simple <- lm(Height ~ Weight, data=htwtgen)
+
+# TSS
+TSS <- sum((Height - mean(Height))^2)
+
+# RSS
+# residuals are returned in the model type names(model.simple)
+RSS <- sum((model.simple$residuals)^2)
+R2 <- 1 - (RSS/TSS)
+
+print(R2)
+print(summary(model.simple))
+
+## Multiple regression
+model.multiple <- lm(Height ~ Weight + Gender, data=htwtgen)
+n <- length(Weight)
+p <- 1
+
+RSS <- sum((model.multiple$residuals)^2)
+R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1))
+
+print(R2_adj)
+print(summary(model.multiple))
+
+```
+
+Let's practice in exercises fitting linear models, hypothesis testing and assessing model fit.
