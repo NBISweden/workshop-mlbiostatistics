@@ -28,16 +28,19 @@ library(ggplot2)
 library(rmarkdown)
 library(gridExtra)
 library(ggiraphExtra)
+library(latex2exp)
 
 font.size <- 16
 col.blue.light <- "#a6cee3"
 col.blue.dark <- "#1f78b4"
-my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+my.ggtheme <- 
+  theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
         axis.text = element_text(size = font.size), 
         legend.text = element_text(size = font.size), 
         legend.title = element_blank(), 
-        legend.position = "top") + 
-        theme_bw()
+        legend.position = "top") 
+        
 
 
 # add obesity and diabetes status to diabetes faraway data
@@ -85,7 +88,6 @@ With linear models we can answer questions such as:
 -   is there a relationship between exposure and outcome, e.g. height and weight?
 -   how strong is the relationship between the two variables?
 -   what will be a predicted value of the outcome given a new set of exposure values?
--   how accurately can we predict outcome?
 -   which variables are associated with the response, e.g. is it height that dictates the weight or height and age?
 :::
 
@@ -138,7 +140,7 @@ A **deterministic** relationship involves **an exact relationship** between two 
 # Deterministic relationship example
 x_celcius <- seq(from=0, to=50, by=5)
 y_fahr <- 9/5*x_celcius+32
-plot(x_celcius, y_fahr, type="b", pch=19, xlab="Celcius", ylab="Fahrenheit", main="Deterministic", cex.main=1, las=2)
+plot(x_celcius, y_fahr, type="b", pch=19, xlab="Celcius", ylab="Fahrenheit", main="Deterministic", cex.main=1, las=1)
 ```
 
 ## Statistical vs. deterministic relationship {.smaller}
@@ -153,12 +155,12 @@ There is **no relationship** between variables in the **random relationship**, e
 # Statistical relationship (random)
 x <- seq(from=0, to=100, by=5)
 y_random <- - rnorm(length(x), mean=100, sd=25)
-plot(x, y_random, pch=19, xlab="x", ylab="y", main="Random", cex.main=1, las=2)
+plot(x, y_random, pch=19, xlab="x", ylab="y", main="Random", cex.main=1, las=1)
 ```
 
 ## Statistical vs. deterministic relationship {.smaller}
 
-*statistical relationship*
+*statistical relationship = deterministic + random*
 
 **A statistical relationship** is a **mixture of deterministic and random relationship**, e.g. the savings that Olga has left in the bank account depend on Olga's monthly salary income (deterministic part) and the money spent on buying plants (random part)
 
@@ -172,72 +174,229 @@ par(mfrow=c(1,2))
 # Statistical relationship (increasing)
 x <- seq(from=0, to=100, by=5)
 y_increasing <- 2*x + rnorm(length(x), mean=100, sd=25)
-plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1, las=2)
+plot(x, y_increasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1, las=1)
 
 # Statistical relationship (decreasing)
 y_decreasing <- -2*x + rnorm(length(x), mean=100, sd=25)
-plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1, las=2)
-
+plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1, las=1)
 
 ```
 
-## What linear models are and are not
-
-::: incremental
--   A linear model is one in which the parameters appear linearly in the deterministic part of the model
--   e.g. **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled
--   linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike
--   or the **transformation of the variables**, e.g. a function of kilometers cycled squared
-:::
 
 ## What linear models are and are not
-
-Examples of linear models:
-
-::: incremental
-a)  $Y_i = \alpha + \beta x_i + \gamma y_i + \epsilon_i$
-b)  $Y_i = \alpha + \beta x_i^2 \epsilon$
-c)  $Y_i = \alpha + \beta x_i^2 + \gamma x_i^3 + \epsilon$
-d)  $Y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \beta_3 y_i + \beta_4 \sqrt {y_i} + \beta_5 x_i y_i + \epsilon$
-:::
-
-. . .
-
-and an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$
-
-e)  $Y_i = \alpha + x_i^\beta + \epsilon$
-
-## What linear models are and are not
-
-*What about this one?*
+*definition*
 
 <br>
 
+:::: {.columns}
+
+::: {.column width="60%"}
+
+::: incremental
+- In an linear model we model the relationship between a single continuous variable $Y$ and one or more variables $X$. 
+- One very general form for the model would be: 
+$$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
+- The $X$ variables can be numerical, categorical or a mixture of both.
+
+:::
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="35%"}
 ```{r}
-#| warning: false
-#| column: margin
-#| echo: false
 #| fig-width: 6
 #| fig-height: 6
-#| fig-align: center
+data_diabetes %>%
+  ggplot(aes(x = height, y = weight)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  my.ggtheme + 
+  xlab("height [m]") + 
+  ylab("weight [kg]")
+```
+:::
 
-# advance 1
+::::
+
+. . . 
+
+- For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled.
+
+
+## What linear models are and are not
+*definition*
+
+<br>
+
+::: incremental
+- Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**.
+- For instance these are linear models: $$Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i$$ or $$Y_i = \alpha + \beta \cdot x_i^2 \epsilon$$ 
+- vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$:
+$$Y_i = \alpha + x_i^\beta + \epsilon$$
+- Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
+
+:::
+
+## What linear models are and are not
+
+```{r}
+#| warning: false
+#| echo: false
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 6
+
+my.ggtheme <- theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "none", 
+        axis.title.y=element_text(angle=0))
+
+# simple linear regression
 x <- seq(-10, 10, 1)
+set.seed(123)
+y <- x + rnorm(length(x), mean(x), 2)
+data.xy <- data.frame(x=x, y = y, ymodel = x)
+p.simple <-  data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  my.ggtheme + 
+  ggtitle("A")
+
+# simple linear regression with group
+x <- seq(0, 10, length.out = 20)
+set.seed(123)
+y1 <- 0 + x + rnorm(length(x), 0, 2)
+set.seed(123)
+y2 <- 0 + 4*x + rnorm(length(x), 0, 2)
+
+x.all <- c(x, x)
+y.all <- c(y1, y2)
+group <- c(rep("CTRL", length(x)), rep("TX", length(x)))
+ymodel <- c(0+x, 0+4*x)
+
+data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel)
+
+p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel)) + 
+  theme_classic() +
+  scale_color_brewer(palette = "Set2") + 
+  my.ggtheme + 
+  ggtitle("B") 
+
+# advanced 1
+x <- seq(-10, 10, 1)
+set.seed(123)
 y <- x^2 + rnorm(length(x), mean(x), 10)
 data.xy <- data.frame(x=x, y = y, ymodel = x^2)
 p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) +
   geom_point() +
   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
   theme_classic() +
-  my.ggtheme
+  my.ggtheme + 
+  ggtitle("C")
 
-plot(p.adv1)
+
+# advanced 2
+x <- seq(-10, 10, 1)
+set.seed(123)
+y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05)
+data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000)
+p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  theme_classic() +
+  my.ggtheme + 
+  ggtitle("D")
+
+grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
 
 ```
 
-. . .
+## What linear models are and are not
 
-Yes, it's an example of a linear model: $y_i = x_i^2 + \epsilon_i$ showing that linear models can capture more than a straight line relationship
+```{r}
+#| warning: false
+#| echo: false
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 6
+
+my.ggtheme <- theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "none", 
+        axis.title.y=element_text(angle=0))
+
+# simple linear regression
+x <- seq(-10, 10, 1)
+set.seed(123)
+y <- x + rnorm(length(x), mean(x), 2)
+data.xy <- data.frame(x=x, y = y, ymodel = x)
+p.simple <- data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  my.ggtheme + 
+  ggtitle(TeX(r'(A: $y_i = x_1 + e_i$)'))
+
+# simple linear regression with group
+x <- seq(0, 10, length.out = 20)
+set.seed(123)
+y1 <- 0 + x + rnorm(length(x), 0, 2)
+set.seed(123)
+y2 <- 0 + 4*x + rnorm(length(x), 0, 2)
+
+x.all <- c(x, x)
+y.all <- c(y1, y2)
+group <- c(rep("CTRL", length(x)), rep("TX", length(x)))
+ymodel <- c(0+x, 0+4*x)
+
+data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel)
+
+p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel)) + 
+  theme_classic() +
+  scale_color_brewer(palette = "Set2") + 
+  my.ggtheme + 
+  ggtitle(TeX(r'(B: $x_1 + I_{x_i} + e_i$)'))
+
+# advanced 1
+x <- seq(-10, 10, 1)
+set.seed(123)
+y <- x^2 + rnorm(length(x), mean(x), 10)
+data.xy <- data.frame(x=x, y = y, ymodel = x^2)
+p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  theme_classic() +
+  my.ggtheme + 
+  ggtitle(TeX(r'(C: $y_i = x_i^2 + e_i$)'))
+
+
+# advanced 2
+x <- seq(-10, 10, 1)
+set.seed(123)
+y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05)
+data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000)
+p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
+  theme_classic() +
+  my.ggtheme + 
+  ggtitle(TeX(r'(D: $y_i = x + x_i^3 + e_i$)'))
+
+grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
+
+```
+
 
 ## Terminology
 
@@ -266,11 +425,11 @@ There are many terms and notations used interchangeably
 par(mfrow=c(1,2))
 x <- 1:100
 y <- x + rnorm(length(x), 0, 10)
-plot(x,y, pch = 19)
+plot(x,y, pch = 19, las = 1)
 
 x <- 1:100
 y <- (x - rnorm(length(x), 0, 10))*(-1)
-plot(x,y, pch = 19)
+plot(x,y, pch = 19, las = 1)
 
 ```
 
@@ -285,8 +444,6 @@ plot(x,y, pch = 19)
 ## Weight and plasma volume
 
 Let's look at the example data containing body weight (kg) and plasma volume (liters) for eight healthy men to see what the best-fitting straight line is.
-
-Example data:
 
 ```{r}
 #| code-fold: false
@@ -535,34 +692,73 @@ and in general: $$Y_i=\alpha + \beta \cdot x_i \quad for \; i = 1 \dots n$$ {#eq
 
 In other words, by finding the best-fitting straight line we are **building a statistical model** to represent the relationship between plasma volume ($Y$) and explanatory body weight variable ($x$)
 
-## Simple linear regression
+## Simple linear regression {.smaller}
+<br>
 
-``` r
+```{.r}
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
 ```
 
+<br>
+
+:::: {.columns}
+
+::: {.column width="55%"}
+
 ::: incremental
+
 -   If we were to use our model $Y_i=0.086 + 0.044 \cdot x_i$ to find plasma volume given a weight of 58 kg (our first observation, $i=1$)
 -   we would notice that we would get $Y=0.086 + 0.044 \cdot 58 = 2.638$
 -   $2.638$ is not exactly the as same as $2.75$, the first measurement we have in our dataset, i.e. $2.75 - 2.638 = 0.112 \neq 0$.
 -   We thus add to the previous equation (@eq-lm-no-error) an **error term** to account for this and now we can write our **simple regression model** more formally as:
-:::
-
-. . .
-
-$$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm}
-
-. . .
-
+- $$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm}
 where:
-
-::: incremental
 -   $x$: is called: exposure variable, explanatory variable, dependent variable, predictor, covariate
 -   $y$: is called: response, outcome, dependent variable
 -   $\alpha$ and $\beta$ are **model coefficients**
 -   and $\epsilon_i$ is an **error terms**
+
 :::
+
+:::
+
+::: {.column width="5%"}
+:::
+
+
+::: {.column width="40%"}
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| fig-height: 7
+
+font.size <- 22
+my.ggtheme <- theme_bw() + 
+  theme(axis.title = element_text(size = font.size),
+        axis.text = element_text(size = font.size),
+        legend.text = element_text(size = font.size),
+        legend.title = element_blank(),
+        legend.position = "top") 
+        
+df <- data.frame(weight = weight, plasma = plasma)
+df %>%
+  ggplot(aes(x = weight, y = plasma)) + 
+  geom_point(size = 3) + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") + 
+  xlab("body weight [kg]") +
+  ylab("plasma volume [l]") + 
+  my.ggtheme
+
+
+```
+
+:::
+::::
+
+
 
 ## Least squares
 
@@ -576,6 +772,24 @@ where:
 
 *minimizing RSS*
 
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Let $\hat{y_i}=\hat{\alpha} + \hat{\beta}x_i$ be the prediction $y_i$ based on the $i$-th value of $x$:
+
+-   Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$-th **residual**, i.e. the difference between the $i$-th observed response value and the $i$-th response value that is predicted by the linear model
+-   RSS, the **residual sum of squares** is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + \dots + \epsilon_n^2$$ or equivalently as: $$RSS=(y_1-\hat{\alpha}-\hat{\beta}x_1)^2+(y_2-\hat{\alpha}-\hat{\beta}x_2)^2+...+(y_n-\hat{\alpha}-\hat{\beta}x_n)^2$$
+-   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**. With some calculus, we get @thm-lss
+
+:::
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="40%"}
+
 ```{r}
 #| label: fig-reg-errors
 #| fig-cap: "Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice versa*. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line"
@@ -584,29 +798,28 @@ where:
 #| warning: false
 #| message: false
 #| fig-width: 8
-#| fig-height: 4
+#| fig-height: 8
 
 data.reg <- data.frame(plasma=plasma, weight=weight)
 fit.reg <- lm(plasma~weight, data=data.reg)
 data.reg$predicted <- predict(fit.reg)
 data.reg$residuals <- residuals((fit.reg))
 
-ggplot(data.reg, aes(x=weight, plasma)) + geom_point() +
+ggplot(data.reg, aes(x=weight, plasma)) + 
+  geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "firebrick") +
   geom_segment(aes(xend = weight, yend = predicted), color="blue") +
   geom_point(aes(y = predicted), shape = 1) +
   geom_point(aes(y = predicted), shape = 1) +
-  theme_bw() + xlab("body weight [kg]") + ylab("plasma volume [liters]")
+  xlab("body weight [kg]") + ylab("plasma volume [liters]") + 
+  my.ggtheme
 
 ```
 
-. . .
+:::
 
-Let $\hat{y_i}=\hat{\alpha} + \hat{\beta}x_i$ be the prediction $y_i$ based on the $i$-th value of $x$:
+::::
 
--   Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$-th **residual**, i.e. the difference between the $i$-th observed response value and the $i$-th response value that is predicted by the linear model
--   RSS, the **residual sum of squares** is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + \dots + \epsilon_n^2$$ or equivalently as: $$RSS=(y_1-\hat{\alpha}-\hat{\beta}x_1)^2+(y_2-\hat{\alpha}-\hat{\beta}x_2)^2+...+(y_n-\hat{\alpha}-\hat{\beta}x_n)^2$$
--   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**. With some calculus, we get @thm-lss
 
 ## Least squares
 
@@ -1623,6 +1836,12 @@ $$W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)$$
 :::
 
 ::: {.column width="55%"}
+```{.r}
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+summary(logmodel_1)
+```
+
 ```{r}
 summary(logmodel_1)
 ```
@@ -1660,6 +1879,14 @@ summary(logmodel_1)
 
 ::: {.column width="55%"}
 
+```{.r}
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+
+# print model summary
+print(summary(logmodel_1))
+```
+
 ```{r}
 summary(logmodel_1)
 ```
@@ -1689,6 +1916,6 @@ df %>%
 ```
 
 # Common cases
-- Let's go over together through common cases
+- Let's go over common linear models cases
 
 

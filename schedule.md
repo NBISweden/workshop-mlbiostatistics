@@ -64,13 +64,12 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09:30 - 10:30** [Linear models: introduction](session-lm/docs/lm-intro.html) [.presentation](session-lm-presentation/session-lm-presentation.html)
+**09:30 - 10:30** [Linear models: introduction](session-lm/docs/index.html) [.presentation](session-lm-presentation/session-lm-presentation.html)
 
-**10:30 - 11.00** [Exercises](session-lm/docs/introduction-to-linear-models.html#exercises-linear-models-i)
+**10:30 - 11.00** [Exercises](session-lm/docs/lm-intro-exercises.html)
 
-**11:00 - 11:30** [Linear models: understanding coefficients](session-lm/docs/regression-coefficients.html)
+**11:00 - 11:30** [Linear models: understanding coefficients](session-lm/docs/lm-coeff.html)
 
-**11:30 - 12.00** [Exercises](session-lm/docs/regression-coefficients.html#exercises-linear-models-ii)
 
 *12:00 - 13:00 lunch*
 
