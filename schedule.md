@@ -98,9 +98,9 @@ title:  'Schedule'
 
 *14.30 - 15.00 break*
 
-**15:00 - 15.30** [Supervised learning](session-supervise/docs/index.html)
+**15:00 - 15.30** [Supervised learning](session-supervise/docs/index.html) [.presentation](session-supervise-presentation/session-supervise-presentation.html)
 
-**15.30 - 16.30** [Exercises](session-supervise/docs/intro-exercises.html)
+**15.30 - 16.30** [Exercises](session-supervise/docs/exercises.html)
 
 **16.30 - 17.00** Daily challenge
 
