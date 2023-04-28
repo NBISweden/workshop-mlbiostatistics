@@ -1,0 +1,654 @@
+---
+title: "Feature engieering & selection"
+# author: Olga Dethlefsen
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default, custom.scss]
+    view-distance: 10
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+## Introduction
+
+$p \gg n$ <br>
+
+-   Quite often we are not only interested in building the best predictive model but we would also like to know which features are the key ones.
+-   For instance e.g. which gene measurements allow us to tell healthy and tumor tissues apart.
+-   **Feature selection** often goes hand in hand with **feature engineering** part of the supervised learning.
+
+. . .
+
+<br>
+
+### Let's discuss:
+
+-   feature engineering
+-   feature selection
+    -   regularized regression
+-   and learn how to use `tidymodels` framework for supervised learning projects
+
+## Feature engieering
+
+*Definition* <br>
+
+```{r}
+#| label: data
+#| echo: false
+#| warning: false
+#| message: false
+
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kableExtra)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+  
+```
+
+Feature engineering refers to techniques in machine learning that are used to prepare data for modeling and in turn improve the performance of machine learning models.
+
+## Feature engieering
+
+*scaling & normalization* <br>
+
+::: incremental
+-   **Scaling** of numerical features
+    -   Changing the range (scale) of the data to prevent features with larger scales dominating the model. By default we used scaling with `kknn()` function as it is based on calculating Euclidean distance.
+-   **Normalization**
+    -   Changing observations so that they can be described by a normal distribution.
+    -   e.g. going from **positive skew**: mode \< median \< mean
+    -   or going from **negative skew**: mode \> median \> mean
+:::
+
+. . .
+
+<br>
+
+## Feature engieering
+
+*common transformations* <br>
+
+**square-root for moderate skew**
+
+-   sqrt(x) for positively skewed data,
+-   sqrt(max(x+1) - x) for negatively skewed data
+
+**log for greater skew**
+
+-   log10(x) for positively skewed data,
+-   log10(max(x+1) - x) for negatively skewed data
+
+**inverse for severe skew**
+
+-   1/x for positively skewed data
+-   1/(max(x+1) - x) for negatively skewed data
+
+## Feature engieering
+
+*dummy variables* <br>
+
+::: columns
+::: {.column width="40%"}
+-   Representing categorical variables with **dummy variables** or **one-hot encoding** to create numerical features.
+    -   For instance a categorical variable `obese` with three possible vales (underweight, healthy, overweight) can be transformed into two binary variables: "is_healthy", and "is_overweight", where the value of each variable is 1 if the observation belongs to that category and 0 otherwise. Only $k-1$ binary variables to encode $k$ categories.
+-   In **one-hot encoding** $k$ binary variables are created.
+:::
+
+::: {.column width="60%"}
+```{r}
+#| label: dummys
+#| tbl-cap-location: margin
+#| echo: false
+
+# make up some unbalanced obese categories to demonstrate when upsampling etc. may be needed
+data_obese_makeup <- data_diabetes %>%
+  na.omit() %>%
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) %>%
+  dplyr::select(id, obese)
+
+data_dummy <- data_obese_makeup %>%
+  mutate(is_healthy = ifelse(obese == "Healthy", 1, 0)) %>%
+  mutate(is_overweight = ifelse(obese == "Overweight", 1, 0)) %>%
+  mutate(id = id - 100) %>%
+  slice(c(1, 2, 3, 9, 10))
+
+data_dummy %>%
+  kbl(caption = "Example of obese variable with three categories (underweight/healthy/overweight) encoded as dummy variables", align = "cccc") %>%
+  column_spec(2, border_right="2px solid black") %>%
+  kable_styling()
+
+```
+:::
+:::
+
+## Feature engieering
+
+*missing data* <br>
+
+-   **handling missing data** via
+    -   imputations (mean, median, KNN-based)
+    -   deleting strategies such as list-wise deletion (complete-case analysis) or pair-wise deletion (available-case analysis)
+    -   choosing algorithms that can handle some extent of missing data, e.g. Random Forest, Naive Bayes
+
+## Feature engieering
+
+*Rubin's (1976) missing data classification system* <br>
+
+::: columns
+::: {.column width="50%"}
+### MCAR
+
+-   missing completely at random
+
+### MAR
+
+-   missing at random
+-   two observations for Test 2 deleted where Test 1 $<17$
+-   missing data on a variable is related to some other measured variable in the model, but not to the value of the variable with missing values itself
+
+### MNAR
+
+-   missing not at random
+-   omitting two higest values for Test 2
+-   when the missing values on a variable are related to the values of that variable itself
+:::
+
+::: {.column width="50%"}
+![](figures/missing-data.jpg)
+@missing2008]
+:::
+:::
+
+## Feature engieering
+
+*handling imbalanced data* <br>
+
+::: columns
+::: {.column width="50%"}
+-   **handling imbalanced data**
+    -   down-sampling
+    -   up-sampling
+    -   generating synthetic instances
+        -   e.g. with SMOTE [@fernandez2018smote]
+        -   or ADASYN [@4633969]
+:::
+
+::: {.column width="50%"}
+```{r}
+
+# make up some unbalanced obese categories to demonstrate when up-sampling etc. may be needed
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  na.omit() %>% 
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) 
+
+font_size <- 20
+data_diabetes %>%
+  ggplot(aes(x = obese, y = "", fill = obese)) + 
+  geom_col(width = 0.6) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("number of samples") + 
+  xlab("") + 
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position = "none", legend.text = element_text(size=font_size)) +
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size))
+  
+
+```
+:::
+:::
+
+
+
+## Feature engieering
+
+*misc* <br>
+
+::: incremental
+
+- **feature aggregation**
+  - e.g. combining multiple related features into a single one, e.g. calculating average of a group
+- **feature interaction**: creating new features by combining existing features
+  - e.g. creating `BMI` variables based on `weight` and `height`
+- **dimensionality reduction**: reducing number of features in a data set by transforming them into a lower-dimensional space
+- **filtering out irrelevant features**
+  - e.g. using variance threshold or univariate statistics
+- **filtering out redundant features**
+  - e.g. keeping only one of a group of highly correlated features
+  - Note: collinearity reduces the accuracy of the estimates of the regression coefficients and thus the power of the hypothesis testing is reduced.
+  
+:::
+
+# Feature selection
+
+## Feature selection
+
+*Group discussion* <br>
+
+It is time to try to find the best model to explain `BMI` using `diabetes` data. Given from what we have learnt so far about linear regression models, how would you find the best model?
+
+As a reminder, we have below variables in the data:
+
+```{r}
+
+colnames(data_diabetes)
+```
+
+## Feature selection
+
+*Definition* <br>
+
+Feature selection is the process of selecting the most relevant and informative subset of features from a larger set of potential features in order to improve the performance and interpretability of a machine learning model.
+
+### There are generally three main groups of feature selection methods:
+
+::: incremental
+-   **Filter methods** use statistical measures to score the features and select the most relevant ones, e.g. based on correlation coefficient or $\chi^2$ test. They tend to be computationally efficient but may overlook complex interactions between features and can be sensitive to the choice of metric used to evaluate the feature importance.
+-   **Wrapper methods** use a machine learning algorithm to evaluate the performance of different subsets of features, e.g. forward/backward feature selection. They tend to be computationally heavy.
+-   **Embedded methods** incorporate feature selection as part of the machine learning algorithm itself, e.g. **regularized regression** or **Random Forest**. These methods are computationally efficient and can be more accurate than filter methods.
+:::
+
+## Regularized regression
+*definition*
+<br>
+
+::: incremental
+- Regularized regression expands on the regression by adding a **penalty term(s)** to **shrink the model coefficients** of less important features towards zero. 
+- This can help to prevent overfitting and improve the accuracy of the predictive model. 
+- Depending on the penalty added, we talk about **Ridge**, **Lasso** or **Elastic Nets regression**.
+:::
+
+
+## Regularized regression
+*Ridge regression*
+<br>
+
+- Previously we saw that the least squares fitting procedure estimates model coefficients $\beta_0, \beta_1, \cdots, \beta_p$ using the values that minimize the residual sum of squares: $$RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2$$ {#eq-lm}
+
+- In **regularized regression** the coefficients are estimated by minimizing slightly different quantity. Specifically, in **Ridge regression** we estimate $\hat\beta^{L}$ that minimizes $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge}
+
+where:
+
+$\lambda \ge 0$ is a **tuning parameter** to be determined separately e.g. via cross-validation
+
+## Regularized regression
+*Ridge regression*
+<br>
+
+$$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge}
+
+@eq-ridge trades two different criteria:
+
+-   as with least squares, lasso regression seeks coefficient estimates that fit the data well, by making RSS small
+-   however, the second term $\lambda \sum_{j=1}^{p}\beta_j^2$, called **shrinkage penalty** is small when $\beta_1, \cdots, \beta_p$ are close to zero, so it has the effect of **shrinking** the estimates of $\beta_j$ towards zero.
+-   the tuning parameter $\lambda$ controls the relative impact of these two terms on the regression coefficient estimates
+    -   when $\lambda = 0$, the penalty term has no effect
+    -   as $\lambda \rightarrow \infty$ the impact of the shrinkage penalty grows and the ridge regression coefficient estimates approach zero
+    
+## Regularized regression
+*Ridge regression*
+<br>
+
+```{r}
+#| label: ridge-input-data
+#| eval: true
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(kableExtra)
+
+# # define scale function
+# scale_numeric <- function(x, na.rm = TRUE){
+#   (x - mean(x, na.rm = na.rm)) / sd(x, na.rm)
+#   }
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+
+```
+
+```{r}
+#| label: ridge-run
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values."
+#| fig-cap-location: margin
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=0, lambda = seq(0, 100, 1))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=12)) + 
+  theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10))
+
+```
+
+## Bias-variance trade-off
+<br>
+
+Ridge regression's advantages over least squares estimates stems from **bias-variance trade-off**
+
+::: incremental
+
+- The bias-variance trade-off describes the relationship between model complexity, prediction accuracy, and the ability of the model to generalize to new data.
+- **Bias** refers to the error that is introduced by approximating a real-life problem with a simplified model
+  - e.g. a high bias model is one that makes overly simplistic assumptions about the underlying data, resulting in *under-fitting* and poor accuracy.
+- **Variance** refers to the sensitivity of a model to fluctuations in the training data. 
+  - e.g. a high variance model is one that is overly complex and captures noise in the training data, resulting in *overfitting* and poor generalization to new data.
+  
+:::
+
+## Bias-variance trade-off
+<br>
+
+The goal of machine learning is to find a model with **the right balance between bias and variance**.
+
+::: incremental
+
+- The bias-variance trade-off can be visualized in terms of MSE, means squared error of the model. The **MSE** can be decomposed into: $$MSE(\hat\beta) := bias^2(\hat\beta) + Var(\hat\beta) + noise$$
+  - The irreducible error is the inherent noise in the data that cannot be reduced by any model
+  - The bias and variance terms can be reduced by choosing an appropriate model complexity. 
+  - The trade-off lies in finding the right balance between bias and variance that minimizes the total MSE.
+- In practice, this trade-off can be addressed by **regularizing the model**, selecting an appropriate model complexity, or by using ensemble methods that combine multiple models to reduce the variance.
+:::
+
+## Bias-variance trade-off
+<br>
+```{r}
+#| label: fig-bias-variance
+#| fig-cap: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning
+#| fig-cap-location: margin
+#| fig-align: center
+#| echo: false
+#| out-width: 100%
+
+knitr::include_graphics("figures/bias-variance.png")
+```
+
+## Ridge vs. Lasso
+
+In **Ridge** regression we minimize: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge2} where $\lambda \sum_{j=1}^{p}\beta_j^2$ is also known as **L2** regularization element or $l_2$ penalty
+
+In **Lasso** regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j|$$ {#eq-lasso} where $\lambda \sum_{j=1}^{p}|\beta_j|$ is also known as **L1** regularization element or $l_1$ penalty
+
+Lasso regression was introduced to help model interpretation. With Ridge regression we improve model performance but unless $\lambda = \infty$ all beta coefficients are non-zero, hence all variables remain in the model. By using $l_1$ penalty we can force some of the coefficients estimates to be exactly equal to 0, hence perform **variable selection**
+
+
+## Ridge vs. Lasso
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+#| label: ridge-input-data-02
+#| eval: true
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(kableExtra)
+
+# # define scale function
+# scale_numeric <- function(x, na.rm = TRUE){
+#   (x - mean(x, na.rm = na.rm)) / sd(x, na.rm)
+#   }
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+
+```
+
+```{r}
+#| label: ridge-run-02
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values."
+#| fig-height: 8
+
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=0, lambda = seq(0, 100, 1))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+font_size <- 20
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size)) +
+  theme(title = element_text(size = font_size)) + 
+  ggtitle("Ridge")
+
+```
+
+:::
+
+::: {.column width="50%"}
+```{r}
+#| label: lasso-run
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Lasso regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero and are also set to zero for larger lambda values."
+#| fig-height: 8
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=1, lambda = seq(0, 2, 0.1))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size)) + 
+  theme(title = element_text(size = font_size)) + 
+  ggtitle("Lasso")
+
+```
+:::
+
+::::
+
+## Elastic Net
+<br>
+
+**Elastic Net** use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 $$ {#eq-elastic-net}
+
+```{r}
+#| label: elastic-net
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Elastic Net regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values and alpha value 0.1, showing the changes of model coefficients as a function of lambda being somewhere between those for Ridge and Lasso regression."
+#| fig-cap-location: margin
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=0.1, lambda = seq(0, 3, 0.05))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size))
+
+```
+
+## Elastic Net
+*In R with `glmnet`*
+<br>
+
+In the `glmnet` library we can fit Elastic Net by setting parameters $\alpha$.  Under the hood `glmnet` minimizes a cost function: $$\sum_{i_=1}^{n}(y_i-\hat y_i)^2 + \lambda \left ( (1-\alpha) \sum_{j=1}^{p}\beta_j^2 + \alpha \sum_{j=1}^{p}|\beta_j|\right )$$ where:
+
+-   $n$ is the number of samples
+-   $p$ is the number of parameters
+-   $\lambda$, $\alpha$ hyperparameters control the shrinkage
+
+When $\alpha = 0$ this corresponds to Ridge regression and when $\alpha=1$ this corresponds to Lasso regression. A value of $0 < \alpha < 1$ gives us **Elastic Net regularization**, combining both L1 and L2 regularization terms.
+
+## Tidymodels
+[https://www.tidymodels.org](https://www.tidymodels.org)
+<br>
+
+- We have seen that there are many common steps when using supervised learning for prediction, such as data splitting and parameters tuning.
+- Over the years, some initiatives were taken to create a common framework for the machine learning tasks in R. 
+- A while back Max Kuhn was the main developer behind a popular `caret` package that among others enabled feature engineering and control of training parameters like cross-validation. 
+- In 2020 `tidymodels`framework was introduced as a collection of R packages for modeling and machine learning using tidyverse principles, under a guidance of Max Kuhn and Hadley Wickham, author of `tidyverse` package.
+
+## Live demo
+<br>
+
+Let's find the best model with Lasso regression to predict `BMI` and see which features in our data set contribute most to the BMI score.
+
+
+## References
+
+::: {#refs}
+:::
+

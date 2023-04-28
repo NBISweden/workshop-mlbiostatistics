@@ -109,7 +109,7 @@ title:  'Schedule'
 
 **09:00 - 09.30** Group discussions: recap of the previous day
 
-**09.30 - 12.00** [Feature engineering & selection](session-feature-selection/docs/index.html)
+**09.30 - 12.00** [Feature engineering & selection](session-feature-selection/docs/index.html) [.presentation](session-feature-selection-presentation/session-feature-selection.html)
 
 *12:00 - 13:00 lunch*
 
