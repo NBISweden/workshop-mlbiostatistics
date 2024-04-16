@@ -3,7 +3,7 @@ editor: source
 title: "Probability theory"
 subtitle: "part I"
 author: "Eva Freyhult"
-date: "2023-04-24"
+date: "2024-04-22"
 date-format: long
 institute: NBIS, SciLifeLab
 format: 
@@ -78,6 +78,7 @@ Show how sets can be used to express probabilies on white board.
 Based on the axioms the following rules of probability can be proved.
 
 :::{.incremental}
+
 -   **Complement rule**: let $E'$ be the complement of $E$, then $P(E') = 1 - P(E)$
 -   **Impossible event**: $P(\emptyset)=0$
 -   **Probability of a subset**: If $E \subseteq F$ then $P(F) \geq P(E)$
@@ -87,6 +88,7 @@ Based on the axioms the following rules of probability can be proved.
 :::{.aside}
 Let $E,F \subseteq S$ be any two events.
 :::
+
 
 ## The urn model
 
@@ -246,7 +248,7 @@ of the squared distance from the population mean;
 
 $$var(X) = \sigma^2 = E[(X-\mu)^2] = \sum_{i=1}^n (x_i-\mu)^2 p(x_i)$$
 
-## Standard deviation
+## Standard deviation {.smaller}
 
 The **standard deviation** is the square root of the **variance** and is usually denoted $\sigma$
 
@@ -385,19 +387,28 @@ $P(X \geq 15) =$ `r sum(Nheads>=15)`/`r length(Nheads)` =
 
 In a uniform distribution every possible outcome has the same probability.
 
+:::: {.columns}
+::: {.column width="60%"}
+
 With $n$ different outcomes, the probability for each outcome is $1/n$.
 
-```{r dicerep, fig.height=3, fig.width=7, out.width="45%", fig.align='center'}
+```{r dicerep, fig.height=3, fig.width=7, out.width="100%", fig.align='center'}
 plot(data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)) + scale_x_continuous(breaks = 1:6))
 ```
+:::
+::: {.column style="width: 40%; font-size: 80%"}
 
-## Bernoulli
+**Examples**
 
-::: {.smaller style="font-size: 35px"}
+- In randomized sampling each individual/object in the population has the same probability of being selected.
+- In randomized clinical trial assignment to treatment group often follows a uniform distribution.
+:::
+::::
+
+## Bernoulli {.smaller style="font-size: 80%"}
+
 A Bernoulli trial is a random experiment with two outcomes; *success*
-(1) and *failure* (0).
-
-The outcome of a Bernoulli trial is a discrete random variable, $X$.
+(1) and *failure* (0). The outcome of a Bernoulli trial is a discrete random variable, $X$.
 
 $$P(X=x) = p(x) = \left\{
 \begin{array}{ll}
@@ -406,46 +417,53 @@ p & \mathrm{if}\,x=1\mathrm,\,success\\
 \end{array}
 \right.$$
 
+:::: {.columns}
+::: {.column width="60%"}
 Using the definitions of expected value and variance it can be shown
 that;
 
 $$E[X] = p\\
 var(X) = p(1-p)$$
 :::
+::: {.column style="width: 40%; font-size: 70%"}
+**Examples**
 
-## Binomial
+Experiments where the outcome is binary, such as; healthy/sick, dead/alive, success/failure, mutated/not mutated etc.
+:::
+::::
+
+
+## Binomial {.smaller}
 
 The number of successes in a series of $n$ independent and identical
 Bernoulli trials ($Z_i$, with probability $p$ for *success*) is a discrete random variable, $X$.
 
-$$X = \sum_{i=0}^n Z_i,$$
-
-## Binomial
-
-::: {.smaller style="font-size: 35px"}
 :::: {.columns}
 ::: {.column width="60%"}
+
+$$X = \sum_{i=0}^n Z_i,$$
 The probability mass function of $X$, called the binomial distribution,
 is
 
 $$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}$$
+The expected value and variance;
+
+$$E[X] = np\\
+var(X) = np(1-p)$$
 :::
-::: {.column width="40%"}
+::: {.column style="width: 40%; font-size: 80%"}
 ```{r}
 #| fig-width: 5
 x=1:50
 ggplot(data.frame(x=x, fx=dbinom(x, size=70, prob=0.3)), aes(x,fx)) + geom_bar(stat="identity") + theme_bw() + ylab("p(x)")
 ```
+
+**Examples**
+
+* The number of patients responding to a treatment in a study.
+* The number of patients experiencing a side effect in a study.
 :::
 ::::
-
-The expected value and variance;
-
-$$E[X] = np\\
-var(X) = np(1-p)$$
-
-In R: `pbinom` to compute $P(X \leq k)$ and `dbinom` to compute the **pmf** $P(X=k)$. 
-:::
 
 :::{.notes}
 Examples fo binomial random variables;
@@ -455,18 +473,28 @@ Examples fo binomial random variables;
 -   the number of mutations in a gene of length $n$, if the mutations are independent and identically distributed and the probability of a mutation at every single position is $p$.
 :::
 
-## Hypergeometric distribution
+## Hypergeometric
 
-::: {.smaller style="font-size: 35px"}
 The hypergeometric distribution describe the number of successes in a
-series of $n$ draws *without* replacement, from a population of size $N$
+series of $n$ draws **without** replacement from a population of size $N$
 with $Np$ objects of interest (successes).
 
+:::: {.columns}
+::: {.column style="width: 55%"}
 The probability density function
 
 $$P(X=k) = \frac{\binom{Np}{k}\binom{N-Np}{n-k}}{\binom{N}{n}}$$
-In R: `phyper` to compute $P(X \leq k)$ and `dhyper` to compute the **pmf** $P(X=k)$. 
 :::
+::: {.column style="width: 45%; font-size: 50%"}
+
+**Examples**
+
+* Gene set enrichment analysis - identification of gene sets that are overrepresented in a set of genes of interest.
+* In population genetics to describe the number of individuals with a certain genotype in a population.
+
+:::
+::::
+
 
 ::: {.notes}
 *Example:* Overrepresentation of iron metabolism genes in a list of
@@ -480,45 +508,54 @@ distribution can be used to compute the probability of getting \$k4
 successes, i.e. genes that belong to the *iron metabolism*.
 :::
 
-
-## Poisson distribution
+## Poisson
 
 The Poisson distribution describes the number of times a rare event (probability $p$)
 occurs in a large number ($n$) of trials.
 
-### Examples
+:::: {.columns}
 
-- A rare disease has a very low probability for a single individual. The
-number of individuals in a large population that catch the disease in a
-certain time period can be modelled using the Poisson distribution.
-- Number of reads aligned to a gene region.
-
-## Poisson distribution
-
+::: {.column width="55%"}
 The probability mass function;
 
 $$P(X=k) = \frac{\lambda}{k!}e^{-\lambda},$$
 
 $$E[X] = var(X) = \lambda = n \pi$$
+:::
+
+
+::: {.column style="width: 45%; font-size: 50%;"}
+### Examples
+
+* A rare disease has a very low probability for a single individual. The
+number of individuals in a large population that catch the disease in a
+certain time period can be modelled using the Poisson distribution.
+* In RNAseq analysis the Poisson distribution is frequently used to model read counts, in particular when gene expression levels are low.
+:::
+
+::::
 
 The Poisson distribution can approximate the binomial distribution if
 $n$ is large and $\pi$ is small, $n>10, \pi < 0.1$.
 
-In R: `ppois` to compute $P(X \leq k)$ and `dpois` to compute the **pmf** $P(X=k)$. 
 
 ## Negative binomial
 
 A negative binomial distribution describes the number of failures that occur before a specified number of successes ($r$) has occurred, in a sequence of independent and identically distributed Bernoilli trials.
 
 $r$ is also called the dispersion parameter.
- 
-In R: `dnbinm, pnbinom, qnbinom`
+
+::: {.smaller style="font-size: 60%"}
+**Examples**
+
+* In epidemiology the number of days (weeks) of no cases before a certin number of new cases is reported.
+* In RNAseq data analysis negative binomial distribution is commonly used to model read counts.
+:::
 
 ## Geometric
 
 The geometric distribution is a special case of the negative binomial distribution, where $r=1$.
 
-In R: `dgeom, pgeom, qgeom`
 
 ## Example PMFs
 
@@ -530,10 +567,10 @@ N=100
 n=20
 x <- 0:n
 probs <- c(0.1, 0.3, 0.5)
-df <- rbind(data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dbinom(x, n, prob)), .groups="drop") |> mutate(distribution="Binomial"),
-data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dpois(x, n*prob)), .groups="drop") |> mutate(distribution="Poisson"),
-data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dnbinom(x, n*(1-prob), 1-prob)), .groups="drop") |> mutate(distribution="Negative binomial"),
-data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dhyper(x, round(N*prob), round(N*(1-prob)), n)), .groups="drop") |> mutate(distribution="Hypergeometric"))
+df <- rbind(data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dbinom(x, n, prob)), .groups="drop") |> mutate(distribution="Binomial"),
+data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dpois(x, n*prob)), .groups="drop") |> mutate(distribution="Poisson"),
+data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dnbinom(x, n*(1-prob), 1-prob)), .groups="drop") |> mutate(distribution="Negative binomial"),
+data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dhyper(x, round(N*prob), round(N*(1-prob)), n)), .groups="drop") |> mutate(distribution="Hypergeometric"))
 
 df|>ggplot(aes(x=x, y=px, color=distribution, shape=factor(prob))) + geom_point(size=5) + geom_line() + theme_bw() + scale_color_colorblind() + ylab("p(x)") + scale_shape_discrete("")
 ```

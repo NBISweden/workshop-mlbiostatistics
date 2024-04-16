@@ -366,10 +366,10 @@ N=100
 n=20
 x <- 0:n
 probs <- c(0.1, 0.3, 0.5)
-df <- rbind(data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dbinom(x, n, prob)), .groups="drop") |> mutate(distribution="Binomial"),
-data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dpois(x, n*prob)), .groups="drop") |> mutate(distribution="Poisson"),
-data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dnbinom(x, n*(1-prob), 1-prob)), .groups="drop") |> mutate(distribution="Negative binomial"),
-data.frame(prob=probs) |> group_by(prob) |> summarize(data.frame(x=x) |> mutate(px=dhyper(x, round(N*prob), round(N*(1-prob)), n)), .groups="drop") |> mutate(distribution="Hypergeometric"))
+df <- rbind(data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dbinom(x, n, prob)), .groups="drop") |> mutate(distribution="Binomial"),
+data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dpois(x, n*prob)), .groups="drop") |> mutate(distribution="Poisson"),
+data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dnbinom(x, n*(1-prob), 1-prob)), .groups="drop") |> mutate(distribution="Negative binomial"),
+data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dhyper(x, round(N*prob), round(N*(1-prob)), n)), .groups="drop") |> mutate(distribution="Hypergeometric"))
 
 df|>ggplot(aes(x=x, y=px, color=distribution, shape=factor(prob))) + geom_point(size=5) + geom_line() + theme_bw() + scale_color_colorblind() + ylab("p(x)") + scale_shape_discrete("")
 ```
