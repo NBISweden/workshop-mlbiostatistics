@@ -208,7 +208,7 @@ include_graphics("images/distances.png")
 1. $d_{ij}$ must be 0 or positive (objects are identical, $d_{ij} = 0$, or they are different, $d_{ij} > 0$)
 2. $d_{ij} = d_{ji}$, distance from A to B is the same as from B to A
 3. $d_{jj} = 0$, an object is identical to itself
-4. $d_{ik} \le d_{ij} + d_{jk}$, when considering three objects the distance between any two of them cannot exceed the sum of the distances between the other two pairs. In other words, the distances can be constructed a a triangule.
+4. $d_{ik} \le d_{ij} + d_{jk}$, when considering three objects the distance between any two of them cannot exceed the sum of the distances between the other two pairs. In other words, the distances can construct a triangle.
 
 - The **Manhattan** or City Block metric is an example of this type of distance metrics. 
 $$distance (A,B) = \sum|a_i - b_i|$$
@@ -242,6 +242,7 @@ include_graphics("images/cosine.png")
 #### Squared Euclidean distance {.unnumbered}
 
 - The sum of the squared differences between scores for two cases on all variables, i.e. the squared length of the hypotenuse. This measure magnifies distances between cases that are further apart. 
+- Note that the squared Euclidean distance is not a metric as it does not fulfill the triangle inequality.
 
 #### Chebychev {.unnumbered}
 
@@ -254,7 +255,7 @@ $$distance(A, B) = max |a_i - b_i|$$
 #### City block or Manhattan distance {.unnumbered}
 
 - A distance that follows a route along the non-hypotenuse sides of a triangle. The name refers to the grid-like layout of most American cities which makes it impossible to go directly between two points. 
-- This metric is hence less affected by outliers than the Euclidean and squared Euclidean metrics. 
+- This metric is hence less affected by outliers than the Euclidean and squared Euclidean distances. 
 $$distance (A,B) = \sum|a_i - b_i|$$
 - Is preferred over Euclidean distance when there is a high dimensionality in the data.
 - May not be the best choice, if one wants to perform space rotation or wants a smooth and differentiable function (converge more easily).
@@ -268,7 +269,7 @@ where $S^{-1}$ is the inverse covariance matrix$
 
 #### Minkowski {.unnumbered}
 
-- Minkowski distance is ageneralization of both the Euclidean distance and the Manhattan distance in a normed vector space. 
+- Minkowski distance is a generalization of both the Euclidean distance and the Manhattan distance in a normed vector space. 
 - It can be thought of as a way of measuring the length of the path between two points when moving along axes aligned with the coordinate system. 
 - The formula for the Minkowski distance of order $p$ between two points $A = (a_1, a_2, ..., a_n)$ and $B = (b_1, b_2, ..., b_n)$ in an $n$-dimensional space is given by $$distance(A,B) = \left(\sum_{i=1}^{n} |a_i - b_i|^p\right)^{1/p}$$ 
 where  $p$ determines the form of the distance: for $p=1$, it becomes the Manhattan distance (sum of the absolute differences of their coordinates); for $p=2$, it yields the Euclidean distance (the shortest direct line between two points); and for $p=\infty$, it approaches the Chebyshev distance (the maximum difference along any coordinate dimension). 
@@ -303,9 +304,9 @@ x %>%
 
 where: 
 
-- $a$) is the number of cases which both share the attribute
-- $d$) number of cases which neither have the attribute
-- $b$ and $c$) are the number of cases in which only one of the pair has the attribute. 
+- $a$ is the number of cases which both share the attribute
+- $d$ number of cases which neither have the attribute
+- $b$ and $c$ dare the number of cases in which only one of the pair has the attribute. 
 - Note: $a + b + c + d = n$, the sample size
 
 #### Dice {.unnumbered}
@@ -370,14 +371,14 @@ Interactive visualization of k-means algorithm can be found [here](https://hckr.
 
 **When to use and not to use k-means**
 
-- k-means is relatively fast and scalable, making it a good choice for large data sets. It works well with continuous, numeric data since it relies on Euclidean distances. Results are easy to interpret due to the simple assingment of data points to clusters. It works good if one knows the number of clusters or can get that the number of clusters for internal or external validation. 
+- k-means is relatively fast and scalable, making it a good choice for large data sets. It works well with continuous, numeric data since it relies on Euclidean distances. Results are easy to interpret due to the simple assignment of data points to clusters. It works good if one knows the number of clusters or can get that the number of clusters for internal or external validation. 
 - On the downside, k-means is sensitive to the initial placement of cluster centroids. It can sometimes converge to local minima, resulting in suboptimal cluster assignments. Outliers can also significantly impact the position of centroids and lead to poor cluster assignments. 
 
 ### PAM, partition around medoids
 
 - PAM is very similar to k-means, but instead of using centroids we use **medoids** to represent clusters. 
 - **Medoid** is centrally located objects within the cluster. 
-- This makes PAM more roboust when compare to k-means, but with higher computational complexity. 
+- This makes PAM more robust when compare to k-means, but with higher computational complexity. 
 
 The algorithm can be described in few steps: 
 
@@ -416,7 +417,7 @@ x <- df %>%
 res_kmeans <- kmeans(x, centers = 3)
 res_pam <- pam(x, k = 3)
 
-# preprae data frames for plotting
+# prepare data frames for plotting
 df_kmeans <- df %>%
   mutate(cluster = res_kmeans$cluster) %>%
   mutate(cluster = as.factor(cluster))
@@ -464,7 +465,7 @@ p1 + p2
 ## HCL, hierarchical clustering
 
 - Hierarchical clustering does not require the number of clusters to be specified. Instead of creating a single set of clusters it creates a hierarchy of clusterings based on pairwise dissimilarities.
-- These hierarchy of clusteres is often represented as **dendrogram**.
+- This hierarchy of clusters is often represented as a **dendrogram**.
 
 ```{r fig-hcl-dendrogram}
 #| label: fig-dend
@@ -565,11 +566,11 @@ ggplot(df_cl, aes(x, y, color = Cluster)) +
 - With $n$ objects to cluster both strategies will produce a dendrogram representing the $n-1$ levels in the hierarchy.
 - Each level represent a specific clustering of the objects into disjoint clusters.
 - The heights of the branches in the dendrogram are proportional to the dissimilarity of the merged/split clusters.
-- The divisive approach is used less often due to the computational complexity. Here, we fill focus more on the commonly used agglomerative approach. 
+- The divisive approach is used less often due to the computational complexity. Here, we will focus more on the commonly used agglomerative approach. 
 
 ### Linkage & Agglomerative clustering
 
-- Agglomerative clustering starts with all objects in separate clusters and at each level merge the pair of clusters with the smallest dissimilarity. The pairwise dissilimarities between objects can be computed according to the distance measures discussed above. 
+- Agglomerative clustering starts with all objects in separate clusters and at each level merge the pair of clusters with the smallest dissimilarity. The pairwise dissimilarities between objects can be computed according to the distance measures discussed above. 
 - We need one more ingredient for hierarchical clustering, that is a method for computing dissimilarity between clusters, known as **linkage method**. There are several linkage methods, as illustrated below. 
 
 ```{r}
@@ -605,7 +606,7 @@ $$d_{al}(A, B) = \frac{1}{n_A n_B}\sum_i\sum_j d(a_i, b_j)$$
 $$d_{wl}(A, B) = \sum_{i=1}^{n_A} (a_i - m_{A \cup B})^2 + \sum_{i=1}^{n_B} (b_i - m_{A \cup B})^2 - \sum_{i=1}^{n_A} (a_i - m_{A})^2 - \sum_{i=1}^{n_B} (b_i - m_{B})^2$$
 where $m_A, m_B, m_{A \cup B}$ are the center of the clusters $A$, $B$ and $A \cup B$, respectively. 
 
-- *Note* that Ward's linkage method should not be combined with any dissimilarity matrix as it is based on the squared Euclidean distance. In the R function `hclust` either the Euclidean or squared Euclidean distance can be used in combination with the linkage `method='ward.D'` or `method='ward.D2`, respectively.
+- *Note* that Ward's linkage method should not be combined with any dissimilarity matrix as it is based on the squared Euclidean distance. In the R function `hclust` either the Euclidean or squared Euclidean distance can be used in combination with the linkage `method='ward.D2'` or `method='ward.D`, respectively.
 
 
 ```{r}
@@ -621,7 +622,9 @@ d <- dist(df) # calculate distance
 h_single <- hclust(d, method = "single")
 h_average <- hclust(d, method = "average")
 h_complete <- hclust(d, method = "complete")
-h_ward <- hclust(d, method = "ward.D")
+h_ward <- hclust(d, method = "ward.D2")
+## Alternatively
+## h_ward <- hclust(d^2, method = "ward.D")
 
 dend_single <- as.dendrogram(h_single) %>% set("branches_lwd", 3)
 dend_average <- as.dendrogram(h_average) %>% set("branches_lwd", 3)
@@ -843,7 +846,7 @@ Heatmap(data_heatmap,
 ## Additional comments & resources
 
 - In addition to partitioning and hierarchical clustering methods there is a wide range of other algorithms. Common ones include model-, density, and grid-based methods. Some of them are explained in [this presentation](https://docs.google.com/presentation/d/1OgFOM7Zo9rQRiXB0r7EBuLg7gFIgaDwYd3pY2EwxWlg/edit?usp=sharing). Here, you can also find more details about **external validation** of cluster analysis.
-- Although historically it was not recommended to apply cluster analysis to **mixed data types** (e.g. both binary and continuous), some distance metrics have been developed, e.g. Gower's general coefficient to calculate similarity between different data types. Lately, the principles of decision trees have been also used for computing yet anther metric for mixed data types, **unsupervised extra trees dissimilarity, UET**. For an interesting study comparing clustering methods for heterogeneous data, where more details about Grower's and UET can be found, see @Preud2021. 
+- Although historically it was not recommended to apply cluster analysis to **mixed data types** (e.g. both binary and continuous), some distance metrics have been developed, e.g. Gower's general coefficient to calculate similarity between different data types. Lately, the principles of decision trees have been also used for computing yet another metric for mixed data types, **unsupervised extra trees dissimilarity, UET**. For an interesting study comparing clustering methods for heterogeneous data, where more details about Grower's and UET can be found, see @Preud2021. 
 - For a more applied reading in health research, reviewing distance metrics and clustering algorithms see @Gao2023. 
 - In scRNA-seq analysis it is common to use clustering based on the graph data. In particular, more details about Leiden algorithms can be found [here](https://www.sc-best-practices.org/cellular_structure/clustering.html) or in the [@Traag2019].
 
