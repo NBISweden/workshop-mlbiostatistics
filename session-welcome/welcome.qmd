@@ -1,13 +1,13 @@
 ---
 title: "Introduction to Biostatistics and Machine Learning"
-author: "24th - 28th April 2023"
+author: "22th - 26th April 2024"
 format:
   revealjs: 
     theme: [default, custom.scss]
     incremental: false   
     slide-number: true
     view-distance: 5
-editor: visual
+editor: source
 editor_options: 
   chunk_output_type: console
 ---
@@ -25,16 +25,12 @@ library(scales)
 library(tidyverse)
 library(latex2exp)
 library(plot3D)
+library(ggthemes)
+library(kableExtra)
 
 ```
 
 # Welcome
-
-<!-- P1. Introductions: welcome, shortly about us, shortly about students, rounds of introductions -->
-
-<!-- P2. Practicalities: Schedule, Canvas, Access, Certificates -->
-
-<!-- P3. Teaching approach / ideas behind the course / what do we want to get across / content highlights -->
 
 ## Introduction to Biostatistics and Machine Learning
 
@@ -42,7 +38,7 @@ library(plot3D)
 
 ::: columns
 ::: {.column width="60%"}
--   24th - 28th April 2023
+-   22th - 26th April 2024
 -   BMC, Husargatan 3, Uppsala
 -   Room: Trippelrummet: E10:1307/8/9
 :::
@@ -93,177 +89,145 @@ library(plot3D)
 
 rm(list=ls())
 
-data.input <- read_csv("background-2023-v02.csv")
+data_csv <- read_csv("background-2024.csv",  locale = locale(encoding = "UTF-8"))
 
-data.inp <- data.input %>%
-  #rename("R" = `R experience`) %>% 
-  mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced")))
+data_students <- data_csv %>%
+  mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced"))) %>%
+  mutate(Position = factor(Position)) %>%
+  mutate(University = factor(University))
 
 ```
 
+## What about you?
 ```{r}
 #| message: false
 #| warning: false
 #| echo: false
+#| fig-align: center
+#| fig-height: 8
 
-# clean data
-colornames <- brewer.pal(n=4, "Set1")
-data.inp$R <- factor(data.inp$R, levels = c("None", "Beginner", "Intermediate", "Advanced"))
-data.inp$Position <- factor(data.inp$Position)
-data.inp$University <- factor(data.inp$University)
-
-# barplot: summary of position counts
-data.plot <- data.inp %>%
+# bar plot: summary of position counts
+data_position <- data_students %>%
   group_by(Position) %>% 
   summarize(n = n()) %>%
   mutate(total = sum(n)) %>%
   mutate(percent = round(n * 100 / total, 1)) %>%
-  mutate(desc = paste(n, " (", percent, "%)", sep="")) 
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) %>% 
+  arrange(desc(n)) %>%
+  mutate(Position = factor(Position, levels = Position))
 
-ncols <- length(unique(data.plot$Position))
-order <- data.plot %>% arrange(desc(n)) %>% pull(Position)
-
-g1 <- data.plot %>%
-  mutate(Position = factor(Position, levels = order)) %>%
-  ggplot(aes(x = Position, y = n, group = Position)) +
-  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=ncols, "Set1")) +
+data_position %>%
+  ggplot(aes(x = Position, y = n, group = Position, fill = Position)) +
+  geom_bar(stat = "identity", color = "black") + 
   xlab("") + 
   ylab("") + 
-  ggtitle("Employment") +
+  ggtitle("Position") +
+  scale_fill_tableau(palette = "Tableau 10") + 
   geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
   theme_classic2() + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
-  #ylim(0, max(data.plot$n) + 2) + 
-  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
-  
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size = 18))  + 
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) 
 
-# barplot: summary of university
-data.plot <- data.inp %>%
+```
+
+## What about you?
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 8
+#| fig-align: center
+
+# bar plot: summary of position counts
+data_uni <- data_students %>%
   group_by(University) %>% 
-  summarize(n = n())  %>%
+  summarize(n = n()) %>%
   mutate(total = sum(n)) %>%
   mutate(percent = round(n * 100 / total, 1)) %>%
-  mutate(desc = paste(n, " (", percent, "%)", sep=""))
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) %>% 
+  arrange(desc(n)) %>% #print()
+  mutate(University = factor(University , levels = University))
 
-order <- data.plot %>% arrange(desc(n)) %>% pull(University)
-
-g2 <- data.plot %>%
-  mutate(University = factor(University, levels = order)) %>%
-  ggplot(aes(x = University, y = n)) + 
-  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
+data_uni %>%
+  ggplot(aes(x = University, y = n, group = University, fill = University)) +
+  geom_bar(stat = "identity", color = "black") + 
   xlab("") + 
   ylab("") + 
-  ggtitle("University") + 
+  ggtitle("University") +
+  scale_fill_tableau(palette = "Tableau 10") + 
   geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
   theme_classic2() + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
-  #ylim(0, max(data.plot$n) + 2) + 
-  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size = 18)) + 
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) 
 
-  
-# barplot: summary of R experience
-data.plot <- data.inp %>%
+```
+
+## What about you?
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 8
+#| fig-align: center
+
+# bar plot: summary of position counts
+data_r <- data_students %>%
   group_by(R) %>% 
   summarize(n = n()) %>%
   mutate(total = sum(n)) %>%
   mutate(percent = round(n * 100 / total, 1)) %>%
   mutate(desc = paste(n, " (", percent, "%)", sep="")) 
 
-order <- data.plot %>% arrange(desc(n)) %>% pull(R)
-
-g3 <- data.plot %>%
-  #mutate(R = factor(R, levels = order)) %>%
-  ggplot(aes(x = R, y = n)) + 
-  geom_bar(stat = "identity", color = "black", fill = brewer.pal(n=nrow(data.plot), "Set1")) + 
+data_r %>%
+  ggplot(aes(x = R, y = n, group = R, fill = R)) +
+  geom_bar(stat = "identity", color = "black", width = 0.7) + 
   xlab("") + 
   ylab("") + 
-  ggtitle("R experience") + 
+  ggtitle("R") +
+  scale_fill_tableau(palette = "Tableau 10") + 
   geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
   theme_classic2() + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
-  #ylim(0, max(data.plot$n) + 2) + 
-  scale_y_continuous(breaks= pretty_breaks(), limits = c(0, max(data.plot$n) + 2))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size = 18)) + 
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) 
 
 ```
 
 ## What about you?
 
 <br/><br/>
-
-```{r}
-#| message: false
-#| warning: false
-#| echo: false
-#| fig-height: 5
-#| fig-width: 6
-#| fig-align: center
-
-print(g1)
-```
-
-## What about you?
-
-<br/><br/>
-
-```{r}
-#| message: false
-#| warning: false
-#| echo: false
-#| fig-height: 5
-#| fig-width: 6
-#| fig-align: center
-print(g2)
-```
-
-## What about you?
-
-<br/><br/>
-
-```{r}
-#| message: false
-#| warning: false
-#| echo: false
-#| fig-height: 5
-#| fig-width: 6
-#| fig-align: center
-print(g3)
-```
-
-## What about you?
-
-<br/><br/>
-
-```{r}
-#| echo: false
-
-library(kableExtra)
-
-#print(names)
-
-data.tbl <- data.inp %>%
-  select(`First Name`, University)
-
-```
 
 ::: columns
-::: {.column width="50%"}
+::: {.column width="40%"}
 ```{r}
 #| echo: false
 
-data.tbl %>% 
-  slice(1:13) %>%
-  kbl() %>% kable_paper()
+data_students %>%
+  select(`First Name`, University) %>%
+  slice(1:10) %>%
+  kbl() %>%
+  kable_paper("hover")
 
 ```
 :::
 
-::: {.column width="50%"}
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="40%"}
 ```{r}
 #| echo: false
 
-data.tbl %>% 
-  slice(14:nrow(data.tbl)) %>%
-  kbl() %>% kable_paper()
+data_students %>%
+  select(`First Name`, University) %>%
+  slice(11:nrow(data_students)) %>%
+  kbl() %>% kable_paper("hover")
 
 ```
 :::
@@ -279,11 +243,18 @@ data.tbl %>%
 
 ::: columns
 ::: {.column width="60%"}
+
+::: {.incremental}
+
 -   same room entire week
 -   please drink coffee and eat snacks outside
--   we will lock the room when going for lunch
 -   bathrooms locations
 -   no access cards to the building (apologies!)
+-   we will lock the room when going for lunch
+-   lunch: Monday, Tuesday, Thursday and Friday at Bikupan
+-   lunch: Wednesday at Sven Dufva
+:::
+
 :::
 
 ::: {.column width="40%"}
@@ -311,7 +282,7 @@ data.tbl %>%
 <br/><br/>
 
 ::: incremental
--   <https://uppsala.instructure.com/courses/74597>
+-   <https://uppsala.instructure.com/courses/93277>
 -   you should be now enrolled and be able to access materials incl. quizzes
 :::
 
@@ -408,7 +379,7 @@ There is (probably) not enough time during the course to complete all the exerci
 :::
 
 ::: {.column width="30%"}
-![generated by DALL $\cdot$ E 2](images/DALLE-time-01.png){fig-align="left" width="291"}
+![generated by DALL $\cdot$ E 2](images/DALLE-time-03.png){fig-align="left" width="291"}
 :::
 :::
 
@@ -441,13 +412,20 @@ There is (probably) not enough time during the course to complete all the exerci
 
 ::: columns
 ::: {.column width="60%"}
+
+
 Some common problems we have been observing are due to:
 
+::: {.incremental}
+
 -   incorrect study design e.g. absence of adequate controls
--   forming incorrectly null and alternative hypothesis\
+-   forming incorrectly null and alternative hypothesis
 -   applying statistical methods without understanding
 -   misinterpreting the output of the statistical methods
 -   circular analysis, e.g. testing hypotheses on same sample that led to the generation of the hypotheses in the first place
+
+:::
+
 :::
 
 ::: {.column width="10%"}
@@ -458,15 +436,15 @@ Some common problems we have been observing are due to:
 :::
 :::
 
-## Background
+<!-- ## Background -->
 
-<br/><br/>
+<!-- <br/><br/> -->
 
-. . .
+<!-- . . . -->
 
-*"Today, of course, we have high-speed computers and prepackaged statistical routines to perform the necessary calculations.* ***Yet, statistical software will no more make one a statistician than would a scalpel turn one into a neurosurgeon.*** *Allowing these tools to do our thinking for us is a sure recipe for disaster."*
+<!-- *"Today, of course, we have high-speed computers and prepackaged statistical routines to perform the necessary calculations.* ***Yet, statistical software will no more make one a statistician than would a scalpel turn one into a neurosurgeon.*** *Allowing these tools to do our thinking for us is a sure recipe for disaster."* -->
 
-*from Common Errors in Statistics (and How to Avoid Them) by Philip I. Good and James W. Hardin*
+<!-- *from Common Errors in Statistics (and How to Avoid Them) by Philip I. Good and James W. Hardin* -->
 
 ## Aim
 
@@ -476,10 +454,8 @@ Some common problems we have been observing are due to:
 
 We aim to **focus on fundamentals** since we believe that getting the basics right will help with:
 
-::: incremental
 -   avoiding common errors &
 -   studying more advanced topics.
-:::
 
 ## Aim
 
@@ -493,9 +469,7 @@ We aim to **focus on fundamentals** since we believe that getting the basics rig
 
 ::: {.fragment .fade-in}
 -   Appreciation of theory incl. not being afraid of equations
-:::
 
-::: {.fragment .fade-in}
 <!-- $$x^2 + \left ( \frac{5y}{4}-\sqrt{|x|} \right )^2 = 1$$ -->
 
 ```{r}
@@ -594,7 +568,6 @@ where plasma concentration of total cholesterol was measured at one time point a
 #| fig-height: 9
 #| fig-width: 9
 
-
 # Normal levels of total blood cholesterol in mice 
 # 26-82.4 mg/dl
 
@@ -614,15 +587,14 @@ row.names(mice)=mice$names
 # to get randomly ordered x-axis
 mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
 ggplot(mice, aes(y=chol, x=names))+
-  geom_point(size = 3, color = "black") +
+  geom_point(size = 5, color = "black", pch = 21, fill = "darkgray") +
   xlab("") +
   ylab("total cholestrol [mg/dl]") +
-  theme_linedraw() +
+  theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
   theme(axis.title = element_text(size = 20)) + 
   theme(axis.text = element_text(size = 20))
   
-
 ```
 :::
 
@@ -651,19 +623,18 @@ ggplot(mice, aes(y=chol, x=names))+
 #| fig-height: 9
 #| fig-width: 9
 
-ggplot(mice, aes(y=chol, x=model, color = model))+
-  geom_jitter(width = 0.1, height = 0, size = 2) + 
+ggplot(mice, aes(y=chol, x=model, color = model, fill = model))+
+  geom_jitter(width = 0.1, height = 0, size = 5, pch = 21, color = "black") + 
   geom_boxplot(size = 2, alpha = 0) +
   xlab("") +
   ylab("total cholestrol [mg/dl]") +
-  theme_linedraw() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
+  theme_bw() + 
   theme(axis.title = element_text(size = 20)) + 
   theme(axis.text = element_text(size = 20)) + 
   theme(legend.position = "top", legend.title = element_blank()) +
   theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
-  scale_color_manual(values = mycols[1:2])
-  
+  scale_color_tableau() + 
+  scale_fill_tableau()
   
 ```
 :::
@@ -709,8 +680,8 @@ ggplot(mice, aes(y=chol, x=model, color = model))+
 #| fig-height: 9
 #| fig-width: 9
 
-ggplot(mice, aes(y=chol, x=model, color = model)) +
-  geom_jitter(width = 0.1, height = 0, size = 2) + 
+ggplot(mice, aes(y=chol, x=model, color = model, fill = model)) +
+  geom_jitter(width = 0.1, height = 0, size = 5) + 
   geom_boxplot(size = 2, alpha = 0) +
   xlab("") +
   ylab("total cholestrol [mg/dl]") +
@@ -720,7 +691,8 @@ ggplot(mice, aes(y=chol, x=model, color = model)) +
   theme(axis.text = element_text(size = 20)) + 
   theme(legend.position = "top", legend.title = element_blank()) +
   theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
-  scale_color_manual(values = mycols[1:2])
+  scale_color_tableau() + 
+  scale_fill_tableau()
   
   
 ```
@@ -764,17 +736,17 @@ row.names(mice)=mice$names
 mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
 
 ggplot(mice, aes(y=chol, x=model, color = model))+
-  geom_jitter(width = 0.1, height = 0, size = 2) + 
+  geom_jitter(width = 0.1, height = 0, size = 5) + 
   geom_boxplot(size = 2, alpha = 0) +
   xlab("") +
   ylab("total cholestrol [mg/dl]") +
   theme_linedraw() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) + 
   theme(axis.title = element_text(size = 20)) + 
   theme(axis.text = element_text(size = 20)) + 
   theme(legend.position = "top", legend.title = element_blank()) +
   theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
-  scale_color_manual(values = mycols[1:2])
+  scale_color_tableau() + 
+  scale_fill_tableau()
   
   
 ```
@@ -818,17 +790,17 @@ row.names(mice)=mice$names
 mice$names=factor(as.character(mice$names), levels=sample(row.names(mice)))
 
 ggplot(mice, aes(y=chol, x=model, color = model))+
-  geom_jitter(width = 0.1, height = 0, size = 2) +
+  geom_jitter(width = 0.1, height = 0, size = 5) +
   geom_boxplot(size = 2, alpha = 0) +
   xlab("") +
   ylab("total cholestrol [mg/dl]") +
   theme_linedraw() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   theme(axis.title = element_text(size = 20)) +
   theme(axis.text = element_text(size = 20)) +
   theme(legend.position = "top", legend.title = element_blank()) +
-  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) +
-  scale_color_manual(values = mycols[1:2])
+  theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
+  scale_color_tableau() + 
+  scale_fill_tableau()
 
 
 ```
@@ -874,9 +846,8 @@ ggplot(mice, aes(y=chol, x=model, color = model))+
 #| fig-height: 9
 #| fig-width: 9
 
-
 ggplot(mice, aes(y=chol, x=model, color = model))+
-  geom_jitter(width = 0.1, height = 0, size = 2) +
+  geom_jitter(width = 0.1, height = 0, size = 5) +
   geom_boxplot(size = 2, alpha = 0) +
   xlab("") +
   ylab("total cholestrol [mg/dl]") +
@@ -886,8 +857,8 @@ ggplot(mice, aes(y=chol, x=model, color = model))+
   theme(axis.text = element_text(size = 20)) +
   theme(legend.position = "top", legend.title = element_blank()) +
   theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) +
-  scale_color_manual(values = mycols[1:2])
-
+  scale_color_tableau() + 
+  scale_fill_tableau()
 
 ```
 :::
@@ -1008,8 +979,7 @@ beta = 1.5
 beta2 = 0.5
 stddev = 1
 
-
-rlin<-function(x, n=1, a=alpha, b=beta, s=stddev){
+rlin <- function(x, n=1, a=alpha, b=beta, s=stddev){
   m = a+b*x + 100
   return(rnorm(n, m, s))
 }
@@ -1350,7 +1320,7 @@ pca_plot <- data.frame(x = pca$x[,"PC1"], y = pca$x[,"PC2"],
                                        labels=c("batch 1","batch 2")))
 
 p.pca <- ggplot(pca_plot) +
-  geom_point(aes(x=x, y=y), alpha = 0.8, size = 2) +
+  geom_point(aes(x=x, y=y), alpha = 0.8, size = 5, pch = 19) +
   xlab("PC1") +
   ylab("PC2") +
   theme_linedraw() +
@@ -1396,7 +1366,7 @@ pca_plot <- data.frame(x = pca$x[,"PC1"], y = pca$x[,"PC2"],
                                        labels=c("batch 1","batch 2")))
 
 p.clust <- ggplot(pca_plot) +
-  geom_point(aes(x=x, y=y, color = Groups), alpha = 0.8, size = 2) +
+  geom_point(aes(x=x, y=y, color = Groups), alpha = 0.8, size = 5) +
   xlab("PC1") +
   ylab("PC2") +
   theme_linedraw() +
@@ -1404,7 +1374,7 @@ p.clust <- ggplot(pca_plot) +
   theme(axis.text = element_text(size = 20)) + 
   theme(legend.position = "none", legend.title = element_blank()) +
   theme(legend.key.size = unit(2, "cm"), legend.text = element_text(size = 20)) + 
-  scale_color_manual(values = mycols[1:2])
+  scale_color_tableau()
 
 p.clust
 
@@ -1519,9 +1489,17 @@ flowchart TD
 :::
 :::
 
+
+## Content
+
+<br/><br/>
+
+Presentations vs. chapters
+
+
 ## Welcome
 
-![](images/robot-welcome.png){fig-align="left" width="200"}
+![](images/robot-welcome-02.png){fig-align="left" width="200"}
 
 # Questions?
 
