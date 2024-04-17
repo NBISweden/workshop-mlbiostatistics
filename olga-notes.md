@@ -1,16 +1,23 @@
 # ToDo
 
+## Logistics
+
+- split students into groups
+- adjust quizzes
+- adjust feedback form
+
 ## Welcome
 
-- add explanation about chapters v.s presentations
-- add note about lunches
+- (done) add explanation about chapters v.s presentations
+- (done) add note about lunches
 
 ## Descriptive statistics
 
 - check if code is available
-- add gtsummary() examples
+- add gtsummary() examples and to exercises 
 
-  - add explanation about chapters vs. presentations, tips on how to have it in R: summary: gtsummary() 
+
+
 
 - Probability: add potential group exercises: log-normal, normal, binomial, negative binomial, omits: guess what is the distribution and what omics it comes from?
 - Probability: add a note about transformations, scaling, normalisation
@@ -24,3 +31,14 @@
 - Feature engineering & selection: check tidymodels
 - Move intro to supervised to Wednesday morning, finish linear models with supervised example
 - Thursday afternoon: feature selection, expand Lasso, logistic-Lasso; Friday more practical example with tidymodels, maybe not with tidymodels.
+
+
+Wednesday
+10 - 12: Introduction to supervised learning
+12 - 16: Linear models I
+
+Thursday
+10 - 12: Linear models II
+13 - 15: PCA
+15 - 16: Clustering
+
