@@ -2,7 +2,7 @@
 editor: source
 title: "Statistical inference, part I"
 author: "Eva Freyhult"
-date: "2023-04-25"
+date: "2024-04-23"
 date-format: long
 institute: NBIS, SciLifeLab
 format: 
@@ -24,27 +24,68 @@ knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, e
 options(digits=4)
 ```
 
-## Introduction to hypothesis tests
+## Introduction to hypothesis tests 
+
+::: {.r-fit-text}
 
 **Statistical inference** is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
 
 A **hypothesis test** is a type of inference about evaluating if a hypothesis about a population is supported by the observations of a random sample (i.e by the data available).
 
 Typically, the hypotheses that are tested are assumptions about properties of a population, such as proportion, mean, mean difference, variance etc.
+:::
 
-## The null and alternative hypothesis
+## The null and alternative hypothesis 
 
-### Null hypothesis
+::: {.columns}
+::: {.column width="50%"}
+### Null hypothesis, $H_0$
 
-$H_0$, the **null hypothesis** is in general neutral, "no change", "no difference between groups", "no association".
+$H_0$ is in general neutral
+
+* *no change*
+* *no difference between groups*
+* *no association*
 
 In general we want to show that $H_0$ is false.
 
-### Alternative hypothesis
+```{r H0box}
+#| fig.width: 2.5
+#| fig.height: 2.5
+#| out.width: 50%
+set.seed(123)
+df <- data.frame(x=rnorm(100,30,5), group=sample(c("A", "B"), size = 100, replace=TRUE, prob=c(0.5, 0.5))) 
+df |> ggplot(aes(x=group, y=x, color=group)) + geom_boxplot() + theme_bw() + xlab("Group") + ylab("") + theme(legend.position="none")
+```
 
-$H_1$, The **alternative hypothesis** expresses what the researcher is interested in "the treatment has an effect", "there is a difference between groups", "there is an association".
+:::
 
-The alternative hypothesis can also be directional "the treatment has a positive effect".
+::: {.column width="50%"}
+:::{.fragment}
+
+### Alternative hypothesis, $H_1$
+
+$H_1$ expresses what the researcher is interested in 
+
+* *the treatment has an effect*
+* *there is a difference between groups*
+* *there is an association*
+
+The alternative hypothesis can also be directional
+
+* *the treatment has a positive effect*
+
+```{r H1box}
+#| fig.width: 2.5
+#| fig.height: 2.5
+#| out.width: 50%
+set.seed(123)
+df1 <- df |> mutate(x=x+rnorm(nrow(df),c(A=15, B=0)[group],1))
+df1 |> ggplot(aes(x=group, y=x, color=group)) + geom_boxplot() + theme_bw() + xlab("Group") + ylab("") + theme(legend.position="none")
+```
+:::
+:::
+::::
 
 ## To perform a hypothesis test
 
@@ -139,6 +180,7 @@ ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>
 :::{.notes}
 The risk of false alarm is controlled by setting the significance level to a desired value. We do want to keep the risk of false alarm (type I error) low, but at the same time we don't want many missed hits (type II error).
 :::
+
 
 ## Significance level
 
@@ -309,7 +351,7 @@ data.frame(mboot=mboot)|>ggplot(aes(x=mboot)) + geom_histogram(color="white") + 
 
 #### p-value
 
-Probability of $mobs$ or something more exreme; $p = `r mean(mboot>=mobs)`$
+Probability of $mobs$ or something more extreme; $p = `r mean(mboot>=mobs)`$
 
 #### Accept or reject $H_0$?
 :::
