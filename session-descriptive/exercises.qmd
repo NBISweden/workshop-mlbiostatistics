@@ -19,7 +19,7 @@ library(gridExtra)
 
 ## Summarize diabetes data
 
-Use below code to load diabetes data set and calculate `BMI` and add categorical variable `obese` (Yes) if $BMI \ge 30$ and No otherwise. Summarize variables: obese, age and gender reporting mean and sample standard deviation for numerical variables and counts and percentage per group for categorical variables.
+Use below code to load diabetes data set and calculate `BMI` and add categorical variable `obese` (Yes) if $BMI \ge 30$ and No otherwise. Summarize variables: `obese`, `age` and `gender` reporting mean and sample standard deviation for numerical variables and counts and percentage per group for categorical variables.
 
 :::
 
@@ -45,7 +45,7 @@ data_diabetes <- diabetes %>%
 
 ## Plot diabetes data
 
-Try various plots to visualize diabetes variables: BMI and gender. Start by making a histogram and density plot for BMI and box plot of BMI stratified by gender status. Can you think of any other plots that may be useful here to visualize the relationships between BMI and gender?
+Try various plots to visualize diabetes variables: `BMI` and `gender`. Start by making a histogram and density plot for BMI and box plot of BMI stratified by gender status. Can you think of any other plots that may be useful here to visualize the relationships between BMI and gender?
 
 :::
 
@@ -93,12 +93,32 @@ Alternatively, we can use one of the many R data summaries packages, for instanc
 #| collapse: true
 #| code-fold: false
 #| results: asis
+
 library(arsenal)
 
 tab1 <- tableby(obese ~ gender + age, data=data_diabetes)
 summary(tab1)
 
 ```
+
+Another popular package is `gtsummary` that calculates descriptive statistics for continuous, categorical, and dichotomous variables in R, and presents the results in customizable summary table ready for publication. 
+
+```{r}
+#| messages: false
+#| warning: false
+#| collapse: true
+#| code-fold: false
+
+library(gtsummary)
+
+data_diabetes %>%
+  select(age, gender, obese) %>%
+  tbl_summary(by = obese, 
+              statistic = list(all_continuous() ~ "{mean} ({sd})"))
+
+```
+
+
 
 ::: {.solution}
 @exr-diabetes-plot
