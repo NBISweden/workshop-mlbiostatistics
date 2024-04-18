@@ -15,19 +15,19 @@ Hint: you can use "create_folds()" function from "library(splitTools)" to create
 
 :::
 
-::: {#exr-lm}
+<!-- ::: {#exr-lm} -->
 
-## Supervised regression
+<!-- ## Supervised regression -->
 
-Let's revisit regression in a context of supervised learning. Using the `diabetes` data set and data splitting find the best model to predict BMI scores. 
+<!-- Let's revisit regression in a context of supervised learning. Using the `diabetes` data set and data splitting find the best model to predict BMI scores.  -->
 
-Split the data into train (60%), validation (20%) and test (20%). Assess three regression models on the validation set using RMSE. Which model seems to be the best in terms of predicting BMI? What would be the expected performance on the new unseen data?
- 
-1. Model 1: use `age` as only as predictor
-2. Model 2: use `age`, `hdl` as predictors
-3. Model 3: use `age`, `hdl` and `waist` as predictors
+<!-- Split the data into train (60%), validation (20%) and test (20%). Assess three regression models on the validation set using RMSE. Which model seems to be the best in terms of predicting BMI? What would be the expected performance on the new unseen data? -->
 
-:::
+<!-- 1. Model 1: use `age` as only as predictor -->
+<!-- 2. Model 2: use `age`, `hdl` as predictors -->
+<!-- 3. Model 3: use `age`, `hdl` and `waist` as predictors -->
+
+<!-- ::: -->
 
 
 ## Answers to exercises {.unnumbered}
@@ -62,7 +62,7 @@ data_diabetes <- input_diabetes %>%
   mutate(waist = waist * inch2cm) %>% 
   mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
   mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
-  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(obese = cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
   mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
   mutate(location = factor(location)) %>%
   mutate(frame = factor(frame)) %>%
@@ -145,90 +145,90 @@ print(cls_rate)
 ```
 
 
-::: {.solution}
-@exr-lm
-:::
+<!-- ::: {.solution} -->
+<!-- @exr-lm -->
+<!-- ::: -->
 
-```{r}
-#| label: supervised-regression
-#| warning: false
-#| message: false
-#| fig-width: 7
-#| fig-height: 8
-#| fig-align: center
-#| code-fold: false
-#| collapse: true
+<!-- ```{r} -->
+<!-- #| label: supervised-regression -->
+<!-- #| warning: false -->
+<!-- #| message: false -->
+<!-- #| fig-width: 7 -->
+<!-- #| fig-height: 8 -->
+<!-- #| fig-align: center -->
+<!-- #| code-fold: false -->
+<!-- #| collapse: true -->
 
-# input and clean data
-# load libraries
-library(tidyverse)
-library(splitTools)
-library(kknn)
+<!-- # input and clean data -->
+<!-- # load libraries -->
+<!-- library(tidyverse) -->
+<!-- library(splitTools) -->
+<!-- library(kknn) -->
 
-# input data
-input_diabetes <- read_csv("data/data-diabetes.csv")
+<!-- # input data -->
+<!-- input_diabetes <- read_csv("data/data-diabetes.csv") -->
 
-# clean data
-inch2cm <- 2.54
-pound2kg <- 0.45
-data_diabetes <- input_diabetes %>%
-  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
-  mutate(waist = waist * inch2cm) %>% 
-  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
-  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
-  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
-  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
-  mutate(location = factor(location)) %>%
-  mutate(frame = factor(frame)) %>%
-  mutate(gender = factor(gender))
+<!-- # clean data -->
+<!-- inch2cm <- 2.54 -->
+<!-- pound2kg <- 0.45 -->
+<!-- data_diabetes <- input_diabetes %>% -->
+<!--   mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>%  -->
+<!--   mutate(waist = waist * inch2cm) %>%  -->
+<!--   mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>% -->
+<!--   mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% -->
+<!--   mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% -->
+<!--   mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>% -->
+<!--   mutate(location = factor(location)) %>% -->
+<!--   mutate(frame = factor(frame)) %>% -->
+<!--   mutate(gender = factor(gender)) -->
 
-# select relevant data and remove missing data
-data_input <- 
-  data_diabetes %>%
-  select(BMI, age, hdl, waist) %>%
-  na.omit()
-glimpse(data_input)
+<!-- # select relevant data and remove missing data -->
+<!-- data_input <-  -->
+<!--   data_diabetes %>% -->
+<!--   select(BMI, age, hdl, waist) %>% -->
+<!--   na.omit() -->
+<!-- glimpse(data_input) -->
 
-# define calculate_rmse() function
-calculate_rmse <- function(y_true, y_pred){
-  rmse = sqrt(mean((y_true - y_pred)^2))
-}
+<!-- # define calculate_rmse() function -->
+<!-- calculate_rmse <- function(y_true, y_pred){ -->
+<!--   rmse = sqrt(mean((y_true - y_pred)^2)) -->
+<!-- } -->
 
-# split into train, validation and test: stratify by BMI
-randseed <- 123
-inds <- partition(data_input$BMI, 
-                  p = c(train = 0.6, valid = 0.2, test = 0.2),
-                  seed = randseed)
+<!-- # split into train, validation and test: stratify by BMI -->
+<!-- randseed <- 123 -->
+<!-- inds <- partition(data_input$BMI,  -->
+<!--                   p = c(train = 0.6, valid = 0.2, test = 0.2), -->
+<!--                   seed = randseed) -->
 
-data_train <- data_input[inds$train, ]
-data_valid <- data_input[inds$valid,]
-data_test <- data_input[inds$test, ]
+<!-- data_train <- data_input[inds$train, ] -->
+<!-- data_valid <- data_input[inds$valid,] -->
+<!-- data_test <- data_input[inds$test, ] -->
 
-# Model 1
-m1 <- lm(BMI ~ age, data = data_train) # fit model on train
-pred_bmi_1 <- predict(m1, newdata = data_valid) # predict BMI using validation set
-m1_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_1) # calculate RMSE
+<!-- # Model 1 -->
+<!-- m1 <- lm(BMI ~ age, data = data_train) # fit model on train -->
+<!-- pred_bmi_1 <- predict(m1, newdata = data_valid) # predict BMI using validation set -->
+<!-- m1_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_1) # calculate RMSE -->
 
-# Model 2
-m2 <- lm(BMI ~ age + hdl, data = data_train) 
-pred_bmi_2 <- predict(m2, newdata = data_valid) 
-m2_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_2) 
+<!-- # Model 2 -->
+<!-- m2 <- lm(BMI ~ age + hdl, data = data_train)  -->
+<!-- pred_bmi_2 <- predict(m2, newdata = data_valid)  -->
+<!-- m2_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_2)  -->
 
-# Model 3
-m3 <- lm(BMI ~ age + hdl + waist, data = data_train) 
-pred_bmi_3 <- predict(m3, newdata = data_valid) 
-m3_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_3) 
+<!-- # Model 3 -->
+<!-- m3 <- lm(BMI ~ age + hdl + waist, data = data_train)  -->
+<!-- pred_bmi_3 <- predict(m3, newdata = data_valid)  -->
+<!-- m3_rmse <- calculate_rmse(data_valid$BMI, pred_bmi_3)  -->
 
-# Compare models
-rmse <- data.frame(model = c("Model 1", "Model 2", "Model 3"), rmse = c(m1_rmse, m2_rmse, m3_rmse))
-print(rmse)
+<!-- # Compare models -->
+<!-- rmse <- data.frame(model = c("Model 1", "Model 2", "Model 3"), rmse = c(m1_rmse, m2_rmse, m3_rmse)) -->
+<!-- print(rmse) -->
 
-# Out of the three models, Model 3, has the smallest RMSE and is thus selected as best
+<!-- # Out of the three models, Model 3, has the smallest RMSE and is thus selected as best -->
 
-# Expected performance on the test data
-pred_bmi_final <- predict(m3, newdata = data_test)
-rmse_final <- calculate_rmse(data_test$BMI, pred_bmi_final)
-print(rmse_final)
+<!-- # Expected performance on the test data -->
+<!-- pred_bmi_final <- predict(m3, newdata = data_test) -->
+<!-- rmse_final <- calculate_rmse(data_test$BMI, pred_bmi_final) -->
+<!-- print(rmse_final) -->
 
-```
+<!-- ``` -->
 
