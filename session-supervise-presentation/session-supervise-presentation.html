@@ -8,7 +8,7 @@
 <link href="session-supervise-presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <link href="session-supervise-presentation_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
 <link href="session-supervise-presentation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.3.333">
+  <meta name="generator" content="quarto-1.3.450">
 
   <title>Supervised learning</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,7 +29,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="session-supervise-presentation_files/libs/revealjs/dist/theme/quarto.css" id="theme">
+  <link rel="stylesheet" href="session-supervise-presentation_files/libs/revealjs/dist/theme/quarto.css">
   <link href="session-supervise-presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="session-supervise-presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="session-supervise-presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -341,7 +341,7 @@
 <ul>
 <li>What supervised learning is.</li>
 <li>Data splitting.</li>
-<li>How to evaluate classification and regression ML models.</li>
+<li>How to evaluate classification models.</li>
 <li>How to put together a minimum working example of supervised learning with KNN classifier.</li>
 </ul>
 </section>
@@ -369,12 +369,18 @@
 <li class="fragment">For instance given a new biopsy sample we want to tell whether it contains tumor tissue (classification)</li>
 <li class="fragment">For instance given a new measurements of the methylation sites we want to forecast epigenomic age (regression)</li>
 </ul></li>
-<li class="fragment">In supervised learning we are using sample <strong>labels</strong> to <strong>train</strong> (build) a model.</li>
-<li class="fragment">We then use the trained model for <strong>interpretation</strong> and <strong>prediction</strong>.</li>
 </ul>
 </div>
 </section>
 <section id="what-is-supervised-learning-1" class="slide level2">
+<h2>What is supervised learning?</h2>
+
+<img data-src="images/supervised-02.png" class="r-stretch"><ul>
+<li>In supervised learning we are using sample <strong>labels</strong> to <strong>train</strong> (build) a model.</li>
+<li>We then use the trained model for <strong>interpretation</strong> and <strong>prediction</strong>.</li>
+</ul>
+</section>
+<section id="what-is-supervised-learning-2" class="slide level2">
 <h2>What is supervised learning?</h2>
 <p><em>Definition</em> <br></p>
 <div>
@@ -534,7 +540,7 @@
 <li>Leave-one-out cross-validation is a special case of cross-validation where the number of folds equals the number of instances in the data set.</li>
 </ul>
 
-<img data-src="figures/data-split-loocv-02.png" class="margin-caption r-stretch quarto-figure-center" style="width:100.0%"><p class="caption">Figure&nbsp;1: Example of LOOCV, leave-one-out cross validation</p></section>
+<img data-src="figures/data-split-loocv-02.png" style="width:100.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;1: Example of LOOCV, leave-one-out cross validation</p></section>
 <section id="performance-metrics" class="slide level2">
 <h2>Performance metrics</h2>
 <p><em>Evaluating classification</em> <br></p>
@@ -585,33 +591,25 @@
 <li><p><strong>Specificity</strong>: measures the proportion of true negatives over all actual negative samples, i.e.&nbsp;how well the classifier is able to avoid false negatives. It is also known as <strong>true negative rate</strong> and <strong>selectivity</strong>. <span class="math display">\[TNR = \frac{TN}{TN+FP}\]</span></p></li>
 <li><p><strong>Precision</strong>: measures the proportion of true positives over all positive predictions made by the classifier, i.e.&nbsp;how well the classifier is able to avoid false positives. It is also known as <strong>positive predictive value</strong>. <span class="math display">\[PPV = \frac{TP}{TP + FP}\]</span></p></li>
 </ul>
-</section>
-<section id="performance-metrics-1" class="slide level2">
-<h2>Performance metrics</h2>
-<p><em>Evaluating regression</em> <br></p>
-<div>
-<ul>
-<li class="fragment">The idea of using data splits to train the model holds for fitting regression models. We can use data splits to train and assess regression models.</li>
-<li class="fragment">For instance thinking back about the regression examples we have seen in previous section, we could try to find the best regression model to predict BMI given all other variables in the diabetes data set such as age, waist or cholesterol measurements.</li>
-<li class="fragment">In the next section we will also learn about regularized regression where a penalty term is added to improve the generalization of a regression model; the penalty term(s) is optimized during the training of the model.</li>
-</ul>
-</div>
-</section>
-<section id="evaluating-regression" class="slide level2 smaller">
-<h2>Evaluating regression</h2>
-<p><br></p>
-<ul>
-<li><strong>R-squared</strong>: As seen in the linear regression session. <span class="math display">\[
-R^2=1-\frac{RSS}{TSS} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}
-\]</span></li>
-<li><strong>Adjusted R-squared</strong>: seen before <span class="math display">\[
-R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\frac{n-1}{n-p-1}
-\]</span></li>
-<li><strong>Mean Squared Error (MSE)</strong>: average squared difference between the predicted values and the actual values. <span class="math display">\[MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2\]</span></li>
-<li><strong>Root Mean Squared Error (RMSE)</strong>: square root of the MSE <span class="math display">\[RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}\]</span></li>
-<li><strong>MAE</strong>: average absolute difference between the predicted values and the actual values <span class="math display">\[MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|\]</span></li>
-<li><strong>Mean Absolute Percentage Error (MAPE)</strong>: average percentage difference between the predicted values and the actual values.</li>
-</ul>
+<!-- ## Performance metrics -->
+<!-- *Evaluating regression* <br> -->
+<!-- ::: incremental -->
+<!-- -   The idea of using data splits to train the model holds for fitting regression models. We can use data splits to train and assess regression models. -->
+<!-- -   For instance thinking back about the regression examples we have seen in previous section, we could try to find the best regression model to predict BMI given all other variables in the diabetes data set such as age, waist or cholesterol measurements. -->
+<!-- -   In the next section we will also learn about regularized regression where a penalty term is added to improve the generalization of a regression model; the penalty term(s) is optimized during the training of the model. -->
+<!-- ::: -->
+<!-- ## Evaluating regression {.smaller} -->
+<!-- <br> -->
+<!-- -   **R-squared**: As seen in the linear regression session. $$ -->
+<!--     R^2=1-\frac{RSS}{TSS} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2} -->
+<!--     $$ -->
+<!-- -   **Adjusted R-squared**: seen before $$ -->
+<!--     R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\frac{n-1}{n-p-1} -->
+<!--     $$ -->
+<!-- -   **Mean Squared Error (MSE)**: average squared difference between the predicted values and the actual values. $$MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2$$ -->
+<!-- -   **Root Mean Squared Error (RMSE)**: square root of the MSE $$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}$$ -->
+<!-- -   **MAE**: average absolute difference between the predicted values and the actual values $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|$$ -->
+<!-- -   **Mean Absolute Percentage Error (MAPE)**: average percentage difference between the predicted values and the actual values. -->
 </section>
 <section id="live-demo" class="slide level2">
 <h2>Live demo</h2>
