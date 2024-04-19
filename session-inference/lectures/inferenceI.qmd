@@ -21,7 +21,7 @@ require(kableExtra)
 library(gt)
 require(latex2exp)
 knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
-options(digits=4)
+options(digits=2)
 ```
 
 ## Introduction to hypothesis tests 
@@ -402,15 +402,183 @@ In a permutation test the null distribution is computed by permuting (rearrangin
 The null distribution is a distribution of test statistics that could be explained by the random sampling. If the observed effect is much more extreme than what could be explained just by the random sampling, we can conclude that there is a difference between the groups (the treatment has an effect).
 :::
 
-## Permutation example
+## Permutation example {auto-animate="true" auto-animate-easing="ease-in-out"}
 
 **Do high fat diet lead to increased body weight?**
+
+. . .
 
 Study setup:
 
 1.  Order 24 female mice from a lab.
+
+::: r-hstack
+```{r results="asis"}
+set.seed(111)
+n <- 12
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+name <- paste0("mus", 1:(2*n))
+o <- sample(1:(2*n))
+#x <- c(xHF-rnorm(n, 5, 2), xN-rnorm(n, 2, 2))
+x <- rnorm(2*n, 25, 3)
+sc <- 4
+for (i in o) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(x[i]*sc), name[i]))
+}
+```
+
+:::
+
+## Permutation example {auto-animate="true" auto-animate-easing="ease-in-out"}
+
+**Do high fat diet lead to increased body weight in mice?**
+
+Study setup:
+
+1.  Order 24 female mice from a lab.
+
 2.  Randomly assign 12 of the 24 mice to receive high-fat diet, the remaining 12 are controls (ordinary diet).
-3.  Measure body weight after one week.
+
+::: {.columns}
+::: {.column width="50%"}
+High-fat diet
+
+::: {r-vstack}
+::: r-hstack
+```{r results="asis"}
+for (i in 1:4) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(x[i]*sc), name[i])) 
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 5:8) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(x[i]*sc), name[i])) 
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 9:12) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(x[i]*sc), name[i])) 
+}
+```
+:::
+:::
+:::
+::: {.column width="50%"}
+Ordinary diet
+
+::: {r-vstack}
+::: r-hstack
+```{r results="asis"}
+for (i in 13:16) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}\n', round(x[i]*sc), name[i])) 
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 17:20) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}\n', round(x[i]*sc), name[i])) 
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 21:24) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}\n', round(x[i]*sc), name[i])) 
+}
+```
+:::
+:::
+:::
+::::
+
+## Permutation example {auto-animate="true" auto-animate-easing="ease-in-out"}
+
+**Do high fat diet lead to increased body weight in mice?**
+
+Study setup:
+
+1.  Order 24 female mice from a lab.
+
+2.  Randomly assign 12 of the 24 mice to receive high-fat diet, the remaining 12 are controls (ordinary diet).
+
+3.  Measure body weight after three weeks.
+
+::: {.columns}
+::: {.column width="50%"}
+High-fat diet
+
+::: {r-vstack}
+::: r-hstack
+```{r results="asis"}
+for (i in 1:4) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(xHF[i]*sc), name[i]))
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 5:8) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(xHF[i]*sc), name[i]))
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 9:12) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(xHF[i]*sc), name[i]))
+}
+```
+:::
+:::
+:::
+
+::: {.column width="50%"}
+Ordinary diet
+
+::: {r-vstack}
+::: r-hstack
+```{r results="asis"}
+for (i in 1:4) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}\n', round(xN[i]*sc), name[12+i]))
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 5:8) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}\n', round(xN[i]*sc), name[12+i]))
+}
+```
+:::
+::: r-hstack
+```{r results="asis"}
+for (i in 9:12) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}\n', round(xN[i]*sc), name[12+i]))
+}
+```
+:::
+:::
+:::
+::::
+
+
+## Permutation example
+
+**Do high fat diet lead to increased body weight in mice?**
+
+Study setup:
+
+1.  Order 24 female mice from a lab.
+
+2.  Randomly assign 12 of the 24 mice to receive high-fat diet, the remaining 12 are controls (ordinary diet).
+
+3.  Measure body weight after three weeks.
 
 The observed values, mouse weights in grams, are summarized below;
 
@@ -450,7 +618,7 @@ $$\alpha = 0.05$$
 
 **3. Test statistic**
 
-Of interest; the mean difference between high-fat and control mice 
+Of interest; the mean weight difference between high-fat and control mice 
 
 $$D = \bar X_2 - \bar X_1$$
 
@@ -486,6 +654,13 @@ $d_{obs} = \bar x_2 - \bar x_1 = `r dobs`$, difference in mean weights
 If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the same diet.
 
 The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
+
+::: r-hstack
+```{r results="asis"}
+for (i in o) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(c(CHF, xN)[i]*sc), name[i]))
+}
+```
 
 Random reassignment to two groups can be accomplished using permutation.
 
@@ -537,41 +712,5 @@ $P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) =$ `r sprintf("%.3g",mean(dnull.perm>
 ## Simulation example
 
 **6. Conclusion?**
-
-
-
-
-## Multiple testing
-### Error types
-
-:::: {.columns}
-:::{.column width="50%"}
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling()
-```
-:::
-::: {.column width="50%}
-:::
-::::
-
-## Multiple testing
-### Error types
-
-:::: {.columns}
-:::{.column width="50%"}
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error, miss", "Reject H0", "Type I error, false alarm", ""), byrow=F, ncol=3)) %>% kable_styling()
-```
-:::
-
-::: {.column width="50%}
-
-```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=F, ncol=3)) %>% kable_styling()
-```
-
-:::
-
-::::
 
 
