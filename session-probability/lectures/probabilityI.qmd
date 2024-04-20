@@ -6,6 +6,7 @@ author: "Eva Freyhult"
 date: "2024-04-22"
 date-format: long
 institute: NBIS, SciLifeLab
+embed-resources: true
 format: 
   revealjs:
     slide-number: true
@@ -28,11 +29,24 @@ options(digits=2)
 
 Probability describes how likely an event, $E$, is to happen.
 
+Example events:
+
+:::{layout-ncol=4 align="bottom"}
+![Get an even number when rolling a dice.](figures/dice1.jpg){height="300"}
+
+![A mutation in a gene.](figures/mutation.jpg){height="300"}
+
+![Catch a cold.](figures/virus.jpg){height="4cm"}
+
+![The sun rises in the morning.](figures/sunrise.jpg){height="4cm"}
+:::
+
+
 ## Probability {auto-animate="true"}
 
 Probability describes how likely an event, $E$, is to happen.
 
-1.  $0 \leq P(E) \leq 1$
+$$0 \leq P(E) \leq 1$$
 
 A probability is always between 0 and 1, where 1 means that the event
 always happens, and 0 that it never happens.
@@ -480,15 +494,19 @@ series of $n$ draws **without** replacement from a population of size $N$
 with $Np$ objects of interest (successes).
 
 :::: {.columns}
-::: {.column style="width: 55%"}
+::: {.column width="15%"}
+![](figures/pollenageurn.png)
+:::
+::: {.column style="width: 45%; font-size: 80%"}
 The probability density function
 
 $$P(X=k) = \frac{\binom{Np}{k}\binom{N-Np}{n-k}}{\binom{N}{n}}$$
 :::
-::: {.column style="width: 45%; font-size: 50%"}
+::: {.column style="width: 40%; font-size: 50%"}
 
 **Examples**
 
+* Select a subset of individuals from a (small) population of individuals, what is the probability that $x$ of them arre allergic to pollen?
 * Gene set enrichment analysis - identification of gene sets that are overrepresented in a set of genes of interest.
 * In population genetics to describe the number of individuals with a certain genotype in a population.
 
@@ -520,7 +538,7 @@ The probability mass function;
 
 $$P(X=k) = \frac{\lambda}{k!}e^{-\lambda},$$
 
-$$E[X] = var(X) = \lambda = n \pi$$
+$$E[X] = var(X) = \lambda = n p$$
 :::
 
 
@@ -536,7 +554,7 @@ certain time period can be modelled using the Poisson distribution.
 ::::
 
 The Poisson distribution can approximate the binomial distribution if
-$n$ is large and $\pi$ is small, $n>10, \pi < 0.1$.
+$n$ is large and $p$ is small, rule of thump $n>20, p<0.05, np < 10$.
 
 
 ## Negative binomial
@@ -548,7 +566,7 @@ $r$ is also called the dispersion parameter.
 ::: {.smaller style="font-size: 60%"}
 **Examples**
 
-* In epidemiology the number of days (weeks) of no cases before a certin number of new cases is reported.
+* In epidemiology the number of days (weeks) of no cases before a certain number of new cases is reported.
 * In RNAseq data analysis negative binomial distribution is commonly used to model read counts.
 :::
 
@@ -572,7 +590,8 @@ data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px
 data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dnbinom(x, n*(1-prob), 1-prob)), .groups="drop") |> mutate(distribution="Negative binomial"),
 data.frame(prob=probs) |> group_by(prob) |> reframe(data.frame(x=x) |> mutate(px=dhyper(x, round(N*prob), round(N*(1-prob)), n)), .groups="drop") |> mutate(distribution="Hypergeometric"))
 
-df|>ggplot(aes(x=x, y=px, color=distribution, shape=factor(prob))) + geom_point(size=5) + geom_line() + theme_bw() + scale_color_colorblind() + ylab("p(x)") + scale_shape_discrete("")
+#df|>ggplot(aes(x=x, y=px, color=distribution, shape=factor(prob))) + geom_point(size=5) + geom_line() + theme_bw() + scale_color_colorblind() + ylab("p(x)") + scale_shape_discrete("")
+df|>mutate(prob=paste0("p=", prob)) |> ggplot(aes(x=x, y=px, fill=distribution)) + geom_bar(stat="identity", position="dodge") + theme_bw() + scale_fill_colorblind() + ylab("p(x)") + scale_shape_discrete("") + facet_grid(prob~distribution) + theme(legend.position="none")
 ```
 
 ## In R
