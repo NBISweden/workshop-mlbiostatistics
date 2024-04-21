@@ -1,0 +1,112 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Descriptive statistics & feature engineering
+
+In machine learning, feature engineering refers to techniques that transform raw data in order to better represent the underlying problem and as a consequence to enhance the performance of machine learning models. Common methods include transforming variables, creating new variables from existing data, selecting relevant features, and reducing dimensionality. These methods go often hand in hand with descriptive statistics, as descriptive statistics is often used throughout the process to guide features engineering, e.g. one may re-evaluate distributions of transformed, or newly created, variables. 
+
+## Feature engineering
+```{r}
+#| label: data
+#| echo: false
+#| warning: false
+#| message: false
+
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kableExtra)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+  
+```
+
+Depending on the data, question of interest and modeling strategy such as chosen algorithm, feature engineering techniques may include:
+
+- **scaling** of numerical features, e.g. scaling to mean 0 and standard deviation 1 scale to prevent features with larger scales dominating the model. By default we used scaling with `kknn()` function as it is based on calculating Euclidean distance.
+- **normalization** and/or **transformations**
+- representing categorical variables with **dummy variables** or **one-hot encoding** to create numerical features. For instance a categorical variable `obese` with three possible vales (underweight, healthy, overweight) can be transformed into two binary variables: "is_healthy", and "is_overweight", where the value of each variable is 1 if the observation belongs to that category and 0 otherwise. Only $k-1$ binary variables to encode $k$ categories. In one-hot encoding $k$ binary variables are created.
+
+```{r}
+#| label: dummys
+#| tbl-cap-location: margin
+#| echo: false
+
+# make up some unbalanced obese categories to demonstrate when upsampling etc. may be needed
+data_obese_makeup <- data_diabetes %>%
+  na.omit() %>%
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) %>%
+  dplyr::select(id, obese)
+
+data_dummy <- data_obese_makeup %>%
+  mutate(is_healthy = ifelse(obese == "Healthy", 1, 0)) %>%
+  mutate(is_overweight = ifelse(obese == "Overweight", 1, 0)) %>%
+  mutate(id = id - 100) %>%
+  slice(c(1, 2, 3, 9, 10))
+
+data_dummy %>%
+  kbl(caption = "Example of obese variable with three categories (underweight/healthy/overweight) encoded as dummy variables", align = "cccc") %>%
+  column_spec(2, border_right="2px solid black") %>%
+  kable_styling()
+
+```
+
+-   **handling missing data** via imputations (mean, median, KNN-based) or deleting strategies such as list-wise deletion (complete-case analysis) or pair-wise deletion (available-case analysis)
+- **handling imbalanced data** e.g. via down-sampling and up-sampling strategies or generating synthetic instances e.g. with SMOTE [@fernandez2018smote] or ADASYN [@4633969]
+```{r}
+#| label: imbalanced-data
+#| echo: false
+#| fig-cap: "An example of a data set that may benefit from applying techniques for handling imbalanced classes such as up-sampling, down-sampling or generating synthetic instances"
+#| fig-cap-location: margin
+#| fig-height: 4
+
+# make up some unbalanced obese categories to demonstrate when up-sampling etc. may be needed
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  na.omit() %>% 
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) 
+
+data_diabetes %>%
+  ggplot(aes(x = obese, y = "", fill = obese)) + 
+  geom_col(width = 0.5) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("number of samples") + 
+  xlab("") + 
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position = "none", legend.text = element_text(size=12)) +
+  theme(axis.title = element_text(size = 12), axis.text = element_text(size = 11))
+  
+```
+
+-   **feature aggregation**: combining multiple related features into a single one, e.g. calculating average of a group
+-   **feature interaction**: creating new features by combining existing features e.g. creating BMI variables based on weight and height
+-   **dimensionality reduction**: reducing number of features in a data set by transforming them into a lower-dimensional space, e.g. with PCA
+-   **filtering out irrelevant features** e.g. using variance threshold or univariate statistics
+-   **filtering out redundant features** e.g. keeping only one of a group of highly correlated features
+
+
+
