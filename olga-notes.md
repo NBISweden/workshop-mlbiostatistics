@@ -6,15 +6,12 @@
 - adjust quizzes
 - adjust feedback form
 
-## Welcome
-
-- (done) add explanation about chapters v.s presentations
-- (done) add note about lunches
-
 ## Descriptive statistics
 
-- (done) check if code is available
-- (done) add gtsummary() examples and to exercises 
+- check to calculate weighted mean
+- read about SMOTE [@fernandez2018smote] or ADASYN [@4633969]
+- be able to explain: geometric mean, trimmed mean, moving average, Hodges-Lehmann Estimator, CV, MAD, skewness, kurtosis
+- draw positively vs. negatively skew data
 
 ## Wednesday
 
@@ -39,27 +36,21 @@ Objectives:
 
 13:00 - 14:30 Linear models: regression and classification
 
-- linear models in ML context (metrics)
+- linear models in ML context
 - linear model selection & regularization: feature selection
 - GLM: logistic regression, Poisson regression
-- Logistics Lasso
-- Feature engineering?
-- 
+- logistic lasso
 
+Later:
+
+- under common cases add regularization examples with glmnet
+- add more on checking assumptions later, Cook's distance, correlated measurements
+- add derivations for single regression calculus
+  
 14:30 - 15:00 break
 15:00 - 16:00 Linear models exercises
 
-- common cases: go through and see if I can add Poisson, logistic Lasso, or some ML components
-- putting into ML context (regression, regularized regression)
-
-- Move feature engineering to descriptive stats on Monday
-- Move things around in lm
-- Complete common cases with ML examples
-
 Later
-
-- add more on checking assumptions later, Cook's distance, correlated measurements
-- add derivations for single regression calculus
 
 ## Thursday
 

@@ -1203,11 +1203,220 @@ Coefficients:
 </section>
 
 <section>
-<section id="beyond-linear-models" class="title-slide slide level1 center">
-<h1>Beyond linear models</h1>
+<section id="linear-models-regression-and-classification-tasks" class="title-slide slide level1 center">
+<h1>Linear models: regression and classification tasks</h1>
+
+</section>
+<section id="linear-models-in-ml-context" class="slide level2">
+<h2>Linear models in ML context</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:55%;">
+<div>
 <ul>
-<li>Generalized linear models</li>
+<li class="fragment">We can think of linear models in machine learning context, as they are often both regression and classification prediction tasks.</li>
+<li class="fragment">It is often the case that some or many of the variables used in linear models <strong>are not</strong> associated with the response.</li>
+<li class="fragment">There are <strong>feature selection</strong> methods for excluding <strong>irrelevant</strong> variables and improving prediction results.
+<ul>
+<li class="fragment">subset selection, <strong>Shrinkage methods</strong> and dimension reduction</li>
+<li class="fragment">or grouped by filter methods, wrapper methods and <strong>embedded methods</strong>.</li>
+</ul></li>
 </ul>
+</div>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:40%;">
+<div class="cell">
+<div class="cell-output-display">
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-37-1.png" width="960"></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluating-linear-models" class="slide level2">
+<h2>Evaluating linear models</h2>
+<p><br></p>
+<p>Regression models can be evaluated by assessing a model fit or by directly evaluating the prediction error via using data splitting strategies.</p>
+<div class="fragment">
+<div class="columns">
+<div class="column" style="width:55%;">
+<p><strong>Model fit</strong></p>
+<p><strong>Adjusted R-squared</strong> <span class="math display">\[R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1}\]</span></p>
+<p><strong>Akaike information criterion (AIC)</strong> <span class="math display">\[\text{AIC} = n \ln(\text{RSS}/n) + 2p\]</span></p>
+<p><strong>Bayesian information criterion (BIC)</strong> <span class="math display">\[\text{BIC} = n \ln(\text{RSS}/n) + p \ln(n)\]</span></p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:40%;">
+<p><strong>Prediction error</strong></p>
+<p><strong>Mean Squared Error (MSE)</strong> <span class="math display">\[MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2\]</span> <strong>Root Mean Squared Error (RMSE)</strong> <span class="math display">\[RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}\]</span></p>
+<p><strong>Mean Absolute Error (MAE)</strong> <span class="math display">\[MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="feature-selection" class="slide level2">
+<h2>Feature selection</h2>
+<p><em>Group discussion</em> <br></p>
+<p>It is time to try to find the best model to explain <code>BMI</code> using <code>diabetes</code> data. Given from what we have learnt so far about linear regression models, how would you find the best model?</p>
+<p>As a reminder, we have below variables in the data:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "id"       "chol"     "stab.glu" "hdl"      "ratio"    "glyhb"   
+ [7] "location" "age"      "gender"   "height"   "weight"   "frame"   
+[13] "bp.1s"    "bp.1d"    "bp.2s"    "bp.2d"    "waist"    "hip"     
+[19] "time.ppn" "BMI"      "obese"    "diabetic"</code></pre>
+</div>
+</div>
+</section>
+<section id="feature-selection-1" class="slide level2">
+<h2>Feature selection</h2>
+<p><em>Definition</em> <br></p>
+<p>Feature selection is the process of selecting the most relevant and informative subset of features from a larger set of potential features in order to improve the performance and interpretability of a machine learning model.</p>
+<h3 id="there-are-generally-three-main-groups-of-feature-selection-methods">There are generally three main groups of feature selection methods:</h3>
+<div>
+<ul>
+<li class="fragment"><strong>Filter methods</strong> use statistical measures to score the features and select the most relevant ones, e.g.&nbsp;based on correlation coefficient or <span class="math inline">\(\chi^2\)</span> test. They tend to be computationally efficient but may overlook complex interactions between features and can be sensitive to the choice of metric used to evaluate the feature importance.</li>
+<li class="fragment"><strong>Wrapper methods</strong> use a machine learning algorithm to evaluate the performance of different subsets of features, e.g.&nbsp;forward/backward feature selection. They tend to be computationally heavy.</li>
+<li class="fragment"><strong>Embedded methods</strong> incorporate feature selection as part of the machine learning algorithm itself, e.g.&nbsp;<strong>regularized regression</strong> or <strong>Random Forest</strong>. These methods are computationally efficient and can be more accurate than filter methods.</li>
+</ul>
+</div>
+</section>
+<section id="regularized-regression" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>definition</em> <br></p>
+<div>
+<ul>
+<li class="fragment">Regularized regression expands on the regression by adding a <strong>penalty term(s)</strong> to <strong>shrink the model coefficients</strong> of less important features towards zero.</li>
+<li class="fragment">This can help to prevent overfitting and improve the accuracy of the predictive model.</li>
+<li class="fragment">Depending on the penalty added, we talk about <strong>Ridge</strong>, <strong>Lasso</strong> or <strong>Elastic Nets regression</strong>.</li>
+</ul>
+</div>
+</section>
+<section id="regularized-regression-1" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>Ridge regression</em> <br></p>
+<ul>
+<li><p>Previously we saw that the least squares fitting procedure estimates model coefficients <span class="math inline">\(\beta_0, \beta_1, \cdots, \beta_p\)</span> using the values that minimize the residual sum of squares: <span id="eq-lm"><span class="math display">\[RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 \qquad(3)\]</span></span></p></li>
+<li><p>In <strong>regularized regression</strong> the coefficients are estimated by minimizing slightly different quantity. Specifically, in <strong>Ridge regression</strong> we estimate <span class="math inline">\(\hat\beta^{L}\)</span> that minimizes <span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(4)\]</span></span></p></li>
+</ul>
+<p>where:</p>
+<p><span class="math inline">\(\lambda \ge 0\)</span> is a <strong>tuning parameter</strong> to be determined separately e.g.&nbsp;via cross-validation</p>
+</section>
+<section id="regularized-regression-2" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>Ridge regression</em> <br></p>
+<p><span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(5)\]</span></span></p>
+<p><a href="#/regularized-regression-1">Equation&nbsp;5</a> trades two different criteria:</p>
+<ul>
+<li>as with least squares, lasso regression seeks coefficient estimates that fit the data well, by making RSS small</li>
+<li>however, the second term <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span>, called <strong>shrinkage penalty</strong> is small when <span class="math inline">\(\beta_1, \cdots, \beta_p\)</span> are close to zero, so it has the effect of <strong>shrinking</strong> the estimates of <span class="math inline">\(\beta_j\)</span> towards zero.</li>
+<li>the tuning parameter <span class="math inline">\(\lambda\)</span> controls the relative impact of these two terms on the regression coefficient estimates
+<ul>
+<li>when <span class="math inline">\(\lambda = 0\)</span>, the penalty term has no effect</li>
+<li>as <span class="math inline">\(\lambda \rightarrow \infty\)</span> the impact of the shrinkage penalty grows and the ridge regression coefficient estimates approach zero</li>
+</ul></li>
+</ul>
+</section>
+<section id="regularized-regression-3" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>Ridge regression</em> <br></p>
+
+<img data-src="session-lm-presentation_files/figure-revealjs/ridge-run-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values.</p></section>
+<section id="bias-variance-trade-off" class="slide level2">
+<h2>Bias-variance trade-off</h2>
+<p><br></p>
+<p>Ridge regression’s advantages over least squares estimates stems from <strong>bias-variance trade-off</strong></p>
+<div>
+<ul>
+<li class="fragment">The bias-variance trade-off describes the relationship between model complexity, prediction accuracy, and the ability of the model to generalize to new data.</li>
+<li class="fragment"><strong>Bias</strong> refers to the error that is introduced by approximating a real-life problem with a simplified model
+<ul>
+<li class="fragment">e.g.&nbsp;a high bias model is one that makes overly simplistic assumptions about the underlying data, resulting in <em>under-fitting</em> and poor accuracy.</li>
+</ul></li>
+<li class="fragment"><strong>Variance</strong> refers to the sensitivity of a model to fluctuations in the training data.
+<ul>
+<li class="fragment">e.g.&nbsp;a high variance model is one that is overly complex and captures noise in the training data, resulting in <em>overfitting</em> and poor generalization to new data.</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="bias-variance-trade-off-1" class="slide level2">
+<h2>Bias-variance trade-off</h2>
+<p><br></p>
+<p>The goal of machine learning is to find a model with <strong>the right balance between bias and variance</strong>.</p>
+<div>
+<ul>
+<li class="fragment">The bias-variance trade-off can be visualized in terms of MSE, means squared error of the model. The <strong>MSE</strong> can be decomposed into: <span class="math display">\[MSE(\hat\beta) := bias^2(\hat\beta) + Var(\hat\beta) + noise\]</span>
+<ul>
+<li class="fragment">The irreducible error is the inherent noise in the data that cannot be reduced by any model</li>
+<li class="fragment">The bias and variance terms can be reduced by choosing an appropriate model complexity.</li>
+<li class="fragment">The trade-off lies in finding the right balance between bias and variance that minimizes the total MSE.</li>
+</ul></li>
+<li class="fragment">In practice, this trade-off can be addressed by <strong>regularizing the model</strong>, selecting an appropriate model complexity, or by using ensemble methods that combine multiple models to reduce the variance.</li>
+</ul>
+</div>
+</section>
+<section id="bias-variance-trade-off-2" class="slide level2">
+<h2>Bias-variance trade-off</h2>
+<p><br></p>
+
+<img data-src="images/bias-variance.png" style="width:100.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;4: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning</p></section>
+<section id="ridge-vs.-lasso" class="slide level2">
+<h2>Ridge vs.&nbsp;Lasso</h2>
+<p>In <strong>Ridge</strong> regression we minimize: <span id="eq-ridge2"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(6)\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span> is also known as <strong>L2</strong> regularization element or <span class="math inline">\(l_2\)</span> penalty</p>
+<p>In <strong>Lasso</strong> regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: <span id="eq-lasso"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j| \qquad(7)\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}|\beta_j|\)</span> is also known as <strong>L1</strong> regularization element or <span class="math inline">\(l_1\)</span> penalty</p>
+<p>Lasso regression was introduced to help model interpretation. With Ridge regression we improve model performance but unless <span class="math inline">\(\lambda = \infty\)</span> all beta coefficients are non-zero, hence all variables remain in the model. By using <span class="math inline">\(l_1\)</span> penalty we can force some of the coefficients estimates to be exactly equal to 0, hence perform <strong>variable selection</strong></p>
+</section>
+<section id="ridge-vs.-lasso-1" class="slide level2">
+<h2>Ridge vs.&nbsp;Lasso</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/ridge-run-02-1.png" width="960"></p>
+<figcaption>Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/lasso-run-1.png" width="960"></p>
+<figcaption>Example of Lasso regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero and are also set to zero for larger lambda values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="elastic-net" class="slide level2">
+<h2>Elastic Net</h2>
+<p><br></p>
+<p><strong>Elastic Net</strong> use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. <span id="eq-elastic-net"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2  \qquad(8)\]</span></span></p>
+
+<img data-src="session-lm-presentation_files/figure-revealjs/elastic-net-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Example of Elastic Net regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values and alpha value 0.1, showing the changes of model coefficients as a function of lambda being somewhere between those for Ridge and Lasso regression.</p></section>
+<section id="elastic-net-1" class="slide level2">
+<h2>Elastic Net</h2>
+<p><em>In R with <code>glmnet</code></em> <br></p>
+<p>In the <code>glmnet</code> library we can fit Elastic Net by setting parameters <span class="math inline">\(\alpha\)</span>. Under the hood <code>glmnet</code> minimizes a cost function: <span class="math display">\[\sum_{i_=1}^{n}(y_i-\hat y_i)^2 + \lambda \left ( (1-\alpha) \sum_{j=1}^{p}\beta_j^2 + \alpha \sum_{j=1}^{p}|\beta_j|\right )\]</span> where:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> is the number of samples</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters</li>
+<li><span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\alpha\)</span> hyperparameters control the shrinkage</li>
+</ul>
+<p>When <span class="math inline">\(\alpha = 0\)</span> this corresponds to Ridge regression and when <span class="math inline">\(\alpha=1\)</span> this corresponds to Lasso regression. A value of <span class="math inline">\(0 &lt; \alpha &lt; 1\)</span> gives us <strong>Elastic Net regularization</strong>, combining both L1 and L2 regularization terms.</p>
+</section></section>
+<section>
+<section id="generalized-linear-models" class="title-slide slide level1 center">
+<h1>Generalized Linear Models</h1>
+
 </section>
 <section id="why-generalized-linear-models" class="slide level2">
 <h2>Why Generalized Linear Models</h2>
@@ -1255,7 +1464,7 @@ Coefficients:
 <div id="fig-obesity" class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="session-lm-presentation_files/figure-revealjs/fig-obesity-1.png" width="960"></p>
-<figcaption>Figure&nbsp;4: <strong>?(caption)</strong></figcaption>
+<figcaption>Figure&nbsp;5: <strong>?(caption)</strong></figcaption>
 </figure>
 </div>
 </div>
@@ -1276,11 +1485,11 @@ Coefficients:
 <h2>Logistic regression</h2>
 <p><em>R</em> <br></p>
 <p>In R we can use <code>glm()</code> function to fit GLM models:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># fit logistic regression model</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
-<span id="cb10-3"><a href="#cb10-3"></a></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># print model summary</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb11-3"><a href="#cb11-3"></a></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># print model summary</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <pre><code>## 
 ## Call:
@@ -1288,26 +1497,27 @@ Coefficients:
 ##     data = data_diabetes)
 ## 
 ## Coefficients:
-##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  -17.357      2.973  -5.837 5.30e-09 ***
-## waist         17.174      2.974   5.775 7.71e-09 ***
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -18.29349    1.83541  -9.967   &lt;2e-16 ***
+## waist         0.18013    0.01843   9.774   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 178.71  on 129  degrees of freedom
-## Residual deviance: 102.79  on 128  degrees of freedom
-## AIC: 106.79
+##     Null deviance: 518.24  on 394  degrees of freedom
+## Residual deviance: 282.93  on 393  degrees of freedom
+##   (8 observations deleted due to missingness)
+## AIC: 286.93
 ## 
-## Number of Fisher Scoring iterations: 5</code></pre>
+## Number of Fisher Scoring iterations: 6</code></pre>
 </div>
 </section>
 <section id="logistic-regression-3" class="slide level2">
 <h2>Logistic regression</h2>
 <p><em>R</em> <br></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-40-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-49-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
 <section id="logistic-regression-4" class="slide level2">
 <h2>Logistic regression</h2>
 <p><em>Hypothesis testing</em> <br></p>
@@ -1320,9 +1530,9 @@ Coefficients:
 </div><div class="column" style="width:5%;">
 
 </div><div class="column" style="width:55%;">
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># fit logistic regression model</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="fu">summary</span>(logmodel_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="fu">summary</span>(logmodel_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1331,19 +1541,20 @@ glm(formula = obese ~ waist, family = binomial(link = "logit"),
     data = data_diabetes)
 
 Coefficients:
-            Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  -17.357      2.973  -5.837 5.30e-09 ***
-waist         17.174      2.974   5.775 7.71e-09 ***
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -18.29349    1.83541  -9.967   &lt;2e-16 ***
+waist         0.18013    0.01843   9.774   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 178.71  on 129  degrees of freedom
-Residual deviance: 102.79  on 128  degrees of freedom
-AIC: 106.79
+    Null deviance: 518.24  on 394  degrees of freedom
+Residual deviance: 282.93  on 393  degrees of freedom
+  (8 observations deleted due to missingness)
+AIC: 286.93
 
-Number of Fisher Scoring iterations: 5</code></pre>
+Number of Fisher Scoring iterations: 6</code></pre>
 </div>
 </div>
 </div>
@@ -1372,11 +1583,11 @@ Number of Fisher Scoring iterations: 5</code></pre>
 </div><div class="column" style="width:5%;">
 
 </div><div class="column" style="width:55%;">
-<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># fit logistic regression model</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
-<span id="cb14-3"><a href="#cb14-3"></a></span>
-<span id="cb14-4"><a href="#cb14-4"></a><span class="co"># print model summary</span></span>
-<span id="cb14-5"><a href="#cb14-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb15-3"><a href="#cb15-3"></a></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co"># print model summary</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1385,19 +1596,20 @@ glm(formula = obese ~ waist, family = binomial(link = "logit"),
     data = data_diabetes)
 
 Coefficients:
-            Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  -17.357      2.973  -5.837 5.30e-09 ***
-waist         17.174      2.974   5.775 7.71e-09 ***
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -18.29349    1.83541  -9.967   &lt;2e-16 ***
+waist         0.18013    0.01843   9.774   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 178.71  on 129  degrees of freedom
-Residual deviance: 102.79  on 128  degrees of freedom
-AIC: 106.79
+    Null deviance: 518.24  on 394  degrees of freedom
+Residual deviance: 282.93  on 393  degrees of freedom
+  (8 observations deleted due to missingness)
+AIC: 286.93
 
-Number of Fisher Scoring iterations: 5</code></pre>
+Number of Fisher Scoring iterations: 6</code></pre>
 </div>
 </div>
 </div>
@@ -1443,10 +1655,34 @@ Number of Fisher Scoring iterations: 5</code></pre>
 </div>
 </div>
 </section></section>
+<section>
+<section id="logistc-lasso" class="title-slide slide level1 center">
+<h1>Logistc Lasso</h1>
+
+</section>
+<section id="logistic-lasso" class="slide level2">
+<h2>Logistic Lasso</h2>
+<p><em>Logistic regression + Lasso regularization</em></p>
+<p><br></p>
+<ul>
+<li>Logistic Lasso combines logistic regression with Lasso regularization to analyze binary outcome data while simultaneously performing variable selection and regularization.</li>
+<li>We estimate set of coefficients <span class="math inline">\(\hat \beta\)</span> that minimize the combined logistic loss function and the Lasso penalty:</li>
+</ul>
+<p><span class="math display">\[
+\left( \sum_{i=1}^n [y_i \log(p_i) + (1-y_i) \log(1-p_i)] \right) + \lambda \sum_{j=1}^p |\beta_j|
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(y_i\)</span> represents the binary outcome (0 or 1) for the ( i )-th observation.</li>
+<li><span class="math inline">\(p_i\)</span> is the predicted probability of <span class="math inline">\(y_i = 1\)</span> given by the logistic model <span class="math inline">\(p_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_{i1} + \cdots + \beta_p x_{ip})}}\)</span>.</li>
+<li><span class="math inline">\(\lambda\)</span> is the regularization parameter that controls the strength of the Lasso penalty <span class="math inline">\(\lambda \sum_{j=1}^p |\beta_j|\)</span>, which encourages sparsity in the coefficients <span class="math inline">\(\beta_j\)</span> by shrinking some of them to zero.</li>
+<li><span class="math inline">\(n\)</span> is the number of observations, and <span class="math inline">\(p\)</span> is the number of predictors.</li>
+</ul>
+</section></section>
 <section id="common-cases" class="title-slide slide level1 center">
 <h1>Common cases</h1>
 <ul>
-<li>Let’s go over common linear models cases</li>
+<li>Let’s go over common linear models cases and some exercises.</li>
 </ul>
 <div class="footer footer-default">
 
