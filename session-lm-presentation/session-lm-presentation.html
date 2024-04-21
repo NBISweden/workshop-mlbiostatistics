@@ -8,7 +8,7 @@
 <link href="session-lm-presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <link href="session-lm-presentation_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
 <link href="session-lm-presentation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.3.333">
+  <meta name="generator" content="quarto-1.3.450">
 
   <title>Introduction to linear models</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="session-lm-presentation_files/libs/revealjs/dist/theme/quarto.css" id="theme">
+  <link rel="stylesheet" href="session-lm-presentation_files/libs/revealjs/dist/theme/quarto.css">
   <link href="session-lm-presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="session-lm-presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="session-lm-presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -409,12 +409,12 @@
 <li>how to estimate model parameters</li>
 <li>hypothesis testing on linear regression</li>
 <li>evaluating how well model fits the data</li>
+<li>model assumptions</li>
 </ul>
 <p><em>after lunch</em></p>
 <ul>
-<li>checking linear model assumptions</li>
-<li>logistic regression</li>
-<li>common cases</li>
+<li>linear model selection and regularization</li>
+<li>GLM with logistic regression</li>
 </ul>
 </section>
 <section id="why-linear-models" class="slide level2">
@@ -507,11 +507,8 @@
 </div>
 </div>
 </div>
-<div class="fragment">
-<ul>
-<li>For instance a <strong>simple linear regression</strong> through the origin is a simple linear model of the form <span class="math display">\[Y_i = \beta \cdot x + \epsilon\]</span> often used to express a relationship of <strong>one numerical variable to another</strong>, e.g.&nbsp;the calories burnt and the kilometers cycled.</li>
-</ul>
-</div>
+<!-- . . . -->
+<!-- -   For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled. -->
 </section>
 <section id="what-linear-models-are-and-are-not-1" class="slide level2">
 <h2>What linear models are and are not</h2>
@@ -519,12 +516,19 @@
 <p><br></p>
 <div>
 <ul>
-<li class="fragment">Formally, a linear model is one in which the <strong>parameters appear linearly in the deterministic part of the model</strong>.</li>
-<li class="fragment">For instance these are linear models: <span class="math display">\[Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i\]</span> or <span class="math display">\[Y_i = \alpha + \beta \cdot x_i^2 \epsilon\]</span></li>
-<li class="fragment">vs.&nbsp;an example on a non-linear model where parameter <span class="math inline">\(\beta\)</span> appears in the exponent of <span class="math inline">\(x_i\)</span>: <span class="math display">\[Y_i = \alpha + x_i^\beta + \epsilon\]</span></li>
+<li class="fragment">Formally, linear models are a way of describing a response variable in terms of <strong>linear combination</strong> of predictor variables.</li>
 <li class="fragment">Linear models can become quite advanced by including <strong>many variables</strong>, e.g.&nbsp;the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the <strong>transformation of the variables</strong>, e.g.&nbsp;a function of kilometers cycled squared</li>
 </ul>
 </div>
+<!-- ## What linear models are and are not -->
+<!-- *definition* -->
+<!-- <br> -->
+<!-- ::: incremental -->
+<!-- -   Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**. -->
+<!-- -   For instance these are linear models: $$Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i$$ or $$Y_i = \alpha + \beta \cdot x_i^2 \epsilon$$ -->
+<!-- -   vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$: $$Y_i = \alpha + x_i^\beta + \epsilon$$ -->
+<!-- -   Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared -->
+<!-- ::: -->
 </section>
 <section id="what-linear-models-are-and-are-not-2" class="slide level2">
 <h2>What linear models are and are not</h2>
@@ -533,29 +537,21 @@
 <section id="what-linear-models-are-and-are-not-3" class="slide level2">
 <h2>What linear models are and are not</h2>
 
+<!-- ## Terminology -->
+<!-- There are many terms and notations used interchangeably -->
+<!-- ::: incremental -->
+<!-- -   $y$ is being called: -->
+<!--     -   response -->
+<!--     -   outcome -->
+<!--     -   dependent variable -->
+<!-- -   $x$ is being called: -->
+<!--     -   exposure -->
+<!--     -   explanatory variable -->
+<!--     -   dependent variable -->
+<!--     -   predictor -->
+<!--     -   covariate -->
+<!-- ::: -->
 <img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-8-1.png" width="768" class="r-stretch quarto-figure-center"></section>
-<section id="terminology" class="slide level2">
-<h2>Terminology</h2>
-<p>There are many terms and notations used interchangeably</p>
-<div>
-<ul>
-<li class="fragment"><span class="math inline">\(y\)</span> is being called:
-<ul>
-<li class="fragment">response</li>
-<li class="fragment">outcome</li>
-<li class="fragment">dependent variable</li>
-</ul></li>
-<li class="fragment"><span class="math inline">\(x\)</span> is being called:
-<ul>
-<li class="fragment">exposure</li>
-<li class="fragment">explanatory variable</li>
-<li class="fragment">dependent variable</li>
-<li class="fragment">predictor</li>
-<li class="fragment">covariate</li>
-</ul></li>
-</ul>
-</div>
-</section>
 <section id="simple-linear-regression" class="slide level2">
 <h2>Simple linear regression</h2>
 
@@ -574,11 +570,11 @@
 <span id="cb1-2"><a href="#cb1-2"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
-<div class="cell" data-fig.heigth="4">
+<div class="cell" data-fig-cap-location="margin" data-fig-heigth="4">
 <div class="cell-output-display">
-<div id="fig-lm-intro-example" class="quarto-figure quarto-figure-center margin-caption">
+<div id="fig-lm-intro-example" class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-intro-example-1.png" class="margin-caption" width="384"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-intro-example-1.png" width="384"></p>
 <figcaption>Figure&nbsp;1: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice verca</em>.</figcaption>
 </figure>
 </div>
@@ -600,7 +596,7 @@
 <section id="simple-linear-regression-3" class="slide level2">
 <h2>Simple linear regression</h2>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-example-reg-1.png" class="margin-caption r-stretch quarto-figure-center" width="960"><p class="caption">Figure&nbsp;2: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice verca</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes (increase or decreases) with a change of exposure variable</p><div class="fragment">
+<img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-example-reg-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;2: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice verca</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes (increase or decreases) with a change of exposure variable</p><div class="fragment">
 <p>The equation for the red line is: <span class="math display">\[Y_i=0.086 +  0.044 \cdot x_i \quad for \;i = 1 \dots 8\]</span></p>
 </div>
 <div class="fragment">
@@ -662,16 +658,16 @@
 <ul>
 <li>Then <span class="math inline">\(\epsilon_i = y_i - \hat{y_i}\)</span> represents the <span class="math inline">\(i\)</span>-th <strong>residual</strong>, i.e.&nbsp;the difference between the <span class="math inline">\(i\)</span>-th observed response value and the <span class="math inline">\(i\)</span>-th response value that is predicted by the linear model</li>
 <li>RSS, the <strong>residual sum of squares</strong> is defined as: <span class="math display">\[RSS = \epsilon_1^2 + \epsilon_2^2 + \dots + \epsilon_n^2\]</span> or equivalently as: <span class="math display">\[RSS=(y_1-\hat{\alpha}-\hat{\beta}x_1)^2+(y_2-\hat{\alpha}-\hat{\beta}x_2)^2+...+(y_n-\hat{\alpha}-\hat{\beta}x_n)^2\]</span></li>
-<li>the least squares approach chooses <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span> <strong>to minimize the RSS</strong>. With some calculus, we get <a href="#/least-squares-2">Theorem&nbsp;1</a></li>
+<li>the least squares approach chooses <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span> <strong>to minimize the RSS</strong>.</li>
 </ul>
 </div><div class="column" style="width:10%;">
 
 </div><div class="column" style="width:40%;">
-<div class="cell">
+<div class="cell" data-fig-cap-location="margin">
 <div class="cell-output-display">
-<div id="fig-reg-errors" class="quarto-figure quarto-figure-center margin-caption">
+<div id="fig-reg-errors" class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="session-lm-presentation_files/figure-revealjs/fig-reg-errors-1.png" class="margin-caption" width="768"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/fig-reg-errors-1.png" width="768"></p>
 <figcaption>Figure&nbsp;3: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice versa</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line</figcaption>
 </figure>
 </div>
@@ -679,89 +675,78 @@
 </div>
 </div>
 </div>
-</section>
-<section id="least-squares-2" class="slide level2">
-<h2>Least squares</h2>
-<div id="thm-lss" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1 (Least squares estimates for a simple linear regression) </strong></span><span class="math display">\[\hat{\beta} = \frac{S_{xy}}{S_{xx}}\]</span> <span class="math display">\[\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}\]</span></p>
-<p>where:</p>
-<ul>
-<li><span class="math inline">\(\bar{x}\)</span>: mean value of <span class="math inline">\(x\)</span></li>
-<li><span class="math inline">\(\bar{y}\)</span>: mean value of <span class="math inline">\(y\)</span></li>
-<li><span class="math inline">\(S_{xx}\)</span>: sum of squares of <span class="math inline">\(X\)</span> defined as <span class="math inline">\(S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2\)</span></li>
-<li><span class="math inline">\(S_{yy}\)</span>: sum of squares of <span class="math inline">\(Y\)</span> defined as <span class="math inline">\(S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2\)</span></li>
-<li><span class="math inline">\(S_{xy}\)</span>: sum of products of <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> defined as <span class="math inline">\(S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})\)</span></li>
-</ul>
-</div>
-</section>
-<section id="least-squares-3" class="slide level2">
-<h2>Least squares</h2>
-<p><em>Live demo</em></p>
-<div id="exm-lss" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2 (Least squares) </strong></span>Let’s try least squares method to find coefficient estimates in the <strong>“body weight and plasma volume example”</strong></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># initial data</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="co"># rename variables for convenience</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>x <span class="ot">&lt;-</span> weight</span>
-<span id="cb3-7"><a href="#cb3-7"></a>y <span class="ot">&lt;-</span> plasma</span>
-<span id="cb3-8"><a href="#cb3-8"></a></span>
-<span id="cb3-9"><a href="#cb3-9"></a><span class="co"># mean values of x and y</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>x.bar <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span>
-<span id="cb3-11"><a href="#cb3-11"></a>y.bar <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
-<span id="cb3-12"><a href="#cb3-12"></a></span>
-<span id="cb3-13"><a href="#cb3-13"></a><span class="co"># Sum of squares</span></span>
-<span id="cb3-14"><a href="#cb3-14"></a>Sxx <span class="ot">&lt;-</span>  <span class="fu">sum</span>((x <span class="sc">-</span> x.bar)<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb3-15"><a href="#cb3-15"></a>Sxy <span class="ot">&lt;-</span> <span class="fu">sum</span>((x<span class="sc">-</span>x.bar)<span class="sc">*</span>(y<span class="sc">-</span>y.bar))</span>
-<span id="cb3-16"><a href="#cb3-16"></a></span>
-<span id="cb3-17"><a href="#cb3-17"></a><span class="co"># Coefficient estimates</span></span>
-<span id="cb3-18"><a href="#cb3-18"></a>beta.hat <span class="ot">&lt;-</span> Sxy <span class="sc">/</span> Sxx</span>
-<span id="cb3-19"><a href="#cb3-19"></a>alpha.hat <span class="ot">&lt;-</span> y.bar <span class="sc">-</span> Sxy<span class="sc">/</span>Sxx<span class="sc">*</span>x.bar</span>
-<span id="cb3-20"><a href="#cb3-20"></a></span>
-<span id="cb3-21"><a href="#cb3-21"></a><span class="co"># Print estimated coefficients alpha and beta</span></span>
-<span id="cb3-22"><a href="#cb3-22"></a><span class="fu">print</span>(alpha.hat)</span>
-<span id="cb3-23"><a href="#cb3-23"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.08572428</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.04361534</code></pre>
-</div>
-</div>
-</div>
-</section>
-<section id="least-squares-5" class="slide level2">
-<h2>Least squares</h2>
-<p><em>Live demo</em></p>
-<p>In R we can use <code>lm()</code>, the built-in function, to fit a linear regression model and we can replace the above code with one line</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">lm</span>(plasma <span class="sc">~</span> weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-lm(formula = plasma ~ weight)
-
-Coefficients:
-(Intercept)       weight  
-    0.08572      0.04362  </code></pre>
-</div>
-</div>
+<!-- ## Least squares -->
+<!-- ::: {#thm-lss} -->
+<!-- ## Least squares estimates for a simple linear regression -->
+<!-- $$\hat{\beta} = \frac{S_{xy}}{S_{xx}}$$ $$\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}$$ -->
+<!-- where: -->
+<!-- -   $\bar{x}$: mean value of $x$ -->
+<!-- -   $\bar{y}$: mean value of $y$ -->
+<!-- -   $S_{xx}$: sum of squares of $X$ defined as $S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2$ -->
+<!-- -   $S_{yy}$: sum of squares of $Y$ defined as $S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2$ -->
+<!-- -   $S_{xy}$: sum of products of $X$ and $Y$ defined as $S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})$ -->
+<!-- ::: -->
+<!-- ## Least squares -->
+<!-- *Live demo* -->
+<!-- ::: {#exm-lss} -->
+<!-- ## Least squares -->
+<!-- Let's try least squares method to find coefficient estimates in the **"body weight and plasma volume example"** -->
+<!-- ``` r -->
+<!-- # initial data -->
+<!-- weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg) -->
+<!-- plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters) -->
+<!-- # rename variables for convenience -->
+<!-- x <- weight -->
+<!-- y <- plasma -->
+<!-- # mean values of x and y -->
+<!-- x.bar <- mean(x) -->
+<!-- y.bar <- mean(y) -->
+<!-- # Sum of squares -->
+<!-- Sxx <-  sum((x - x.bar)^2) -->
+<!-- Sxy <- sum((x-x.bar)*(y-y.bar)) -->
+<!-- # Coefficient estimates -->
+<!-- beta.hat <- Sxy / Sxx -->
+<!-- alpha.hat <- y.bar - Sxy/Sxx*x.bar -->
+<!-- # Print estimated coefficients alpha and beta -->
+<!-- print(alpha.hat) -->
+<!-- print(beta.hat) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+<!-- # initial data -->
+<!-- weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg) -->
+<!-- plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters) -->
+<!-- # rename variables for convenience -->
+<!-- x <- weight -->
+<!-- y <- plasma -->
+<!-- # mean values of x and y -->
+<!-- x.bar <- mean(x) -->
+<!-- y.bar <- mean(y) -->
+<!-- # Sum of squares -->
+<!-- Sxx <-  sum((x - x.bar)^2) -->
+<!-- Sxy <- sum((x-x.bar)*(y-y.bar)) -->
+<!-- # Coefficient estimates -->
+<!-- beta.hat <- Sxy / Sxx -->
+<!-- alpha.hat <- y.bar - Sxy/Sxx*x.bar -->
+<!-- # Print estimated coefficients alpha and beta -->
+<!-- print(alpha.hat) -->
+<!-- print(beta.hat) -->
+<!-- ``` -->
+<!-- ::: -->
 </section>
 <section id="slope" class="slide level2">
 <h2>Slope</h2>
 <p><span class="math inline">\(plasma = 0.0857 + 0.0436 * weight\)</span></p>
 <p>Linear regression gives us estimates of model coefficient <span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-23-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Increasing weight by 5 kg corresponds to</em> <span class="math inline">\(3.14 - 2.92 = 0.22\)</span> increase in plasma volume. Increasing weight by 1 kg corresponds <span class="math inline">\(2.96 - 2.92 = 0.04\)</span> increase in plasma volume</p>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Increasing weight by 5 kg corresponds to</em> <span class="math inline">\(3.14 - 2.92 = 0.22\)</span> increase in plasma volume. Increasing weight by 1 kg corresponds <span class="math inline">\(2.96 - 2.92 = 0.04\)</span> increase in plasma volume</p>
 </section>
 <section id="intercept" class="slide level2">
 <h2>Intercept</h2>
 <p><span class="math inline">\(plasma = 0.0857 + 0.0436 * weight\)</span></p>
 <p>Linear regression gives us estimates of model coefficient <span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-24-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Intercept value corresponds to expected outcome when the explanatory variable value equals to zero. It is not always meaningful</em></p>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-22-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Intercept value corresponds to expected outcome when the explanatory variable value equals to zero. It is not always meaningful</em></p>
 </section>
 <section id="hypothesis-testing" class="slide level2">
 <h2>Hypothesis testing</h2>
@@ -802,7 +787,7 @@ Coefficients:
 <section id="hypothesis-testing-2" class="slide level2 smaller">
 <h2>Hypothesis testing</h2>
 <div id="exm-hypothesis-testing" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3 (Hypothesis testing) </strong></span>Let’s look again at our example data. This time we will not only fit the linear regression model but also look a bit more closely at the <code>R summary</code> of the model</p>
+<p><span class="theorem-title"><strong>Example 2 (Hypothesis testing) </strong></span>Let’s look again at our example data. This time we will not only fit the linear regression model but also look a bit more closely at the <code>R summary</code> of the model</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -845,7 +830,7 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 <ul>
 <li>we can use <strong>Student’s t distribution table</strong> or <strong>R code</strong> to obtain the associated <em>P</em>-value</li>
 </ul>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">2.856582</span>, <span class="at">df=</span><span class="dv">6</span>, <span class="at">lower=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">2.856582</span>, <span class="at">df=</span><span class="dv">6</span>, <span class="at">lower=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.02893095</code></pre>
@@ -910,41 +895,58 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 <section id="vector-matrix-notations-2" class="slide level2">
 <h2>Vector-matrix notations</h2>
 <div id="thm-lss-vector-matrix" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2 (Least squares in vector-matrix notation) </strong></span>The least squares estimates for a linear regression of the form: <span class="math display">\[\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon\]</span></p>
+<p><span class="theorem-title"><strong>Theorem 1 (Least squares in vector-matrix notation) </strong></span>The least squares estimates for a linear regression of the form: <span class="math display">\[\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon\]</span></p>
 <p>is given by: <span class="math display">\[\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}\]</span></p>
 </div>
 </section>
 <section id="vector-matrix-notations-3" class="slide level2 smaller scrollable">
 <h2>Vector-matrix notations</h2>
 <div id="exm-vector-matrix-notation" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4 (vector-matrix-notation) </strong></span>Following the above definition we can write the <strong>“weight - plasma volume model”</strong> as: <span class="math display">\[\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon\]</span> where:</p>
+<p><span class="theorem-title"><strong>Example 3 (vector-matrix-notation) </strong></span>Following the above definition we can write the <strong>“weight - plasma volume model”</strong> as: <span class="math display">\[\mathbf{Y} = \mathbf{X}\boldsymbol\beta + \boldsymbol\epsilon\]</span> where:</p>
 <p><span class="math inline">\(\mathbf{Y}=\begin{bmatrix} 2.75 \\ 2.86 \\ 3.37 \\ 2.76 \\ 2.62 \\ 3.49 \\ 3.05 \\ 3.12 \end{bmatrix}\)</span></p>
 <p><span class="math inline">\(\boldsymbol\beta=\begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix}\)</span> <span class="math inline">\(\boldsymbol\epsilon=\begin{bmatrix} \epsilon_1 \\ \epsilon_2 \\ \vdots \\ \epsilon_{8} \end{bmatrix}\)</span> <span class="math inline">\(\mathbf{X}=\begin{bmatrix} 1 &amp; 58.0 \\ 1 &amp; 70.0 \\ 1 &amp; 74.0 \\ 1 &amp; 63.5 \\ 1 &amp; 62.0 \\ 1 &amp; 70.5 \\ 1 &amp; 71.0 \\ 1 &amp; 66.0 \\ \end{bmatrix}\)</span></p>
 <p>and we can estimate model parameters using <span class="math inline">\(\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}\)</span>.</p>
 </div>
 </section>
-<section id="vector-matrix-notations-4" class="slide level2">
-<h2>Vector-matrix notations</h2>
+<section id="vector-matrix-notations-least-squares" class="slide level2">
+<h2>Vector-matrix notations: least squares</h2>
 <p><em>Live demo</em></p>
 <p>Estimating model parameters using <span class="math inline">\(\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}\)</span>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(plasma) <span class="co"># no. of observation</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>Y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(plasma, <span class="at">ncol=</span><span class="dv">1</span>)</span>
-<span id="cb11-3"><a href="#cb11-3"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">length=</span>n), weight)</span>
-<span id="cb11-4"><a href="#cb11-4"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X)</span>
-<span id="cb11-5"><a href="#cb11-5"></a></span>
-<span id="cb11-6"><a href="#cb11-6"></a><span class="co"># print Y and X to double-check that the format is according to the definition</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a><span class="fu">print</span>(Y)</span>
-<span id="cb11-8"><a href="#cb11-8"></a><span class="fu">print</span>(X)</span>
-<span id="cb11-9"><a href="#cb11-9"></a></span>
-<span id="cb11-10"><a href="#cb11-10"></a><span class="co"># least squares estimate</span></span>
-<span id="cb11-11"><a href="#cb11-11"></a><span class="co"># solve() finds inverse of matrix</span></span>
-<span id="cb11-12"><a href="#cb11-12"></a>beta.hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)<span class="sc">%*%</span><span class="fu">t</span>(X)<span class="sc">%*%</span>Y</span>
-<span id="cb11-13"><a href="#cb11-13"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(plasma) <span class="co"># no. of observation</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>Y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(plasma, <span class="at">ncol=</span><span class="dv">1</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">length=</span>n), weight)</span>
+<span id="cb6-4"><a href="#cb6-4"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X)</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co"># print Y and X to double-check that the format is according to the definition</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="fu">print</span>(Y)</span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="fu">print</span>(X)</span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co"># least squares estimate</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co"># solve() finds inverse of matrix</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>beta.hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)<span class="sc">%*%</span><span class="fu">t</span>(X)<span class="sc">%*%</span>Y</span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>             [,1]
        0.08572428
 weight 0.04361534</code></pre>
+</div>
+</div>
+</section>
+<section id="vector-matrix-notations-least-squares-1" class="slide level2">
+<h2>Vector-matrix notations: least squares</h2>
+<p><em>Live demo</em></p>
+<p>In R we can use <code>lm()</code>, the built-in function, to fit a linear regression model and we can replace the above code with one line</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">lm</span>(plasma <span class="sc">~</span> weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = plasma ~ weight)
+
+Coefficients:
+(Intercept)       weight  
+    0.08572      0.04362  </code></pre>
 </div>
 </div>
 <!-- ## Confidence intervals and prediction intervals -->
@@ -985,8 +987,7 @@ weight 0.04361534</code></pre>
 <section id="assessing-model-fit" class="title-slide slide level1 center">
 <h1>Assessing model fit</h1>
 <ul>
-<li>In addition to knowing how to estimate model parameters</li>
-<li>we need to learn to assess the goodness of fit of a model.</li>
+<li>In addition to knowing how to estimate model parameters we need to learn to assess the goodness of fit of a model.</li>
 <li>We do that by calculating the amount of variability in the response that is explained by the model.</li>
 </ul>
 </section>
@@ -1014,7 +1015,7 @@ weight 0.04361534</code></pre>
 <div class="column" style="width:40%;">
 <div class="cell">
 <div class="cell-output-display">
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-34-1.png" width="768"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-33-1.png" width="768"></p>
 </div>
 </div>
 </div><div class="column" style="width:60%;">
@@ -1032,7 +1033,7 @@ weight 0.04361534</code></pre>
 <div class="column" style="width:40%;">
 <div class="cell">
 <div class="cell-output-display">
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-35-1.png" width="768"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-34-1.png" width="768"></p>
 </div>
 </div>
 </div><div class="column" style="width:60%;">
@@ -1061,7 +1062,7 @@ weight 0.04361534</code></pre>
 <h2><span class="math inline">\(R^2\)</span> and correlation coefficient</h2>
 <div class="fragment">
 <div id="thm-r2" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 3 (<span class="math inline">\(R^2\)</span>) </strong></span>In the case of simple linear regression:</p>
+<p><span class="theorem-title"><strong>Theorem 2 (<span class="math inline">\(R^2\)</span>) </strong></span>In the case of simple linear regression:</p>
 <p>Model 1: <span class="math inline">\(Y_i = \beta_0 + \beta_1x + \epsilon_i\)</span> <span class="math display">\[R^2 = r^2\]</span> where:</p>
 <ul>
 <li><span class="math inline">\(R^2\)</span> is the coefficient of determination</li>
@@ -1087,22 +1088,17 @@ weight 0.04361534</code></pre>
 <h2><span class="math inline">\(R^2(adj)\)</span></h2>
 <div>
 <ul>
-<li class="fragment">In the case of multiple linear regression we are using the <strong>adjusted version of <span class="math inline">\(R^2\)</span></strong> to assess the model fit as the number of explanatory variables increase, <span class="math inline">\(R^2\)</span> also increases.</li>
+<li class="fragment">In the case of multiple linear regression we are using the <strong>adjusted version of</strong> <span class="math inline">\(R^2\)</span> to assess the model fit as the number of explanatory variables increase, <span class="math inline">\(R^2\)</span> also increases.</li>
 </ul>
 </div>
 <div class="fragment">
 <div id="thm-r2adj" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 4 (<span class="math inline">\(R^2(adj)\)</span>) </strong></span>For any multiple linear regression <span class="math display">\[Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i\]</span> <span class="math inline">\(R^2(adj)\)</span> is defined as <span class="math display">\[R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}\]</span></p>
+<p><span class="theorem-title"><strong>Theorem 3 (<span class="math inline">\(R^2(adj)\)</span>) </strong></span>For any multiple linear regression <span class="math display">\[Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i\]</span> <span class="math inline">\(R^2(adj)\)</span> is defined as <span class="math display">\[R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}\]</span></p>
 <ul>
 <li><span class="math inline">\(p\)</span> is the number of independent predictors, i.e.&nbsp;the number of variables in the model, excluding the constant and <span class="math inline">\(n\)</span> is number of observations.</li>
 </ul>
 <p><span class="math inline">\(R^2(adj)\)</span> can also be calculated from <span class="math inline">\(R^2\)</span>: <span class="math display">\[R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}\]</span></p>
 </div>
-</div>
-</section></section>
-<section id="exercises" class="title-slide slide level1 center">
-<h1>Exercises</h1>
-<p>Let’s practice in exercises fitting linear models, hypothesis testing and assessing model fit.</p>
 <!-- ## $R^2$ -->
 <!-- *Live demo* -->
 <!-- ``` r -->
@@ -1135,8 +1131,8 @@ weight 0.04361534</code></pre>
 <!-- print(R2_adj) -->
 <!-- print(summary(model.multiple)) -->
 <!-- ``` -->
-</section>
-
+</div>
+</section></section>
 <section>
 <section id="checking-model-assumptions" class="title-slide slide level1 center">
 <h1>Checking model assumptions</h1>
@@ -1184,11 +1180,11 @@ weight 0.04361534</code></pre>
 <h2>Checking assumptions</h2>
 <p><strong>Residuals</strong>, <span class="math inline">\(\hat{\epsilon_i} = y_i - \hat{y_i}\)</span> are the <strong>main ingredient to check model assumptions</strong>.</p>
 <div class="fragment">
-<div class="cell">
+<div class="cell" data-fig-cap-location="margin">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center margin-caption">
+<div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-36-1.png" class="margin-caption" width="960"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-35-1.png" width="960"></p>
 <figcaption>Diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Modeling BMI with waist explanatory variable. Model assumptions seems to be met with no noticible patterns based on residuals. Few potential outliers could be considered to be removed.</figcaption>
 </figure>
 </div>
@@ -1200,7 +1196,12 @@ weight 0.04361534</code></pre>
 <h2>Checking assumptions</h2>
 <p><strong>Residuals</strong>, <span class="math inline">\(\hat{\epsilon_i} = y_i - \hat{y_i}\)</span> are the <strong>main ingredient to check model assumptions</strong>.</p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-37-1.png" class="margin-caption r-stretch quarto-figure-center" width="960"><p class="caption">Diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Modeling glucose with age. Model assumptions seems to be violated, e.g.&nbsp;with residulas not following normal distributions.</p></section></section>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-36-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Modeling glucose with age. Model assumptions seems to be violated, e.g.&nbsp;with residulas not following normal distributions.</p></section></section>
+<section id="exercises" class="title-slide slide level1 center">
+<h1>Exercises</h1>
+<p>Let’s practice in exercises fitting linear models, hypothesis testing and assessing model fit.</p>
+</section>
+
 <section>
 <section id="beyond-linear-models" class="title-slide slide level1 center">
 <h1>Beyond linear models</h1>
@@ -1222,7 +1223,7 @@ weight 0.04361534</code></pre>
 </div><div class="column" style="width:5%;">
 
 </div><div class="column" style="width:45%;">
-<div class="cell fig-cap-location-bottom">
+<div class="cell" data-fig-cap-location="bottom">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -1275,20 +1276,16 @@ weight 0.04361534</code></pre>
 <h2>Logistic regression</h2>
 <p><em>R</em> <br></p>
 <p>In R we can use <code>glm()</code> function to fit GLM models:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># fit logistic regression model</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
-<span id="cb13-3"><a href="#cb13-3"></a></span>
-<span id="cb13-4"><a href="#cb13-4"></a><span class="co"># print model summary</span></span>
-<span id="cb13-5"><a href="#cb13-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># print model summary</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <pre><code>## 
 ## Call:
 ## glm(formula = obese ~ waist, family = binomial(link = "logit"), 
 ##     data = data_diabetes)
-## 
-## Deviance Residuals: 
-##     Min       1Q   Median       3Q      Max  
-## -2.8408  -0.5918  -0.1867   0.6340   2.2816  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(&gt;|z|)    
@@ -1310,7 +1307,7 @@ weight 0.04361534</code></pre>
 <h2>Logistic regression</h2>
 <p><em>R</em> <br></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-41-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-40-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
 <section id="logistic-regression-4" class="slide level2">
 <h2>Logistic regression</h2>
 <p><em>Hypothesis testing</em> <br></p>
@@ -1323,19 +1320,15 @@ weight 0.04361534</code></pre>
 </div><div class="column" style="width:5%;">
 
 </div><div class="column" style="width:55%;">
-<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># fit logistic regression model</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="fu">summary</span>(logmodel_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="fu">summary</span>(logmodel_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
 glm(formula = obese ~ waist, family = binomial(link = "logit"), 
     data = data_diabetes)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.8408  -0.5918  -0.1867   0.6340   2.2816  
 
 Coefficients:
             Estimate Std. Error z value Pr(&gt;|z|)    
@@ -1379,21 +1372,17 @@ Number of Fisher Scoring iterations: 5</code></pre>
 </div><div class="column" style="width:5%;">
 
 </div><div class="column" style="width:55%;">
-<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># fit logistic regression model</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
-<span id="cb17-3"><a href="#cb17-3"></a></span>
-<span id="cb17-4"><a href="#cb17-4"></a><span class="co"># print model summary</span></span>
-<span id="cb17-5"><a href="#cb17-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb14-3"><a href="#cb14-3"></a></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co"># print model summary</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
 glm(formula = obese ~ waist, family = binomial(link = "logit"), 
     data = data_diabetes)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.8408  -0.5918  -0.1867   0.6340   2.2816  
 
 Coefficients:
             Estimate Std. Error z value Pr(&gt;|z|)    

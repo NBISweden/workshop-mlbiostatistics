@@ -57,9 +57,7 @@ data_diabetes <- diabetes %>%
 
 ```
 
-
-
-# We will learn 
+# We will learn
 
 *before lunch*
 
@@ -67,20 +65,19 @@ data_diabetes <- diabetes %>%
 - how to estimate model parameters
 - hypothesis testing on linear regression
 - evaluating how well model fits the data
+- model assumptions
 
 *after lunch*
 
-- checking linear model assumptions
-- logistic regression
-- common cases
+- linear model selection and regularization
+- GLM with logistic regression
+
 
 ## Why linear models?
 
 . . .
 
-
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
 With linear models we can answer questions such as:
 
@@ -90,7 +87,6 @@ With linear models we can answer questions such as:
 -   what will be a predicted value of the outcome given a new set of exposure values?
 -   which variables are associated with the response, e.g. is it height that dictates the weight or height and age?
 :::
-
 :::
 
 ::: {.column width="5%"}
@@ -108,11 +104,8 @@ data_diabetes %>%
   xlab("height [m]") + 
   ylab("weight [kg]")
 ```
-
 :::
-
-::::
-
+:::
 
 ## Statistical vs. deterministic relationship
 
@@ -182,20 +175,17 @@ plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1
 
 ```
 
-
 ## What linear models are and are not
+
 *definition*
 
 <br>
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="60%"}
-
 ::: incremental
-- In an linear model we model the relationship between a single continuous variable $Y$ and one or more variables $X$. 
-- One very general form for the model would be: 
-$$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
+- In an linear model we model the relationship between a single continuous variable $Y$ and one or more variables $X$.
+- One very general form for the model would be: $$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
 - The $X$ variables can be numerical, categorical or a mixture of both.
 
 :::
@@ -217,27 +207,37 @@ data_diabetes %>%
   ylab("weight [kg]")
 ```
 :::
+:::
 
-::::
+<!-- . . . -->
 
-. . . 
-
-- For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled.
+<!-- -   For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled. -->
 
 
 ## What linear models are and are not
+
 *definition*
 
 <br>
 
 ::: incremental
-- Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**.
-- For instance these are linear models: $$Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i$$ or $$Y_i = \alpha + \beta \cdot x_i^2 \epsilon$$ 
-- vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$:
-$$Y_i = \alpha + x_i^\beta + \epsilon$$
+- Formally, linear models are a way of describing a response variable in terms of **linear combination** of predictor variables.
 - Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
-
 :::
+
+
+<!-- ## What linear models are and are not -->
+
+<!-- *definition* -->
+
+<!-- <br> -->
+
+<!-- ::: incremental -->
+<!-- -   Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**. -->
+<!-- -   For instance these are linear models: $$Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i$$ or $$Y_i = \alpha + \beta \cdot x_i^2 \epsilon$$ -->
+<!-- -   vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$: $$Y_i = \alpha + x_i^\beta + \epsilon$$ -->
+<!-- -   Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared -->
+<!-- ::: -->
 
 ## What linear models are and are not
 
@@ -397,23 +397,22 @@ grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
 
 ```
 
+<!-- ## Terminology -->
 
-## Terminology
+<!-- There are many terms and notations used interchangeably -->
 
-There are many terms and notations used interchangeably
-
-::: incremental
--   $y$ is being called:
-    -   response
-    -   outcome
-    -   dependent variable
--   $x$ is being called:
-    -   exposure
-    -   explanatory variable
-    -   dependent variable
-    -   predictor
-    -   covariate
-:::
+<!-- ::: incremental -->
+<!-- -   $y$ is being called: -->
+<!--     -   response -->
+<!--     -   outcome -->
+<!--     -   dependent variable -->
+<!-- -   $x$ is being called: -->
+<!--     -   exposure -->
+<!--     -   explanatory variable -->
+<!--     -   dependent variable -->
+<!--     -   predictor -->
+<!--     -   covariate -->
+<!-- ::: -->
 
 ## Simple linear regression
 
@@ -471,6 +470,8 @@ plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (lit
 plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
 
 ```
+
+
 
 ## Simple linear regression
 
@@ -693,42 +694,35 @@ and in general: $$Y_i=\alpha + \beta \cdot x_i \quad for \; i = 1 \dots n$$ {#eq
 In other words, by finding the best-fitting straight line we are **building a statistical model** to represent the relationship between plasma volume ($Y$) and explanatory body weight variable ($x$)
 
 ## Simple linear regression {.smaller}
+
 <br>
 
-```{.r}
+``` r
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
 ```
 
 <br>
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="55%"}
-
 ::: incremental
-
 -   If we were to use our model $Y_i=0.086 + 0.044 \cdot x_i$ to find plasma volume given a weight of 58 kg (our first observation, $i=1$)
 -   we would notice that we would get $Y=0.086 + 0.044 \cdot 58 = 2.638$
 -   $2.638$ is not exactly the as same as $2.75$, the first measurement we have in our dataset, i.e. $2.75 - 2.638 = 0.112 \neq 0$.
 -   We thus add to the previous equation (@eq-lm-no-error) an **error term** to account for this and now we can write our **simple regression model** more formally as:
-- $$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm}
-where:
+-   $$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm} where:
 -   $x$: is called: exposure variable, explanatory variable, dependent variable, predictor, covariate
 -   $y$: is called: response, outcome, dependent variable
 -   $\alpha$ and $\beta$ are **model coefficients**
 -   and $\epsilon_i$ is an **error terms**
-
 :::
-
 :::
 
 ::: {.column width="5%"}
 :::
 
-
 ::: {.column width="40%"}
-
 ```{r}
 #| warning: false
 #| message: false
@@ -754,11 +748,8 @@ df %>%
 
 
 ```
-
 :::
-::::
-
-
+:::
 
 ## Least squares
 
@@ -772,24 +763,19 @@ df %>%
 
 *minimizing RSS*
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-
 Let $\hat{y_i}=\hat{\alpha} + \hat{\beta}x_i$ be the prediction $y_i$ based on the $i$-th value of $x$:
 
 -   Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$-th **residual**, i.e. the difference between the $i$-th observed response value and the $i$-th response value that is predicted by the linear model
 -   RSS, the **residual sum of squares** is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + \dots + \epsilon_n^2$$ or equivalently as: $$RSS=(y_1-\hat{\alpha}-\hat{\beta}x_1)^2+(y_2-\hat{\alpha}-\hat{\beta}x_2)^2+...+(y_n-\hat{\alpha}-\hat{\beta}x_n)^2$$
--   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**. With some calculus, we get @thm-lss
-
+-   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**.
 :::
 
 ::: {.column width="10%"}
-
 :::
 
 ::: {.column width="40%"}
-
 ```{r}
 #| label: fig-reg-errors
 #| fig-cap: "Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice versa*. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line"
@@ -815,108 +801,91 @@ ggplot(data.reg, aes(x=weight, plasma)) +
   my.ggtheme
 
 ```
-
+:::
 :::
 
-::::
+<!-- ## Least squares -->
+
+<!-- ::: {#thm-lss} -->
+<!-- ## Least squares estimates for a simple linear regression -->
+
+<!-- $$\hat{\beta} = \frac{S_{xy}}{S_{xx}}$$ $$\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}$$ -->
+
+<!-- where: -->
+
+<!-- -   $\bar{x}$: mean value of $x$ -->
+<!-- -   $\bar{y}$: mean value of $y$ -->
+<!-- -   $S_{xx}$: sum of squares of $X$ defined as $S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2$ -->
+<!-- -   $S_{yy}$: sum of squares of $Y$ defined as $S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2$ -->
+<!-- -   $S_{xy}$: sum of products of $X$ and $Y$ defined as $S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})$ -->
+<!-- ::: -->
+
+<!-- ## Least squares -->
+
+<!-- *Live demo* -->
+
+<!-- ::: {#exm-lss} -->
+<!-- ## Least squares -->
+
+<!-- Let's try least squares method to find coefficient estimates in the **"body weight and plasma volume example"** -->
+
+<!-- ``` r -->
+<!-- # initial data -->
+<!-- weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg) -->
+<!-- plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters) -->
+
+<!-- # rename variables for convenience -->
+<!-- x <- weight -->
+<!-- y <- plasma -->
+
+<!-- # mean values of x and y -->
+<!-- x.bar <- mean(x) -->
+<!-- y.bar <- mean(y) -->
+
+<!-- # Sum of squares -->
+<!-- Sxx <-  sum((x - x.bar)^2) -->
+<!-- Sxy <- sum((x-x.bar)*(y-y.bar)) -->
+
+<!-- # Coefficient estimates -->
+<!-- beta.hat <- Sxy / Sxx -->
+<!-- alpha.hat <- y.bar - Sxy/Sxx*x.bar -->
+
+<!-- # Print estimated coefficients alpha and beta -->
+<!-- print(alpha.hat) -->
+<!-- print(beta.hat) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- #| code-fold: false -->
+
+<!-- # initial data -->
+<!-- weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg) -->
+<!-- plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters) -->
+
+<!-- # rename variables for convenience -->
+<!-- x <- weight -->
+<!-- y <- plasma -->
+
+<!-- # mean values of x and y -->
+<!-- x.bar <- mean(x) -->
+<!-- y.bar <- mean(y) -->
+
+<!-- # Sum of squares -->
+<!-- Sxx <-  sum((x - x.bar)^2) -->
+<!-- Sxy <- sum((x-x.bar)*(y-y.bar)) -->
+
+<!-- # Coefficient estimates -->
+<!-- beta.hat <- Sxy / Sxx -->
+<!-- alpha.hat <- y.bar - Sxy/Sxx*x.bar -->
+
+<!-- # Print estimated coefficients alpha and beta -->
+<!-- print(alpha.hat) -->
+<!-- print(beta.hat) -->
+
+<!-- ``` -->
+<!-- ::: -->
 
 
-## Least squares
-
-::: {#thm-lss}
-## Least squares estimates for a simple linear regression
-
-$$\hat{\beta} = \frac{S_{xy}}{S_{xx}}$$ $$\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}$$
-
-where:
-
--   $\bar{x}$: mean value of $x$
--   $\bar{y}$: mean value of $y$
--   $S_{xx}$: sum of squares of $X$ defined as $S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2$
--   $S_{yy}$: sum of squares of $Y$ defined as $S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2$
--   $S_{xy}$: sum of products of $X$ and $Y$ defined as $S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})$
-:::
-
-
-## Least squares
-
-*Live demo*
-
-::: {#exm-lss}
-## Least squares
-
-Let's try least squares method to find coefficient estimates in the **"body weight and plasma volume example"**
-
-``` r
-# initial data
-weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
-plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
-
-# rename variables for convenience
-x <- weight
-y <- plasma
-
-# mean values of x and y
-x.bar <- mean(x)
-y.bar <- mean(y)
-
-# Sum of squares
-Sxx <-  sum((x - x.bar)^2)
-Sxy <- sum((x-x.bar)*(y-y.bar))
-
-# Coefficient estimates
-beta.hat <- Sxy / Sxx
-alpha.hat <- y.bar - Sxy/Sxx*x.bar
-
-# Print estimated coefficients alpha and beta
-print(alpha.hat)
-print(beta.hat)
-```
-
-```{r}
-#| code-fold: false
-
-# initial data
-weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
-plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
-
-# rename variables for convenience
-x <- weight
-y <- plasma
-
-# mean values of x and y
-x.bar <- mean(x)
-y.bar <- mean(y)
-
-# Sum of squares
-Sxx <-  sum((x - x.bar)^2)
-Sxy <- sum((x-x.bar)*(y-y.bar))
-
-# Coefficient estimates
-beta.hat <- Sxy / Sxx
-alpha.hat <- y.bar - Sxy/Sxx*x.bar
-
-# Print estimated coefficients alpha and beta
-print(alpha.hat)
-print(beta.hat)
-
-```
-:::
-
-## Least squares
-
-*Live demo*
-
-In R we can use `lm()`, the built-in function, to fit a linear regression model and we can replace the above code with one line
-
-``` r
-lm(plasma ~ weight)
-```
-
-```{r}
-#| code-fold: false
-lm(plasma ~ weight)
-```
 
 ## Slope
 
@@ -1157,7 +1126,7 @@ $\boldsymbol\beta=\begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix}$ $\boldsymbol
 and we can estimate model parameters using $\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$.
 :::
 
-## Vector-matrix notations
+## Vector-matrix notations: least squares
 
 *Live demo*
 
@@ -1196,6 +1165,22 @@ X <- as.matrix(X)
 beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y
 print(beta.hat)
 
+```
+
+
+## Vector-matrix notations: least squares
+
+*Live demo*
+
+In R we can use `lm()`, the built-in function, to fit a linear regression model and we can replace the above code with one line
+
+``` r
+lm(plasma ~ weight)
+```
+
+```{r}
+#| code-fold: false
+lm(plasma ~ weight)
 ```
 
 <!-- ## Confidence intervals and prediction intervals -->
@@ -1264,13 +1249,9 @@ print(beta.hat)
 
 <!-- ::: -->
 
-
-
-
 # Assessing model fit
 
--   In addition to knowing how to estimate model parameters
--   we need to learn to assess the goodness of fit of a model.
+-   In addition to knowing how to estimate model parameters we need to learn to assess the goodness of fit of a model.
 -   We do that by calculating the amount of variability in the response that is explained by the model.
 
 ## $R^2$: summary of the fitted model
@@ -1467,7 +1448,6 @@ A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}
 -   TSS is the sum of squares of the **null model**
 -   $R^2$ is also referred as **coefficient of determination**
 -   $R^2$ is expressed on a scale, as a proportion between 0 and 1 of the total variation in the data.
-
 :::
 :::
 :::
@@ -1475,11 +1455,17 @@ A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}
 <!-- ## $R^2$: summary of the fitted model -->
 
 <!-- ::: incremental -->
+
 <!-- -   $R^2$ quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model -->
+
 <!-- -   $R^2$ is also referred as **coefficient of determination** -->
+
 <!-- -   It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data -->
+
 <!-- -   Values of $R^2$ approaching 1 indicate the model to be a good fit -->
+
 <!-- -   Values of $R^2$ less than 0.5 suggest that the model gives rather a poor fit to the data -->
+
 <!-- ::: -->
 
 ## $R^2$ and correlation coefficient
@@ -1504,7 +1490,7 @@ What other coefficient is expressed on a 0-1 scale?
 ## $R^2(adj)$
 
 ::: incremental
--   In the case of multiple linear regression we are using the **adjusted version of $R^2$** to assess the model fit as the number of explanatory variables increase, $R^2$ also increases.
+-   In the case of multiple linear regression we are using the **adjusted version of** $R^2$ to assess the model fit as the number of explanatory variables increase, $R^2$ also increases.
 :::
 
 . . .
@@ -1512,7 +1498,7 @@ What other coefficient is expressed on a 0-1 scale?
 ::: {#thm-r2adj}
 ## $R^2(adj)$
 
-For any multiple linear regression $$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as $$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$ 
+For any multiple linear regression $$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as $$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$
 
 -   $p$ is the number of independent predictors, i.e. the number of variables in the model, excluding the constant and $n$ is number of observations.
 
@@ -1520,33 +1506,39 @@ $R^2(adj)$ can also be calculated from $R^2$: $$R^2(adj) = 1 - (1-R^2)\frac{n-1}
 :::
 
 
-# Exercises
-
-Let's practice in exercises fitting linear models, hypothesis testing and assessing model fit.
-
 
 <!-- ## $R^2$ -->
 
 <!-- *Live demo* -->
 
 <!-- ``` r -->
+
 <!-- htwtgen <- read.csv("data/lm/heights_weights_gender.csv") -->
+
 <!-- head(htwtgen) -->
+
 <!-- attach(htwtgen) -->
 
 <!-- ## Simple linear regression -->
+
 <!-- model.simple <- lm(Height ~ Weight, data=htwtgen) -->
 
 <!-- # TSS -->
+
 <!-- TSS <- sum((Height - mean(Height))^2) -->
 
 <!-- # RSS -->
+
 <!-- # residuals are returned in the model type names(model.simple) -->
+
 <!-- RSS <- sum((model.simple$residuals)^2) -->
+
 <!-- R2 <- 1 - (RSS/TSS) -->
 
 <!-- print(R2) -->
+
 <!-- print(summary(model.simple)) -->
+
 <!-- ``` -->
 
 <!-- ## $R^2$ -->
@@ -1554,22 +1546,30 @@ Let's practice in exercises fitting linear models, hypothesis testing and assess
 <!-- *Live demo* -->
 
 <!-- ``` r -->
+
 <!-- htwtgen <- read.csv("data/lm/heights_weights_gender.csv") -->
+
 <!-- head(htwtgen) -->
+
 <!-- attach(htwtgen) -->
 
 <!-- ## Multiple regression -->
+
 <!-- model.multiple <- lm(Height ~ Weight + Gender, data=htwtgen) -->
+
 <!-- n <- length(Weight) -->
+
 <!-- p <- 1 -->
 
 <!-- RSS <- sum((model.multiple$residuals)^2) -->
+
 <!-- R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1)) -->
 
 <!-- print(R2_adj) -->
-<!-- print(summary(model.multiple)) -->
-<!-- ``` -->
 
+<!-- print(summary(model.multiple)) -->
+
+<!-- ``` -->
 
 # Checking model assumptions
 
@@ -1635,6 +1635,7 @@ plot(model)
 ## Checking assumptions {.smaller}
 
 **Residuals**, $\hat{\epsilon_i} = y_i - \hat{y_i}$ are the **main ingredient to check model assumptions**.
+
 ```{r}
 #| code-fold: false
 #| collapse: true
@@ -1652,19 +1653,24 @@ par(mfrow=c(2,2), mar = c(3, 2, 2, 1) + 0.1)
 plot(model)
 ```
 
+# Exercises
+
+Let's practice in exercises fitting linear models, hypothesis testing and assessing model fit.
+
 # Beyond linear models
-- Generalized linear models
+
+-   Generalized linear models
 
 ## Why Generalized Linear Models
+
 *GLM*
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-- GLMs extend linear model framework to outcome variables that do not follow normal distribution.
-- They are most frequently used to model binary, categorical or count data.
-- For instance, fitting a regression line to binary data yields predicted values that could take any value, including $<0$, 
-- not to mention that it is hard to argue that the values of 0 and 1s are normally distributed.
+-   GLMs extend linear model framework to outcome variables that do not follow normal distribution.
+-   They are most frequently used to model binary, categorical or count data.
+-   For instance, fitting a regression line to binary data yields predicted values that could take any value, including $<0$,
+-   not to mention that it is hard to argue that the values of 0 and 1s are normally distributed.
 :::
 
 ::: {.column width="5%"}
@@ -1699,26 +1705,20 @@ data_diabetes %>%
 
 ```
 :::
-
-::::
+:::
 
 ## Logistic regression
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-- Since the response variable takes only two values (Yes/No) we use GLM model 
-- to fit **logistic regression** model for the **probability of suffering from obesity (Yes).**
-- We let $p_i=P(Y_i=1)$ denote the probability of suffering from obesity (success)
-- and we assume that the response follows binomial distribution: $Y_i \sim Bi(1, p_i)$ distribution.
-- We can then write the regression model now as: 
-$$log(\frac{p_i}{1-p_i})=\beta_0 + \beta_1x_i$$
-and given the properties of logarithms this is also equivalent to:
-$$p_i = \frac{exp(\beta_0 + \beta_1x_i)}{1 + exp(\beta_0 + \beta_1x_i)}$$
+-   Since the response variable takes only two values (Yes/No) we use GLM model
+-   to fit **logistic regression** model for the **probability of suffering from obesity (Yes).**
+-   We let $p_i=P(Y_i=1)$ denote the probability of suffering from obesity (success)
+-   and we assume that the response follows binomial distribution: $Y_i \sim Bi(1, p_i)$ distribution.
+-   We can then write the regression model now as: $$log(\frac{p_i}{1-p_i})=\beta_0 + \beta_1x_i$$ and given the properties of logarithms this is also equivalent to: $$p_i = \frac{exp(\beta_0 + \beta_1x_i)}{1 + exp(\beta_0 + \beta_1x_i)}$$
 :::
 
 ::: {.column width="5%"}
-
 :::
 
 ::: {.column width="45%"}
@@ -1741,29 +1741,28 @@ p2 <- data_diabetes %>%
 grid.arrange(p1, p2, nrow = 2)
 ```
 :::
-
-::::
+:::
 
 ## Logistic regression
 
 <br>
 
-- In essence, the GLM generalizes linear regression by allowing the linear model to be related to the response variable via a **link function**.
-- Here, the **link function** $log(\frac{p_i}{1-p_i})$ provides the link between the binomial distribution of $Y_i$ (suffering from obesity) and the linear predictor (waist) 
-- Thus the **GLM model** can be written as $$g(\mu_i)=\mathbf{X}\boldsymbol\beta$$ where `g()` is the link function.
+-   In essence, the GLM generalizes linear regression by allowing the linear model to be related to the response variable via a **link function**.
+-   Here, the **link function** $log(\frac{p_i}{1-p_i})$ provides the link between the binomial distribution of $Y_i$ (suffering from obesity) and the linear predictor (waist)
+-   Thus the **GLM model** can be written as $$g(\mu_i)=\mathbf{X}\boldsymbol\beta$$ where `g()` is the link function.
 
 ## Logistic regression
-*R*
-<br>
+
+*R* <br>
 
 In R we can use `glm()` function to fit GLM models:
-```{.r}
+
+``` r
 # fit logistic regression model
 logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
 
 # print model summary
 print(summary(logmodel_1))
-
 ```
 
 ```{r}
@@ -1786,11 +1785,9 @@ print(summary(logmodel_1))
 
 ```
 
-
 ## Logistic regression
-*R*
-<br>
 
+*R* <br>
 
 ```{r}
 #| code-fold: false
@@ -1820,23 +1817,20 @@ ggPredict(logmodel_1) +
 ```
 
 ## Logistic regression
-*Hypothesis testing*
-<br>
 
-:::: {.columns}
+*Hypothesis testing* <br>
 
+::: columns
 ::: {.column width="40%"}
-- Similarly to linear models, we can determine whether each variable is related to the outcome of interest by testing the null hypothesis that the relevant logistic regression coefficient is zero.
-- This can be performed by **Wald test** which is equals to estimated logistic regression coefficient divided by its standard error and follows the Standard Normal distribution:
-$$W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)$$
+-   Similarly to linear models, we can determine whether each variable is related to the outcome of interest by testing the null hypothesis that the relevant logistic regression coefficient is zero.
+-   This can be performed by **Wald test** which is equals to estimated logistic regression coefficient divided by its standard error and follows the Standard Normal distribution: $$W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)$$
 :::
 
 ::: {.column width="5%"}
-
 :::
 
 ::: {.column width="55%"}
-```{.r}
+``` r
 # fit logistic regression model
 logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
 summary(logmodel_1)
@@ -1846,40 +1840,33 @@ summary(logmodel_1)
 summary(logmodel_1)
 ```
 :::
-
-::::
-
-
+:::
 
 ## Logistic regression
-*Deviance*
-<br>
 
-- Deviance is the number that measures the goodness of fit of a logistic regression model.
-- We use saturated and residual deviance to assess model, instead of $R^2$ or $R^2(adj)$.
-- We can also use deviance to check the association between explanatory variable and the outcome
-- In the **likelihood ratio test** the test statistics is the **deviance** for the full model minus the deviance for the full model excluding the relevant explanatory variable. This test statistics follow a Chi-squared distribution with 1 degree of freedom.
+*Deviance* <br>
+
+-   Deviance is the number that measures the goodness of fit of a logistic regression model.
+-   We use saturated and residual deviance to assess model, instead of $R^2$ or $R^2(adj)$.
+-   We can also use deviance to check the association between explanatory variable and the outcome
+-   In the **likelihood ratio test** the test statistics is the **deviance** for the full model minus the deviance for the full model excluding the relevant explanatory variable. This test statistics follow a Chi-squared distribution with 1 degree of freedom.
 
 ## Logistic regression
-*Odds ratio*
-<br>
 
+*Odds ratio* <br>
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-- In logistic regression we often interpret the model coefficients by taking $e^{\hat{\beta}}$
-- and we talk about **odd ratios**.
-- For instance we can say, given our above model, $e^{17.174} = 28745736$ that for each unit increase in `waist` the odds of suffering from obesity get multiplied by 28745736. 
+-   In logistic regression we often interpret the model coefficients by taking $e^{\hat{\beta}}$
+-   and we talk about **odd ratios**.
+-   For instance we can say, given our above model, $e^{17.174} = 28745736$ that for each unit increase in `waist` the odds of suffering from obesity get multiplied by 28745736.
 :::
 
 ::: {.column width="5%"}
-
 :::
 
 ::: {.column width="55%"}
-
-```{.r}
+``` r
 # fit logistic regression model
 logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
 
@@ -1890,10 +1877,8 @@ print(summary(logmodel_1))
 ```{r}
 summary(logmodel_1)
 ```
-
 :::
-
-::::
+:::
 
 ## Common GLM models
 
@@ -1916,6 +1901,5 @@ df %>%
 ```
 
 # Common cases
-- Let's go over common linear models cases
 
-
+-   Let's go over common linear models cases

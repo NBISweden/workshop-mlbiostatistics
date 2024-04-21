@@ -32,22 +32,34 @@ Objectives:
 - slope / intercept
 - hypothesis testing
 - vector-matrix notations
+- assessing model fit
+- assumptions
 
 12:00 - 13:00 lunch
 
 13:00 - 14:30 Linear models: regression and classification
 
-- checking model assumptions
-- assessing model fit
-- linear model selection & regularization
+- linear models in ML context (metrics)
+- linear model selection & regularization: feature selection
 - GLM: logistic regression, Poisson regression
-- Logistics Lasso?
+- Logistics Lasso
+- Feature engineering?
+- 
 
 14:30 - 15:00 break
 15:00 - 16:00 Linear models exercises
 
-- common cases
+- common cases: go through and see if I can add Poisson, logistic Lasso, or some ML components
 - putting into ML context (regression, regularized regression)
+
+- Move feature engineering to descriptive stats on Monday
+- Move things around in lm
+- Complete common cases with ML examples
+
+Later
+
+- add more on checking assumptions later, Cook's distance, correlated measurements
+- add derivations for single regression calculus
 
 ## Thursday
 
@@ -59,7 +71,7 @@ Objectives:
 
 ## Friday
 
-10:00 - 12:00 Putting everything together with tidymodels
+10:00 - 12:00 Putting everything together with tidymodels (remove regularization, introduce tidymodels)
 12:00 - 13:00 lunch
 13:00 - 14:30 Random Forest
 
@@ -153,12 +165,6 @@ Creating a structured and engaging 30-minute presentation on an introduction to 
 This outline will help you craft a comprehensive introduction to supervised learning that is informative and engaging for your audience.
 
 
-
-
-- Linear: remove what linear models are and are not? Missing plus, and indices; change term to least-squares models?
-- Linear: checking assumptions plots from lm() method, maybe focus more on that, explain Cook’s distance; add more examples, correlated measurements.
-- Splitting presentation: checking assumptions, logistics regressions into two entries under Schedule 
-- Linear: bring the same challenge from Tuesday but add age now
 
 
 

@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Olga Dethlefsen">
 
-<title>Introduction to linear models</title>
+<title>Introduction to linear models - 2&nbsp; Linear models in the ML context</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -31,7 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./lm-intro.html" rel="next">
+<link href="./lm-intro.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -76,7 +75,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lm-ml.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Linear models in the ML context</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -103,7 +102,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -115,7 +114,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lm-ml.html" class="sidebar-item-text sidebar-link">
+  <a href="./lm-ml.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Linear models in the ML context</span></span></a>
   </div>
 </li>
@@ -129,7 +128,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#evaluating-regression" id="toc-evaluating-regression" class="nav-link active" data-scroll-target="#evaluating-regression"><span class="header-section-number">2.1</span> Evaluating regression</a>
+  <ul class="collapse">
+  <li><a href="#model-fit" id="toc-model-fit" class="nav-link" data-scroll-target="#model-fit"><span class="header-section-number">2.1.1</span> model fit</a></li>
+  <li><a href="#predictions" id="toc-predictions" class="nav-link" data-scroll-target="#predictions"><span class="header-section-number">2.1.2</span> predictions</a></li>
+  </ul></li>
+  <li><a href="#feature-selection" id="toc-feature-selection" class="nav-link" data-scroll-target="#feature-selection"><span class="header-section-number">2.2</span> Feature selection</a></li>
   </ul>
 </nav>
     </div>
@@ -138,19 +142,13 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Introduction to linear models</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Linear models in the ML context</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Olga Dethlefsen </p>
-          </div>
-  </div>
     
   
     
@@ -159,28 +157,52 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
-<p>Linear models allows us to answer questions such as:</p>
 <ul>
-<li>is there a relationship between exposure and outcome, e.g.&nbsp;height and weight?</li>
-<li>how strong is the relationship between the two variables?</li>
-<li>what will be a predicted value of the outcome given a new set of exposure values?</li>
-<li>how accurately can we predict outcome?</li>
-<li>which variables are associated with the response, e.g.&nbsp;is it only height that explains weight or could it be height and age that are both associated with the response?</li>
+<li>It is often the case that some or many of the variables used in a multiple regression model are in fact not associated with the response.</li>
+<li>Including such <strong>irrelevant</strong> variables leads to unnecessary complexity in the resulting model, and worse prediction results.</li>
+<li>There are few approaches to perform <strong>feature selection</strong> or <strong>variable selection</strong>, that is for excluding irrelevant variables from a multiple regression model. The main classes include <strong>Subset Selection</strong>, <strong>Shrinkage methods</strong> and <strong>Dimension Reduction</strong>.</li>
+<li>Here, we can also think of linear models in machine learning context. By using data splitting strategies, we can find best linear models for prediction tasks.</li>
+<li>Similar to evaluation classification results, we need some metrics to evaluate regression results. In terms of assessing model fit, we have already seen one metric i.e.&nbsp;adjusted <span class="math inline">\(R^2\)</span>. Other metrics than can also be expressed in terms of RSS include <strong>Akaike information criterion (AIC)</strong> and <strong>Bayesian information criterion (BIC)</strong>.</li>
+<li>In addition, validation set and cross-validation methods can be used to directly evaluate the prediction error. Here, we use metrics such as <strong>Mean Squared Error (MSE)</strong> or <strong>Mean Absolute Error (MAE)</strong>.</li>
 </ul>
-<p><strong>Learning outcomes</strong></p>
+<section id="evaluating-regression" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="evaluating-regression"><span class="header-section-number">2.1</span> Evaluating regression</h2>
+<section id="model-fit" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="model-fit"><span class="header-section-number">2.1.1</span> model fit</h3>
+<p><strong>Adjusted R-squared</strong> (as seen before) <span class="math display">\[
+R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\frac{n-1}{n-p-1}
+\]</span></p>
+<p><strong>AIC</strong> and <strong>BIC</strong></p>
+<p>AIC is grounded in information theory and BIC is derived from a Bayesian point of view. Both are formally defined in likelihood functions. For regression models they can be expressed in terms of RSS because the likelihood of a model in the context of normal errors is directly related to the RSS.</p>
+<p><span class="math display">\[\text{AIC} = n \ln(\text{RSS}/n) + 2p\]</span></p>
+<p>where:</p>
 <ul>
-<li>to understand what a linear model is and be familiar with the terminology</li>
-<li>to be able to state linear model in the general vector-matrix notation</li>
-<li>to be able to use the general vector-matrix notation to numerically estimate model parameters</li>
-<li>to be able to use <code>lm()</code> function for model fitting, parameter estimation, hypothesis testing and prediction</li>
-<li>to be able to evaluate model fit by interpreting <span class="math inline">\(R^2\)</span> and <span class="math inline">\(R^2(adj)\)</span> values</li>
-<li>to be able to check model assumptions</li>
-<li>to be able to use <code>glm()</code> for extending linear models into generalized linear models</li>
+<li><span class="math inline">\(n\)</span> is the number of observations.</li>
+<li><span class="math inline">\(\text{RSS}\)</span> is the residual sum of squares.</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters in the model (including the intercept).</li>
 </ul>
-<p>Do you see a mistake or a typo? I would be grateful if you let me know via <a href="olga.dethlefsen@nbis.se">olga.dethlefsen@nbis.se</a></p>
-<p><em>This repository contains teaching and learning materials prepared and used during “Introduction to biostatistics and machine learning” course, organized by NBIS, National Bioinformatics Infrastructure Sweden. The course is open for PhD students, postdoctoral researcher and other employees within Swedish universities. The materials are geared towards life scientists wanting to be able to understand and use basic statistical and machine learning methods. More about the course <a href="https://nbisweden.github.io/workshop-mlbiostatistics/">https://nbisweden.github.io/workshop-mlbiostatistics/</a></em></p>
+<p><span class="math display">\[\text{BIC} = n \ln(\text{RSS}/n) + p \ln(n)\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> is the number of observations.</li>
+<li><span class="math inline">\(\text{RSS}\)</span> is the residual sum of squares.</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters in the model.</li>
+</ul>
+<p>Both criteria, AIC and BIC, introduce penalties for the number of parameters to avoid overfitting. BIC introduces a stronger penalty based on the sample size, making it more conservative than AIC. When comparing models using AIC or BIC that incorporate RSS, the objective remains the same: select the model that provides the best balance between goodness of fit and model simplicity. The model with the lower AIC or BIC value is generally preferred, as it indicates either a more parsimonious model or a model that better fits the data (or both).</p>
+</section>
+<section id="predictions" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="predictions"><span class="header-section-number">2.1.2</span> predictions</h3>
+<ul>
+<li><strong>Mean Squared Error (MSE)</strong>: average squared difference between the predicted values and the actual values. <span class="math display">\[MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2\]</span></li>
+<li><strong>Root Mean Squared Error (RMSE)</strong>: square root of the MSE <span class="math display">\[RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}\]</span></li>
+<li><strong>MAE</strong>: average absolute difference between the predicted values and the actual values <span class="math display">\[MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|\]</span></li>
+<li><strong>Mean Absolute Percentage Error (MAPE)</strong>: average percentage difference between the predicted values and the actual values.</li>
+</ul>
+<p>The smaller the difference between the predicted values vs.&nbsp;the validation or cross-validation predicted values, the better the model.</p>
+</section>
+</section>
+<section id="feature-selection" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="feature-selection"><span class="header-section-number">2.2</span> Feature selection</h2>
 
 
 </section>
@@ -421,11 +443,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./lm-intro.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./lm-intro.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
