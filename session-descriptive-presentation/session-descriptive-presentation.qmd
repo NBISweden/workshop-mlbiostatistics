@@ -12,6 +12,7 @@ format:
     code-fold: false
 editor_options: 
   chunk_output_type: console
+bibliography: references.bib
 ---
 
 ```{r}
@@ -1163,15 +1164,14 @@ data_diabetes %>%
 
 <br>
 
-- geometric mean
-- trimmed mean
-- moving average
-- Hodges-Lehmann Estimator
-- CV
-- MAD
-- skewness
-- kurtosis
-
+-   geometric mean
+-   trimmed mean
+-   moving average
+-   Hodges-Lehmann Estimator
+-   CV
+-   MAD
+-   skewness
+-   kurtosis
 
 ## Lifecycle of data science
 
@@ -1241,6 +1241,240 @@ flowchart LR
 
 <!-- Data science projects rarely require only one pass through the project phases and often one returns to previous steps many times given the results from the down-stream steps. For instance, one may perform EDA, discover and handle missing data, and redo the EDA. Or one may try some hypothesis tests that would lead to new questions for which one would repeat both EDA and inferential data analysis parts. -->
 
+
+# Feature engineering
+
+## Feature engineering
+
+*And descriptive statistics*
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Data) --> B(Descriptive stats.) 
+  B --> C(Feature eng.)
+  C --> D(ML model)
+  C --> B
+  
+```
+
+<br>
+
+
+- Feature engineering refers to techniques in machine learning that are used to prepare data for modeling and in turn improve the performance of machine learning models.
+- Feature engineering methods go often hand in hand with descriptive statistics.
+
+
+```{r}
+#| label: data
+#| echo: false
+#| warning: false
+#| message: false
+
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kableExtra)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+  
+```
+
+
+
+## Feature engineering
+
+*scaling & normalization* <br>
+
+::: incremental
+-   **Scaling** of numerical features
+    -   Changing the range (scale) of the data to prevent features with larger scales dominating the model. 
+-   **Normalization**
+    -   Changing observations so that they can be described by a normal distribution.
+    -   e.g. going from **positive skew**: mode \< median \< mean
+    -   or going from **negative skew**: mode \> median \> mean
+:::
+
+. . .
+
+<br>
+
+## Feature engineering
+
+*common transformations* <br>
+
+**square-root for moderate skew**
+
+-   sqrt(x) for positively skewed data,
+-   sqrt(max(x+1) - x) for negatively skewed data
+
+**log for greater skew**
+
+-   log10(x) for positively skewed data,
+-   log10(max(x+1) - x) for negatively skewed data
+
+**inverse for severe skew**
+
+-   1/x for positively skewed data
+-   1/(max(x+1) - x) for negatively skewed data
+
+## Feature engineering
+
+*dummy variables* <br>
+
+::: columns
+::: {.column width="40%"}
+-   Representing categorical variables with **dummy variables** or **one-hot encoding** to create numerical features.
+    -   For instance a categorical variable `obese` with three possible vales (underweight, healthy, overweight) can be transformed into two binary variables: "is_healthy", and "is_overweight", where the value of each variable is 1 if the observation belongs to that category and 0 otherwise. Only $k-1$ binary variables to encode $k$ categories.
+-   In **one-hot encoding** $k$ binary variables are created.
+:::
+
+::: {.column width="60%"}
+```{r}
+#| label: dummys
+#| tbl-cap-location: margin
+#| echo: false
+
+# make up some unbalanced obese categories to demonstrate when upsampling etc. may be needed
+data_obese_makeup <- data_diabetes %>%
+  na.omit() %>%
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) %>%
+  dplyr::select(id, obese)
+
+data_dummy <- data_obese_makeup %>%
+  mutate(is_healthy = ifelse(obese == "Healthy", 1, 0)) %>%
+  mutate(is_overweight = ifelse(obese == "Overweight", 1, 0)) %>%
+  mutate(id = id - 100) %>%
+  slice(c(1, 2, 3, 9, 10))
+
+data_dummy %>%
+  kbl(caption = "Example of obese variable with three categories (underweight/healthy/overweight) encoded as dummy variables", align = "cccc") %>%
+  column_spec(2, border_right="2px solid black") %>%
+  kable_styling()
+
+```
+:::
+:::
+
+## Feature engineering
+
+*missing data* <br>
+
+-   **handling missing data** via
+    -   imputations (mean, median, KNN-based)
+    -   deleting strategies such as list-wise deletion (complete-case analysis) or pair-wise deletion (available-case analysis)
+    -   choosing algorithms that can handle some extent of missing data, e.g. Random Forest, Naive Bayes
+
+## Feature engineering
+
+*Rubin's (1976) missing data classification system* <br>
+
+::: columns
+::: {.column width="50%"}
+### MCAR
+
+-   missing completely at random
+
+### MAR
+
+-   missing at random
+-   two observations for Test 2 deleted where Test 1 $<17$
+-   missing data on a variable is related to some other measured variable in the model, but not to the value of the variable with missing values itself
+
+### MNAR
+
+-   missing not at random
+-   omitting two highest values for Test 2
+-   when the missing values on a variable are related to the values of that variable itself
+:::
+
+::: {.column width="50%"}
+![](figures/missing-data.jpg)
+@missing2008
+:::
+:::
+
+## Feature engineering
+
+*handling imbalanced data* <br>
+
+::: columns
+::: {.column width="50%"}
+-   **handling imbalanced data**
+    -   down-sampling
+    -   up-sampling
+    -   generating synthetic instances
+        -   e.g. with SMOTE [@fernandez2018smote]
+        -   or ADASYN [@4633969]
+:::
+
+::: {.column width="50%"}
+```{r}
+
+# make up some unbalanced obese categories to demonstrate when up-sampling etc. may be needed
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  na.omit() %>% 
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) 
+
+font_size <- 20
+data_diabetes %>%
+  ggplot(aes(x = obese, y = "", fill = obese)) + 
+  geom_col(width = 0.6) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("number of samples") + 
+  xlab("") + 
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position = "none", legend.text = element_text(size=font_size)) +
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size))
+  
+
+```
+:::
+:::
+
+
+
+## Feature engineering
+
+*misc* <br>
+
+::: incremental
+
+- **feature aggregation**
+  - e.g. combining multiple related features into a single one, e.g. calculating average of a group
+- **feature interaction**: creating new features by combining existing features
+  - e.g. creating `BMI` variables based on `weight` and `height`
+- **dimensionality reduction**: reducing number of features in a data set by transforming them into a lower-dimensional space
+- **filtering out irrelevant features**
+  - e.g. using variance threshold or univariate statistics
+- **filtering out redundant features**
+  - e.g. keeping only one of a group of highly correlated features
+  - Note: collinearity reduces the accuracy of the estimates of the regression coefficients and thus the power of the hypothesis testing is reduced.
+  
+:::
+
 ## Summary
 
 <br>
@@ -1261,16 +1495,14 @@ flowchart LR
 
 <br>
 
-
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
 ::: incremental
-
-- There are many R packages to calculates descriptive statistics and presents the results in customizable summary table ready for publication, e.g. `gtsummary` or `arsenal`. 
+- There are many R packages to calculates descriptive statistics and presents the results in customizable summary table ready for publication, e.g. `gtsummary` or `arsenal`.
 
 - Similarly, there are many ways of visualizing the data. For inspiration The R Graph Gallery <https://r-graph-gallery.com>
 
+- We will later learn how to use `tidymodels` framework to run ML models tasks, including feature engineering steps with `recipes` tidy interface.
 :::
 :::
 
@@ -1301,16 +1533,10 @@ data_diabetes %>%
 
 ```
 :::
-
-::::
-
-
-
-
-
-
-
+:::
 
 ## Thank you
 
 questions?
+
+## References
