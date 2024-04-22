@@ -19,8 +19,9 @@ format:
 require(tidyverse)
 require(ggplot2)
 require(reshape2)
+library(gt)
 require(knitr)
-require(kableExtra)
+#require(kableExtra)
 knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
 options(digits=2)
 ```
@@ -105,6 +106,9 @@ $$E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i$$
 
 $$\sigma^2 = \frac{1}{N} \sum_{i=1}^N (x_i-\mu)^2$$
 
+and the standard deviation
+
+$$\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^N (x_i-\mu)^2}$$
 
 ## Normal distribution
 
@@ -186,8 +190,10 @@ z <- -z[nrow(z):1,]
 z <- sapply(seq(0, 0.09, 0.01), function(x) seq(x,3.49,0.1))
 zscore.df <- apply(pnorm(z), 2, function(x) sprintf("%.4f",x))
 row.names(zscore.df) <- sprintf("%.1f", z[,1])
-colnames(zscore.df) <- seq(0,0.09,0.01)
-kable(zscore.df, caption = "F(z) = P(Z<z)") %>% kable_styling(font_size = 12)
+colnames(zscore.df) <- sprintf("%.2f", seq(0,0.09,0.01))
+##Smaller font in table
+zscore.df |> as.data.frame() |> rownames_to_column("z") |> gt() |> tab_options(table.font.size = "50%", column_labels.font.weight = "bold", data_row.padding = px(1.2)) |> tab_style(style=list(cell_text(weight="bold")), locations=cells_body(columns=z))
+#kable(zscore.df, caption = "F(z) = P(Z<z)") %>% kable_styling(font_size = 12)
 ```
 :::
 :::
@@ -226,14 +232,16 @@ $$\sum_{i=1}^n X_i \in N(n\mu, \sqrt{n}\sigma)$$
 
 If $n$ is large enough this holds for any independent and identically distributed random variables, even if they are not normally distributed.
 
-. . .
 
 
-::: {.callout-note icon="false"}
-# Central limit theorem
 
+## Central limit theorem
+
+:::{.columns}
+:::{.column width="90%" align="center" style="background-color: lightblue; font-size: 150%"}
 The sum of $n$ independent and equally distributed random variables is normally distributed, if $n$ is large enough.
 :::
+::::
 
 . . . 
 
@@ -300,8 +308,7 @@ The ratio of two sample variances is F-distributed.
 
 Commonly used to compare variances between groups. ANOVA
 :::
----
-::: {.column width="\"50%"}
+::: {.column width="50%"}
 ```{r Fdistr, fig.width=5, fig.height=5, fig.cap="The F-distribution"}
 x <- seq(-0,5, .01)
 dX <- data.frame(x=x, n1=rep(c(2,4,10), each=length(x)), n2=rep(c(2,4,10), each=length(x)*3)) %>%
