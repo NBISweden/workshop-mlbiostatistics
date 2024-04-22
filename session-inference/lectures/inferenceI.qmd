@@ -26,14 +26,21 @@ options(digits=2)
 
 ## Introduction to hypothesis tests 
 
-::: {.r-fit-text}
-
 **Statistical inference** is to draw conclusions regarding properties of a population based on observations of a random sample from the population.
 
+:::{.columns}
+:::{.column width="7%"}
+![](../figures/Lampa.jpg)
+:::
+:::{.column width="92%"}
 A **hypothesis test** is a type of inference about evaluating if a hypothesis about a population is supported by the observations of a random sample (i.e by the data available).
+:::
+::::
 
 Typically, the hypotheses that are tested are assumptions about properties of a population, such as proportion, mean, mean difference, variance etc.
-:::
+
+
+![](../figures/hypotestest.jpg){width=50% fig-align="center"}
 
 ## The null and alternative hypothesis 
 
@@ -92,8 +99,23 @@ df1 |> ggplot(aes(x=group, y=x, color=group)) + geom_boxplot() + theme_bw() + xl
 ::: {.smaller style="font-size: 35px" .incremental}
 1.  Define $H_0$ and $H_1$
 2.  Select an appropriate significance level, $\alpha$
+
+::: {.notes}
+The significance level is the acceptable risk of false alarm, i.e. to say *"I have a hit"*, *"I found a difference"*, when the the null hypothesis (*"there is no difference"*) is true.
+:::
+
 3.  Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+
+::: {.notes}
+For example the difference in means, the proportion of successes, the correlation coefficient etc.
+:::
+
 4.  Assume that the $H_0$ is true and compute the sampling distribution of $T$.
+
+::: {.notes}
+We will get back to the null distribution in the next slide
+:::
+
 5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
 6.  Based on the p-value either accept or reject $H_0$.
 :::
@@ -217,8 +239,6 @@ ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>
 ## Perform a hypothesis test
 
 You suspect that a dice is loaded, i.e. showing 'six' more often than expected of a fair dice. To test this you throw the dice 10 times and count the total number of sixes. You got 5 sixes. Is there reason to believe that the dice is loaded?
-
-*Live coding!*
 
 1.  Define $H_0$ and $H_1$
 2.  Select an appropriate significance level, $\alpha$
@@ -658,7 +678,6 @@ If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as i
 ::: {.column width="50%"}
 The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
 
-Random reassignment to two groups can be accomplished using permutation.
 :::
 ::: {.column width="50%"}
 ```{r results="asis"}
@@ -669,6 +688,45 @@ for (i in o) {
 ```
 :::
 ::::
+
+## Simulation example
+
+**4. Null distribution**
+
+If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the same diet.
+
+::: {.columns}
+::: {.column width="50%"}
+The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
+:::
+::: {.column width="50%"}
+:::{.columns}
+:::{.column width="40%"}
+```{r results="asis"}
+sc <- 2
+o2 <- sample(o)
+for (i in o2[1:12]) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(c(xHF, xN)[i]*sc), name[i]))
+}
+```
+:::
+:::{.column width="40%"}
+```{r results="asis"}
+for (i in o2[13:24]) {
+  cat(sprintf('![](../figures/Mus.jpg){width=%i data-id="%s"}', round(c(xHF, xN)[i]*sc), name[i]))
+}
+```
+:::
+::::
+
+:::
+::::
+
+## Simulation example
+
+**4. Null distribution**
+
+Random reassignment to two groups can be accomplished using permutation.
 
 Assume $H_0$ is true, i.e. assume all mice are equivalent and
 
