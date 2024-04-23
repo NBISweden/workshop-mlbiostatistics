@@ -447,13 +447,11 @@
 <h2>Statistical vs.&nbsp;deterministic relationship</h2>
 <div class="fragment">
 <p>Relationships in probability and statistics can generally be one of three things:</p>
-<div>
 <ul>
-<li class="fragment">deterministic</li>
-<li class="fragment">random</li>
-<li class="fragment">statistical</li>
+<li>deterministic</li>
+<li>random</li>
+<li>statistical</li>
 </ul>
-</div>
 </div>
 </section>
 <section id="statistical-vs.-deterministic-relationship-1" class="slide level2 smaller">
@@ -484,8 +482,8 @@
 <p><strong>A statistical relationship</strong> is a <strong>mixture of deterministic and random relationship</strong>, e.g.&nbsp;the savings that Olga has left in the bank account depend on Olga’s monthly salary income (deterministic part) and the money spent on buying plants (random part)</p>
 
 <img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-5-1.png" width="960" class="r-stretch quarto-figure-center"></section>
-<section id="what-linear-models-are-and-are-not" class="slide level2">
-<h2>What linear models are and are not</h2>
+<section id="what-linear-models-are" class="slide level2">
+<h2>What linear models are</h2>
 <p><em>definition</em></p>
 <p><br></p>
 <div class="columns">
@@ -510,8 +508,8 @@
 <!-- . . . -->
 <!-- -   For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled. -->
 </section>
-<section id="what-linear-models-are-and-are-not-1" class="slide level2">
-<h2>What linear models are and are not</h2>
+<section id="what-linear-models-are-1" class="slide level2">
+<h2>What linear models are</h2>
 <p><em>definition</em></p>
 <p><br></p>
 <div>
@@ -529,14 +527,138 @@
 <!-- -   vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$: $$Y_i = \alpha + x_i^\beta + \epsilon$$ -->
 <!-- -   Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared -->
 <!-- ::: -->
-</section>
-<section id="what-linear-models-are-and-are-not-2" class="slide level2">
-<h2>What linear models are and are not</h2>
-
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-7-1.png" width="768" class="r-stretch quarto-figure-center"></section>
-<section id="what-linear-models-are-and-are-not-3" class="slide level2">
-<h2>What linear models are and are not</h2>
-
+<!-- ## What linear models are and are not -->
+<!-- ```{r} -->
+<!-- #| warning: false -->
+<!-- #| echo: false -->
+<!-- #| fig-align: center -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 6 -->
+<!-- my.ggtheme <- theme_bw() +  -->
+<!--   theme(axis.title = element_text(size = font.size),  -->
+<!--         axis.text = element_text(size = font.size),  -->
+<!--         legend.text = element_text(size = font.size),  -->
+<!--         legend.title = element_blank(),  -->
+<!--         legend.position = "none",  -->
+<!--         axis.title.y=element_text(angle=0)) -->
+<!-- # simple linear regression -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x + rnorm(length(x), mean(x), 2) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x) -->
+<!-- p.simple <-  data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("A") -->
+<!-- # simple linear regression with group -->
+<!-- x <- seq(0, 10, length.out = 20) -->
+<!-- set.seed(123) -->
+<!-- y1 <- 0 + x + rnorm(length(x), 0, 2) -->
+<!-- set.seed(123) -->
+<!-- y2 <- 0 + 4*x + rnorm(length(x), 0, 2) -->
+<!-- x.all <- c(x, x) -->
+<!-- y.all <- c(y1, y2) -->
+<!-- group <- c(rep("CTRL", length(x)), rep("TX", length(x))) -->
+<!-- ymodel <- c(0+x, 0+4*x) -->
+<!-- data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel) -->
+<!-- p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel)) +  -->
+<!--   theme_classic() + -->
+<!--   scale_color_brewer(palette = "Set2") +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("B")  -->
+<!-- # advanced 1 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x^2 + rnorm(length(x), mean(x), 10) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x^2) -->
+<!-- p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("C") -->
+<!-- # advanced 2 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05) -->
+<!-- data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000) -->
+<!-- p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("D") -->
+<!-- grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2) -->
+<!-- ``` -->
+<!-- ## What linear models are and are not -->
+<!-- ```{r} -->
+<!-- #| warning: false -->
+<!-- #| echo: false -->
+<!-- #| fig-align: center -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 6 -->
+<!-- my.ggtheme <- theme_bw() +  -->
+<!--   theme(axis.title = element_text(size = font.size),  -->
+<!--         axis.text = element_text(size = font.size),  -->
+<!--         legend.text = element_text(size = font.size),  -->
+<!--         legend.title = element_blank(),  -->
+<!--         legend.position = "none",  -->
+<!--         axis.title.y=element_text(angle=0)) -->
+<!-- # simple linear regression -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x + rnorm(length(x), mean(x), 2) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x) -->
+<!-- p.simple <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(A: $y_i = x_1 + e_i$)')) -->
+<!-- # simple linear regression with group -->
+<!-- x <- seq(0, 10, length.out = 20) -->
+<!-- set.seed(123) -->
+<!-- y1 <- 0 + x + rnorm(length(x), 0, 2) -->
+<!-- set.seed(123) -->
+<!-- y2 <- 0 + 4*x + rnorm(length(x), 0, 2) -->
+<!-- x.all <- c(x, x) -->
+<!-- y.all <- c(y1, y2) -->
+<!-- group <- c(rep("CTRL", length(x)), rep("TX", length(x))) -->
+<!-- ymodel <- c(0+x, 0+4*x) -->
+<!-- data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel) -->
+<!-- p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel)) +  -->
+<!--   theme_classic() + -->
+<!--   scale_color_brewer(palette = "Set2") +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(B: $x_1 + I_{x_i} + e_i$)')) -->
+<!-- # advanced 1 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x^2 + rnorm(length(x), mean(x), 10) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x^2) -->
+<!-- p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(C: $y_i = x_i^2 + e_i$)')) -->
+<!-- # advanced 2 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05) -->
+<!-- data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000) -->
+<!-- p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(D: $y_i = x + x_i^3 + e_i$)')) -->
+<!-- grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2) -->
+<!-- ``` -->
 <!-- ## Terminology -->
 <!-- There are many terms and notations used interchangeably -->
 <!-- ::: incremental -->
@@ -551,11 +673,11 @@
 <!--     -   predictor -->
 <!--     -   covariate -->
 <!-- ::: -->
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-8-1.png" width="768" class="r-stretch quarto-figure-center"></section>
+</section>
 <section id="simple-linear-regression" class="slide level2">
 <h2>Simple linear regression</h2>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch quarto-figure-center"><div>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch quarto-figure-center"><div>
 <ul>
 <li class="fragment">It is used to check the association between <strong>the numerical outcome and one numerical explanatory variable</strong></li>
 <li class="fragment">In practice, we are finding the best-fitting straight line to describe the relationship between the outcome and exposure</li>
@@ -568,18 +690,6 @@
 <p><span class="theorem-title"><strong>Example 1 (Weight and plasma volume) </strong></span>Let’s look at the example data containing body weight (kg) and plasma volume (liters) for eight healthy men to see what the best-fitting straight line is.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
-<div class="cell" data-fig-cap-location="margin" data-fig-heigth="4">
-<div class="cell-output-display">
-<div id="fig-lm-intro-example" class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-intro-example-1.png" width="384"></p>
-<figcaption>Figure&nbsp;1: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice verca</em>.</figcaption>
-</figure>
-</div>
-</div>
-</div>
 </div>
 </section>
 <section id="simple-linear-regression-2" class="slide level2">
@@ -596,7 +706,7 @@
 <section id="simple-linear-regression-3" class="slide level2">
 <h2>Simple linear regression</h2>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-example-reg-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;2: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice verca</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes (increase or decreases) with a change of exposure variable</p><div class="fragment">
+<img data-src="session-lm-presentation_files/figure-revealjs/fig-lm-example-reg-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;1: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice verca</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes (increase or decreases) with a change of exposure variable</p><div class="fragment">
 <p>The equation for the red line is: <span class="math display">\[Y_i=0.086 +  0.044 \cdot x_i \quad for \;i = 1 \dots 8\]</span></p>
 </div>
 <div class="fragment">
@@ -633,7 +743,7 @@
 </div><div class="column" style="width:40%;">
 <div class="cell">
 <div class="cell-output-display">
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-19-1.png" width="960"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-17-1.png" width="960"></p>
 </div>
 </div>
 </div>
@@ -668,7 +778,7 @@
 <div id="fig-reg-errors" class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="session-lm-presentation_files/figure-revealjs/fig-reg-errors-1.png" width="768"></p>
-<figcaption>Figure&nbsp;3: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice versa</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line</figcaption>
+<figcaption>Figure&nbsp;2: Scatter plot of the data shows that high plasma volume tends to be associated with high weight and <em>vice versa</em>. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line</figcaption>
 </figure>
 </div>
 </div>
@@ -739,14 +849,14 @@
 <p><span class="math inline">\(plasma = 0.0857 + 0.0436 * weight\)</span></p>
 <p>Linear regression gives us estimates of model coefficient <span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Increasing weight by 5 kg corresponds to</em> <span class="math inline">\(3.14 - 2.92 = 0.22\)</span> increase in plasma volume. Increasing weight by 1 kg corresponds <span class="math inline">\(2.96 - 2.92 = 0.04\)</span> increase in plasma volume</p>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-19-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Increasing weight by 5 kg corresponds to</em> <span class="math inline">\(3.14 - 2.92 = 0.22\)</span> increase in plasma volume. Increasing weight by 1 kg corresponds <span class="math inline">\(2.96 - 2.92 = 0.04\)</span> increase in plasma volume</p>
 </section>
 <section id="intercept" class="slide level2">
 <h2>Intercept</h2>
 <p><span class="math inline">\(plasma = 0.0857 + 0.0436 * weight\)</span></p>
 <p>Linear regression gives us estimates of model coefficient <span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-22-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Intercept value corresponds to expected outcome when the explanatory variable value equals to zero. It is not always meaningful</em></p>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-20-1.png" width="960" class="r-stretch quarto-figure-center"><p><em>Intercept value corresponds to expected outcome when the explanatory variable value equals to zero. It is not always meaningful</em></p>
 </section>
 <section id="hypothesis-testing" class="slide level2">
 <h2>Hypothesis testing</h2>
@@ -755,7 +865,7 @@
 <ul>
 <li class="fragment">the calculated <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span> are <strong>estimates of the population values</strong> of the intercept and slope and are therefore subject to <strong>sampling variation</strong></li>
 <li class="fragment">their precision is measured by their <strong>estimated standard errors</strong>, <code>e.s.e</code>(<span class="math inline">\(\hat{\alpha}\)</span>) and <code>e.s.e</code>(<span class="math inline">\(\hat{\beta}\)</span>)</li>
-<li class="fragment">these estimated standard errors are used in <strong>hypothesis testing</strong> and in constructing <strong>confidence and prediction intervals</strong></li>
+<li class="fragment">these estimated standard errors are used in <strong>hypothesis testing</strong></li>
 </ul>
 </div>
 </section>
@@ -787,7 +897,7 @@
 <section id="hypothesis-testing-2" class="slide level2 smaller">
 <h2>Hypothesis testing</h2>
 <div id="exm-hypothesis-testing" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2 (Hypothesis testing) </strong></span>Let’s look again at our example data. This time we will not only fit the linear regression model but also look a bit more closely at the <code>R summary</code> of the model</p>
+<p><span class="theorem-title"><strong>Example 2 (Hypothesis testing) </strong></span>Let’s look again at our example data and linear model fitted in R with lm() function.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -845,15 +955,12 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 </section>
 <section id="vector-matrix-notations" class="slide level2 scrollable smaller">
 <h2>Vector-matrix notations</h2>
-<p>While in simple linear regression it is feasible to arrive at the parameters estimates using calculus in more realistic settings of <strong>multiple regression</strong>, with more than one explanatory variable in the model, it is <strong>more efficient to use vectors and matrices to define the regression model</strong>.</p>
-<div class="fragment">
 <p>Let’s <strong>rewrite</strong> our simple linear regression model <span class="math inline">\(Y_i = \alpha + \beta_i + \epsilon_i \quad i=1,\dots n\)</span> <strong>into vector-matrix notation</strong> in <strong>6 steps</strong>.</p>
+<div class="fragment">
+<p>Step 1. We rename our <span class="math inline">\(\alpha\)</span> to <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta\)</span> to <span class="math inline">\(\beta_1\)</span>.</p>
 </div>
 <div class="fragment">
-<p>Step 1. First we rename our <span class="math inline">\(\alpha\)</span> to <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta\)</span> to <span class="math inline">\(\beta_1\)</span> as it is easier to keep tracking the number of model parameters this way</p>
-</div>
-<div class="fragment">
-<p>Step 2. Then we notice that we actually have <span class="math inline">\(n\)</span> equations such as:</p>
+<p>Step 2. We notice that we have <span class="math inline">\(n\)</span> equations such as:</p>
 <p><span class="math display">\[y_1 = \beta_0 + \beta_1 x_1 + \epsilon_1\]</span> <span class="math display">\[y_2 = \beta_0 + \beta_1 x_2 + \epsilon_2\]</span> <span class="math display">\[y_3 = \beta_0 + \beta_1 x_3 + \epsilon_3\]</span> <span class="math display">\[\dots\]</span> <span class="math display">\[y_n = \beta_0 + \beta_1 x_n + \epsilon_n\]</span></p>
 </div>
 <div class="fragment">
@@ -986,10 +1093,8 @@ Coefficients:
 <section>
 <section id="assessing-model-fit" class="title-slide slide level1 center">
 <h1>Assessing model fit</h1>
-<ul>
-<li>In addition to knowing how to estimate model parameters we need to learn to assess the goodness of fit of a model.</li>
-<li>We do that by calculating the amount of variability in the response that is explained by the model.</li>
-</ul>
+<!-- -   In addition to knowing how to estimate model parameters we need to learn to assess the goodness of fit of a model. -->
+<!-- -   We do that by calculating the amount of variability in the response that is explained by the model. -->
 </section>
 <section id="r2-summary-of-the-fitted-model" class="slide level2">
 <h2><span class="math inline">\(R^2\)</span>: summary of the fitted model</h2>
@@ -1015,7 +1120,7 @@ Coefficients:
 <div class="column" style="width:40%;">
 <div class="cell">
 <div class="cell-output-display">
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-33-1.png" width="768"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-31-1.png" width="768"></p>
 </div>
 </div>
 </div><div class="column" style="width:60%;">
@@ -1033,7 +1138,7 @@ Coefficients:
 <div class="column" style="width:40%;">
 <div class="cell">
 <div class="cell-output-display">
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-34-1.png" width="768"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-32-1.png" width="768"></p>
 </div>
 </div>
 </div><div class="column" style="width:60%;">
@@ -1184,7 +1289,7 @@ Coefficients:
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-35-1.png" width="960"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-33-1.png" width="960"></p>
 <figcaption>Diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Modeling BMI with waist explanatory variable. Model assumptions seems to be met with no noticible patterns based on residuals. Few potential outliers could be considered to be removed.</figcaption>
 </figure>
 </div>
@@ -1196,7 +1301,7 @@ Coefficients:
 <h2>Checking assumptions</h2>
 <p><strong>Residuals</strong>, <span class="math inline">\(\hat{\epsilon_i} = y_i - \hat{y_i}\)</span> are the <strong>main ingredient to check model assumptions</strong>.</p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-36-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Modeling glucose with age. Model assumptions seems to be violated, e.g.&nbsp;with residulas not following normal distributions.</p></section></section>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-34-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Diagnostic residual plots based on the lm() model used to assess whether the assumptions of linear models are met. Modeling glucose with age. Model assumptions seems to be violated, e.g.&nbsp;with residulas not following normal distributions.</p></section></section>
 <section id="exercises" class="title-slide slide level1 center">
 <h1>Exercises</h1>
 <p>Let’s practice in exercises fitting linear models, hypothesis testing and assessing model fit.</p>
@@ -1214,8 +1319,8 @@ Coefficients:
 <div class="column" style="width:55%;">
 <div>
 <ul>
-<li class="fragment">We can think of linear models in machine learning context, as they are often both regression and classification prediction tasks.</li>
-<li class="fragment">It is often the case that some or many of the variables used in linear models <strong>are not</strong> associated with the response.</li>
+<li class="fragment">We can think of linear models in machine learning context, as they are both used for <strong>regression</strong> and <strong>classification</strong>.</li>
+<li class="fragment">Often some or many of the variables used in linear models <strong>are not</strong> associated with the response.</li>
 <li class="fragment">There are <strong>feature selection</strong> methods for excluding <strong>irrelevant</strong> variables and improving prediction results.
 <ul>
 <li class="fragment">subset selection, <strong>Shrinkage methods</strong> and dimension reduction</li>
@@ -1228,7 +1333,7 @@ Coefficients:
 </div><div class="column" style="width:40%;">
 <div class="cell">
 <div class="cell-output-display">
-<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-37-1.png" width="960"></p>
+<p><img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-35-1.png" width="960"></p>
 </div>
 </div>
 </div>
@@ -1276,9 +1381,9 @@ Coefficients:
 <h3 id="there-are-generally-three-main-groups-of-feature-selection-methods">There are generally three main groups of feature selection methods:</h3>
 <div>
 <ul>
-<li class="fragment"><strong>Filter methods</strong> use statistical measures to score the features and select the most relevant ones, e.g.&nbsp;based on correlation coefficient or <span class="math inline">\(\chi^2\)</span> test. They tend to be computationally efficient but may overlook complex interactions between features and can be sensitive to the choice of metric used to evaluate the feature importance.</li>
-<li class="fragment"><strong>Wrapper methods</strong> use a machine learning algorithm to evaluate the performance of different subsets of features, e.g.&nbsp;forward/backward feature selection. They tend to be computationally heavy.</li>
-<li class="fragment"><strong>Embedded methods</strong> incorporate feature selection as part of the machine learning algorithm itself, e.g.&nbsp;<strong>regularized regression</strong> or <strong>Random Forest</strong>. These methods are computationally efficient and can be more accurate than filter methods.</li>
+<li class="fragment"><strong>Filter methods</strong> use statistical measures to score the features and select the most relevant ones, e.g.&nbsp;based on correlation coefficient. Computationally efficient but may overlook complex interactions between features.</li>
+<li class="fragment"><strong>Wrapper methods</strong> use ML algorithm to evaluate the performance of different subsets of features, e.g.&nbsp;forward/backward feature selection. Computationally heavy.</li>
+<li class="fragment"><strong>Embedded methods</strong> incorporate feature selection as part of the ML algorithm itself, e.g.&nbsp;<strong>regularized regression</strong> or <strong>Random Forest</strong>. These methods are computationally efficient and can be more accurate than filter methods.</li>
 </ul>
 </div>
 </section>
@@ -1297,11 +1402,15 @@ Coefficients:
 <h2>Regularized regression</h2>
 <p><em>Ridge regression</em> <br></p>
 <ul>
-<li><p>Previously we saw that the least squares fitting procedure estimates model coefficients <span class="math inline">\(\beta_0, \beta_1, \cdots, \beta_p\)</span> using the values that minimize the residual sum of squares: <span id="eq-lm"><span class="math display">\[RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 \qquad(3)\]</span></span></p></li>
-<li><p>In <strong>regularized regression</strong> the coefficients are estimated by minimizing slightly different quantity. Specifically, in <strong>Ridge regression</strong> we estimate <span class="math inline">\(\hat\beta^{L}\)</span> that minimizes <span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(4)\]</span></span></p></li>
+<li>Previously we saw that the least squares fitting procedure estimates model coefficients <span class="math inline">\(\beta_0, \beta_1, \cdots, \beta_p\)</span> using the values that minimize the residual sum of squares: <span id="eq-lm"><span class="math display">\[RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 \qquad(3)\]</span></span></li>
+</ul>
+<div class="fragment">
+<ul>
+<li>In <strong>regularized regression</strong> the coefficients are estimated by minimizing slightly different quantity. Specifically, in <strong>Ridge regression</strong> we estimate <span class="math inline">\(\hat\beta^{L}\)</span> that minimizes <span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(4)\]</span></span></li>
 </ul>
 <p>where:</p>
 <p><span class="math inline">\(\lambda \ge 0\)</span> is a <strong>tuning parameter</strong> to be determined separately e.g.&nbsp;via cross-validation</p>
+</div>
 </section>
 <section id="regularized-regression-2" class="slide level2">
 <h2>Regularized regression</h2>
@@ -1309,7 +1418,7 @@ Coefficients:
 <p><span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(5)\]</span></span></p>
 <p><a href="#/regularized-regression-1">Equation&nbsp;5</a> trades two different criteria:</p>
 <ul>
-<li>as with least squares, lasso regression seeks coefficient estimates that fit the data well, by making RSS small</li>
+<li>lasso regression seeks coefficient estimates that fit the data well, by making RSS small</li>
 <li>however, the second term <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span>, called <strong>shrinkage penalty</strong> is small when <span class="math inline">\(\beta_1, \cdots, \beta_p\)</span> are close to zero, so it has the effect of <strong>shrinking</strong> the estimates of <span class="math inline">\(\beta_j\)</span> towards zero.</li>
 <li>the tuning parameter <span class="math inline">\(\lambda\)</span> controls the relative impact of these two terms on the regression coefficient estimates
 <ul>
@@ -1361,7 +1470,7 @@ Coefficients:
 <h2>Bias-variance trade-off</h2>
 <p><br></p>
 
-<img data-src="images/bias-variance.png" style="width:100.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;4: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning</p></section>
+<img data-src="images/bias-variance.png" style="width:100.0%" class="r-stretch quarto-figure-center"><p class="caption">Figure&nbsp;3: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning</p></section>
 <section id="ridge-vs.-lasso" class="slide level2">
 <h2>Ridge vs.&nbsp;Lasso</h2>
 <p>In <strong>Ridge</strong> regression we minimize: <span id="eq-ridge2"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \qquad(6)\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span> is also known as <strong>L2</strong> regularization element or <span class="math inline">\(l_2\)</span> penalty</p>
@@ -1464,7 +1573,7 @@ Coefficients:
 <div id="fig-obesity" class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="session-lm-presentation_files/figure-revealjs/fig-obesity-1.png" width="960"></p>
-<figcaption>Figure&nbsp;5: <strong>?(caption)</strong></figcaption>
+<figcaption>Figure&nbsp;4: <strong>?(caption)</strong></figcaption>
 </figure>
 </div>
 </div>
@@ -1517,7 +1626,7 @@ Coefficients:
 <h2>Logistic regression</h2>
 <p><em>R</em> <br></p>
 
-<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-49-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
+<img data-src="session-lm-presentation_files/figure-revealjs/unnamed-chunk-47-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
 <section id="logistic-regression-4" class="slide level2">
 <h2>Logistic regression</h2>
 <p><em>Hypothesis testing</em> <br></p>
@@ -1578,7 +1687,7 @@ Number of Fisher Scoring iterations: 6</code></pre>
 <ul>
 <li>In logistic regression we often interpret the model coefficients by taking <span class="math inline">\(e^{\hat{\beta}}\)</span></li>
 <li>and we talk about <strong>odd ratios</strong>.</li>
-<li>For instance we can say, given our above model, <span class="math inline">\(e^{17.174} = 28745736\)</span> that for each unit increase in <code>waist</code> the odds of suffering from obesity get multiplied by 28745736.</li>
+<li>For instance we can say, given our above model, <span class="math inline">\(e^{0.18} = 1.2\)</span> that for each unit increase in <code>waist</code> the odds of suffering from obesity get multiplied by 1.2.</li>
 </ul>
 </div><div class="column" style="width:5%;">
 
@@ -1656,11 +1765,11 @@ Number of Fisher Scoring iterations: 6</code></pre>
 </div>
 </section></section>
 <section>
-<section id="logistc-lasso" class="title-slide slide level1 center">
-<h1>Logistc Lasso</h1>
+<section id="logistic-lasso" class="title-slide slide level1 center">
+<h1>Logistic Lasso</h1>
 
 </section>
-<section id="logistic-lasso" class="slide level2">
+<section id="logistic-lasso-1" class="slide level2">
 <h2>Logistic Lasso</h2>
 <p><em>Logistic regression + Lasso regularization</em></p>
 <p><br></p>
