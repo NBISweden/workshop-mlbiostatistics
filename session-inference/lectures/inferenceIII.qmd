@@ -6,6 +6,7 @@ author: "Eva Freyhult"
 date: "2024-04-23"
 date-format: long
 institute: NBIS, SciLifeLab
+embed-resources: true
 format: 
   revealjs:
     slide-number: true
@@ -178,7 +179,9 @@ $$Z = \frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \s
 
 $$P\left(-z_{\alpha/2} < Z <z_{\alpha/2}\right) = 1-\alpha$$
 
-```{r ZCI95, out.width="60%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
+:::{.columns}
+:::{.column width="50%"}
+```{r ZCI95, out.width="100%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
 x<-seq(-3,3,0.01)
 df <- data.frame(x=x, f=dnorm(x, 0, 1))
 pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("z") + ylab("f(z)") + scale_x_continuous(breaks=c(-1.5,0,1.5), labels=c("-z","0","z")) +
@@ -186,21 +189,26 @@ pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("z") + ylab("f
               panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92")))
 pl  + geom_area(data=df %>% filter(x>(-1.5) & x<1.5)) + annotate("label",label=TeX("$P(-z_{\\alpha/2} \\leq Z \\leq z_{\\alpha/2}) = 1 - \\alpha$"), x=0, y=0.11, hjust=0.5)
 ```
-
+:::
+::::
 
 ## Standard normal distribution
 
 $$P\left(-z_{\alpha/2} < Z <z_{\alpha/2}\right) = 1-\alpha$$
 
-```{r ZCI95a, out.width="60%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
+:::{.columns}
+:::{.column width="50%"}
+```{r ZCI95a, out.width="100%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
 pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("$P(Z \\leq -z)=\\alpha/2$"), x=-1.6, y=0.07, hjust=1, size=3) + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("$P(Z \\geq z) = \\alpha/2$"), x=1.6, y=0.07, hjust=0, size=3)
 plot(pl)
 ```
-
+:::
+:::{.column width="50%"}
 $z_{\alpha/2}$ is the value such that $P(Z \geq z_{\alpha/2}) = \frac{\alpha}{2} \iff P(Z \leq z_{\alpha/2}) = 1 - \frac{\alpha}{2}$.
 
 For a 95% confidence, $\alpha = 0.05$, and $z_{\alpha/2} = 1.96$. For 90% or 99% confidence $z_{0.05} = 1.64$ and $z_{0.005}=2.58$. 
-
+:::
+::::
 
 ## Confidence interval of mean
 
@@ -305,6 +313,22 @@ qt(1-alpha/2, df=n-1)
 
 You study the BMI of male diabetic patients. In a sample of size 6 you observe; $27, 25, 31, 29, 30, 22$. Assume that the BMI is normally distributed and calculate a 95% confidence interval for the mean BMI in male diabetic patients.
 
+
+:::{.}
+The sample mean is $\bar x = 27.3$ and the sample standard deviation is $s = 3.39$. The degrees of freedom is $n-1 = 5$ and the $t$ value for a 95% confidence interval is `r qt(0.975, df=5)`.
+
+The confidence interval is $\bar x \pm t \frac{s}{\sqrt{n}} = 27.3 \pm 2.57 \frac{3.38}{\sqrt{6}} = 27.3 \pm 3.5$.
+
+```{r}
+x <- c(27, 25, 31, 29, 30, 22)
+(m <- mean(x))
+(s <- sd(x))
+q <- qt(0.975, df=5)
+SEM <- s/sqrt(6)
+CI <- m + c(-1,1)*q*SEM
+```
+
+:::
 
 ## Confidence interval of proportions
 

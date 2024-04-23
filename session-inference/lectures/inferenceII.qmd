@@ -6,6 +6,7 @@ author: "Eva Freyhult"
 date: "2024-04-23"
 date-format: long
 institute: NBIS, SciLifeLab
+embed-resources: true
 format: 
   revealjs:
     slide-number: true
@@ -155,7 +156,10 @@ and proceed as before.
 ## Two samples, mean
 ### Unknown variances, small sample sizes
 
-Either assume equal variances and proceed with Student's t-test or use Welch's t-test for unequal variances.
+$$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
+is t-distributed.
+
+If equal variances can be assumed Student's t-test can be used otherwise Welch's t-test for unequal variances.
 
 ## Two samples, mean
 ### Unknown equal variances, small sample sizes
@@ -377,14 +381,30 @@ In R a test of equal variances can be performed using the function `var.test`.
 kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "Type II error, miss, FN", "Reject H0", "Type I error, false alarm, FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(full_width = FALSE, bootstrap_options = "bordered", position="center")
 ```
 
+::::{.columns}
+:::{.column width="50%"}
+
 The probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
 
-$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
-$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = \\ P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = \\ P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
 
 $\alpha$ is the significance level and the statistical power
 
 $$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_0\textrm{ is false}).$$
+:::
+:::{.column width="50%"}
+
+```{r alphabeta}
+#| fig-width: 5
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5)  + geom_area(data=df %>% filter(x<q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + annotate("label", x=1.2, y=0.08, label="beta", parse=TRUE, color="orange") + geom_vline(xintercept=q)
+```
+:::
+::::
 
 ## Multiple tests
 
