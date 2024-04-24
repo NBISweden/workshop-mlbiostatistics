@@ -1,0 +1,459 @@
+---
+title: "Clustering"
+author: "Olga Dethlefsen & Mun-Gwan Hong"
+format: 
+  revealjs:
+    embed-resources: true
+bibliography: ref.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(dendextend)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+library(cluster)
+library(RColorBrewer)
+library(ggalt)
+library(factoextra)
+library(NbClust)
+library(pvclust)
+library(ComplexHeatmap)
+library(circlize)
+
+DIR_IMAGES <- "images/"
+```
+
+
+## Introduction
+
+- Identifying natural groupings according to similarity. 
+- **a cluster** is a collection of objects (samples, genes etc.) that are more "similar" to each other
+- $n$ objects $\times$ $p$ variables. 
+e.g. $n$ blood samples based on $p$ gene expression measurements
+- **unsupervised learning**, where we do not use any data labels to perform grouping. It is commonly used in EDA to reveal structures in the data. 
+
+## Clustering fruits
+
+```{r}
+include_graphics("images/fruits.png")
+```
+
+## Common usage
+
+- Disease subtyping and stratification
+- Grouping samples based on clinical data
+- Grouping samples based on gene expression profiles
+- Grouping cells by cell types, e.g. in scRNA-seq
+- Species classification and biodiversity studies
+
+
+## Distance (or Dissimilarity)
+
+- All clustering algorithms require **distance** measures between the objects.
+- For quantitative variables
+- For categorical (or binary) variables
+
+## Distances for quantitative variables
+
+```{r}
+include_graphics("images/distances.png")
+```
+
+## Euclidean distance
+
+- Straight-line distances in Euclidean space. 
+- In n-dimensional space, the Euclidean distance between two points $A = (a_1, a_2, ..., a_n)$ and $B = (b_1, b_2, ..., b_n)$
+
+$$distance(A,B) = \sqrt{\sum_{i=1}^{n}(a_i - b_i)^2}$$
+
+- "distance concentration" phenomena (@aggarwal2001)
+
+::: {.notes}
+In high-dimensional space, the pair-wise distances between different data points converge to the same value as the dimensionality increases, making it hard to distinguish points that are near and far away.
+:::
+
+## Non-Euclidean Manhattan metrics
+
+- The **Manhattan** or City Block metric
+
+$$distance (A,B) = \sum|a_i - b_i|$$
+
+- Preferred over Euclidean distance when high dimensionality
+- In our red circle and yellow cylinder, we get: 
+$d = |3 - 5| + |1 - 3|  = 4$
+
+## Pearson's correlation coefficient
+
+$$r = \frac{\sum(a_i-\bar a)(b_i-\bar b)}{\sqrt{\sum(a_i-\bar a)^2\sum(b_i-\bar b)^2}}$$
+
+Using a transformation we can compute a Pearson's correlation distance
+
+$$distance(A,B) = \sqrt{1-r}$$
+
+- Smaller when profiles are similar.
+
+
+## Mahalanobis distance {.unnumbered}
+
+- A variation from a Euclidean distance with weights
+- **Sample variance-covariance matrix**
+    - correlations between variables
+    - including other data points
+
+$$distance(A,B) = [(a_i - b_i)^t S^{-1}(a_i - b_i)]^{1/2}$$
+
+## Canberra {.unnumbered}
+
+- A weighted version of the Manhattan distance
+- Divided by the absolute sum of their values
+
+$$distance(A, B) = \sum_{i=1}^{n} \frac{|a_i - b_i|}{|a_i| + |b_i|}$$
+- @Blanco2023 showed that Canberra distance had the highest tolerance to noise. 
+
+## Distances for present/absent
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+|   | +(present) | -(absent) |
+|---|---|---|
+| + | a | b |
+| - | c | d |
+:::
+
+::: {.column width="50%"}
+
+Jaccard
+
+$$distance(A, B) = 1 - \frac{a}{a + b + c}$$
+
+Dice
+
+$$distance(A, B) = 1 - \frac{2a}{2a + b + c}$$
+
+:::
+::::
+
+## Partition methods vs. hierarchical
+
+```{mermaid}
+%%| fig-width: 8
+%%| fig-height: 5
+flowchart LR
+  A([Type of splitting]) -.-> B([Partition])
+  A -.-> C([Hierarchical])
+  C -.-> D([Agglomerative])
+  C -.-> E([Divisive])
+
+```
+
+## Partition
+
+- In **partitioning**, $k$ discrete classes 
+
+```{r}
+# simulate data
+set.seed(190)
+df <- tibble(class = rep(c("cl1", "cl2", "cl3"), c(30, 15, 25))) |>
+  mutate(
+    x = rnorm(n(), c(cl1 = 1, cl2 = 3, cl3 = 2)[class], sd = .35), 
+    y = rnorm(n(), c(cl1 = 1, cl2 = 1, cl3 = 2)[class], sd = .35),
+  )
+
+# plot data
+text_size <- 12
+mytheme <- theme(legend.title = element_blank(),
+                 legend.position = "top", 
+                 legend.text = element_text(size = text_size),
+                 panel.grid.major = element_blank(),
+                 panel.grid.minor = element_blank(),
+                 axis.text = element_text(size = text_size),
+                 axis.title = element_text(size = text_size))
+
+mycols <- brewer.pal(6, "Set1")
+
+p1 <- ggplot(df, aes(x, y)) +
+  geom_point(size = 2) + 
+  theme_bw() +
+  xlab("gene A") + 
+  ylab("gene B") + 
+  mytheme 
+  
+
+# show clusters
+p2 <- ggplot(df, aes(x, y, color = class)) +
+  geom_point(size = 2) + 
+  theme_bw() +
+  xlab("gene A") + 
+  ylab("gene B") + 
+  mytheme + 
+  scale_color_brewer(palette = "Set1")
+
+p1 + p2
+  
+```
+
+## k-means (a partitioning)
+
+- Exactly $k$ clusters of discrete classes, which is given to the algorithm. 
+- The algorithm minimizes the variance within clusters
+- Closest **centroid**, the arithmetic mean of all $n_k$ objects in the cluster.
+
+$${\mathbf m}_k = \frac{1}{n_k} \sum_{i=1}^{n_k} {\mathbf x}_{i}$$
+- `kmeans` in R
+
+## The Lloyd and Forgy's algorithm
+
+::: {.r-fit-text}
+
+1. Initialization. Select $k$ initial centroids.
+   The initial centroids can be selected in several different ways. Two common methods are
+   
+   * Select $k$ data points as initial centroids.
+   * Randomly assign each data point to one out of $k$ clusters and compute the centroids for these initial clusters.
+
+2. Assign each object to the closest centroid (in terms of squared Euclidean distance).
+The squared Euclidean distance between an object (a data point) and a cluster centroid $m_k$ is $d_i = \sum_{j=1}^p (x_{ij} - m_{kj})^2$. 
+By assigning each object to closest centroid the total within cluster sum of squares (WSS) is minimized.
+$$WSS = \sum_{k=1}^K\sum_{i \in C_k}\sum_{j=1}^p (x_{ij} - m_{kj})^2$$
+
+3. Update the centroids for each of the $k$ clusters by computing the centroid for all the objects in each of the clusters.
+
+4. Repeat steps 2 and 3 until convergence.
+
+[Interactive visualization](https://hckr.pl/k-means-visualization/). 
+
+:::
+
+## Pros and cons of k-means clustering
+
+- Relatively fast and scalable
+- Easy to interpret the results due to the simple assignment
+- It works good if we can have the expected number of clusters. 
+- Sensitive to the initial placement of cluster centroids.
+- Outliers can also significantly impact the position of centroids and lead to poor cluster assignments. 
+
+## Partition methods vs. hierarchical
+
+```{mermaid}
+%%| fig-width: 8
+%%| fig-height: 5
+flowchart LR
+  A([Type of splitting]) -.-> B([Partition])
+  A -.-> C([Hierarchical])
+  C -.-> D([Agglomerative])
+  C -.-> E([Divisive])
+
+```
+
+## Hierarchical clustering
+
+```{r}
+include_graphics("images/hclust-ann.png")
+```
+
+- *agglomerative* (bottom-up) and *divisive* (top-down).
+
+## Agglomerative
+
+```{r}
+#| label: Agglomerative
+set.seed(19)
+df <- tibble(x = rnorm(10), y = rnorm(10))
+h <- hclust(dist(df))
+# illustrate HCL agglomerative
+df_cl <- map_dfr(
+  1:10,   # step-by-step tree cuts
+  \(ii) df |> 
+    mutate(step = ii, 
+           Cluster = as.character(cutree(h, 11 - ii))) |> 
+    group_by(Cluster) |> 
+    mutate(is_dup = n() > 1) |> 
+    ungroup()
+)
+  
+ggplot(df_cl, aes(x, y, color = Cluster)) +
+  geom_point(size = 2) +
+  ggalt::geom_encircle(data = filter(df_cl, is_dup)) +
+  facet_wrap(~step, nrow = 2) +
+  guides(color = "none") +
+  theme_bw() + 
+  mytheme + 
+  scale_color_brewer(palette = "Set1")
+```
+
+## Divisive
+
+```{r}
+# illustrate HCL divisive
+d <- cluster::diana(dist(df))
+df_cl <- list()
+df_cl0 <- pre <- mutate(df, step = 10, Cluster = -c(1:10), is_dup = FALSE)
+
+for(ii in 1:9) {
+  i_merge <- d$merge[ii, ]  # output from divisive h-clustering
+  cl <- pre$Cluster   # copy previous
+  cl[cl %in% i_merge] <- ii
+  
+  nxt <- mutate(df, step = 10 - ii, Cluster = cl)
+  df_cl <- c(df_cl, list(pre <- nxt))
+}
+  
+df_cl <- c(list(df_cl0), df_cl) |> 
+  map_dfr(
+    ~.x |> 
+      mutate(Cluster = as.integer(factor(Cluster))) |>  # drop disappeared cluster number
+      # encircle
+      group_by(Cluster) |> 
+      mutate(is_dup = n() > 1) |> 
+      ungroup()
+  ) |> 
+  mutate(Cluster = as.character(Cluster))
+
+ggplot(df_cl, aes(x, y, color = Cluster)) +
+  geom_point(size = 2) +
+  ggalt::geom_encircle(data = filter(df_cl, is_dup)) +
+  facet_wrap(~step, nrow = 2) +
+  guides(color = "none") +
+  theme_bw() + 
+  mytheme + 
+  scale_color_brewer(palette = "Set1")
+```
+
+::: {.notes}
+- With $n$ objects to cluster both strategies will produce a dendrogram representing the $n-1$ levels in the hierarchy.
+- Each level represent a specific clustering of the objects into disjoint clusters.
+- The heights of the branches in the dendrogram are proportional to the dissimilarity of the merged/split clusters.
+- The divisive approach is used less often due to the computational complexity. Here, we will focus more on the commonly used agglomerative approach. 
+:::
+
+## Linkage & Agglomerative clustering
+
+Linkage method - dissimilarity **between clusters**
+
+![](images/linkage.png){fig-align="center"}
+
+## Ward's linkage
+
+- Minimize total within-cluster variance, 
+- Merge clusters with the minimum increase in within-cluster sum of squares.
+- Euclidean or squared Euclidean distance only
+
+## Dendrograms of various linkages
+
+```{r}
+#| label: dend-linkage
+set.seed(19)
+df <- tibble(x = rnorm(10), y = rnorm(10)) # simulate data
+d <- dist(df) # calculate distance
+
+h_single <- hclust(d, method = "single")
+h_average <- hclust(d, method = "average")
+h_complete <- hclust(d, method = "complete")
+h_ward <- hclust(d, method = "ward.D2")
+## Alternatively
+## h_ward <- hclust(d^2, method = "ward.D")
+
+dend_single <- as.dendrogram(h_single) %>% set("branches_lwd", 3)
+dend_average <- as.dendrogram(h_average) %>% set("branches_lwd", 3)
+dend_complete <- as.dendrogram(h_complete) %>% set("branches_lwd", 3)
+dend_ward <- as.dendrogram(h_ward) %>% set("branches_lwd", 3)
+
+par(mfrow=c(2,2))
+plot(dend_single, main = "single")
+plot(dend_average, main = "average")
+plot(dend_complete, main = "complete")
+plot(dend_ward, main = "Ward's")
+
+```
+
+## Getting clusters
+
+To find concrete clusters based on HCL we can cut the tree either using height or using number of clusters.
+
+```{r}
+#| label: dend-cut
+par(mfrow = c(1,2))
+
+dend_complete %>% set("labels_cex", 2) %>% set("labels_col", value = c(3,4), k=2) %>% 
+   plot(main = "Two clusters")
+abline(h = 2, lty = 2)
+
+dend_complete %>% set("labels_cex", 2) %>% set("labels_col", value = c(3,4,5), k=3) %>% 
+   plot(main = "Three clusters")
+abline(h = 1.6, lty = 2)
+
+```
+
+## How many clusters?
+
+![](images/clust-no.png){fig-align="center"}
+
+## Elbow method
+
+- Total within sum of squares, $WSS$, that the k-means algorithm tries to minimize.
+- The inflection (bend, elbow) on the curve indicates an optimal number of clusters.
+
+```{r}
+#| label: elbow
+# simulate data
+set.seed(190)
+df <- tibble(class = rep(c("cl1", "cl2", "cl3"), c(30, 15, 25))) |>
+  mutate(
+    x = rnorm(n(), c(cl1 = 1, cl2 = 3, cl3 = 2)[class], sd = .35), 
+    y = rnorm(n(), c(cl1 = 1, cl2 = 1, cl3 = 2)[class], sd = .35),
+  )
+
+factoextra::fviz_nbclust(df[, c("x", "y")], FUNcluster = kmeans, method="wss")
+```
+
+## Silhouette method
+
+:::: {.columns}
+::: {.column width="50%"}
+
+![](images/sil.png){fig-align="center"}
+
+:::
+::: {.column width="50%" .r-fit-text}
+
+- for an object $i$ in cluster $C_a$:
+
+  1. Average distance in the same cluster $C_a$
+$$a(i) = \frac{1}{|C_a|-1} \sum_{j \neq i, j \in C_a} d(i, j)$$
+  2. Average distance between $i$ and all objects in another cluster $C_b$, $d(i,C_b)$   and define the minimum;
+$$b(i) = \min_{b \neq a} d(i, C_b)$$
+  3. The Silhouette index
+$$s(i) = \frac{b(i) - a(i)}{max(a(i), b(i))}$$
+- $s(i)$   well clustered &rarr; 1, lies between clusters &rarr; 0, incorrectly clustered &rarr; -1
+
+::: 
+::::
+
+## Silhouette index
+
+```{r silhouette}
+#| label: sil
+#| fig-cap: "Average silhouette width as a function of the number of clusters. The maxium value for k = 3 indicates that this is the best number of clusters for the data set."
+factoextra::fviz_nbclust(df[, c("x", "y")], FUNcluster = kmeans, method="silhouette")
+```
+
+## pvclust {.smaller}
+
+- `Pvclust` R package to assess the uncertainty in hierarchical cluster analysis [@Suzuki2006]
+-  Pvclust calculates probability values (p-values) for each cluster using bootstrap resampling techniques. 
+
+![](images/pvclust.png)
+
+## `NbClust`
+
+- A package in R that provides 30 indexes proposed for finding the optimal number of clusters
+
+## References
+
