@@ -38,10 +38,7 @@ flowchart TD
 
 ::: incremental
 -   Supervised learning can be used for **classification** and **regression**.
-    -   For instance given a new biopsy sample we want to tell whether it contains tumor tissue (classification)
-    -   For instance given a new measurements of the methylation sites we want to forecast epigenomic age (regression)
 :::
-
 
 ## What is supervised learning?
 
@@ -51,7 +48,6 @@ flowchart TD
 library(knitr)
 include_graphics("images/supervised-02.png")
 ```
-
 
 -   In supervised learning we are using sample **labels** to **train** (build) a model.
 -   We then use the trained model for **interpretation** and **prediction**.
@@ -69,68 +65,87 @@ include_graphics("images/supervised-02.png")
 
 ## Supervised learning
 
-*Outline* <br>
+*Outline* 
 
-Across many algorithms and applications we can distinguish some common steps when using supervised learning. These steps include:
+<br>
 
-::: incremental
--   deciding on the task: classification or regression\
--   **splitting data** to keep part of data for training and part for testing
--   selecting supervised machine learning algorithms to be trained (or a set of these)
--   deciding on the training strategy, i.e. which **performance metrics** to use and how to search for the best model parameters
--   running **feature engineering**: depending on the data and algorithms chosen, we may need to normalize or transform variables, reduce dimensionality or re-code categorical variables
--   performing **feature selection**: reducing number of features by keeping only the relevant ones, e.g. by filtering zero and near-zero variance features, removing highly correlated features or features with large amount of missing data present
-:::
+Common steps:
 
-## Supervised learning {.scrollable}
-
-*Outline* <br>
-
-The diagram below shows a basic strategy on how to train KNN for classification, given a data set with $n$ samples, $p$ variables and $y$ categorical outcome
-
-```{mermaid}
-
-flowchart TD
-  A([data]) -. split data \n e.g. basic, stratified, grouped -.-> B([non-test set])
-  A([data]) -.-> C([test set])
-  B -.-> D(choose algorithm \n e.g. KNN)
-  D -.-> E(choose evaluation metric \n e.g. overall accuracy)
-  E -.-> F(feature engineering & selection)
-  F -.-> G(prepare parameter space, e.g. odd k-values from 3 to 30)
-  G -. split non-test -.-> H([train set & validation set])
-  H -.-> J(fit model on train set)
-  J -.-> K(collect evaluation metric on validation set)
-  K -.-> L{all values checked? \n e.g. k more than 30}
-  L -. No .-> J
-  L -. Yes .-> M(select best parameter values)
-  M -.-> N(fit model on all non-test data)
-  N -.-> O(assess model on test data)
-  C -.-> O
-
-```
+-   deciding on the task: classification or regression
+-   splitting data to keep part of data for training and part for testing
+-   selecting supervised machine learning algorithms
+-   deciding on the training strategy, i.e. which performance metrics to use
+-   running feature engineering
+-   performing feature selection
 
 ## Supervised learning
 
-*Outline* <br>
+*Outline* 
 
-Before we see how this training may look like in `R`, let's talk more about
+<br>
 
--   **KNN**, K-nearest neighbor algorithm
--   **data splitting** and
--   **performance metrics** useful for evaluating models
+Common steps:
+
+-   deciding on the task: **classification** or regression
+-   **splitting data** to keep part of data for training and part for testing
+-   selecting supervised machine learning algorithms, e.g. **k-nearest neighbor**
+-   deciding on the training strategy, i.e. which **performance metrics** to use
+-   running feature engineering
+-   performing feature selection
+
+<!-- ## Supervised learning {.scrollable} -->
+
+<!-- *Outline* <br> -->
+
+<!-- The diagram below shows a basic strategy on how to train KNN for classification, given a data set with $n$ samples, $p$ variables and $y$ categorical outcome -->
+
+<!-- ```{mermaid} -->
+
+<!-- flowchart TD -->
+<!--   A([data]) -. split data \n e.g. basic, stratified, grouped -.-> B([non-test set]) -->
+<!--   A([data]) -.-> C([test set]) -->
+<!--   B -.-> D(choose algorithm \n e.g. KNN) -->
+<!--   D -.-> E(choose evaluation metric \n e.g. overall accuracy) -->
+<!--   E -.-> F(feature engineering & selection) -->
+<!--   F -.-> G(prepare parameter space, e.g. odd k-values from 3 to 30) -->
+<!--   G -. split non-test -.-> H([train set & validation set]) -->
+<!--   H -.-> J(fit model on train set) -->
+<!--   J -.-> K(collect evaluation metric on validation set) -->
+<!--   K -.-> L{all values checked? \n e.g. k more than 30} -->
+<!--   L -. No .-> J -->
+<!--   L -. Yes .-> M(select best parameter values) -->
+<!--   M -.-> N(fit model on all non-test data) -->
+<!--   N -.-> O(assess model on test data) -->
+<!--   C -.-> O -->
+
+<!-- ``` -->
+
+<!-- ## Supervised learning -->
+
+<!-- *Outline* <br> -->
+
+<!-- Before we see how this training may look like in `R`, let's talk more about -->
+
+<!-- -   **KNN**, K-nearest neighbor algorithm -->
+<!-- -   **data splitting** and -->
+<!-- -   **performance metrics** useful for evaluating models -->
+
+# Classification
+
 
 ## Classification
 
+<br>
+
 *Definition* <br>
 
-::: incremental
--   Classification methods are algorithms used to categorize (classify) objects based on their measurements.
--   They belong under **supervised learning** as we usually start off with **labeled** data, i.e. observations with measurements for which we know the label (class) of.
+-   Classification methods are algorithms used to categorize objects.
 -   Let's for each observations $i$ collect pair of information $\{\mathbf{x_i}, g_i\}$
 -   where $\{\mathbf{x_i}\}$ is a set of exploratory variables e.g. a gene expression data
 -   and $g_i \in \{1, \dots, G\}$ is the class label for each observation (known), e.g. cancer stage I, II, III or IV
 -   Then we want to find a **classification rule** $f(.)$ (model) such that $$f(\mathbf{x_i})=g_i$$
-:::
+
+# KNN (algorithm)
 
 ## KNN
 
@@ -311,18 +326,22 @@ points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
 
 ## KNN
 
+<br>
+
 *Algorithm* <br>
 
-::: incremental
+
 -   Decide on the value of $k$.
 -   Calculate the distance between the query-instance (observations for new sample) and all the training samples.
 -   Sort the distances and determine the nearest neighbors based on the $k$-th minimum distance.
 -   Gather the categories of the nearest neighbors.
 -   Use majority voting of the categories of the nearest neighbors as the prediction value for the new sample.
--   Note: *Euclidean distance is a classic distance used with KNN; other distance measures are also used incl. weighted Euclidean distance, Mahalanobis distance, Manhattan distance, maximum distance etc.*
-:::
+
+# Data splitting
 
 ## Data splitting
+
+<br>
 
 *Why* <br>
 
@@ -385,14 +404,15 @@ knitr::include_graphics("figures/data-split-kfolds-02.png")
 knitr::include_graphics("figures/data-split-loocv-02.png")
 ```
 
-## Performance metrics
+<!-- ## Performance metrics -->
 
-*Evaluating classification* <br>
+<!-- *Evaluating classification* <br> -->
 
--   To train the model we need some way of evaluating how well it works so we know how to tune the model parameters, e.g. change the value of $k$ in KNN.
--   There are a few measures being used that involve looking at the truth (labels) and comparing it to what was predicted by the model.
--   Common measures include: correct (overall) classification rate, missclassification rate, class specific rates, cross classification tables, sensitivity and specificity and ROC curves.
+<!-- -   To train the model we need some way of evaluating how well it works so we know how to tune the model parameters, e.g. change the value of $k$ in KNN. -->
+<!-- -   There are a few measures being used that involve looking at the truth (labels) and comparing it to what was predicted by the model. -->
+<!-- -   Common measures include: correct (overall) classification rate, missclassification rate, class specific rates, cross classification tables, sensitivity and specificity and ROC curves. -->
 
+# Performance metrics
 ## Evaluating classification
 
 <br> <br> **Correct (miss)classification rate**
@@ -429,25 +449,37 @@ Confusion matrix allows us to compare between actual and predicted values. It is
 <!-- *Evaluating regression* <br> -->
 
 <!-- ::: incremental -->
-<!-- -   The idea of using data splits to train the model holds for fitting regression models. We can use data splits to train and assess regression models. -->
-<!-- -   For instance thinking back about the regression examples we have seen in previous section, we could try to find the best regression model to predict BMI given all other variables in the diabetes data set such as age, waist or cholesterol measurements. -->
-<!-- -   In the next section we will also learn about regularized regression where a penalty term is added to improve the generalization of a regression model; the penalty term(s) is optimized during the training of the model. -->
-<!-- ::: -->
 
+<!-- -   The idea of using data splits to train the model holds for fitting regression models. We can use data splits to train and assess regression models. -->
+
+<!-- -   For instance thinking back about the regression examples we have seen in previous section, we could try to find the best regression model to predict BMI given all other variables in the diabetes data set such as age, waist or cholesterol measurements. -->
+
+<!-- -   In the next section we will also learn about regularized regression where a penalty term is added to improve the generalization of a regression model; the penalty term(s) is optimized during the training of the model. -->
+
+<!-- ::: -->
 
 <!-- ## Evaluating regression {.smaller} -->
 
 <!-- <br> -->
 
 <!-- -   **R-squared**: As seen in the linear regression session. $$ -->
+
 <!--     R^2=1-\frac{RSS}{TSS} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2} -->
+
 <!--     $$ -->
+
 <!-- -   **Adjusted R-squared**: seen before $$ -->
+
 <!--     R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\frac{n-1}{n-p-1} -->
+
 <!--     $$ -->
+
 <!-- -   **Mean Squared Error (MSE)**: average squared difference between the predicted values and the actual values. $$MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2$$ -->
+
 <!-- -   **Root Mean Squared Error (RMSE)**: square root of the MSE $$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}$$ -->
+
 <!-- -   **MAE**: average absolute difference between the predicted values and the actual values $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|$$ -->
+
 <!-- -   **Mean Absolute Percentage Error (MAPE)**: average percentage difference between the predicted values and the actual values. -->
 
 ## Live demo

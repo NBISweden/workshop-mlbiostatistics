@@ -57,30 +57,26 @@ data_diabetes <- diabetes %>%
 
 ```
 
-
-
-# We will learn 
+# We will learn
 
 *before lunch*
 
-- what are linear models
-- how to estimate model parameters
-- hypothesis testing on linear regression
-- evaluating how well model fits the data
+-   what are linear models
+-   how to estimate model parameters
+-   hypothesis testing on linear regression
+-   evaluating how well model fits the data
+-   model assumptions
 
 *after lunch*
 
-- checking linear model assumptions
-- logistic regression
-- common cases
+-   linear model selection and regularization
+-   GLM with logistic regression
 
 ## Why linear models?
 
 . . .
 
-
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
 With linear models we can answer questions such as:
 
@@ -90,7 +86,6 @@ With linear models we can answer questions such as:
 -   what will be a predicted value of the outcome given a new set of exposure values?
 -   which variables are associated with the response, e.g. is it height that dictates the weight or height and age?
 :::
-
 :::
 
 ::: {.column width="5%"}
@@ -108,11 +103,8 @@ data_diabetes %>%
   xlab("height [m]") + 
   ylab("weight [kg]")
 ```
-
 :::
-
-::::
-
+:::
 
 ## Statistical vs. deterministic relationship
 
@@ -120,11 +112,11 @@ data_diabetes %>%
 
 Relationships in probability and statistics can generally be one of three things:
 
-::: incremental
+
 -   deterministic
 -   random
 -   statistical
-:::
+
 
 ## Statistical vs. deterministic relationship {.smaller}
 
@@ -182,22 +174,18 @@ plot(x, y_decreasing, pch=19, xlab="x", ylab="y", main="Statistical", cex.main=1
 
 ```
 
+## What linear models are
 
-## What linear models are and are not
 *definition*
 
 <br>
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="60%"}
-
 ::: incremental
-- In an linear model we model the relationship between a single continuous variable $Y$ and one or more variables $X$. 
-- One very general form for the model would be: 
-$$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
-- The $X$ variables can be numerical, categorical or a mixture of both.
-
+-   In an linear model we model the relationship between a single continuous variable $Y$ and one or more variables $X$.
+-   One very general form for the model would be: $$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
+-   The $X$ variables can be numerical, categorical or a mixture of both.
 :::
 :::
 
@@ -217,203 +205,226 @@ data_diabetes %>%
   ylab("weight [kg]")
 ```
 :::
+:::
 
-::::
+<!-- . . . -->
 
-. . . 
+<!-- -   For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled. -->
 
-- For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled.
+## What linear models are
 
-
-## What linear models are and are not
 *definition*
 
 <br>
 
 ::: incremental
-- Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**.
-- For instance these are linear models: $$Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i$$ or $$Y_i = \alpha + \beta \cdot x_i^2 \epsilon$$ 
-- vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$:
-$$Y_i = \alpha + x_i^\beta + \epsilon$$
-- Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
-
+-   Formally, linear models are a way of describing a response variable in terms of **linear combination** of predictor variables.
+-   Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
 :::
 
-## What linear models are and are not
+<!-- ## What linear models are and are not -->
 
-```{r}
-#| warning: false
-#| echo: false
-#| fig-align: center
-#| fig-width: 8
-#| fig-height: 6
+<!-- *definition* -->
 
-my.ggtheme <- theme_bw() + 
-  theme(axis.title = element_text(size = font.size), 
-        axis.text = element_text(size = font.size), 
-        legend.text = element_text(size = font.size), 
-        legend.title = element_blank(), 
-        legend.position = "none", 
-        axis.title.y=element_text(angle=0))
+<!-- <br> -->
 
-# simple linear regression
-x <- seq(-10, 10, 1)
-set.seed(123)
-y <- x + rnorm(length(x), mean(x), 2)
-data.xy <- data.frame(x=x, y = y, ymodel = x)
-p.simple <-  data.xy %>% ggplot(aes(x = x, y = y)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
-  my.ggtheme + 
-  ggtitle("A")
+<!-- ::: incremental -->
 
-# simple linear regression with group
-x <- seq(0, 10, length.out = 20)
-set.seed(123)
-y1 <- 0 + x + rnorm(length(x), 0, 2)
-set.seed(123)
-y2 <- 0 + 4*x + rnorm(length(x), 0, 2)
+<!-- -   Formally, a linear model is one in which the **parameters appear linearly in the deterministic part of the model**. -->
 
-x.all <- c(x, x)
-y.all <- c(y1, y2)
-group <- c(rep("CTRL", length(x)), rep("TX", length(x)))
-ymodel <- c(0+x, 0+4*x)
+<!-- -   For instance these are linear models: $$Y_i = \alpha + \beta \cdot x_i + \gamma \cdot y_i + \epsilon_i$$ or $$Y_i = \alpha + \beta \cdot x_i^2 \epsilon$$ -->
 
-data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel)
+<!-- -   vs. an example on a non-linear model where parameter $\beta$ appears in the exponent of $x_i$: $$Y_i = \alpha + x_i^\beta + \epsilon$$ -->
 
-p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel)) + 
-  theme_classic() +
-  scale_color_brewer(palette = "Set2") + 
-  my.ggtheme + 
-  ggtitle("B") 
+<!-- -   Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared -->
 
-# advanced 1
-x <- seq(-10, 10, 1)
-set.seed(123)
-y <- x^2 + rnorm(length(x), mean(x), 10)
-data.xy <- data.frame(x=x, y = y, ymodel = x^2)
-p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
-  theme_classic() +
-  my.ggtheme + 
-  ggtitle("C")
+<!-- ::: -->
 
+<!-- ## What linear models are and are not -->
 
-# advanced 2
-x <- seq(-10, 10, 1)
-set.seed(123)
-y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05)
-data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000)
-p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
-  theme_classic() +
-  my.ggtheme + 
-  ggtitle("D")
+<!-- ```{r} -->
+<!-- #| warning: false -->
+<!-- #| echo: false -->
+<!-- #| fig-align: center -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 6 -->
 
-grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
+<!-- my.ggtheme <- theme_bw() +  -->
+<!--   theme(axis.title = element_text(size = font.size),  -->
+<!--         axis.text = element_text(size = font.size),  -->
+<!--         legend.text = element_text(size = font.size),  -->
+<!--         legend.title = element_blank(),  -->
+<!--         legend.position = "none",  -->
+<!--         axis.title.y=element_text(angle=0)) -->
 
-```
+<!-- # simple linear regression -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x + rnorm(length(x), mean(x), 2) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x) -->
+<!-- p.simple <-  data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("A") -->
 
-## What linear models are and are not
+<!-- # simple linear regression with group -->
+<!-- x <- seq(0, 10, length.out = 20) -->
+<!-- set.seed(123) -->
+<!-- y1 <- 0 + x + rnorm(length(x), 0, 2) -->
+<!-- set.seed(123) -->
+<!-- y2 <- 0 + 4*x + rnorm(length(x), 0, 2) -->
 
-```{r}
-#| warning: false
-#| echo: false
-#| fig-align: center
-#| fig-width: 8
-#| fig-height: 6
+<!-- x.all <- c(x, x) -->
+<!-- y.all <- c(y1, y2) -->
+<!-- group <- c(rep("CTRL", length(x)), rep("TX", length(x))) -->
+<!-- ymodel <- c(0+x, 0+4*x) -->
 
-my.ggtheme <- theme_bw() + 
-  theme(axis.title = element_text(size = font.size), 
-        axis.text = element_text(size = font.size), 
-        legend.text = element_text(size = font.size), 
-        legend.title = element_blank(), 
-        legend.position = "none", 
-        axis.title.y=element_text(angle=0))
+<!-- data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel) -->
 
-# simple linear regression
-x <- seq(-10, 10, 1)
-set.seed(123)
-y <- x + rnorm(length(x), mean(x), 2)
-data.xy <- data.frame(x=x, y = y, ymodel = x)
-p.simple <- data.xy %>% ggplot(aes(x = x, y = y)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
-  my.ggtheme + 
-  ggtitle(TeX(r'(A: $y_i = x_1 + e_i$)'))
+<!-- p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel)) +  -->
+<!--   theme_classic() + -->
+<!--   scale_color_brewer(palette = "Set2") +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("B")  -->
 
-# simple linear regression with group
-x <- seq(0, 10, length.out = 20)
-set.seed(123)
-y1 <- 0 + x + rnorm(length(x), 0, 2)
-set.seed(123)
-y2 <- 0 + 4*x + rnorm(length(x), 0, 2)
-
-x.all <- c(x, x)
-y.all <- c(y1, y2)
-group <- c(rep("CTRL", length(x)), rep("TX", length(x)))
-ymodel <- c(0+x, 0+4*x)
-
-data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel)
-
-p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel)) + 
-  theme_classic() +
-  scale_color_brewer(palette = "Set2") + 
-  my.ggtheme + 
-  ggtitle(TeX(r'(B: $x_1 + I_{x_i} + e_i$)'))
-
-# advanced 1
-x <- seq(-10, 10, 1)
-set.seed(123)
-y <- x^2 + rnorm(length(x), mean(x), 10)
-data.xy <- data.frame(x=x, y = y, ymodel = x^2)
-p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
-  theme_classic() +
-  my.ggtheme + 
-  ggtitle(TeX(r'(C: $y_i = x_i^2 + e_i$)'))
+<!-- # advanced 1 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x^2 + rnorm(length(x), mean(x), 10) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x^2) -->
+<!-- p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("C") -->
 
 
-# advanced 2
-x <- seq(-10, 10, 1)
-set.seed(123)
-y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05)
-data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000)
-p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) +
-  geom_point() +
-  geom_line(aes(x = x, y=ymodel), color = col.blue.dark) + 
-  theme_classic() +
-  my.ggtheme + 
-  ggtitle(TeX(r'(D: $y_i = x + x_i^3 + e_i$)'))
+<!-- # advanced 2 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05) -->
+<!-- data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000) -->
+<!-- p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle("D") -->
 
-grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
+<!-- grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2) -->
 
-```
+<!-- ``` -->
+
+<!-- ## What linear models are and are not -->
+
+<!-- ```{r} -->
+<!-- #| warning: false -->
+<!-- #| echo: false -->
+<!-- #| fig-align: center -->
+<!-- #| fig-width: 8 -->
+<!-- #| fig-height: 6 -->
+
+<!-- my.ggtheme <- theme_bw() +  -->
+<!--   theme(axis.title = element_text(size = font.size),  -->
+<!--         axis.text = element_text(size = font.size),  -->
+<!--         legend.text = element_text(size = font.size),  -->
+<!--         legend.title = element_blank(),  -->
+<!--         legend.position = "none",  -->
+<!--         axis.title.y=element_text(angle=0)) -->
+
+<!-- # simple linear regression -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x + rnorm(length(x), mean(x), 2) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x) -->
+<!-- p.simple <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(A: $y_i = x_1 + e_i$)')) -->
+
+<!-- # simple linear regression with group -->
+<!-- x <- seq(0, 10, length.out = 20) -->
+<!-- set.seed(123) -->
+<!-- y1 <- 0 + x + rnorm(length(x), 0, 2) -->
+<!-- set.seed(123) -->
+<!-- y2 <- 0 + 4*x + rnorm(length(x), 0, 2) -->
+
+<!-- x.all <- c(x, x) -->
+<!-- y.all <- c(y1, y2) -->
+<!-- group <- c(rep("CTRL", length(x)), rep("TX", length(x))) -->
+<!-- ymodel <- c(0+x, 0+4*x) -->
+
+<!-- data.xy <- data.frame(x=x.all, y = y.all, ymodel = ymodel) -->
+
+<!-- p.group <- data.xy %>% ggplot(aes(x = x, y = y, colour = group)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel)) +  -->
+<!--   theme_classic() + -->
+<!--   scale_color_brewer(palette = "Set2") +  -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(B: $x_1 + I_{x_i} + e_i$)')) -->
+
+<!-- # advanced 1 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- x^2 + rnorm(length(x), mean(x), 10) -->
+<!-- data.xy <- data.frame(x=x, y = y, ymodel = x^2) -->
+<!-- p.adv1 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(C: $y_i = x_i^2 + e_i$)')) -->
 
 
-## Terminology
+<!-- # advanced 2 -->
+<!-- x <- seq(-10, 10, 1) -->
+<!-- set.seed(123) -->
+<!-- y <- (x + (x^3))/1000 + rnorm(length(x), mean(x), 0.05) -->
+<!-- data.xy <- data.frame(x=x, x2=x^2, x3=x^3, y = y, ymodel = (x + x^3)/1000) -->
+<!-- p.adv2 <- data.xy %>% ggplot(aes(x = x, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_line(aes(x = x, y=ymodel), color = col.blue.dark) +  -->
+<!--   theme_classic() + -->
+<!--   my.ggtheme +  -->
+<!--   ggtitle(TeX(r'(D: $y_i = x + x_i^3 + e_i$)')) -->
 
-There are many terms and notations used interchangeably
+<!-- grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2) -->
 
-::: incremental
--   $y$ is being called:
-    -   response
-    -   outcome
-    -   dependent variable
--   $x$ is being called:
-    -   exposure
-    -   explanatory variable
-    -   dependent variable
-    -   predictor
-    -   covariate
-:::
+<!-- ``` -->
+
+<!-- ## Terminology -->
+
+<!-- There are many terms and notations used interchangeably -->
+
+<!-- ::: incremental -->
+
+<!-- -   $y$ is being called: -->
+
+<!--     -   response -->
+
+<!--     -   outcome -->
+
+<!--     -   dependent variable -->
+
+<!-- -   $x$ is being called: -->
+
+<!--     -   exposure -->
+
+<!--     -   explanatory variable -->
+
+<!--     -   dependent variable -->
+
+<!--     -   predictor -->
+
+<!--     -   covariate -->
+
+<!-- ::: -->
 
 ## Simple linear regression
 
@@ -458,7 +469,6 @@ plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (lit
 ```
 :::
 
-. . .
 
 ```{r}
 #| label: fig-lm-intro-example
@@ -467,6 +477,7 @@ plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (lit
 #| echo: false
 #| fig-width: 4
 #| fig-heigth: 4
+#| include: false
 
 plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]",  panel.first = grid())
 
@@ -489,7 +500,6 @@ plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volu
 #| include: false
 #| fig-width: 6
 #| fig-height: 6
-
 
 plot(weight, plasma, pch=19, las=1, xlab = "body weight [kg]", ylab="plasma volume [l]", panel.first = grid())
 
@@ -693,42 +703,35 @@ and in general: $$Y_i=\alpha + \beta \cdot x_i \quad for \; i = 1 \dots n$$ {#eq
 In other words, by finding the best-fitting straight line we are **building a statistical model** to represent the relationship between plasma volume ($Y$) and explanatory body weight variable ($x$)
 
 ## Simple linear regression {.smaller}
+
 <br>
 
-```{.r}
+``` r
 weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
 plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
 ```
 
 <br>
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="55%"}
-
 ::: incremental
-
 -   If we were to use our model $Y_i=0.086 + 0.044 \cdot x_i$ to find plasma volume given a weight of 58 kg (our first observation, $i=1$)
 -   we would notice that we would get $Y=0.086 + 0.044 \cdot 58 = 2.638$
 -   $2.638$ is not exactly the as same as $2.75$, the first measurement we have in our dataset, i.e. $2.75 - 2.638 = 0.112 \neq 0$.
 -   We thus add to the previous equation (@eq-lm-no-error) an **error term** to account for this and now we can write our **simple regression model** more formally as:
-- $$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm}
-where:
+-   $$Y_i = \alpha + \beta \cdot x_i + \epsilon_i$$ {#eq-lm} where:
 -   $x$: is called: exposure variable, explanatory variable, dependent variable, predictor, covariate
 -   $y$: is called: response, outcome, dependent variable
 -   $\alpha$ and $\beta$ are **model coefficients**
 -   and $\epsilon_i$ is an **error terms**
-
 :::
-
 :::
 
 ::: {.column width="5%"}
 :::
 
-
 ::: {.column width="40%"}
-
 ```{r}
 #| warning: false
 #| message: false
@@ -754,11 +757,8 @@ df %>%
 
 
 ```
-
 :::
-::::
-
-
+:::
 
 ## Least squares
 
@@ -772,24 +772,19 @@ df %>%
 
 *minimizing RSS*
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-
 Let $\hat{y_i}=\hat{\alpha} + \hat{\beta}x_i$ be the prediction $y_i$ based on the $i$-th value of $x$:
 
 -   Then $\epsilon_i = y_i - \hat{y_i}$ represents the $i$-th **residual**, i.e. the difference between the $i$-th observed response value and the $i$-th response value that is predicted by the linear model
 -   RSS, the **residual sum of squares** is defined as: $$RSS = \epsilon_1^2 + \epsilon_2^2 + \dots + \epsilon_n^2$$ or equivalently as: $$RSS=(y_1-\hat{\alpha}-\hat{\beta}x_1)^2+(y_2-\hat{\alpha}-\hat{\beta}x_2)^2+...+(y_n-\hat{\alpha}-\hat{\beta}x_n)^2$$
--   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**. With some calculus, we get @thm-lss
-
+-   the least squares approach chooses $\hat{\alpha}$ and $\hat{\beta}$ **to minimize the RSS**.
 :::
 
 ::: {.column width="10%"}
-
 :::
 
 ::: {.column width="40%"}
-
 ```{r}
 #| label: fig-reg-errors
 #| fig-cap: "Scatter plot of the data shows that high plasma volume tends to be associated with high weight and *vice versa*. Linear regression gives the equation of the straight line (red) that best describes how the outcome changes with a change of exposure variable. Blue lines represent error terms, the vertical distances to the regression line"
@@ -815,108 +810,124 @@ ggplot(data.reg, aes(x=weight, plasma)) +
   my.ggtheme
 
 ```
-
+:::
 :::
 
-::::
+<!-- ## Least squares -->
 
+<!-- ::: {#thm-lss} -->
 
-## Least squares
+<!-- ## Least squares estimates for a simple linear regression -->
 
-::: {#thm-lss}
-## Least squares estimates for a simple linear regression
+<!-- $$\hat{\beta} = \frac{S_{xy}}{S_{xx}}$$ $$\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}$$ -->
 
-$$\hat{\beta} = \frac{S_{xy}}{S_{xx}}$$ $$\hat{\alpha} = \bar{y}-\frac{S_{xy}}{S_{xx}}\cdot \bar{x}$$
+<!-- where: -->
 
-where:
+<!-- -   $\bar{x}$: mean value of $x$ -->
 
--   $\bar{x}$: mean value of $x$
--   $\bar{y}$: mean value of $y$
--   $S_{xx}$: sum of squares of $X$ defined as $S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2$
--   $S_{yy}$: sum of squares of $Y$ defined as $S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2$
--   $S_{xy}$: sum of products of $X$ and $Y$ defined as $S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})$
-:::
+<!-- -   $\bar{y}$: mean value of $y$ -->
 
+<!-- -   $S_{xx}$: sum of squares of $X$ defined as $S_{xx} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})^2$ -->
 
-## Least squares
+<!-- -   $S_{yy}$: sum of squares of $Y$ defined as $S_{yy} = \displaystyle \sum_{i=1}^{n}(y_i-\bar{y})^2$ -->
 
-*Live demo*
+<!-- -   $S_{xy}$: sum of products of $X$ and $Y$ defined as $S_{xy} = \displaystyle \sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})$ -->
 
-::: {#exm-lss}
-## Least squares
+<!-- ::: -->
 
-Let's try least squares method to find coefficient estimates in the **"body weight and plasma volume example"**
+<!-- ## Least squares -->
 
-``` r
-# initial data
-weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
-plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+<!-- *Live demo* -->
 
-# rename variables for convenience
-x <- weight
-y <- plasma
+<!-- ::: {#exm-lss} -->
 
-# mean values of x and y
-x.bar <- mean(x)
-y.bar <- mean(y)
+<!-- ## Least squares -->
 
-# Sum of squares
-Sxx <-  sum((x - x.bar)^2)
-Sxy <- sum((x-x.bar)*(y-y.bar))
+<!-- Let's try least squares method to find coefficient estimates in the **"body weight and plasma volume example"** -->
 
-# Coefficient estimates
-beta.hat <- Sxy / Sxx
-alpha.hat <- y.bar - Sxy/Sxx*x.bar
+<!-- ``` r -->
 
-# Print estimated coefficients alpha and beta
-print(alpha.hat)
-print(beta.hat)
-```
+<!-- # initial data -->
 
-```{r}
-#| code-fold: false
+<!-- weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg) -->
 
-# initial data
-weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg)
-plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters)
+<!-- plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters) -->
 
-# rename variables for convenience
-x <- weight
-y <- plasma
+<!-- # rename variables for convenience -->
 
-# mean values of x and y
-x.bar <- mean(x)
-y.bar <- mean(y)
+<!-- x <- weight -->
 
-# Sum of squares
-Sxx <-  sum((x - x.bar)^2)
-Sxy <- sum((x-x.bar)*(y-y.bar))
+<!-- y <- plasma -->
 
-# Coefficient estimates
-beta.hat <- Sxy / Sxx
-alpha.hat <- y.bar - Sxy/Sxx*x.bar
+<!-- # mean values of x and y -->
 
-# Print estimated coefficients alpha and beta
-print(alpha.hat)
-print(beta.hat)
+<!-- x.bar <- mean(x) -->
 
-```
-:::
+<!-- y.bar <- mean(y) -->
 
-## Least squares
+<!-- # Sum of squares -->
 
-*Live demo*
+<!-- Sxx <-  sum((x - x.bar)^2) -->
 
-In R we can use `lm()`, the built-in function, to fit a linear regression model and we can replace the above code with one line
+<!-- Sxy <- sum((x-x.bar)*(y-y.bar)) -->
 
-``` r
-lm(plasma ~ weight)
-```
+<!-- # Coefficient estimates -->
 
-```{r}
-#| code-fold: false
-lm(plasma ~ weight)
-```
+<!-- beta.hat <- Sxy / Sxx -->
+
+<!-- alpha.hat <- y.bar - Sxy/Sxx*x.bar -->
+
+<!-- # Print estimated coefficients alpha and beta -->
+
+<!-- print(alpha.hat) -->
+
+<!-- print(beta.hat) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- #| code-fold: false -->
+
+<!-- # initial data -->
+
+<!-- weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0) # body weight (kg) -->
+
+<!-- plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12) # plasma volume (liters) -->
+
+<!-- # rename variables for convenience -->
+
+<!-- x <- weight -->
+
+<!-- y <- plasma -->
+
+<!-- # mean values of x and y -->
+
+<!-- x.bar <- mean(x) -->
+
+<!-- y.bar <- mean(y) -->
+
+<!-- # Sum of squares -->
+
+<!-- Sxx <-  sum((x - x.bar)^2) -->
+
+<!-- Sxy <- sum((x-x.bar)*(y-y.bar)) -->
+
+<!-- # Coefficient estimates -->
+
+<!-- beta.hat <- Sxy / Sxx -->
+
+<!-- alpha.hat <- y.bar - Sxy/Sxx*x.bar -->
+
+<!-- # Print estimated coefficients alpha and beta -->
+
+<!-- print(alpha.hat) -->
+
+<!-- print(beta.hat) -->
+
+<!-- ``` -->
+
+<!-- ::: -->
 
 ## Slope
 
@@ -997,7 +1008,7 @@ text(33, 0.5, paste("= ", round(alpha,3), sep=""), cex=1.2, col="blue")
 ::: incremental
 -   the calculated $\hat{\alpha}$ and $\hat{\beta}$ are **estimates of the population values** of the intercept and slope and are therefore subject to **sampling variation**
 -   their precision is measured by their **estimated standard errors**, `e.s.e`($\hat{\alpha}$) and `e.s.e`($\hat{\beta}$)
--   these estimated standard errors are used in **hypothesis testing** and in constructing **confidence and prediction intervals**
+-   these estimated standard errors are used in **hypothesis testing**
 :::
 
 ## Hypothesis testing {.smaller}
@@ -1029,7 +1040,7 @@ text(33, 0.5, paste("= ", round(alpha,3), sep=""), cex=1.2, col="blue")
 ::: {#exm-hypothesis-testing}
 ## Hypothesis testing
 
-Let's look again at our example data. This time we will not only fit the linear regression model but also look a bit more closely at the `R summary` of the model
+Let's look again at our example data and linear model fitted in R with lm() function.
 
 ```{r}
 #| code-fold: false
@@ -1074,19 +1085,15 @@ print(summary(model))
 
 ## Vector-matrix notations {.scrollable .smaller}
 
-While in simple linear regression it is feasible to arrive at the parameters estimates using calculus in more realistic settings of **multiple regression**, with more than one explanatory variable in the model, it is **more efficient to use vectors and matrices to define the regression model**.
-
-. . .
-
 Let's **rewrite** our simple linear regression model $Y_i = \alpha + \beta_i + \epsilon_i \quad i=1,\dots n$ **into vector-matrix notation** in **6 steps**.
 
 . . .
 
-Step 1. First we rename our $\alpha$ to $\beta_0$ and $\beta$ to $\beta_1$ as it is easier to keep tracking the number of model parameters this way
+Step 1. We rename our $\alpha$ to $\beta_0$ and $\beta$ to $\beta_1$.
 
 . . .
 
-Step 2. Then we notice that we actually have $n$ equations such as:
+Step 2. We notice that we have $n$ equations such as:
 
 $$y_1 = \beta_0 + \beta_1 x_1 + \epsilon_1$$ $$y_2 = \beta_0 + \beta_1 x_2 + \epsilon_2$$ $$y_3 = \beta_0 + \beta_1 x_3 + \epsilon_3$$ $$\dots$$ $$y_n = \beta_0 + \beta_1 x_n + \epsilon_n$$
 
@@ -1157,7 +1164,7 @@ $\boldsymbol\beta=\begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix}$ $\boldsymbol
 and we can estimate model parameters using $\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}$.
 :::
 
-## Vector-matrix notations
+## Vector-matrix notations: least squares
 
 *Live demo*
 
@@ -1196,6 +1203,21 @@ X <- as.matrix(X)
 beta.hat <- solve(t(X)%*%X)%*%t(X)%*%Y
 print(beta.hat)
 
+```
+
+## Vector-matrix notations: least squares
+
+*Live demo*
+
+In R we can use `lm()`, the built-in function, to fit a linear regression model and we can replace the above code with one line
+
+``` r
+lm(plasma ~ weight)
+```
+
+```{r}
+#| code-fold: false
+lm(plasma ~ weight)
 ```
 
 <!-- ## Confidence intervals and prediction intervals -->
@@ -1264,14 +1286,10 @@ print(beta.hat)
 
 <!-- ::: -->
 
-
-
-
 # Assessing model fit
 
--   In addition to knowing how to estimate model parameters
--   we need to learn to assess the goodness of fit of a model.
--   We do that by calculating the amount of variability in the response that is explained by the model.
+<!-- -   In addition to knowing how to estimate model parameters we need to learn to assess the goodness of fit of a model. -->
+<!-- -   We do that by calculating the amount of variability in the response that is explained by the model. -->
 
 ## $R^2$: summary of the fitted model
 
@@ -1467,7 +1485,6 @@ A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}
 -   TSS is the sum of squares of the **null model**
 -   $R^2$ is also referred as **coefficient of determination**
 -   $R^2$ is expressed on a scale, as a proportion between 0 and 1 of the total variation in the data.
-
 :::
 :::
 :::
@@ -1475,11 +1492,17 @@ A simple but useful measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}
 <!-- ## $R^2$: summary of the fitted model -->
 
 <!-- ::: incremental -->
+
 <!-- -   $R^2$ quantifies how much of a drop in the residual sum-of-squares is accounted for by fitting the proposed model -->
+
 <!-- -   $R^2$ is also referred as **coefficient of determination** -->
+
 <!-- -   It is expressed on a scale, as a proportion (between 0 and 1) of the total variation in the data -->
+
 <!-- -   Values of $R^2$ approaching 1 indicate the model to be a good fit -->
+
 <!-- -   Values of $R^2$ less than 0.5 suggest that the model gives rather a poor fit to the data -->
+
 <!-- ::: -->
 
 ## $R^2$ and correlation coefficient
@@ -1504,7 +1527,7 @@ What other coefficient is expressed on a 0-1 scale?
 ## $R^2(adj)$
 
 ::: incremental
--   In the case of multiple linear regression we are using the **adjusted version of $R^2$** to assess the model fit as the number of explanatory variables increase, $R^2$ also increases.
+-   In the case of multiple linear regression we are using the **adjusted version of** $R^2$ to assess the model fit as the number of explanatory variables increase, $R^2$ also increases.
 :::
 
 . . .
@@ -1512,41 +1535,45 @@ What other coefficient is expressed on a 0-1 scale?
 ::: {#thm-r2adj}
 ## $R^2(adj)$
 
-For any multiple linear regression $$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as $$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$ 
+For any multiple linear regression $$Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_{p-1}x_{(p-1)i} +  \epsilon_i$$ $R^2(adj)$ is defined as $$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$
 
 -   $p$ is the number of independent predictors, i.e. the number of variables in the model, excluding the constant and $n$ is number of observations.
 
 $R^2(adj)$ can also be calculated from $R^2$: $$R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}$$
 :::
 
-
-# Exercises
-
-Let's practice in exercises fitting linear models, hypothesis testing and assessing model fit.
-
-
 <!-- ## $R^2$ -->
 
 <!-- *Live demo* -->
 
 <!-- ``` r -->
+
 <!-- htwtgen <- read.csv("data/lm/heights_weights_gender.csv") -->
+
 <!-- head(htwtgen) -->
+
 <!-- attach(htwtgen) -->
 
 <!-- ## Simple linear regression -->
+
 <!-- model.simple <- lm(Height ~ Weight, data=htwtgen) -->
 
 <!-- # TSS -->
+
 <!-- TSS <- sum((Height - mean(Height))^2) -->
 
 <!-- # RSS -->
+
 <!-- # residuals are returned in the model type names(model.simple) -->
+
 <!-- RSS <- sum((model.simple$residuals)^2) -->
+
 <!-- R2 <- 1 - (RSS/TSS) -->
 
 <!-- print(R2) -->
+
 <!-- print(summary(model.simple)) -->
+
 <!-- ``` -->
 
 <!-- ## $R^2$ -->
@@ -1554,22 +1581,30 @@ Let's practice in exercises fitting linear models, hypothesis testing and assess
 <!-- *Live demo* -->
 
 <!-- ``` r -->
+
 <!-- htwtgen <- read.csv("data/lm/heights_weights_gender.csv") -->
+
 <!-- head(htwtgen) -->
+
 <!-- attach(htwtgen) -->
 
 <!-- ## Multiple regression -->
+
 <!-- model.multiple <- lm(Height ~ Weight + Gender, data=htwtgen) -->
+
 <!-- n <- length(Weight) -->
+
 <!-- p <- 1 -->
 
 <!-- RSS <- sum((model.multiple$residuals)^2) -->
+
 <!-- R2_adj <- 1 - (RSS/(n-p-1))/(TSS/(n-1)) -->
 
 <!-- print(R2_adj) -->
-<!-- print(summary(model.multiple)) -->
-<!-- ``` -->
 
+<!-- print(summary(model.multiple)) -->
+
+<!-- ``` -->
 
 # Checking model assumptions
 
@@ -1635,6 +1670,7 @@ plot(model)
 ## Checking assumptions {.smaller}
 
 **Residuals**, $\hat{\epsilon_i} = y_i - \hat{y_i}$ are the **main ingredient to check model assumptions**.
+
 ```{r}
 #| code-fold: false
 #| collapse: true
@@ -1652,19 +1688,483 @@ par(mfrow=c(2,2), mar = c(3, 2, 2, 1) + 0.1)
 plot(model)
 ```
 
-# Beyond linear models
-- Generalized linear models
+# Exercises
 
-## Why Generalized Linear Models
-*GLM*
+Let's practice in exercises fitting linear models, hypothesis testing and assessing model fit.
 
-:::: {.columns}
+# Linear models: regression and classification tasks
+
+## Linear models in ML context
+
+<br>
+
+::: columns
+::: {.column width="55%"}
+::: incremental
+-   We can think of linear models in machine learning context, as they are both used for **regression** and **classification**.
+-   Often some or many of the variables used in linear models **are not** associated with the response.
+-   There are **feature selection** methods for excluding **irrelevant** variables and improving prediction results.
+    -   subset selection, **Shrinkage methods** and dimension reduction
+    -   or grouped by filter methods, wrapper methods and **embedded methods**.
+:::
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="40%"}
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| fig-height: 7
+
+font.size <- 22
+my.ggtheme <- theme_bw() + 
+  theme(axis.title = element_text(size = font.size),
+        axis.text = element_text(size = font.size),
+        legend.text = element_text(size = font.size),
+        legend.title = element_blank(),
+        legend.position = "top") 
+        
+df <- data.frame(weight = weight, plasma = plasma)
+df %>%
+  ggplot(aes(x = weight, y = plasma)) + 
+  geom_point(size = 3) + 
+  geom_smooth(method = "lm", se = FALSE, color = "red") + 
+  xlab("body weight [kg]") +
+  ylab("plasma volume [l]") + 
+  my.ggtheme
+
+
+```
+:::
+:::
+
+## Evaluating linear models
+
+<br>
+
+Regression models can be evaluated by assessing a model fit or by directly evaluating the prediction error via using data splitting strategies.
+
+. . .
+
+::: columns
+::: {.column width="55%"}
+**Model fit**
+
+**Adjusted R-squared** $$R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1}$$
+
+**Akaike information criterion (AIC)** $$\text{AIC} = n \ln(\text{RSS}/n) + 2p$$
+
+**Bayesian information criterion (BIC)** $$\text{BIC} = n \ln(\text{RSS}/n) + p \ln(n)$$
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="40%"}
+**Prediction error**
+
+**Mean Squared Error (MSE)** $$MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2$$ **Root Mean Squared Error (RMSE)** $$RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}$$
+
+**Mean Absolute Error (MAE)** $$MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|$$
+:::
+:::
+
+## Feature selection
+
+*Group discussion* <br>
+
+It is time to try to find the best model to explain `BMI` using `diabetes` data. Given from what we have learnt so far about linear regression models, how would you find the best model?
+
+As a reminder, we have below variables in the data:
+
+```{r}
+
+colnames(data_diabetes)
+```
+
+## Feature selection
+
+*Definition* <br>
+
+Feature selection is the process of selecting the most relevant and informative subset of features from a larger set of potential features in order to improve the performance and interpretability of a machine learning model.
+
+### There are generally three main groups of feature selection methods:
+
+::: incremental
+-   **Filter methods** use statistical measures to score the features and select the most relevant ones, e.g. based on correlation coefficient. Computationally efficient but may overlook complex interactions between features.
+-   **Wrapper methods** use ML algorithm to evaluate the performance of different subsets of features, e.g. forward/backward feature selection. Computationally heavy.
+-   **Embedded methods** incorporate feature selection as part of the ML algorithm itself, e.g. **regularized regression** or **Random Forest**. These methods are computationally efficient and can be more accurate than filter methods.
+:::
+
+## Regularized regression
+
+*definition* <br>
+
+::: incremental
+-   Regularized regression expands on the regression by adding a **penalty term(s)** to **shrink the model coefficients** of less important features towards zero.
+-   This can help to prevent overfitting and improve the accuracy of the predictive model.
+-   Depending on the penalty added, we talk about **Ridge**, **Lasso** or **Elastic Nets regression**.
+:::
+
+## Regularized regression
+
+*Ridge regression* <br>
+
+-   Previously we saw that the least squares fitting procedure estimates model coefficients $\beta_0, \beta_1, \cdots, \beta_p$ using the values that minimize the residual sum of squares: $$RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2$$ {#eq-lm}
+
+. . .
+
+-   In **regularized regression** the coefficients are estimated by minimizing slightly different quantity. Specifically, in **Ridge regression** we estimate $\hat\beta^{L}$ that minimizes $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge}
+
+where:
+
+$\lambda \ge 0$ is a **tuning parameter** to be determined separately e.g. via cross-validation
+
+## Regularized regression
+
+*Ridge regression* <br>
+
+$$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge}
+
+@eq-ridge trades two different criteria:
+
+-   lasso regression seeks coefficient estimates that fit the data well, by making RSS small
+-   however, the second term $\lambda \sum_{j=1}^{p}\beta_j^2$, called **shrinkage penalty** is small when $\beta_1, \cdots, \beta_p$ are close to zero, so it has the effect of **shrinking** the estimates of $\beta_j$ towards zero.
+-   the tuning parameter $\lambda$ controls the relative impact of these two terms on the regression coefficient estimates
+    -   when $\lambda = 0$, the penalty term has no effect
+    -   as $\lambda \rightarrow \infty$ the impact of the shrinkage penalty grows and the ridge regression coefficient estimates approach zero
+
+## Regularized regression
+
+*Ridge regression* <br>
+
+```{r}
+#| label: ridge-input-data
+#| eval: true
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(kableExtra)
+
+# # define scale function
+# scale_numeric <- function(x, na.rm = TRUE){
+#   (x - mean(x, na.rm = na.rm)) / sd(x, na.rm)
+#   }
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+
+```
+
+```{r}
+#| label: ridge-run
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values."
+#| fig-cap-location: margin
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=0, lambda = seq(0, 100, 1))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=12)) + 
+  theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10))
+
+```
+
+## Bias-variance trade-off
+
+<br>
+
+Ridge regression's advantages over least squares estimates stems from **bias-variance trade-off**
+
+::: incremental
+-   The bias-variance trade-off describes the relationship between model complexity, prediction accuracy, and the ability of the model to generalize to new data.
+-   **Bias** refers to the error that is introduced by approximating a real-life problem with a simplified model
+    -   e.g. a high bias model is one that makes overly simplistic assumptions about the underlying data, resulting in *under-fitting* and poor accuracy.
+-   **Variance** refers to the sensitivity of a model to fluctuations in the training data.
+    -   e.g. a high variance model is one that is overly complex and captures noise in the training data, resulting in *overfitting* and poor generalization to new data.
+:::
+
+## Bias-variance trade-off
+
+<br>
+
+The goal of machine learning is to find a model with **the right balance between bias and variance**.
+
+::: incremental
+-   The bias-variance trade-off can be visualized in terms of MSE, means squared error of the model. The **MSE** can be decomposed into: $$MSE(\hat\beta) := bias^2(\hat\beta) + Var(\hat\beta) + noise$$
+    -   The irreducible error is the inherent noise in the data that cannot be reduced by any model
+    -   The bias and variance terms can be reduced by choosing an appropriate model complexity.
+    -   The trade-off lies in finding the right balance between bias and variance that minimizes the total MSE.
+-   In practice, this trade-off can be addressed by **regularizing the model**, selecting an appropriate model complexity, or by using ensemble methods that combine multiple models to reduce the variance.
+:::
+
+## Bias-variance trade-off
+
+<br>
+
+```{r}
+#| label: fig-bias-variance
+#| fig-cap: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning
+#| fig-cap-location: margin
+#| fig-align: center
+#| echo: false
+#| out-width: 100%
+
+knitr::include_graphics("images/bias-variance.png")
+```
+
+## Ridge vs. Lasso
+
+In **Ridge** regression we minimize: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2$$ {#eq-ridge2} where $\lambda \sum_{j=1}^{p}\beta_j^2$ is also known as **L2** regularization element or $l_2$ penalty
+
+In **Lasso** regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j|$$ {#eq-lasso} where $\lambda \sum_{j=1}^{p}|\beta_j|$ is also known as **L1** regularization element or $l_1$ penalty
+
+Lasso regression was introduced to help model interpretation. With Ridge regression we improve model performance but unless $\lambda = \infty$ all beta coefficients are non-zero, hence all variables remain in the model. By using $l_1$ penalty we can force some of the coefficients estimates to be exactly equal to 0, hence perform **variable selection**
+
+## Ridge vs. Lasso
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: ridge-input-data-02
+#| eval: true
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(kableExtra)
+
+# # define scale function
+# scale_numeric <- function(x, na.rm = TRUE){
+#   (x - mean(x, na.rm = na.rm)) / sd(x, na.rm)
+#   }
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+
+```
+
+```{r}
+#| label: ridge-run-02
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values."
+#| fig-height: 8
+
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=0, lambda = seq(0, 100, 1))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+font_size <- 20
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size)) +
+  theme(title = element_text(size = font_size)) + 
+  ggtitle("Ridge")
+
+```
+:::
 
 ::: {.column width="50%"}
-- GLMs extend linear model framework to outcome variables that do not follow normal distribution.
-- They are most frequently used to model binary, categorical or count data.
-- For instance, fitting a regression line to binary data yields predicted values that could take any value, including $<0$, 
-- not to mention that it is hard to argue that the values of 0 and 1s are normally distributed.
+```{r}
+#| label: lasso-run
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Lasso regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero and are also set to zero for larger lambda values."
+#| fig-height: 8
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=1, lambda = seq(0, 2, 0.1))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size)) + 
+  theme(title = element_text(size = font_size)) + 
+  ggtitle("Lasso")
+
+```
+:::
+:::
+
+## Elastic Net
+
+<br>
+
+**Elastic Net** use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. $$\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 $$ {#eq-elastic-net}
+
+```{r}
+#| label: elastic-net
+#| warning: false
+#| message: false
+#| fig-cap: "Example of Elastic Net regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values and alpha value 0.1, showing the changes of model coefficients as a function of lambda being somewhere between those for Ridge and Lasso regression."
+#| fig-cap-location: margin
+
+library(glmnet)
+library(latex2exp)
+
+# select subset data
+# and scale: since regression puts constraints on the size of the coefficient
+data_input <- data_diabetes %>%
+  dplyr::select(BMI, chol, hdl, age, stab.glu) %>% 
+  na.omit() 
+  
+# fit ridge regression for a series of lambda values 
+# note: lambda values were chosen by experimenting to show lambda effect on beta coefficient estimates
+x <- model.matrix(BMI ~., data = data_input)
+y <- data_input %>% pull(BMI)
+model <- glmnet(x, y, alpha=0.1, lambda = seq(0, 3, 0.05))
+
+# plot beta estimates vs. lambda
+betas <- model$beta %>% as.matrix() %>% t()
+data_plot <- tibble(data.frame(lambda = model$lambda, betas)) %>%
+  dplyr::select(-"X.Intercept.") %>%
+  pivot_longer(-lambda, names_to = "variable", values_to = "beta")
+
+
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = variable)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_classic() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size))
+
+```
+
+## Elastic Net
+
+*In R with `glmnet`* <br>
+
+In the `glmnet` library we can fit Elastic Net by setting parameters $\alpha$. Under the hood `glmnet` minimizes a cost function: $$\sum_{i_=1}^{n}(y_i-\hat y_i)^2 + \lambda \left ( (1-\alpha) \sum_{j=1}^{p}\beta_j^2 + \alpha \sum_{j=1}^{p}|\beta_j|\right )$$ where:
+
+-   $n$ is the number of samples
+-   $p$ is the number of parameters
+-   $\lambda$, $\alpha$ hyperparameters control the shrinkage
+
+When $\alpha = 0$ this corresponds to Ridge regression and when $\alpha=1$ this corresponds to Lasso regression. A value of $0 < \alpha < 1$ gives us **Elastic Net regularization**, combining both L1 and L2 regularization terms.
+
+# Generalized Linear Models
+
+## Why Generalized Linear Models
+
+*GLM*
+
+::: columns
+::: {.column width="50%"}
+-   GLMs extend linear model framework to outcome variables that do not follow normal distribution.
+-   They are most frequently used to model binary, categorical or count data.
+-   For instance, fitting a regression line to binary data yields predicted values that could take any value, including $<0$,
+-   not to mention that it is hard to argue that the values of 0 and 1s are normally distributed.
 :::
 
 ::: {.column width="5%"}
@@ -1699,26 +2199,20 @@ data_diabetes %>%
 
 ```
 :::
-
-::::
+:::
 
 ## Logistic regression
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="50%"}
-- Since the response variable takes only two values (Yes/No) we use GLM model 
-- to fit **logistic regression** model for the **probability of suffering from obesity (Yes).**
-- We let $p_i=P(Y_i=1)$ denote the probability of suffering from obesity (success)
-- and we assume that the response follows binomial distribution: $Y_i \sim Bi(1, p_i)$ distribution.
-- We can then write the regression model now as: 
-$$log(\frac{p_i}{1-p_i})=\beta_0 + \beta_1x_i$$
-and given the properties of logarithms this is also equivalent to:
-$$p_i = \frac{exp(\beta_0 + \beta_1x_i)}{1 + exp(\beta_0 + \beta_1x_i)}$$
+-   Since the response variable takes only two values (Yes/No) we use GLM model
+-   to fit **logistic regression** model for the **probability of suffering from obesity (Yes).**
+-   We let $p_i=P(Y_i=1)$ denote the probability of suffering from obesity (success)
+-   and we assume that the response follows binomial distribution: $Y_i \sim Bi(1, p_i)$ distribution.
+-   We can then write the regression model now as: $$log(\frac{p_i}{1-p_i})=\beta_0 + \beta_1x_i$$ and given the properties of logarithms this is also equivalent to: $$p_i = \frac{exp(\beta_0 + \beta_1x_i)}{1 + exp(\beta_0 + \beta_1x_i)}$$
 :::
 
 ::: {.column width="5%"}
-
 :::
 
 ::: {.column width="45%"}
@@ -1741,29 +2235,28 @@ p2 <- data_diabetes %>%
 grid.arrange(p1, p2, nrow = 2)
 ```
 :::
-
-::::
+:::
 
 ## Logistic regression
 
 <br>
 
-- In essence, the GLM generalizes linear regression by allowing the linear model to be related to the response variable via a **link function**.
-- Here, the **link function** $log(\frac{p_i}{1-p_i})$ provides the link between the binomial distribution of $Y_i$ (suffering from obesity) and the linear predictor (waist) 
-- Thus the **GLM model** can be written as $$g(\mu_i)=\mathbf{X}\boldsymbol\beta$$ where `g()` is the link function.
+-   In essence, the GLM generalizes linear regression by allowing the linear model to be related to the response variable via a **link function**.
+-   Here, the **link function** $log(\frac{p_i}{1-p_i})$ provides the link between the binomial distribution of $Y_i$ (suffering from obesity) and the linear predictor (waist)
+-   Thus the **GLM model** can be written as $$g(\mu_i)=\mathbf{X}\boldsymbol\beta$$ where `g()` is the link function.
 
 ## Logistic regression
-*R*
-<br>
+
+*R* <br>
 
 In R we can use `glm()` function to fit GLM models:
-```{.r}
+
+``` r
 # fit logistic regression model
 logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
 
 # print model summary
 print(summary(logmodel_1))
-
 ```
 
 ```{r}
@@ -1786,11 +2279,9 @@ print(summary(logmodel_1))
 
 ```
 
-
 ## Logistic regression
-*R*
-<br>
 
+*R* <br>
 
 ```{r}
 #| code-fold: false
@@ -1820,23 +2311,20 @@ ggPredict(logmodel_1) +
 ```
 
 ## Logistic regression
-*Hypothesis testing*
-<br>
 
-:::: {.columns}
+*Hypothesis testing* <br>
 
+::: columns
 ::: {.column width="40%"}
-- Similarly to linear models, we can determine whether each variable is related to the outcome of interest by testing the null hypothesis that the relevant logistic regression coefficient is zero.
-- This can be performed by **Wald test** which is equals to estimated logistic regression coefficient divided by its standard error and follows the Standard Normal distribution:
-$$W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)$$
+-   Similarly to linear models, we can determine whether each variable is related to the outcome of interest by testing the null hypothesis that the relevant logistic regression coefficient is zero.
+-   This can be performed by **Wald test** which is equals to estimated logistic regression coefficient divided by its standard error and follows the Standard Normal distribution: $$W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)$$
 :::
 
 ::: {.column width="5%"}
-
 :::
 
 ::: {.column width="55%"}
-```{.r}
+``` r
 # fit logistic regression model
 logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
 summary(logmodel_1)
@@ -1846,40 +2334,33 @@ summary(logmodel_1)
 summary(logmodel_1)
 ```
 :::
-
-::::
-
-
+:::
 
 ## Logistic regression
-*Deviance*
-<br>
 
-- Deviance is the number that measures the goodness of fit of a logistic regression model.
-- We use saturated and residual deviance to assess model, instead of $R^2$ or $R^2(adj)$.
-- We can also use deviance to check the association between explanatory variable and the outcome
-- In the **likelihood ratio test** the test statistics is the **deviance** for the full model minus the deviance for the full model excluding the relevant explanatory variable. This test statistics follow a Chi-squared distribution with 1 degree of freedom.
+*Deviance* <br>
+
+-   Deviance is the number that measures the goodness of fit of a logistic regression model.
+-   We use saturated and residual deviance to assess model, instead of $R^2$ or $R^2(adj)$.
+-   We can also use deviance to check the association between explanatory variable and the outcome
+-   In the **likelihood ratio test** the test statistics is the **deviance** for the full model minus the deviance for the full model excluding the relevant explanatory variable. This test statistics follow a Chi-squared distribution with 1 degree of freedom.
 
 ## Logistic regression
-*Odds ratio*
-<br>
 
+*Odds ratio* <br>
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-- In logistic regression we often interpret the model coefficients by taking $e^{\hat{\beta}}$
-- and we talk about **odd ratios**.
-- For instance we can say, given our above model, $e^{17.174} = 28745736$ that for each unit increase in `waist` the odds of suffering from obesity get multiplied by 28745736. 
+-   In logistic regression we often interpret the model coefficients by taking $e^{\hat{\beta}}$
+-   and we talk about **odd ratios**.
+-   For instance we can say, given our above model, $e^{0.18} = 1.2$ that for each unit increase in `waist` the odds of suffering from obesity get multiplied by 1.2.
 :::
 
 ::: {.column width="5%"}
-
 :::
 
 ::: {.column width="55%"}
-
-```{.r}
+``` r
 # fit logistic regression model
 logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
 
@@ -1890,10 +2371,8 @@ print(summary(logmodel_1))
 ```{r}
 summary(logmodel_1)
 ```
-
 :::
-
-::::
+:::
 
 ## Common GLM models
 
@@ -1915,7 +2394,28 @@ df %>%
 
 ```
 
+# Logistic Lasso
+
+## Logistic Lasso
+
+*Logistic regression + Lasso regularization*
+
+<br>
+
+-   Logistic Lasso combines logistic regression with Lasso regularization to analyze binary outcome data while simultaneously performing variable selection and regularization.
+-   We estimate set of coefficients $\hat \beta$ that minimize the combined logistic loss function and the Lasso penalty:
+
+$$
+\left( \sum_{i=1}^n [y_i \log(p_i) + (1-y_i) \log(1-p_i)] \right) + \lambda \sum_{j=1}^p |\beta_j|
+$$
+
+where:
+
+-   $y_i$ represents the binary outcome (0 or 1) for the ( i )-th observation.
+-   $p_i$ is the predicted probability of $y_i = 1$ given by the logistic model $p_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_{i1} + \cdots + \beta_p x_{ip})}}$.
+-   $\lambda$ is the regularization parameter that controls the strength of the Lasso penalty $\lambda \sum_{j=1}^p |\beta_j|$, which encourages sparsity in the coefficients $\beta_j$ by shrinking some of them to zero.
+-   $n$ is the number of observations, and $p$ is the number of predictors.
+
 # Common cases
-- Let's go over common linear models cases
 
-
+-   Let's go over common linear models cases and some exercises.

@@ -3,9 +3,10 @@ editor: source
 title: "Statistical inference, part II"
 subtitle: "Parametric tests"
 author: "Eva Freyhult"
-date: "2023-04-25"
+date: "2024-04-23"
 date-format: long
 institute: NBIS, SciLifeLab
+embed-resources: true
 format: 
   revealjs:
     slide-number: true
@@ -47,15 +48,22 @@ The hypotheses:
 $$H_0: \mu = \mu_0 \\
 H_1: \mu \neq \mu_0$$
 
-The alternative hypothesis, $H_1,$ above is for the two sided hypothesis test. Other options are the one sided $H_1$; $H_1: \mu > \mu_0$ or $H_1: \mu < \mu_0$.
+The alternative hypothesis, $H_1,$ above is for the **two sided** hypothesis test.
+
+Other options are the **one sided** alternatives;
+
+::: {.r-stack}
+* $H_1: \mu > \mu_0$ or
+* $H_1: \mu < \mu_0$.
+:::
 
 ## One sample, mean, mouse example
 
-We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g, is there reason to believe that high fat diet affect mice body weight?
+We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3.0 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g, is there reason to believe that high fat diet affect mice body weight?
 
 ## One sample, mean, mouse example
 
-The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3$
+The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3.0$
 
 Hence, the mean weight of $n=10$ independent mice from the same population is  
 $$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
@@ -148,7 +156,10 @@ and proceed as before.
 ## Two samples, mean
 ### Unknown variances, small sample sizes
 
-Either assume equal variances and proceed with Student's t-test or use Welch's t-test for unequal variances.
+$$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
+is t-distributed.
+
+If equal variances can be assumed Student's t-test can be used otherwise Welch's t-test for unequal variances.
 
 ## Two samples, mean
 ### Unknown equal variances, small sample sizes
@@ -370,14 +381,30 @@ In R a test of equal variances can be performed using the function `var.test`.
 kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "Type II error, miss, FN", "Reject H0", "Type I error, false alarm, FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(full_width = FALSE, bootstrap_options = "bordered", position="center")
 ```
 
+::::{.columns}
+:::{.column width="50%"}
+
 The probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
 
-$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
-$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = \\ P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = \\ P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
 
 $\alpha$ is the significance level and the statistical power
 
 $$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_0\textrm{ is false}).$$
+:::
+:::{.column width="50%"}
+
+```{r alphabeta}
+#| fig-width: 5
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5)  + geom_area(data=df %>% filter(x<q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + annotate("label", x=1.2, y=0.08, label="beta", parse=TRUE, color="orange") + geom_vline(xintercept=q)
+```
+:::
+::::
 
 ## Multiple tests
 

@@ -1,0 +1,404 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Exercises {.unnumbered}
+
+::: {#exr-elastic-net}
+
+## Elastic Net
+
+Modify the demo example to fit Elastic Net instead of Lasso regression. 
+
+- Modify data recipe to exclude "weight", "frame", "waist" and "hip" variables.
+- Feel free to skip plotting the RMSE vs. lambda and alpha as we would need to make 3D plot to visualize the training.
+- Modify the parameter grid space to include both lambda and alpha values with 10 levels each (to shorten computations).
+- Which variables are the most important ones? Do you think this model has a high predictive power?
+
+*NOTE: you need to tune both lambda and alpha parameters*
+
+:::
+
+
+::: {#exr-knn}
+
+## KNN classifier
+
+It may be a bit more intuitive to judge the performance of a classifier than of a regression model. Modify the code from the previous exercise (or demo example) to train KNN to predict obesity. 
+
+- Create a new variable called "obese" with category "yes" if BMI > 30 and "no" otherwise
+- Modify data recipe to exclude "weight", "frame", "waist" and "hip" variables.
+- In addition do not forget to exclude "BMI" now when we are predicting "obese" derived from BMI. 
+- Check odd k values from 1 to 51
+- Pick best value based on highest accuracy
+- Replace scatter plot of predicted BMI values against actual with a confusion matrix
+- What is expected sensitivity (recall) and precision on the unseen data? Imagine that obesity cannot be measured directly in real life. On the other hand, we have powerful medications to cure obesity, medications that unfortunately have severe side effects (worse than suffering from obesity) when taken by non-obese people. Would you like your doctor to be using this predictive model for diagnosing you with obesity and prescribing the medications? 
+
+*NOTE: in this exercise we learn how to adjust the workflow to work for a binary classification problem, something that we have not seen during our Lasso regression demo. Do try to figure it out by reading `tidymodels` documentation at [https://www.tidymodels.org](https://www.tidymodels.org) and especially looking at their getting started predictive case study at [https://www.tidymodels.org/start/case-study/](https://www.tidymodels.org/start/case-study/) and documentation for yardstick package [https://yardstick.tidymodels.org](https://yardstick.tidymodels.org) for metrics to evaluate classification.*
+
+:::
+
+
+## Answers to exercises {.unnumbered}
+
+::: {.solution}
+@exr-elastic-net
+:::
+
+```{.r}
+#| label: load-data
+#| eval: false
+#| warning: false
+#| message: false
+#| code-fold: false
+#| collapse: true
+#| fig-show: hold
+#| fig-cap-location: margin
+
+# load libraries
+library(tidyverse)
+library(tidymodels)
+library(ggcorrplot)
+library(reshape2)
+library(vip)
+
+# import raw data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# create BMI variable
+conv_factor <- 703 # conversion factor to calculate BMI from inches and pounds BMI = weight (lb) / [height (in)]2 x 703
+data_diabetes <- input_diabetes %>%
+  mutate(BMI = weight / height^2 * 703, BMI = round(BMI, 2)) %>%
+  relocate(BMI, .after = id)
+
+# preview data
+glimpse(data_diabetes)
+
+# run basic EDA
+# note: we have seen descriptive statistics and plots during EDA session 
+# note: so here we only look at missing data and correlation
+
+# calculate number of missing data per variable
+data_na <- data_diabetes %>% 
+  summarise(across(everything(), ~ sum(is.na(.)))) 
+
+# basd on the number of missing data, let's delete bp.2s, bp.2d
+# and use complete-cases analysis 
+data_diabetes_narm <- data_diabetes %>%
+  dplyr::select(-bp.2s, -bp.2d) %>%
+  na.omit()
+
+# use tiymodels framework to fit Lasso regression model for predicting BMI
+# using repeated cross-validation to tune lambda value in L1 penalty term
+
+# select random seed value
+myseed <- 123
+
+# split data into non-test (other) and test (80% s)
+set.seed(myseed)
+data_split <- initial_split(data_diabetes_narm, strata = BMI, prop = 0.8) # holds splitting info
+data_other <- data_split %>% training() # creates non-test set (function is called training but it refers to non-test part)
+data_test <- data_split %>% testing() # creates test set
+
+# prepare repeated cross-validation splits with 5 folds repeated 3 times
+set.seed(myseed)
+data_folds <- vfold_cv(data_other,
+                       v = 5, 
+                       repeats = 3,
+                       strata = BMI)
+
+# check the split
+dim(data_diabetes)
+dim(data_other)
+dim(data_test)
+
+# check BMI distributions in data splits
+par(mfrow=c(3,1))
+hist(data_diabetes$BMI, xlab = "", main = "BMI: all", 50)
+hist(data_other$BMI, xlab = "", main = "BMI: non-test", 50)
+hist(data_test$BMI, xlab = "", main = "BMI: test", 50)
+
+# create data recipe (feature engineering)
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_recipe <- recipe(BMI ~ ., data = data_other) %>%
+  update_role(id, new_role = "sampleID") %>%
+  step_rm(weight, waist, hip, frame) %>%
+  step_mutate(height = height * inch2m, height = round(height, 2)) %>% # convert height to meters
+  #step_mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>% # convert weight to kg
+  step_rename(glu = stab.glu) %>% # rename stab.glu to glu
+  step_log(glu) %>%  #ln transform glucose
+  step_zv(all_numeric()) %>% # removes variables that are highly sparse and unbalanced (if found)
+  step_corr(all_numeric(), -all_outcomes(), -has_role("sampleID"), threshold = 0.8) %>% # removes variables with large absolute correlations with other variables (if found)
+  step_dummy(location, gender) %>% # convert categorical variables to dummy variables
+  step_normalize(all_numeric(), -all_outcomes(), -has_role("sampleID"), skip = FALSE) 
+  # you can implement more steps: see https://recipes.tidymodels.org/reference/index.html
+
+# print recipe
+data_recipe
+
+# check if recipe is doing what it is supposed to do
+# i.e. bake the data
+data_other_prep <- data_recipe %>%
+  prep() %>%
+  bake(new_data = NULL)
+
+## bake test data
+data_test_prep <- data_recipe %>%
+  prep() %>%
+  bake(new_data = data_test)
+
+# preview baked data
+print(head(data_other_prep))
+
+# Elastic Net
+# define model
+model <- linear_reg(penalty = tune(), mixture = tune()) %>%
+  set_engine("glmnet") %>%
+  set_mode("regression")
+
+# create workflow with data recipe and model 
+wf <- workflow() %>%
+  add_model(model) %>%
+  add_recipe(data_recipe)
+
+# define parameters range for tuning
+# let's check fewer lambda values
+# as now we also need to add alpha values and look at the combinations of both
+grid_param <- grid_regular(penalty(), mixture(), levels = 10)
+grid_param
+
+# tune lambda
+model_tune <- wf %>%
+  tune_grid(resamples = data_folds, 
+            grid = grid_param)
+
+# show metrics average across folds
+model_tune  %>%
+  collect_metrics(summarize = TRUE)
+
+# best lambda value (min. RMSE)
+model_best <- model_tune %>%
+  select_best(metric = "rmse")
+print(model_best)
+
+# finalize workflow with tuned model
+wf_final <- wf %>%
+  finalize_workflow(model_best)
+
+# last fit 
+fit_final <- wf_final %>%
+  last_fit(split = data_split)
+
+# final predictions
+y_test_pred <- fit_final %>% collect_predictions() # predicted BMI
+
+# final predictions: performance on test (unseen data)
+fit_final %>% collect_metrics() 
+
+# plot predictions vs. actual for test data
+plot(data_test$BMI, y_test_pred$.pred, xlab="BMI (actual)", ylab = "BMI (predicted)", las = 1, pch = 19)
+
+# correlation between predicted and actual BMI values for test data
+cor(data_test$BMI, y_test_pred$.pred)
+
+# re-fit model on all non-test data
+model_final <- wf_final %>%
+  fit(data_other) 
+
+# show final model
+tidy(model_final)
+
+# plot variables ordered by importance (highest abs(coeff))
+model_final %>%
+  extract_fit_parsnip() %>%
+  vip(geom = "point") + 
+  theme_bw()
+
+```
+
+
+Running the code with the same seed value should yield $\lambda = 1$ and $\alpha = 0.222$. Well done, now you know how to fit models with more than one parameter. For algorithms with more parameters we follow the same principles. Above we have used `grid_regular()` to generate search space for $\lambda$ and $\alpha$ as we know from the regularized regression that these have to be between 0 and 1. For other algorithms, the search space may be harder to define. One can then for instance start with a random grid and later tune the grid based on the initial training. There are also some other helpful packages under `tune` package to experiment with, see [https://dials.tidymodels.org/reference/index.html](https://dials.tidymodels.org/reference/index.html) under Grid Creation. 
+
+What have we learned from the Elastic Net model? We can see from the $\beta$ coefficients that after excluding all predictors related closely to BMI such as "weight" and "waist", the most important variables to predict BMI are "hdl", "gender" and "height". Overall, the model holds some predictive power, but with quite high $RMSE = 6.79$ and low $R^2 = 0.141$ we should not expect of being predict BMI for new data very accurately. 
+
+::: {.solution}
+@exr-knn
+:::
+
+```{.r}
+#| label: load-data
+#| eval: false
+#| warning: false
+#| message: false
+#| code-fold: false
+#| collapse: true
+#| fig-show: hold
+#| fig-cap-location: margin
+
+# load libraries
+library(tidyverse)
+library(tidymodels)
+library(ggcorrplot)
+library(reshape2)
+library(vip)
+library(kknn)
+
+# import raw data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# create BMI variable
+conv_factor <- 703 # conversion factor to calculate BMI from inches and pounds BMI = weight (lb) / [height (in)]2 x 703
+data_diabetes <- input_diabetes %>%
+  mutate(BMI = weight / height^2 * 703, BMI = round(BMI, 2)) %>%
+  relocate(BMI, .after = id) %>%
+  mutate(obese = ifelse(BMI > 30, "Yes", "No")) %>% # create obese categorical variable
+  mutate(obese = factor(obese, levels = c("Yes", "No"))) %>%
+  relocate(obese, .after = BMI) 
+  
+# preview data
+glimpse(data_diabetes)
+
+# run basic EDA
+# note: we have seen descriptive statistics and plots during EDA session 
+# note: so here we only look at missing data and correlation
+
+# calculate number of missing data per variable
+data_na <- data_diabetes %>% 
+  summarise(across(everything(), ~ sum(is.na(.)))) 
+
+# basd on the number of missing data, let's delete bp.2s, bp.2d
+# and use complete-cases analysis 
+data_diabetes_narm <- data_diabetes %>%
+  dplyr::select(-bp.2s, -bp.2d) %>%
+  na.omit()
+
+# use tiymodels framework to fit KNN to predict obesity (Yes/No)
+# using repeated cross-validation to tune k neighbours
+
+# select random seed value
+myseed <- 123
+
+# split data into non-test (other) and test (80% s)
+set.seed(myseed)
+data_split <- initial_split(data_diabetes_narm, strata = obese, prop = 0.8) # holds splitting info
+data_other <- data_split %>% training() # creates non-test set (function is called training but it refers to non-test part)
+data_test <- data_split %>% testing() # creates test set
+
+# prepare repeated cross-validation splits with 5 folds repeated 3 times
+set.seed(myseed)
+data_folds <- vfold_cv(data_other,
+                       v = 5, 
+                       repeats = 3,
+                       strata = obese)
+
+# check the split
+dim(data_diabetes)
+dim(data_other)
+dim(data_test)
+
+# check obese counts in data splits
+par(mfrow=c(3,1))
+summary(data_diabetes$obese)
+summary(data_other$obese)
+summary(data_test$obese)
+
+# create data recipe (feature engineering)
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_recipe <- recipe(obese ~ ., data = data_other) %>%
+  step_rm(BMI, weight, waist, frame, hip) %>% # exclude BMI, weight, waist
+  update_role(id, new_role = "sampleID") %>%
+  step_mutate(height = height * inch2m, height = round(height, 2)) %>% # convert height to meters
+  #step_mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>% # convert weight to kg
+  step_rename(glu = stab.glu) %>% # rename stab.glu to glu
+  step_log(glu) %>%  #ln transform glucose
+  step_zv(all_numeric()) %>% # removes variables that are highly sparse and unbalanced (if found)
+  step_corr(all_numeric(), -all_outcomes(), -has_role("sampleID"), threshold = 0.8) %>% # removes variables with large absolute correlations with other variables (if found)
+  step_dummy(location, gender) %>% # convert categorical variables to dummy variables
+  step_normalize(all_numeric(), -all_outcomes(), -has_role("sampleID"), skip = FALSE) 
+  # you can implement more steps: see https://recipes.tidymodels.org/reference/index.html
+
+# print recipe
+data_recipe
+
+# check if recipe is doing what it is supposed to do
+# i.e. bake the data
+data_other_prep <- data_recipe %>%
+  prep() %>%
+  bake(new_data = NULL)
+
+## bake test data
+data_test_prep <- data_recipe %>%
+  prep() %>%
+  bake(new_data = data_test)
+
+# preview baked data
+print(head(data_other_prep))
+
+# KNN
+# create model
+model <- nearest_neighbor(neighbors = tune(), weight_func = "rectangular") %>%
+  set_engine("kknn", scale = FALSE) %>%
+  set_mode("classification") 
+
+# create workflow with data recipe and model 
+wf <- workflow() %>%
+  add_model(model) %>%
+  add_recipe(data_recipe)
+
+# define parameters range for tuning k, let's check even number from 1 to 51
+grid_param <- as_tibble(data.frame(neighbors = seq(1,51, 2)))
+grid_param
+
+# tune model
+model_tune <- wf %>%
+  tune_grid(resamples = data_folds, 
+            grid = grid_param)
+
+# show metrics average across folds
+model_tune  %>%
+  collect_metrics(summarize = TRUE)
+
+# best parameter value, we can choose accuracy or roc_auc
+model_best <- model_tune %>% 
+  select_best(metric = "accuracy")
+print(model_best)
+
+# finalize workflow with tuned model
+wf_final <- wf %>%
+  finalize_workflow(model_best)
+
+wf_final
+
+# last fit 
+fit_final <- wf_final %>%
+  last_fit(split = data_split)
+
+# final predictions
+y_test_pred <- fit_final %>% collect_predictions() # predicted BMI
+
+# final predictions: performance on test (unseen data)
+fit_final %>% collect_metrics() 
+
+# show confusion matrix for predictions
+y_actual <- factor(data_test$obese, levels = c("Yes", "No"))
+y_pred <- factor(y_test_pred$.pred_class, levels = c("Yes", "No"))
+table(y_actual, y_pred, dnn = c("Actual", "Predicted"))
+
+# we can calculate SN (recall) and precision using our confusion-matrix by following equations from the "supervised learning" lecture:
+
+SN <- 6 / (6 + 23)
+PPV <- 6 / (6 + 4)
+
+# or we use yardstick package to add these metrics to the default ones (accuracy and roc_auc)
+class_metrics <-  metric_set(accuracy, roc_auc, sens, precision)
+fit_final %>% collect_predictions() %>%
+  class_metrics(truth = obese, estimate = .pred_class, `.pred_Yes`)
+
+```
+
+Running the code with the same seed value should yield $SN = 0.207$ and $PPV = 0.6$. In our imaginary scenario, where we cannot measure obesity directly, we could use any model that can diagnose obesity, even if only on average we would be able to diagnose correctly every 5th obese patient as obese. However, with precision of 0.6 the model is not great at avoiding false positives. As the medications have severe side effects in non-obese people by using by using this model for diagnosis and treatment, we would end up with more unwell people that without using the model.
+
