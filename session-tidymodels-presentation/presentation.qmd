@@ -1,0 +1,150 @@
+---
+title: "Tidymodels"
+format:
+  revealjs: 
+    theme: [default, custom.scss]
+    incremental: false   
+    slide-number: true
+    view-distance: 5
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+## Tidymodels
+
+*History*
+
+<br>
+
+-  2007 Max Kuhn was the main developer behind a popular `caret`, (Classification And REgression Training) package that enabled feature engineering and control of training parameters like cross-validation. 
+
+- 2020 `tidymodels`framework was introduced as a collection of R packages for modeling and machine learning using tidyverse principles, under a guidance of Max Kuhn and Hadley Wickham, author of `tidyverse` package.
+
+## Tidymodels
+
+<br>
+
+Tidymodels is a collection of packages for modeling and statistical analysis in R.
+
+- **Unified Framework**: a suite of packages that share underlying design philosophies designed to streamline ML tasks.
+
+- **Extensible and Flexible**: allows users to easily integrate with other R packages and frameworks; supports a wide range of methods.
+
+- **Emphasis on Tidy Data Principles**: The framework adheres to the principles of "tidy data" set by the tidyverse, ensuring that data manipulation and analysis tasks are approachable and intuitive. 
+
+## Tidymodels
+
+*History*
+
+<br>
+
+-  2007 Max Kuhn was the main developer behind a popular `caret`, (Classification And REgression Training) package that enabled feature engineering and control of training parameters like cross-validation. 
+
+- 2020 `tidymodels`framework was introduced as a collection of R packages for modeling and machine learning using tidyverse principles, under a guidance of Max Kuhn and Hadley Wickham, author of `tidyverse` package.
+
+## Tidymodels
+
+| core package                                 | function                                                                                                                                                                    |
+|-----------------|-------------------------------------------------------|
+| ![](images/image-1434058929.png){height="60"} | data splitting and resampling                                                                                                         |
+| ![](images/image-849580063.png){height="60"}  | interface to models |
+| ![](images/image-1485488765.png){height="60"} | data pre-processing tools for feature engineering                                                                                |
+| ![](images/image-328218611.png){height="60"}  |  bundle your pre-processing, modeling, and post-processing together                                                                                                |
+| ![](images/image-1827784270.png){height="60"} | optimizes the hyperparameters of your model and pre-processing steps                                                                                          |
+| ![](images/image-229955045.png){height="60"}  |  measures the effectiveness of models using performance metrics                                                                                                    |
+
+## Minimum example
+
+Let's use `tidymodels` framework to run small predictive case study trying to build a predictive model for BMI using our `diabetes` data set. 
+
+. . .
+
+We will use:
+
+::: {.incremental}
+- `rsamples` for splitting data into test and non-test, as well as creating cross-validation folds
+
+- `recipes` for feature engineering, e.g. changing from imperial to metric measurements, removing irrelevant and highly correlated features
+
+- `parsnip` to specify Lasso regression model
+
+- `tune` to optimize search space for lambda values
+
+- `yardstick` to assess predictions
+
+- `workflows` to put all the step together
+
+:::
+
+## Minimum example
+
+```{r}
+#| label: load-data
+#| eval: true
+#| include: false
+#| warning: false
+#| message: false
+#| code-fold: false
+
+# load libraries
+library(tidyverse)
+library(tidymodels)
+library(ggcorrplot)
+library(reshape2)
+library(vip)
+
+# import raw data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# create BMI variable
+conv_factor <- 703 # conversion factor to calculate BMI from inches and pounds BMI = weight (lb) / [height (in)]2 x 703
+data_diabetes <- input_diabetes %>%
+  mutate(BMI = weight / height^2 * 703, BMI = round(BMI, 2)) %>%
+  relocate(BMI, .after = id)
+
+# preview data
+#glimpse(data_diabetes)
+
+# run basic EDA
+# note: we have seen descriptive statistics and plots during EDA session 
+# note: so here we only look at missing data and correlation
+
+# calculate number of missing data per variable
+data_na <- data_diabetes %>% 
+  summarise(across(everything(), ~ sum(is.na(.)))) 
+
+# make a table with counts sorted from highest to lowest
+data_na_long <- data_na %>%
+  pivot_longer(-id, names_to = "variable", values_to = "count") %>%
+  arrange(desc(count)) 
+
+# make a column plot to visualize the counts
+data_na_long %>%
+  ggplot(aes(x = variable, y = count)) + 
+  geom_col(fill = "blue4") + 
+  xlab("") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+# calculate correlation between numeric variables
+data_cor <- data_diabetes %>% 
+  dplyr::select(-id) %>% 
+  dplyr::select(where(is.numeric)) %>%
+  cor(use = "pairwise.complete.obs")
+
+# visualize correlation via heatmap
+ggcorrplot(data_cor, hc.order = TRUE, lab = FALSE)
+
+# based on the number of missing data, let's delete bp.2s, bp.2d
+# and use complete-cases analysis 
+data_diabetes_narm <- data_diabetes %>%
+  dplyr::select(-bp.2s, -bp.2d) %>%
+  na.omit()
+
+```
+
+## Minimum example
+<br>
+
+[https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study.html](https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study.html)
