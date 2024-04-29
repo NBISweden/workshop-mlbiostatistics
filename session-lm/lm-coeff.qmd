@@ -180,7 +180,7 @@ summary(m2_alt)
 ```
 
 - What happens to `BMI` if `hdl` increases by 10?^[decreases by ca. 0.06]
-- What happens to `BMI` if `hdl` increases by 10 using the first model again?[decreases by ca. 0.9]
+- What happens to `BMI` if `hdl` increases by 10 using the first model again?^[decreases by ca. 0.9]
 - How do you explain the difference in `BMI` changes given these two models?
 
 **Specific interpretation**
@@ -226,10 +226,10 @@ data_diabetes %>%
 
 **Model**
 
-$$Y_i = \alpha + \beta I_{x_i} + \epsilon_i$$
+$$Y_i = \beta_{o} + \beta_{1} I_{x_1,i} + \epsilon_i$$
 where
 \begin{equation}
-    I_{x_i} =
+    I_{x_1,i} =
     \left\{
         \begin{array}{cc}
                 1 & \mathrm{if\ } x_i=1 \\
@@ -254,8 +254,8 @@ print(summary(m3))
 ```
 
 **Estimates**
-$$\hat{\alpha} = 27.7674$$
-$$\hat{\beta} = 3.9396$$
+$$\hat{\beta_{0}} = 27.7674$$
+$$\hat{\beta_{1}} = 3.9396$$
 
 - The `lm()` function chooses automatically one of the category as baseline, here `females`.
 - Model summary prints the output of the model with the baseline category **"hidden"**.
@@ -285,7 +285,7 @@ ggPredict(m3) +
 
 ## Example: categorical & numerical variables
 
-- Above we observed a signficant difference in average `BMI` between men and women among the study participants.
+- Above we observed a significant difference in average `BMI` between men and women among the study participants.
 - Can we also observe a significant relationship between `BMI` and `height`?
 - And if so, does this relationship depend on `gender`?
 
@@ -316,10 +316,10 @@ To assess the relationship we use a model containing `height` and `gender`.
 
 **Model**
 
-$$Y_i = \alpha + \beta I_{x_i} + \gamma x_{2,i} + \epsilon_i$$
+$$Y_i = \beta_{0} + \beta_{1} I_{x_1,i} + \beta_{2} x_{2,i} + \epsilon_i$$
 where
 \begin{equation}
-    I_{x_i} =
+    I_{x_1,i} =
     \left\{
         \begin{array}{cc}
                 1 & \mathrm{if\ } \quad person_i\;is\;female \\
@@ -342,7 +342,7 @@ print(summary(m4))
 
 **Model together with estimates**
 
-$$Y_i = \alpha + \beta I_{x_i} + \gamma x_{2,i} + \epsilon_i$$
+$$Y_i = \beta_{0} + \beta_{1} I_{x_1,i} + \beta_{2} \cdot x_{2,i} + \epsilon_i$$
 where
 \begin{equation}
     I_{x_i} =
@@ -354,14 +354,14 @@ where
     \right.
 \end{equation}
 
-and $x_{2,i}$ is the weight of person $i$
+and $x_{2,i}$ is the height of person $i$
 
 
 **Estimates**
 
-$$\hat{\alpha} = 37.743 $$
-$$\hat{\beta} = 3.163$$
-$$\hat{\gamma} = -5.719$$
+$$\hat{\beta_{0}} = 37.743 $$
+$$\hat{\beta_{1}} = 3.163$$
+$$\hat{\beta_{2}} = -5.719$$
 
 
 - For instance, using our estimates, for a female who happens to 1.7 m tall we would predict `BMI` of:
@@ -389,7 +389,6 @@ ggPredict(m4) +
 
 ## Example: interactions
 
-
 - The fitted lines in the above example are **parallel**, the **slope is modeled to be the same for men and women**, and the intercept denotes the group differences.
 - It is also possible to allow for **both intercept and slope being fitted separately for each group**.
 - This is done when we except that the relationships are different in different groups, e.g. increasing in one group and decreasing in the other.
@@ -397,13 +396,25 @@ ggPredict(m4) +
 
 **Model**
 
-$$Y_{i,j} = \alpha_i + \beta_ix_{ij} + \epsilon_{i,j}$$
+<!-- $$Y_{i,j} = \alpha_i + \beta_i\cdot x_{ij} + \epsilon_{i,j}$$ -->
+$$Y_i = \beta_{0} + \beta_{1} I_{x_1,i} + \beta_{2} \cdot x_{2,i} + \beta_{3} \cdot I_{x_1,i} \cdot x_{2, i}+ \epsilon_i$$
 where:
 
-- $Y_{i,j}$ is the BMI of person $j$ of gender $i$
-- $x_{ij}$ is the height of person $j$ of gender $i$
-- $i=1$ corresponds to women in our example (keeping the same coding as above)
-- $i=2$ corresponds to men
+- $Y_{i}$ is the BMI of person $i$
+
+\begin{equation}
+    I_{x_1,i} =
+    \left\{
+        \begin{array}{cc}
+                1 & \mathrm{if\ } \quad person_i\;is\;female \\
+                0 & \mathrm{if\ } \quad person_i\;is\;male \\
+        \end{array}
+    \right.
+\end{equation}
+
+- $x_{1,i}$ is the height of person $i$
+- and $\beta_{3} \cdot I_{x_1,i} \cdot x_{2, i}$ is the interaction term
+
 
 In `R` we define the interaction term with `*`:
 ```{r}
@@ -419,15 +430,28 @@ print(summary(m5))
 Now, based on the regression output we would expect:
 
 - for a woman of height $x$, a BMI value of:
-$$E(BMI|female\; and \; height=x)=31.222 + 14.219 - 1.981 \cdot x - 6.558 \cdot x = 45.441 -8.539 \cdot x$$
+\begin{align*}
+E(BMI|female\; and \; height=x)=31.222 + 14.219 - 1.981 \cdot x - 6.558 \cdot x = \\ 45.441 -8.539 \cdot x
+\end{align*}
 - for a man of height $x$, a BMI value of $$E(BMI|male\; and \; height=x)=31.222-1.981 \cdot x$$
 
 **Estimates**
-$$\hat{\alpha_1} = 45.441$$
-$$\hat{\beta_1} = 31.222$$
+$$\hat{\beta_0} = 31.22$$
+$$\hat{\beta_1} = 14.22$$
 
-$$\hat{\alpha_2} = 47.34778$$
-$$\hat{\beta_2} = -1.981$$
+$$\hat{\beta_2} = -1.98$$
+$$\hat{\beta_3} = -6.558$$
+
+To model relationship between BMI and height in males, the model reduces to: 
+$$Y_i = \beta_{0} + \beta_{2} \cdot x_{2,i} + \epsilon_i = \\ 31.22 - 1.98 \cdot height_i$$
+To model relationship between BMI and height in females, the models sums up to: 
+\begin{align*}
+Y_i = \beta_{0} + \beta_{1} I_{x_1,i} + \beta_{2} \cdot x_{2,i} + \beta_{3} \cdot I_{x_1,i} \cdot x_{2, i}+ \epsilon_i = \\ (\beta_{0} + \beta_{1}) + (\beta_{2} + \beta_{3})\cdot height_i = \\  (31.22 + 14.219)  + (-1.98 -6.558)*height_i = \\ 45.44 - 4.58 \cdot height_i
+\end{align*}
+
+This lets us model different relationships of BMI and height in both groups, with **individual intercept and slope values**.
+
+In addition: 
 
 - We can see from the regression output that there is no evidence to reject the null hypothesis that the interaction term "Genderfemale:height" is equal to zero.
 - Or therefore conclude that the relationship between `BMI` and `height` is different for men and women.
