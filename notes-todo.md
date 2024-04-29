@@ -3,8 +3,6 @@ layout: default
 title:  'To Do'
 ---
 
-# Notes
-
 ## 2023 notes
 
 ### Overall
@@ -26,17 +24,8 @@ title:  'To Do'
 - future: list all libraries used throughout the course
 - future: double-check the R quiz & potentially add more questions
 
-### Welcome slides
-
-- updated
-
 ### Descriptive stats
 
-- add summary descriptive in data science project context, can also include EDA and IDA; data cleaning, missing values, outliers etc.
-- add some links to learning more about descriptive statistics and data visulizations
-- update exercises
-- update the slides given the writing
-- future: add more plots examples with summary statistics to the box plot chapter
 - notes: potential group discussion points:
   - a) think of roboust measure of spread: MAD
   - b) mean vs.  median -> transformations
@@ -45,10 +34,8 @@ title:  'To Do'
 - future: add a note on geometric mean
 - future: move to distributions: add a note on mean vs. median on skewed distributions
 
-
 ## Probability & Inference
 
-- Eva improves
 - future: add transformations after distributions, explained skewed distributions
 
 ## Non-parametric tests
@@ -59,7 +46,6 @@ title:  'To Do'
 - Read more about the CI estimates and functions in R
 - Improve exercises and add (next round)
 - Add more on sign test (next round)
-- Fix “weight” spelling (next round)
 - Add examples on Kruskal-Wallis  (next round)
 - Shiny app / Python app to demonstrate W distribution and associated p-values?
 - Visualisation of Kendal tau? (next round)
@@ -75,18 +61,15 @@ title:  'To Do'
 - mention beyond: mixed effect models (maybe write a short intro one day)
 - fix typos as per Jonas's email
 
-## Dimnesion reduction
+## Dimnension reduction
 
-- Payam is improving this round up
-- Maybe add covariance matrix already in the precourse
+- Maybe add covariance matrix already in the precourse?
 - Talk correlation and covariance before, maybe in linear models
 - Make it easier to understand eigenvectors and eigenvalues  
 
 ## Clustering
 
-- Payam is improving this round up
 - Better questions and examples for the quiz
-- What are the teaching goals here?
 
 ## Supervised learning
 
@@ -94,13 +77,9 @@ title:  'To Do'
 - Link to scikit-learn main website of main machine learning application and highlight where all these methods fall so it does not feel that biostats and ML are two different words and we focus only last two days on ML
 - Highlight that regression, logistic regression, GLM, feature selection are all part of it
 
-## Feature engineering and selection
-
-- IMP: Adjust following Eva's feedback
-
 ## Daily quizzes
 
-- IMP: check questions and answers, especially clustering 
+- IMP: check questions and answers, especially clustering
 - check questions and answers but in principle redesign them to reiterate the message of the day
 - maybe even have more questions to practice, pool of questions?
 - prepare .pdfs with solutions
