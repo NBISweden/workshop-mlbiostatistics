@@ -1,0 +1,250 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+knitr:
+  opts_chunk: 
+    message: false
+    warning: false
+    code-fold: false
+    include: true
+    collapse: true
+    eval: true
+---
+
+# R examples
+
+## KM, log-rank, Cox proportional hazards model
+
+```{r}
+#| label: KM-logrank-Cox
+
+rm(list=ls())
+
+# load libraries
+library(tidyverse)
+library(skimr)
+library(survival)
+
+# load data
+data_brain <- readRDS("data/data_cancer_brain.rds")
+
+# preview data
+skim(data_brain)
+# status = 0, indicates a censored observation 
+# status = 1, indicates an uncensored observation
+
+# Kaplan-Meier survival curve
+fit.surv <- survfit(Surv(time, status) ~ 1, data = data_brain)
+plot(fit.surv, xlab = "Months", ylab = "Estiamted Probabiliy of Survival")
+
+# KM stratify by sex
+fit.surv <- survfit(Surv(time, status) ~ sex, data = data_brain)
+plot(fit.surv, mark.time = TRUE, col = c(2, 4), xlab = "Months", ylab = "Estiamted Probabiliy of Survival")
+
+# Log-rank test to compare survival of men and women
+logrank_test <- survdiff(Surv(time, status) ~ sex, data = data_brain)
+print(logrank_test)
+
+# Fit Cox proportional hazards model
+fit.cox <- coxph(Surv(time, status) ~ sex, data = data_brain)
+summary(fit.cox)
+
+# Test the proportional hazards assumption in the two gender groups
+ph_test <- cox.zph(fit.cox)
+print(ph_test)
+
+# Fit Cox model with multiple predictors
+fit.cox_multi <- coxph(Surv(time, status) ~ sex + diagnosis + loc + ki + gtv + stereo, data = data_brain)
+summary(fit.cox_multi)
+
+# Plot survival curves for each diagnosis category, adjusting for other predictors
+# we set the values of the other predictors to the mean for quantitative predictors, 
+# and to the modal value for factors
+
+modeldata <- data.frame(
+  diagnosis = levels(data_brain$diagnosis), 
+  sex = rep("Female", 4), 
+  loc = rep("Supratentorial", 4), 
+  ki = rep(mean(data_brain$ki), 4),
+  gtv = rep(mean(data_brain$gtv), 4),
+  stereo = rep("SRT", 4)
+)
+
+survplots <- survfit(fit.cox_multi, newdata = modeldata)
+plot(survplots, mark.time = FALSE, xlab = "Months", ylab = "Estiamted Probabiliy of Survival", col = 2:5)
+legend("bottomleft", legend = levels(data_brain$diagnosis), col = 2:5, lty = 1)
+
+```
+
+
+## Time-varying predictors
+
+adpoted from [https://www.bookdown.org/rwnahhas/RMPH/](adapoted from https://www.bookdown.org/rwnahhas/RMPH/)
+
+A dataset with time-varying predictors will have multiple rows per individual, with different rows having different values for the time-varying predictors, reflecting how they change over time. Additionally, rather than having a single event time variable, each row will have two time variables indicating the beginning and end of the time interval represented by that row of data.
+
+```{r}
+#| label: laod-data-opioid
+data_opioid <- readRDS("data/data-opioid.rds")
+
+data_opioid %>% 
+  filter(RANDID == 10) %>%
+  select(RANDID, wave, START, STOP, heroin, age_at_init, sex, dep_lifetime)
+```
+
+Here, we see a preview of the `data_opioid` dataset containing longitudinal information for 362 individuals, who at baseline had used non-prescribed pharmaceutical opioids (NPPO, “pain pills”), but were not dependent on NPPOs and had never used heroin. 
+
+- Each row contains the time variables START and STOP which define the time interval (years from initiation of NPPO use) associated with that row.
+- Time-invariant variables in the dataset are constant over all rows for the same individual, while time-varying variables can change between rows.
+- Each (START, STOP] interval defines a period of time during which no variables changed. 
+- Two time-varying variables in the dataset are heroin use (heroin) (the event indicator variable) and lifetime opioid dependence (dep_lifetime)  
+- For instance, for this particular individual, male, started using NPPOs at age 19 (time invariant variables). He did not meet the criteria for lifetime opioid dependence at baseline (wave = 0), but did at the next interview (wave = 1) and he first reported using heroin at his 6th interview.
+
+To model the heroin usage using both time-invariant and time-varying predictors, we can use the `coxph` function: 
+```{r}
+#| label: cox-timevar
+
+cox.timevar <- coxph(Surv(START, STOP, heroin) ~
+                     age_at_init + sex + dep_lifetime,
+                   data = data_opioid)
+
+summary(cox.timevar)
+```
+
+Whether a predictor is time-varying or time-invariant, its HR can be interpreted as a comparison of the hazard between groups of individuals with different values of that predictor. Thus, in this example, we could conclude that after adjusting for age at NPPO initiation and sex, those with lifetime opioid dependence have 2.88 times the hazard of using heroin as those who do not (AHR = 2.88; 95% CI = 1.32, 6.30; p = 0.008). The HR for a time-varying predictor, however, can also be interpreted as the effect of within-individual change on the hazard. If an individual without opioid dependence transitions to dependence, their hazard of transitioning to heroin is multiplied by 2.88.
+
+## Competing risks
+
+### Comparing CIFs
+
+Let's demonstrate how to analyze competing risks using the **`cmprsk`** package in R. This package includes functions for estimating the cumulative incidence function (CIF) in the presence of competing risks.
+
+Bone marrow transplant (BMT) data from the `cmprsk` package includes information for 35 leukemia cancer patients who underwent bone marrow transplantation. The data includes the following variables:
+
+- dis: disease; 0 = ALL; 1 = AML (ALL, Acute lymphoblastic leukemia; AML, Acute myeloid leukemia)
+- ftime: follow-up time
+- status: 0 = censored (survival); 1 = Transplant-related mortality; 2 = relapse
+
+```{r}
+#| label: cmpr-bmt
+
+library(cmprsk)
+library(survminer)
+
+# preview data
+data_bmt <- readRDS("data/data-bmt.rds")
+str(data_bmt)
+
+# label levels
+data_bmt <- data_bmt %>%
+  mutate(dis = factor(dis, levels = c(0,1), labels = c("ALL", "AML")), 
+         status = factor(status, levels = c(0,1,2), labels = c("Censored","Mortality","Relapse")))
+
+str(data_bmt)
+
+# Estimate the cumulative incidence functions for each event type
+cif <- cuminc(ftime = data_bmt$ftime, # Failure time variable
+              fstatus = data_bmt$status) # Codes for different causes of failure
+
+# Print the CIF object
+print(cif)
+
+# Plot the CIFs for all even types
+plot(cif, lty = 1, col = c("green", "red", "blue"), xlab = "Time", ylab = "Cumulative Incidence",
+     main = "Cumulative Incidence Functions for Competing Risks", curvlab = c("Censored", "Mortality", "Relapse"))
+
+# Estimate the cumulative incidence functions fo each even type per group
+cif <- cuminc(ftime = data_bmt$ftime, 
+              fstatus = data_bmt$status, 
+              group = data_bmt$dis) # Estimates will calculated within groups
+
+# Plot the CIFs for both event types using survminer package
+ggcompetingrisks(cif, multiple_panels = FALSE, legend = "right")
+
+# Show Gray's test for equality of CIFs
+print(cif$Tests)
+
+```
+
+Gray's test for equality of CIFs across groups (ALL vs. AML) is split across different types of events, here (Censored, Mortality, and Relapse). 
+
+- For **Censored**, the p-value is small and suggest that there isa **statistically significant difference** in the CIF for censored events between the groups.
+- For **Mortality**, the p-value is greater than 0.05, suggesting that there is **no statistically significant difference** in the CIF for mortality between the groups.
+- For **Relapse**, the p-value is less than 0.05, indicating a **statistically significant difference** in the CIF for relapse between the groups.
+- The above suggest that the groups are behaving differently in terms of the time to relapse and censored events, but not for mortality.
+
+### Competing Risks Regression
+
+adopted from [https://www.nature.com/articles/bmt2009359](https://www.nature.com/articles/bmt2009359)
+
+Suppose that the BMT study was extended to include more participants and additional covariates and now includes: 
+
+- 177 observations
+- Sex: gender of the individual
+- D: disease; 0 = ALL; 1 = AML
+- Phase: phase at transplant (Relapse, CR1, CR2, CR3)
+- Age: age at the beginning of follow-up
+- Status: 0 = censored; 1 = Transplant-related mortality; 2 = relapse
+- Source: source of stem cells (BM+PB, PB)
+- ftime: failure time
+
+We are interested in modeling time to relapse in the presence of transplant-related death (competing event). We want to sutdy the effect on relapse of sex, disease type, phase at transplant, source of stem cells and age. 
+
+```{r}
+#| label: cmpr-bmtcrr
+
+# load additional libraries
+library(fastDummies)
+
+# load data
+data_bmtcrr <- readRDS("data/data-bmtcrr.rds")
+
+# preview data
+str(data_bmtcrr)
+
+# prepare matrix of covariates
+# factor variables need to be coded as dummy variables
+x_sex <- dummy_cols(data_bmtcrr$Sex) %>% dplyr::select(.data_F)
+x_phase <- dummy_cols(data_bmtcrr$Phase) %>% dplyr::select(.data_CR1, .data_CR2, .data_CR3)
+x_d <- dummy_cols(data_bmtcrr$D) %>% dplyr::select(.data_AML)
+x_source <- dummy_cols(data_bmtcrr$Source) %>% dplyr::select(.data_PB)
+x <- data.frame(age = data_bmtcrr$Age, sex = x_sex, x_d, x_phase, x_source)
+colnames(x) <- c("age", "sex_F", "D_AML", "P:CR1", "P:CR2", "P:CR3", "source:PB")
+
+# The first regression model for relapse can be produced by typing
+mod1 <- crr(ftime = data_bmtcrr$ftime, 
+            fstatus = data_bmtcrr$Status, 
+            cov1 = x)
+
+summary(mod1)
+
+```
+
+
+The first part of the output shows for each term in the design matrix the estimated coefficient $\hat{\beta}_j$, the relative risk $\mathrm{exp}(\hat{\beta}_j)$, the standard error, the z-value and the corresponding P-value for assessing significance. 
+
+Here, `Sex` is not significant, followed by `Age` and `D` (disease type), whereas `Source` is only marginally significant. `Phase` is a factor with relapse as baseline, so each P-value provides a test for the difference of each level with respect to the baseline. 
+
+An overall P-value for Phase can be obtained through the Wald test via `aod` R package:
+```{r}
+#| label: "cmpr-wald-test"
+
+library(aod)
+wald.test(mod1$var, mod1$coef, Terms = 4:6)
+
+```
+
+The first argument to the function wald.test() is the estimated covariance matrix for the coefficients, followed by the vector of coefficients estimates, and the position of coefficients for which we want to assess significance. In our case, the P-value indicates that Phase is statistically significant.
+
+The second part of the output for competing risks regression shows the relative risk for each term, and a 95% confidence interval. The relative risk or subdistribution hazard ratio for a categorical covariate is the ratio of subdistribution hazards for the actual group with respect to the baseline, with all other covariates being equal. If the covariate is continuous then the relative risk refers to the effect of a one unit increase in the covariate, with all other covariates being equal. In our data, exp(−0.0352)=0.965 is the relative risk of a woman with respect to a man, and exp(−0.0185)=0.982 is the relative risk for a 1 year increase in age.
+
+
+The last part of the output shows the pseudo log-likelihood at maximum and the pseudo likelihood ratio test, that is, the difference in the objective function at the global null and at the final estimates. As this objective function is not a true likelihood, this test statistic is not asymptotically distributed as a χ2. As a consequence, model comparison based on likelihood ratio approach cannot be performed directly, but significance must be evaluated through simulations. However, a model selection criterion can be easily adopted as described in the following section.
+
+For an example on model selection, model diagnostics or adding time-varying covariates in presence of competing events, please refer to the original tutorial article @Scrucca2010 [https://www.nature.com/articles/bmt2009359](https://www.nature.com/articles/bmt2009359).
+
+
+
+
+
