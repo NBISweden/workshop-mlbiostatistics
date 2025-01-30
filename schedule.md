@@ -22,13 +22,13 @@ title:  'Schedule'
 
 **13:00 - 13.30** [Probability: Introduction and discrete distributions](session-probability/docs)
 
-**13.30 - 14.30** [Exercises](session-probability/docs/prob_exr1_discrv_solutions.html}
+**13.30 - 14.30** [Exercises](session-probability/docs/prob_exr1_discrv_solutions.html)
 
 *14.30 - 15.00 break*
 
-**15:00 - 15:30** [Probability: continuous distributions](session-probability/docs/prob-03contrv.html)
+**15:00 - 15:30** [Probability: continuous distributions](session-probability/docs/prob_03contrv.html)
 
-**13.30 - 16.30** [Exercises](session-probability/docs/prob-exr2-contrv_solutions.html)
+**13.30 - 16.30** [Exercises](session-probability/docs/prob_exr2_contrv_solutions.html)
 
 **16.30 - 17.00** Daily challenge
 
@@ -39,17 +39,17 @@ title:  'Schedule'
 
 **09:30 - 10.00** [Statistical inference: Hypothesis tests using resampling](session-inference/docs)
 
-**10:00 - 10.45** [Exercises](session-inference/docs/infe-exr1-hyporesampling_solutions.html)
+**10:00 - 10.45** [Exercises](session-inference/docs/infe_exr1_hyporesampling_solutions.html)
 
-**10:45 - 11.15** [Statistical inference: Parametric tests](session-inference/docs/infe-03hypparm.html)
+**10:45 - 11.15** [Statistical inference: Parametric tests](session-inference/docs/infe_03hypparm.html)
 
-**11:15 - 12.00** [Exercises](session-inference/docs/infe-exr2-hypoparam_solutions.html)
+**11:15 - 12.00** [Exercises](session-inference/docs/infe_exr2_hypoparam_solutions.html)
 
 *12:00 - 13:00 lunch*
 
-**13.00 - 13.30** [Statistical inference: point and interval estimates](session-inference/docs/infe-05interval.html)
+**13.00 - 13.30** [Statistical inference: point and interval estimates](session-inference/docs/infe_05interval.html)
 
-**13.30 - 14.30** [Exercises](session-inference/docs/infe-exr3-interval_solutions.html)
+**13.30 - 14.30** [Exercises](session-inference/docs/infe_exr3_interval_solutions.html)
 
 *14.30 - 15.00 break*
 
