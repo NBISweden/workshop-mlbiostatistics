@@ -45,6 +45,10 @@ library(pROC)
 library(class)
 library(reticulate)
 library(keras)
+library(tensorflow)
+
+tensorflow::set_random_seed(123)
+
 #use_python("/Users/olga.hrydziuszko/miniconda3/envs/r-reticulate/bin/python")
 use_condaenv("r-reticulate", required = TRUE)
 
@@ -85,16 +89,6 @@ gene_vars <- data %>%
   select(-obese) %>%
   summarise(across(everything(), var)) %>%
   pivot_longer(everything(), names_to = "gene", values_to = "variance")
-
-# # Select top 100 most variable genes
-# top_genes <- gene_vars %>%
-#   arrange(desc(variance)) %>%
-#   slice_head(n = 100) %>%
-#   pull(gene)
-
-# # Subset the data to use only top 100 genes
-# data <- data %>%
-#   select(obese, all_of(top_genes))
 
 # three-way split: train (60%), validation (20%), test (20%)
 set.seed(123)
@@ -191,104 +185,300 @@ plot(history) +
 
 ![](images/model-history.png)
 
+When training a neural network, we divide learning into **batches** and **epochs**:
 
+- **Batch**: A small subset of the training data processed before the model updates its weights.  
+  Above, we used `batch_size = 32`, meaning the model updates after every 32 samples.
 
-```{r}
-#| eval: false
-#| include: false
-#| message: false
-#| warning: false
+- **Epoch**: One complete pass through the entire training dataset.  
+  With `epochs = 50`, the model sees all training data 50 times, updating weights incrementally after each batch.
 
-# Define model
-# model <- keras_model_sequential() %>%
-#   layer_dense(units = 64, activation = "relu", input_shape = ncol(x_train)) %>%
-#   layer_dropout(0.3) %>%
-#   layer_dense(units = 32, activation = "relu") %>%
-#   layer_dropout(0.2) %>%
-#   layer_dense(units = 1, activation = "sigmoid")
+Smaller batches mean more frequent updates (faster learning, more noise).  Larger batches give more stable updates but may require more memory.
 
+In the plot:
 
-# Define model with L2 regularization
-model <- keras_model_sequential() %>%
-  layer_dense(units = 64, activation = "relu", input_shape = ncol(x_train),
-              kernel_regularizer = regularizer_l2(0.001)) %>%
-  layer_dropout(rate = 0.3) %>%
-  layer_dense(units = 32, activation = "relu",
-              kernel_regularizer = regularizer_l2(0.001)) %>%
-  layer_dropout(rate = 0.2) %>%
-  layer_dense(units = 1, activation = "sigmoid")
+- **Training accuracy** increases rapidly and reaches nearly 100%.
+- **Validation accuracy** plateaus early, and **validation loss** begins to rise after ~10 epochs.
 
-# model <- keras_model_sequential() %>%
-#   layer_dense(units = 16, activation = "relu", input_shape = ncol(x_train)) %>%
-#   layer_dropout(0.3) %>%
-#   layer_dense(units = 1, activation = "sigmoid")
+This is a classic sign of **overfitting**: the model is learning training data too well, but failing to generalize to new (validation) data.
 
-
-# Compile model
-model %>% compile(
-  optimizer = "adam",
-  loss = "binary_crossentropy",
-  metrics = c("accuracy")
-)
-
-# Fit model
-history <- model %>% fit(
-  x_train, y_train,
-  epochs = 50,
-  batch_size = 32,
-  validation_data = list(x_valid, y_valid),
-  callbacks = list(
-    callback_early_stopping(patience = 5, restore_best_weights = TRUE)
-  ),
-  verbose = 1
-)
-
-```
+Let's see how well the model predicts on the test set.
 
 ```{r}
-#| label: plot-history-v02
+#| label: evaluate-test
 #| eval: false
-#| include: false
-#| fig-cap: "Training vs Validation Accuracy"
-plot(history)
-```
-
-
-```{r}
-#| label: evaluate-test-v02
-#| eval: false
-#| include: false
+#| include: true
 #| message: false
 #| warning: false
 
 # Evaluate on test data
 model %>% evaluate(x_test, y_test)
 
+#     loss accuracy 
+# 1.348176 0.550000 
+
+```
+
+The model achieves an accuracy of ca. 55% on the test set, which is not significantly better than random guessing (50% for binary classification).
+
+To improve generalization, we can consider:
+
+- Using **early stopping**
+- Reducing model complexity
+- Narrowing down the number of features
+
+### Adding early stopping
+
+**Early stopping** is a regularization technique used to prevent overfitting during training.
+
+The idea is to: 
+
+→ Monitor the model's performance on a **validation set** during training.  
+→ **Stop training** when validation performance **stops improving** for a few consecutive epochs.
+
+This avoids wasting time and computing resources on extra epochs that only improve training accuracy while hurting generalization.
+
+```{r}
+#| label: fit-with-early-stopping
+#| eval: false
+
+tensorflow::set_random_seed(123)
+
+# Fit model using early stopping
+# Define model
+model_1 <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(x_train)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 32, activation = "relu") %>%
+  layer_dropout(0.2) %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+# Compile model
+model_1 %>% compile(
+  optimizer = "adam",
+  loss = "binary_crossentropy",
+  metrics = c("accuracy")
+)
+
+# Patience is the number of epochs with no improvement before stopping
+# We will set it to 0, to stop immediately when validation loss increases to reduce running time
+# in practice, it may be good to use a higher value, e.g. 5 or 10 to allow the model some flexibility to improve
+
+history_1 <- model_1 %>% fit(
+  x_train, y_train,
+  epochs = 50,
+  batch_size = 32,
+  validation_data = list(x_valid, y_valid),
+  callbacks = list(
+    callback_early_stopping(patience = 0, restore_best_weights = TRUE)
+  ),
+  verbose = 1
+)
+
+plot(history_1) + 
+  theme_bw() + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.position = "top")
+
+```
+
+![](images/model-history-estop.png)
+```{r}
+#| label: evaluate-test-estop
+#| eval: false
+#| include: true
+#| message: false
+#| warning: false
+
+# Evaluate on test data
+model_1 %>% evaluate(x_test, y_test)
+
+#      loss  accuracy 
+# 0.7836804 0.5500000 
+
+```
+
+Ok, we the accuracy has not improve much. Btw, you may be seeing slightly different values when running your code, because of the random initialization of the model weights. Let's try reduce model complexity by reducing the number of hidden layers and units, and adding regularization to prevent overfitting.
+
+### Reducing model complexity
+
+```{r}
+#| label: fit-with-redcomp
+#| eval: false
+
+
+# Define model
+model_3 <- keras_model_sequential() %>%
+  layer_dense(units = 16, activation = "relu", input_shape = ncol(x_train)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+# Compile model
+model_3 %>% compile(
+  optimizer = "adam",
+  loss = "binary_crossentropy",
+  metrics = c("accuracy")
+)
+
+# Patience is the number of epochs with no improvement before stopping
+history_3 <- model_3 %>% fit(
+  x_train, y_train,
+  epochs = 50,
+  batch_size = 32,
+  validation_data = list(x_valid, y_valid),
+  callbacks = list(
+    callback_early_stopping(patience = 0, restore_best_weights = TRUE)
+  ),
+  verbose = 1
+)
+
+plot(history_3) + 
+  theme_bw() + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.position = "top")
+
 ```
 
 
 ```{r}
-#| label: predictions-roc-v02
+#| label: evaluate-test-redcomp
 #| eval: false
 #| include: false
 #| message: false
 #| warning: false
-#| fig-cap: "ROC Curve for Test Set"
 
-# Predict probabilities
-prob_pred <- model %>% predict(x_test)
+# Evaluate on test data
+model_3 %>% evaluate(x_test, y_test)
 
-# Binary classification threshold
-class_pred <- ifelse(prob_pred > 0.5, 1, 0)
-
-# Confusion matrix
-table(Predicted = class_pred, Actual = y_test)
-
-# ROC and AUC
-roc_obj <- roc(y_test, prob_pred)
-plot(roc_obj, col = "blue", print.auc = TRUE)
+#     loss accuracy 
+# 1.067796 0.450000 
 
 ```
+
+The model is still not performing well. Let's try reducing number of input features, by keeping top 100 genes based on the variance.
+
+### Reducing number of features
+
+Reducing the number of input features in a neural network helps prevent overfitting, especially when the number of features is much larger than the number of samples.
+
+```{r}
+#| label: select-relevant-ft
+#| eval: false
+#| warning: false
+#| message: false
+#| code-fold: false
+
+# join gene expression data with clinical data
+data <- data_obesity %>%
+  left_join(data_expr, by = "id") %>%
+  dplyr::select("obese", all_of(genes_other)) %>%
+  na.omit()
+
+# select top 100 genes based on variance
+# Calculate variance for each gene
+gene_vars <- data %>%
+  select(-obese) %>%
+  summarise(across(everything(), var)) %>%
+  pivot_longer(everything(), names_to = "gene", values_to = "variance")
+
+# Select top 100 most variable genes
+top_genes <- gene_vars %>%
+  arrange(desc(variance)) %>%
+  slice_head(n = 100) %>%
+  pull(gene)
+
+# Subset the data to use only top 100 genes
+data <- data %>%
+  select(obese, all_of(top_genes))
+
+# three-way split: train (60%), validation (20%), test (20%)
+set.seed(123)
+n <- nrow(data)
+idx <- sample(seq_len(n))
+idx_train <- idx[1:floor(0.6 * n)]
+idx_valid <- idx[(floor(0.6 * n) + 1):floor(0.8 * n)]
+idx_test  <- idx[(floor(0.8 * n) + 1):n]
+
+data_train <- data[idx_train, ]
+data_valid <- data[idx_valid, ]
+data_test  <- data[idx_test, ]
+
+# To keep focus on the important parts, we will skip feature engineering
+# and we will just scale all data
+x_train <- data_train %>%
+  dplyr::select(-obese) %>%
+  as.matrix() %>%
+  scale()
+
+x_valid <- data_valid %>%
+  dplyr::select(-obese) %>%
+  as.matrix() %>%
+  scale()
+
+x_test <- data_test %>%
+  dplyr::select(-obese) %>%
+  as.matrix() %>%
+  scale()
+
+# Separate and format target variable
+y_train <- data_train$obese
+y_train <- ifelse(y_train == "Yes", 1, 0) 
+
+y_valid <- data_valid$obese
+y_valid <- ifelse(y_valid == "Yes", 1, 0)
+
+y_test <- data_test$obese
+y_test <- ifelse(y_test == "Yes", 1, 0)
+
+# Fit model using early stopping
+model_4 <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(x_train)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 32, activation = "relu") %>%
+  layer_dropout(0.2) %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+# Compile model
+model_4 %>% compile(
+  optimizer = "adam",
+  loss = "binary_crossentropy",
+  metrics = c("accuracy")
+)
+
+history_4 <- model_4 %>% fit(
+  x_train, y_train,
+  epochs = 50,
+  batch_size = 32,
+  validation_data = list(x_valid, y_valid),
+  callbacks = list(
+    callback_early_stopping(patience = 0, restore_best_weights = TRUE)
+  ),
+  verbose = 1
+)
+
+plot(history_4) + 
+  theme_bw() + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.position = "top")
+
+```
+
+
+```{r}
+#| label: evaluate-test-ft
+#| eval: false
+#| include: false
+#| message: false
+#| warning: false
+
+# Evaluate on test data
+model_4 %>% evaluate(x_test, y_test)
+
+#     loss accuracy 
+# 1.067796 0.450000 
+
+```
+
 
 ## DALEX for Feature Importance
 ```{r}
@@ -298,13 +488,13 @@ plot(roc_obj, col = "blue", print.auc = TRUE)
 library(DALEX)
 
 # Wrap Keras model in a prediction function
-predict_function <- function(model, newdata) {
-  predict(model, as.matrix(newdata))
+predict_function <- function(model_4, newdata) {
+  predict(model_4, as.matrix(newdata))
 }
 
 # Create DALEX explainer
 explainer_nn <- explain(
-  model = model,
+  model = model_4,
   data = as.data.frame(x_test),
   y = y_test,
   predict_function = predict_function,
@@ -314,32 +504,19 @@ explainer_nn <- explain(
 # Plot feature importance (SHAP-like effect)
 vip <- variable_importance(explainer_nn)
 
-
-```
-
-```{r}
-#| eval: false
-#| include: false
-
 plot(vip, max_vars = 10)
 
 ```
 
 
+# Comments
 
+So why did we not achieve better results than with XGBoost?
 
-
-
-## NOTES
-
-- Fit NN, bigger one, show that the accuracy is worse than for previous methods
-- Try to improve by feature engineering (var. filtering), changing structure, adding regularization
-- Write conclusions why this is not performinng better than the trees
-- Try adding embeddings from gene2vec
-
-
-- Try Python version with embeddings (model from Hugging Face) instead
-
-- Presentation: add slides about embeddings and SHAPELY
-
+- Despite applying best practices like including early stopping, dropout regularization, simplified architecture, and focusing on the top 100 most variable genes the neural network did not outperform XGBoost on this classification task.
+- This is likely due to:
+  - Limited sample size: Neural networks require large datasets to generalize well, while XGBoost is more robust on smaller datasets.
+  - High dimensionality: Even after reduction, the gene expression space may still be too noisy or sparse for a neural net to learn reliably.
+  - XGBoost inherently handles feature selection and interaction more effectively for tabular data, while ANNs rely more on large-scale data to uncover complex patterns.
+  - In contrast, tree-based models like XGBoost are better suited for small, tabular datasets with heterogeneous signals which makes them a strong baseline for gene expression-based classification tasks like this.
 
