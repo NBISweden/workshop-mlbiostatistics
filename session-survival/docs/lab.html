@@ -614,34 +614,37 @@ window.Quarto = {
 <p>To model the heroin usage using both time-invariant and time-varying predictors, we can use the <code>coxph</code> function:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cox.timevar <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(START, STOP, heroin) <span class="sc">~</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                     age_at_init <span class="sc">+</span> sex <span class="sc">+</span> dep_lifetime,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                     age_at_init <span class="sc">+</span> sex <span class="sc">+</span> dep_lifetime, <span class="at">cluster =</span> RANDID,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> data_opioid)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cox.timevar)</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="do">## coxph(formula = Surv(START, STOP, heroin) ~ age_at_init + sex + </span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">##     dep_lifetime, data = data_opioid)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">##     dep_lifetime, data = data_opioid, cluster = RANDID)</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="do">##   n= 1853, number of events= 27 </span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">##                 coef exp(coef) se(coef)      z Pr(&gt;|z|)   </span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="do">## age_at_init  -0.3932    0.6749   0.1350 -2.911  0.00360 **</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="do">## sexMale       0.1515    1.1635   0.3925  0.386  0.69956   </span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">## dep_lifetime  1.0580    2.8807   0.3991  2.651  0.00802 **</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">##                 coef exp(coef) se(coef) robust se      z Pr(&gt;|z|)   </span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="do">## age_at_init  -0.3932    0.6749   0.1350    0.1247 -3.153  0.00161 **</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="do">## sexMale       0.1515    1.1635   0.3925    0.3831  0.395  0.69254   </span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">## dep_lifetime  1.0580    2.8807   0.3991    0.3850  2.748  0.00600 **</span></span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="do">##              exp(coef) exp(-coef) lower .95 upper .95</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="do">## age_at_init     0.6749     1.4817    0.5180    0.8794</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="do">## sexMale         1.1635     0.8594    0.5391    2.5111</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="do">## dep_lifetime    2.8807     0.3471    1.3176    6.2981</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="do">## age_at_init     0.6749     1.4817    0.5286    0.8617</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="do">## sexMale         1.1635     0.8594    0.5492    2.4652</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="do">## dep_lifetime    2.8807     0.3471    1.3544    6.1271</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Concordance= 0.716  (se = 0.042 )</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="do">## Likelihood ratio test= 15.24  on 3 df,   p=0.002</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="do">## Wald test            = 14.53  on 3 df,   p=0.002</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Score (logrank) test = 15.45  on 3 df,   p=0.001</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="do">## Wald test            = 18.11  on 3 df,   p=4e-04</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Score (logrank) test = 15.45  on 3 df,   p=0.001,   Robust = 11.63  p=0.009</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="do">##   (Note: the likelihood ratio and score tests assume independence of</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="do">##      observations within a cluster, the Wald and robust score tests do not).</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Whether a predictor is time-varying or time-invariant, its HR can be interpreted as a comparison of the hazard between groups of individuals with different values of that predictor. Thus, in this example, we could conclude that after adjusting for age at NPPO initiation and sex, those with lifetime opioid dependence have 2.88 times the hazard of using heroin as those who do not (AHR = 2.88; 95% CI = 1.32, 6.30; p = 0.008). The HR for a time-varying predictor, however, can also be interpreted as the effect of within-individual change on the hazard. If an individual without opioid dependence transitions to dependence, their hazard of transitioning to heroin is multiplied by 2.88.</p>
+<p>Whether a predictor is time-varying or time-invariant, its HR can be interpreted as a comparison of the hazard between groups of individuals with different values of that predictor. Thus, in this example, we could conclude that after adjusting for age at NPPO initiation and sex, those with lifetime opioid dependence have 2.88 times the hazard of using heroin as those who do not (AHR = 2.88; 95% CI = 1.35, 6.12; p = 0.006). The HR for a time-varying predictor, however, can also be interpreted as the effect of within-individual change on the hazard. If an individual without opioid dependence transitions to dependence, their hazard of transitioning to heroin is multiplied by 2.88.</p>
 </section>
 <section id="competing-risks" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="competing-risks"><span class="header-section-number">3.3</span> Competing risks</h2>
