@@ -229,7 +229,7 @@ The **Kaplan-Meier (KM) estimator** is a non-parametric statistic used to estima
 where: 
 
 - $d_j$: number of failures at time $t_j$
-- $n_j$: number of patients at risk just before time $t_ij$
+- $n_j$: number of patients at risk just before time $t_j$
 - and the product is taken over all time intervals in which a death occurred, up to and including $t$
 
 Kapalan-Meier estimator is also known as **product-limit** estimator.
@@ -258,7 +258,7 @@ str(data_tooth)
 
 To calculate the Kaplan-Meier Curve: 
 
-1. We **sort** the data by time to failure.2. 
+1. We **sort** the data by time to failure.
 2. For each time, we calculate the **survival probabilities**, i.e. the probability the filling lasting beyond that time.
 3. We apply the Kaplan-Meier formula $$\hat{S}(t) = \prod_{j=1}^{t} \left( 1 - \frac{d_j}{n_j} \right)$$ to calculate the probability of surviving up to time $t$, as the product of all individual survival probabilities at each time up to $t$: 
 
@@ -395,6 +395,48 @@ The Kaplan-Meier curve shows the cumulative survival probabilities.
 - A steeper slope indicates a higher event rate (death rate) and therefore a worse survival prognosis. 
 - A flatter slope indicates a lower event rate and therefore a better survival prognosis. 
 - The curve may have plateaus or flat areas, indicating periods of relatively stable survival.
+
+
+```{r}
+# Load required libraries
+library(survival)
+library(survminer)
+
+# Simulate survival data for two groups
+set.seed(123)
+
+# Group 1: Worse prognosis (shorter survival times)
+group1 <- data.frame(
+  time = rexp(50, rate = 0.2),   # higher event rate → shorter survival
+  status = rep(1, 50),
+  group = "High Event Rate"
+)
+
+# Group 2: Better prognosis (longer survival times)
+group2 <- data.frame(
+  time = rexp(50, rate = 0.05),  # lower event rate → longer survival
+  status = rep(1, 50),
+  group = "Low Event Rate"
+)
+
+# Combine the data
+data_km <- rbind(group1, group2)
+
+# Fit KM survival curves
+fit <- survfit(Surv(time, status) ~ group, data = data_km)
+
+# Plot the curves
+ggsurvplot(fit,
+           data = data_km,
+           xlab = "Time",
+           ylab = "Survival Probability",
+           title = "Kaplan-Meier Curves for Two Groups",
+           risk.table = FALSE,
+           palette = c("red", "blue"),
+           legend.title = "Group",
+           legend.labs = c("High Event Rate", "Low Event Rate"))
+
+```
 
 
 ## Kaplan-Meier estimator {.smaller}
