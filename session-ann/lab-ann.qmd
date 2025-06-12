@@ -35,27 +35,27 @@ We will train a forward feedback network, also known as multilayer perceptrons (
 ## Load packages
 ```{r}
 #| label: load-packages
-#| eval: false
-
+#| eval: true
 
 # load packages
 rm(list=ls())
 library(tidyverse)
-#library(ggcorrplot)
-#library(glmnet)
 library(fastDummies)
 library(pROC)
 library(class)
-
-
 library(reticulate)
+library(keras)
+#use_python("/Users/olga.hrydziuszko/miniconda3/envs/r-reticulate/bin/python")
 use_condaenv("r-reticulate", required = TRUE)
-# reticulate::py_discover_config()
-# # Load the clinical data
+
+```
+
+## Load data
+
+```{r}
+#| label: load-data
 data_obesity <- read_csv("data/data-obesity.csv") 
 
-library(keras)
-use_python("/Users/olga.hrydziuszko/miniconda3/envs/r-reticulate/bin/python")
 # Load gene expression data
 data_expr <- read_csv("data/data-obesity-genes.csv")
 genes_all <- colnames(data_expr)[-1]  # Exclude the 'id' column
@@ -63,12 +63,9 @@ genes_all <- colnames(data_expr)[-1]  # Exclude the 'id' column
 # Genes
 gens_known <- c("FTO", "MC4R", "LEP")
 genes_other <- setdiff(genes_all, gens_known)
-
 ```
 
-
 ## Split Data
-
 ```{r}
 #| label: split-data
 #| eval: false
@@ -147,6 +144,7 @@ Let's fit a simple feedforward neural network using the Keras package. We will u
 In particular, we will use a simple architecture with two hidden layers, and we will use dropout to prevent overfitting. 
 
 This neural network is well-suited for the obesity classification task because:
+
 - It accepts high-dimensional gene expression input, which can contain complex, nonlinear patterns.
 - The first dense layer with 64 ReLU units learns rich feature representations from gene data.
 - Dropout layers (0.3 and 0.2) help prevent overfitting, which is critical when working with many features and relatively few samples.
@@ -154,8 +152,9 @@ This neural network is well-suited for the obesity classification task because:
 - This architecture is flexible and efficient enough to model subtle interactions between genes that simpler models might miss.
 
 ```{r}
-#| label: keras-model
+#| label: define-keras-model
 #| eval: false
+#| include: true
 #| message: false
 #| warning: false
 
@@ -177,13 +176,20 @@ model %>% compile(
 # Fit model
 history <- model %>% fit(
   x_train, y_train,
-  epochs = 10,
+  epochs = 50,
   batch_size = 32,
   validation_data = list(x_valid, y_valid),
   verbose = 1
 )
 
+plot(history) + 
+  theme_bw() + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.position = "top")
+
 ```
+
+![](images/model-history.png)
 
 
 
@@ -240,7 +246,7 @@ history <- model %>% fit(
 ```
 
 ```{r}
-#| label: plot-history
+#| label: plot-history-v02
 #| eval: false
 #| include: false
 #| fig-cap: "Training vs Validation Accuracy"
@@ -249,7 +255,7 @@ plot(history)
 
 
 ```{r}
-#| label: evaluate-test
+#| label: evaluate-test-v02
 #| eval: false
 #| include: false
 #| message: false
@@ -262,7 +268,7 @@ model %>% evaluate(x_test, y_test)
 
 
 ```{r}
-#| label: predictions-roc
+#| label: predictions-roc-v02
 #| eval: false
 #| include: false
 #| message: false
