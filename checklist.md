@@ -1,29 +1,42 @@
 # Checklist
 
+## NBIS drive guidelines
+
+- [drive](https://docs.google.com/document/d/1HK-UlxyVS9IlbgSiLVy0jgUMsuDRdm7TdmvFV0WmPV8/edit?tab=t.0)
+- [setting-up and running](https://docs.google.com/document/d/1NJmxyAveV-9bUrGN0ztyITvLyfzAJW26/edit#heading=h.i8p71gvqr1p)
+
 ## BEFORE
 
-- find date and book rooms
-- calculate and get user fees approved (use flat new)
-- set dates for application open, application closed, notification sent to students
-- prepare course website on Canvas
-- prepare and open course application [e.g. via google forms]
+### Dates and fees
+
+- Course date and room: find a date and book the room
+- Set remaining dates: application opens, application closes, notification sent to students.
+- Note: invoices are sent 3 weeks before the course, then cancellation is not possible
+- Check fees, e.g. in 2025-12, 5 days, 3000 SEK academic, and 15 000 non-academic
+
+- Canvas: prepare course website (minium version)
+- Course application: prepare and open course application [e.g. via google forms]
+
 - prepare .doc for SciLifeLab announcement and email education@scilifelab.uu.se
-- prepare and test Zulip / Slack channel (if online)
+- Email people from the "register your interest" form, once the announcement is up
+
+### Misc
+
 - prepare feedback survey
 - arrange internet access (guest accounts)
 - door sign
+- if course is online: prepare and test Zulip / Slack channel
 
-## finalise participant list
+## finalize participant list
 
-- finalise students lists incl. up to 10 people on the waiting lists
+- finalize students lists incl. up to 10 people on the waiting lists
 - notify students (accepted, on the waiting list)
   - ask students to verify spots (and dietary requirements), if spots left email people on the waiting lists
-  - add a note about COVID-19
-- finalise and email out pre-course information (e.g. R and R-Studio installations, internet access)  
+- finalize and email out pre-course information (e.g. R and R-Studio installations, internet access)
 - add students to Canvas (Jessica Lindberg)
-- send Jessica Lindberg students with inovices, for invoices and to be added to Canvas
+- send Jessica Lindberg students with invoices, for invoices and to be added to Canvas
 
-## finalise bookings and admin
+## finalize bookings and admin
 
 - prepare attendance list (2 per day)
 - prepare certificates
