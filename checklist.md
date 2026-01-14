@@ -13,11 +13,10 @@
 - Set remaining dates: application opens, application closes, notification sent to students.
 - Note: invoices are sent 3 weeks before the course, then cancellation is not possible
 - Check fees, e.g. in 2025-12, 5 days, 3000 SEK academic, and 15 000 non-academic
-
 - Canvas: prepare course website (minium version)
 - Course application: prepare and open course application [e.g. via google forms]
-
-- prepare .doc for SciLifeLab announcement and email education@scilifelab.uu.se
+- Fill in SciLifeLab training announcement form
+- Once event is life, email NBIS training, and advertise via other channels (screens, emails)
 - Email people from the "register your interest" form, once the announcement is up
 
 ### Misc

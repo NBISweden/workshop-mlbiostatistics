@@ -1,16 +1,15 @@
 # Advertisment
 
+## SciLifeLab training hub announcement
 
-## SciLifeLab training hub announcement 
-
-Email .docx template to: 
+Email .docx template to:
 
 - traininghub@scilifelab.se
 - education@nbis.se
 
 ## SciLifeLab screens
 
-Email power point slides to: 
+Email power point slides to:
 
 - maria.backstrom@scilifelab.uu.se
 
@@ -35,10 +34,12 @@ Machine Learning for Life Sciences
 - There is a template, use it
 
 ## Biomedicum screens
+
 - Facility mgm: johanna.steen@ki.se
 - Communication: charlotte.brandt@ki.se (email Lotte)
 
 ## Aula Medica screens
+
 - Try anki.israelsson@ki.se
 
 ## LinkedIn text (final call)
@@ -56,8 +57,6 @@ Unlock the power of data in life sciences! Whether you're a PhD student, researc
 ⏰ Apply by: March 14th, 2025
 
 For more details, visit https://nbisweden.github.io/ML4Life/ or contact us at edu.ml-biostats [at] nbis.se
-
-
 
 ## Slack: final call
 
