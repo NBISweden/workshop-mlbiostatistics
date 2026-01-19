@@ -16,8 +16,15 @@
 - Canvas: prepare course website (minium version)
 - Course application: prepare and open course application [e.g. via google forms]
 - Fill in SciLifeLab training announcement form
-- Once event is life, email NBIS training, and advertise via other channels (screens, emails)
-- Email people from the "register your interest" form, once the announcement is up
+- Once event is life
+- Advertise
+  - email NBIS training
+  - SciLifeLab screens (Solna & Uppsala, Lund)
+  - LinkedIn NBIS
+  - Stockholm BMC screens
+  - SciLifeLab Training slack channel
+  - Email people from the "register your interest" form, once the announcement is up
+  - Internal network emails
 
 ### Misc
 
