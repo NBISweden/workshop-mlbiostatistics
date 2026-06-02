@@ -1,0 +1,411 @@
+---
+title: "Mixed Models II"
+author: "Eva Freyhult"
+date: "2025-06-11"
+date-format: long
+institute: NBIS, SciLifeLab
+embed-resources: true
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default]
+editor: source
+---
+
+```{r setup}
+library(tidyverse)
+library(ggplot2)
+library(lme4)
+```
+
+```{r df}
+simulate_gene_expression <- function(Nsubj = 4, n=10, Gslope = 2, slope=-4, Gint = 100, xm=30, xmsd=5, xsd=2, esd=2) {
+  xmean <- rnorm(Nsubj, mean = xm, sd = xmsd)
+  
+data.frame(subject= rep(as.character(1:Nsubj), each = n),
+           xmean = rep(xmean, each = n)) |>
+           mutate(xd = rnorm(Nsubj * n, mean = 0, sd = xsd), x=xmean+xd, y = Gint + Gslope * xmean + slope * xd + rnorm(Nsubj * n, sd = esd))
+  
+}
+set.seed(3431)
+df <- simulate_gene_expression(xmsd=10, Gslope=2, slope=-2, xsd=5, esd=8) |> rename(group=subject, age=x, conc=y)
+```
+
+## Nested and crossed designs {.incremental}
+
+Grouping structures can be complex and consist of more than one level of grouping.
+
+**Nested**: lower level units are only associated with **one** higher level unit
+
+**Crossed**: lower level units are associated with **multiple** higher level units
+
+## Nested designs
+
+In many cases, we have a hierarchical structure in our data, where observations are nested within groups. For example, patients within clinics and clinics within regions.
+
+```{mermaid}
+graph TD
+    A[Region 1] 
+    A --> B[Clinic 1]
+    A --> C[Clinic 2]
+    A --> D[Clinic 3]
+    
+    B -.-> M1[Patient 1]
+    B -.-> N2[Patient 2]
+    B -.-> O3[Patient 3]
+
+    C -.-> P4[Patient 4]
+    C -.-> Q5[Patient 5]
+    C -.-> R6[Patient 6]
+    
+    D -.-> S7[Patient 7]
+    D -.-> T8[Patient 8]
+    D -.-> U9[Patient 9]
+    
+    classDef region fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef clinic fill:#ccf,stroke:#333,stroke-width:2px;
+    classDef patient fill:#cff,stroke:#333,stroke-width:1px;
+    
+    class A,E,I region;
+    class B,C,D,F,G,H,J,K,L clinic;
+    class M1,N2,O3,P4,Q5,R6,S7,T8,U9,V10,W11,X12,Y13,Z14,A15,B16,C17,D18,E19,F20,G21,H22,I23,J24,K25,L26,M27 patient;
+    
+    linkStyle default stroke-width:4px;
+```
+
+
+```{mermaid}
+graph TD
+    E[Region 2]
+    E --> F[Clinic 4]
+    E --> G[Clinic 5]
+    E --> H[Clinic 6]
+    
+    F -.-> V10[Patient 10]
+    F -.-> W11[Patient 11]
+    F -.-> X12[Patient 12]
+
+    G -.-> Y13[Patient 13]
+    G -.-> Z14[Patient 14]
+    G -.-> A15[Patient 15]
+    
+    H -.-> B16[Patient 16]
+    H -.-> C17[Patient 17]
+    H -.-> D18[Patient 18]
+    
+    I[Region 3]
+    I --> J[Clinic 7]
+    I --> K[Clinic 8]
+    I --> L[Clinic 9]
+    
+    J -.-> E19[Patient 19]
+    J -.-> F20[Patient 20]
+    J -.-> G21[Patient 21]
+
+    K -.-> H22[Patient 22]
+    K -.-> I23[Patient 23]
+    K -.-> J24[Patient 24]
+    
+    L -.-> K25[Patient 25]
+    L -.-> L26[Patient 26]
+    L -.-> M27[Patient 27]
+
+    classDef region fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef clinic fill:#ccf,stroke:#333,stroke-width:2px;
+    classDef patient fill:#cff,stroke:#333,stroke-width:1px;
+    
+    class A,E,I region;
+    class B,C,D,F,G,H,J,K,L clinic;
+    class M1,N2,O3,P4,Q5,R6,S7,T8,U9,V10,W11,X12,Y13,Z14,A15,B16,C17,D18,E19,F20,G21,H22,I23,J24,K25,L26,M27 patient;
+    
+    linkStyle default stroke-width:4px;
+```
+
+## Nested model
+
+By using a nested model, we can account for the hierarchical structure of the data and identify the sources of variability in our data.
+
+```{r nesteddata}
+simulate_grouped_trend_nested <- function(region_count = 3, clinics_per_region = 5, measurements_per_clinic = 10,
+                                                         global_slope = -10, global_intercept = 30, 
+                                                         region_effects = c(), region_slopes = c(),
+                                                         clinic_effects = list(), clinic_slopes = list()) {
+  set.seed(123) # Setting a seed for reproducibility
+  
+  # Initialize an empty data frame to store the simulated data
+  data <- data.frame(x = numeric(), y = numeric(), clinic = integer(), region = integer())
+
+  clinic_id_counter = 1 # Initialize a counter for clinic IDs across regions
+  
+  # Loop to create data for each region
+  for (region in 1:region_count) {
+    # Use the specific region effect and slope
+    region_effect_adj = region_effects[region]
+    region_slope_adj = region_slopes[region]
+    
+    # Loop to create data for each clinic within a region
+    for (clinic in 1:clinics_per_region) {
+      x_start = runif(1, min = 0, max = 10) + 10 * (clinic - 1) # More continuous x values across clinics
+      x = runif(measurements_per_clinic, min = x_start, max = x_start + 10) # Continuous x for measurements
+      
+      # Use the specific clinic effect and slope
+      clinic_effect = clinic_effects[[region]][clinic]
+      clinic_slope = clinic_slopes[[region]][clinic]
+      
+      # Simulate measurements for each clinic
+      for (i in 1:measurements_per_clinic) {
+        # Model y incorporating both global and specific slopes and effects
+        y = (global_intercept + region_effect_adj + clinic_effect) + 
+            (global_slope + region_slope_adj + clinic_slope) * x[i] + 
+            rnorm(1, mean = 0, sd = 1) # Assuming measurement_noise_sd is constant for simplicity
+        
+        # Combine this measurement with the overall dataset
+        data = rbind(data, data.frame(x = x[i], y = y, clinic = clinic_id_counter, region = region))
+      }
+      
+      clinic_id_counter <- clinic_id_counter + 1 # Increment clinic ID for unique identification across regions
+    }
+  }
+  
+  return(data)
+}
+
+
+
+
+set.seed(10)
+data_int_nested<-simulate_grouped_trend_nested(region_count = 4,
+                                               clinics_per_region = 3,
+                                               measurements_per_clinic = 20,
+                                               global_slope = 0,global_intercept = 100,
+                                               region_effects = rnorm(4,mean = 0,sd = 20),
+                                               region_slopes=rnorm(4,mean = 0.1,sd = 2),
+                                               clinic_effects = lapply(1:4,function(i){rnorm(3,mean = 0,sd = 10)}),
+                                               clinic_slopes = lapply(1:4,function(i){rnorm(3,mean = 0.1,sd = 1)}))
+
+data_int_nested |> 
+  ggplot(aes(x = x, y = y, color = factor(region), shape = factor(clinic))) +
+  geom_point() +
+  labs(title = "Simulated Data with Nested Structure",
+       x = "Age",
+       y = "Protein Expression",
+       color = "Region",
+       shape = "Clinic") +
+  scale_shape_manual(values=1:12) + theme_bw()
+```
+
+## Nested models in R {.smaller .incremental}
+
+In R and `lme4`, random effects for nested groupings can be included. Random intercepts for both regions and clinics nested within regions can be included as follows;
+
+```{r nestedmodel, echo=TRUE}
+nested_model <- lmer(y ~ x + (1 | region/clinic), 
+                     data = data_int_nested)
+```
+
+`(1 | region/clinic)` specifies that we have random intercepts for clinics nested within regions
+
+. . .
+
+Note, `(1|region/clinic)` is identical to writing 
+`(1|region) + (1|region:clinic)`.
+
+. . .
+
+A third way to implement the same model is to make the nesting implicit by coding the lower levels (here clinics) uniquely, so that a clinic name only exist in one region. With such a naming scheme, we can use the notation `(1|region) + (1|clinic)`.
+
+
+## Nested models in R {.smaller}
+
+```{r nestedmodel1}
+library(lme4)
+nested_model <- lmer(y ~ x + (1 | region/clinic), data = data_int_nested)
+summary(nested_model)
+```
+
+## Crossed designs
+
+In a crossed design, an observation is associated with multiple groups. For example, patients may be treated by different doctors at several clinics.
+
+```{mermaid}
+graph TD
+
+    A[Clinic 1]
+    E[Clinic 2]
+    I[Clinic 3]
+
+    B[Doctor 1]
+    C[Doctor 2]
+    D[Doctor 3]
+
+    M1[Patient 1]
+    M2[Patient 2]
+    M3[Patient 3]
+    M4[Patient 4]
+    M5[Patient 5]
+ 
+
+    A -.-> B
+    A -.-> C
+    A -.-> D
+    E -.-> B
+    E -.-> C
+    E -.-> D
+    I -.-> B
+    I -.-> C
+    I -.-> D
+   
+    %% Patients connected to clinics to show they can come from any clinic, implying crossed with regions
+    B --> M1
+    B --> M2
+    B --> M3
+    B --> M4
+    B --> M5
+    
+    C --> M1
+    C --> M2
+    C --> M3
+    C --> M4
+    C --> M5
+    
+    D --> M1
+    D --> M2
+    D --> M3
+    D --> M4
+    D --> M5
+    
+    %% Additional patient connections omitted for brevity
+
+    classDef region fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef clinic fill:#ccf,stroke:#333,stroke-width:2px;
+    classDef patient fill:#cff,stroke:#333,stroke-width:1px;
+    
+    class A,E,I region;
+    class B,C,D,F,G,H,J,K,L clinic;
+    class M1,M2,M3,M4,M5 patient;
+    
+    linkStyle default stroke-width:4px;
+```
+
+
+## Crossed models
+A crossed design is coded like this in R:
+
+`y ~ x + (x | clinic) + (x | doctor)`
+
+## Model selection in mixed models 
+
+:::{.incremental}
+
+- Mixed models can become complex and model selection can be used to identify the best model.
+
+- Likelihood ratio tests (LRT) are often used to compare nested models, where one model is a simpler version of another. LRT can be used also for mixed models.
+
+- Mixed model have both random and fixed effects variables. We can use LRT to compare models with different fixed effects structures, but also different random effects structures.
+:::
+
+## What is LRT? {.smaller .incremental}
+
+The likelihood is a measure of how well a model explains the data.
+
+. . .
+
+The likelihood ratio test compares the likelihoods of two models: the **null** model, which is a simpler model, and the **alternative**, more complex, model.
+
+. . . 
+
+$$\lambda = - 2\ln{ \frac{L(restricted\,model)}{L(full\, model)}} $$
+The test statistic follows a $\chi^2$-distribution with degrees of freedom equal to the difference in the number of parameters between the two models.
+
+. . .
+
+A significant difference in likelihoods suggests that the more complex model explains the data better than the simpler model.
+
+. . .
+
+For mixed models, we can use the `anova()` function to perform LRT. We will start by testing the random effects structure, without change of fixed effects. Then we will test the fixed effects structure, keeping the random effects fixed.
+
+## ML and REML {.smaller}
+
+In mixed models, we can fit mixed models using two different methods, **Maximum Likelihood (ML)** or **Restricted Maximum Likelihood (REML)**.
+
+**ML** has the advantage that it can be used to compare models with different fixed effects structures, but it gives biased estimates of the variance components. More about this in Payam's maths section.
+
+In summary, use
+
+- **ML** when comparing models with different fixed effects structures (set `refit = TRUE` in `anova()`)
+- **REML** when comparing diferent random effects in models models with the same fixed effects structure (set `refit = FALSE` in `anova()`). Also, always use REML for the final model.
+
+## Random Effects Comparison
+
+Sleep study data, random intercept.
+
+```{r sleepstudy1, echo=TRUE}
+sleepall <- sleepstudy |> filter(Days>=2) |> mutate(Days=Days-2)
+m1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepall)
+summary(m1)
+```
+
+## Random Effects Comparison
+
+Sleep study data, random intercept and random slope for Days.
+
+
+```{r sleepstudy2, echo=TRUE}
+m2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
+summary(m2)
+```
+## Random Effects Comparison
+
+Compare the two models using a likelihood ratio test.
+
+```{r sleepstudyLRT, echo=TRUE}
+anova(m1, m2, refit = FALSE)
+```
+
+## Fixed Effects Comparison
+
+We can also compare models with different fixed effects structures. For example, we can compare a model with a fixed effect of `Days` to a model with a fixed effect of `Days` and `Sex`.
+
+```{r}
+sleepall <- sleepall |> mutate(sex=sample(c("M", "F"), nrow(sleepall), replace=TRUE))
+```
+
+
+```{r sleepstudy3, echo=TRUE}
+m2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
+m3 <- lmer(Reaction ~ Days + sex + (1 + Days | Subject), data = sleepall)
+anova(m2, m3, refit=TRUE)
+```
+
+## P-value calculations {.smaller}
+
+As you have noticed `lme4` does not report p-values for the fixed effects.
+
+In linear regression, p-values are calculated based on the t-distribution of the estimated coefficients. The calculation of denomicator degrees of freedom is straightforward since all observations are independent.
+
+In mixed models, the situation is more complex due to the grouping structure. It is not straightforward to calculate the degrees of freedom for the fixed effects, since the observations are not independent.
+
+There are however some approximation methods available to calculate the degrees of freedom and hence p-values for the fixed effects in mixed models.
+
+We can use the `lmerTest` package, which extends `lme4` to include p-values for fixed effects, based on e.g. Satterthwaite's method.
+
+## `lmerTest`
+
+```{r lmerTest, echo=TRUE}
+library(lmerTest)
+mm <- lmer(conc ~ age + (1 | group), data = df)
+summary(mm)
+```
+
+## `lmerTest`
+
+```{r lmerTest2, echo=FALSE}
+sleepall <- sleepstudy |> filter(Days>=2) |> mutate(Days=Days-2)
+##Add sex
+set.seed(123)
+sleepall <- sleepall |> mutate(sex=sample(c("M", "F"), nrow(sleepall), replace=TRUE))
+mmsleep <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
+summary(mmsleep)
+```
+

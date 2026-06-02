@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Exercises (model diagnostics) – Statistical Methods for Life Sciences</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../SM4LS-book/site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../SM4LS-book/site_libs/clipboard/clipboard.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-search/fuse.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../SM4LS-book/">
+<link href="../SM4LS-book/../SM4LS-lm/lm-lasso-exercises.html" rel="next">
+<link href="../SM4LS-book/../SM4LS-lm/lm-intro-exercises.html" rel="prev">
+<script src="../SM4LS-book/site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/popper.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/anchor.min.js"></script>
+<link href="../SM4LS-book/site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../SM4LS-book/site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../SM4LS-book/site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../SM4LS-book/site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../SM4LS-book/site_libs/bootstrap/bootstrap-bc91950905f66a0b7e618f69bf449bf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/index.html">Linear Regression</a></li><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/lm-diagn-exercises.html">Exercises (model diagnostics)</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../SM4LS-book/">Statistical Methods for Life Sciences</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Probability Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_01intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to probability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_02discrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Discrete random variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_exr1_discrv_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Discrete random variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_03contrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Continuous random variable</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_04sample.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Sampling and experimental design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_exr2_contrv_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Continuous random variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_01hypothesis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Introduction to hypothesis tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_02hypresamp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Hypothesis testing using resampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_exr1_hyporesampling_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Hypothesis tests, resampling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_03hypparm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Parametric tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_04multiple.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Multiple testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_exr2_hypoparam_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Hypothesis tests, parametric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_05interval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Point and interval estimates</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_exr3_interval_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Point and interval estimates</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Linear Regression</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-reg-cls.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear models: regression and classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-coeff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Common cases</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-intro-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (introduction to linear models)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-diagn-exercises.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Exercises (model diagnostics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-lasso-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (regularization)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-coeff-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (regression coefficients)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Principal Component Analysis</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Clustering</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-clustering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-clustering/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Clustering: art of finding groups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-clustering/exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Generalized Linear Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-glm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Introduction to GLM</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-glm/304-linear-GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Generalized linear models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Mixed Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/environment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/lm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple linear regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/lmm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mixed models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/math.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mixed models (mathematical details)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Survival</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/lab.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">R examples</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#answers-to-selected-exercises" id="toc-answers-to-selected-exercises" class="nav-link active" data-scroll-target="#answers-to-selected-exercises">Answers to selected exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/index.html">Linear Regression</a></li><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/lm-diagn-exercises.html">Exercises (model diagnostics)</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Exercises (model diagnostics)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Data for exercises</strong> are on Canvas under Files -&gt; data_exercises –&gt; linear-models</p>
+<div id="exr-brozek" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 1 (Brozek score)</strong></span> Researchers collected age, weight, height and 10 body circumference measurements for 252 men in an attempt to find an alternative way of calculate body fat as oppose to measuring someone weight and volume, the latter one by submerging in a water tank. Is it possible to predict body fat using easy-to-record measurements?</p>
+<p>Use lm() function and fit a linear method to model brozek, score estimate of percent body fat</p>
+<ul>
+<li>find <span class="math inline">\(R^2\)</span> and <span class="math inline">\(R^2(adj)\)</span></li>
+<li>assess the diagnostics plots to check for model assumptions</li>
+<li>delete observation #86 with the highest Cook’s distance and re-fit the model (model.clean)</li>
+<li>look at the model summary. Are all variables associated with brozek score?</li>
+<li>try improving the model fit by removing variables with the highest p-value first and re-fitting the model until all the variables are significantly associated with the response (p value less than 0.1); note down the <span class="math inline">\(R^2(adj)\)</span> values while doing so</li>
+<li>compare the output models for model.clean and final model</li>
+</ul>
+</div>
+<p>To access and preview the data:</p>
+<section id="answers-to-selected-exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="answers-to-selected-exercises">Answers to selected exercises</h2>
+<div class="proof solution">
+<p><span class="proof-title"><em>Solution</em>. </span><a href="#exr-brozek" class="quarto-xref">Exercise&nbsp;<span>1</span></a></p>
+</div>
+<div class="cell" data-layout-align="center">
+<pre><code>##   brozek siri density age weight height adipos  free neck chest abdom   hip
+## 1   12.6 12.3  1.0708  23 154.25  67.75   23.7 134.9 36.2  93.1  85.2  94.5
+## 2    6.9  6.1  1.0853  22 173.25  72.25   23.4 161.3 38.5  93.6  83.0  98.7
+## 3   24.6 25.3  1.0414  22 154.00  66.25   24.7 116.0 34.0  95.8  87.9  99.2
+## 4   10.9 10.4  1.0751  26 184.75  72.25   24.9 164.7 37.4 101.8  86.4 101.2
+## 5   27.8 28.7  1.0340  24 184.25  71.25   25.6 133.1 34.4  97.3 100.0 101.9
+## 6   20.6 20.9  1.0502  24 210.25  74.75   26.5 167.0 39.0 104.5  94.4 107.8
+##   thigh knee ankle biceps forearm wrist
+## 1  59.0 37.3  21.9   32.0    27.4  17.1
+## 2  58.7 37.3  23.4   30.5    28.9  18.2
+## 3  59.6 38.9  24.0   28.8    25.2  16.6
+## 4  60.1 37.3  22.8   32.4    29.4  18.2
+## 5  63.2 42.2  24.0   32.2    27.7  17.7
+## 6  66.0 42.0  25.6   35.7    30.6  18.8
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + height + neck + abdom + 
+##     hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.2664  -2.5658  -0.0798   2.8976   9.3204 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -17.063433  14.489336  -1.178  0.24011    
+## age           0.056520   0.029888   1.891  0.05983 .  
+## weight       -0.085513   0.045170  -1.893  0.05954 .  
+## height       -0.059703   0.086695  -0.689  0.49171    
+## neck         -0.439315   0.214802  -2.045  0.04193 *  
+## abdom         0.875779   0.070589  12.407  &lt; 2e-16 ***
+## hip          -0.192118   0.132655  -1.448  0.14885    
+## thigh         0.237304   0.131793   1.801  0.07303 .  
+## knee         -0.006595   0.222832  -0.030  0.97642    
+## ankle         0.164831   0.204681   0.805  0.42144    
+## biceps        0.149530   0.157693   0.948  0.34397    
+## forearm       0.424885   0.182801   2.324  0.02095 *  
+## wrist        -1.474317   0.494475  -2.982  0.00316 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.98 on 239 degrees of freedom
+## Multiple R-squared:  0.7489, Adjusted R-squared:  0.7363 
+## F-statistic:  59.4 on 12 and 239 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lm-diagn-exercises_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="336"></p>
+</figure>
+</div>
+</div>
+<pre><code>## 
+## Call:
+## lm(formula = brozek ~ age + weight + height + neck + abdom + 
+##     hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.2664  -2.5658  -0.0798   2.8976   9.3204 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -17.063433  14.489336  -1.178  0.24011    
+## age           0.056520   0.029888   1.891  0.05983 .  
+## weight       -0.085513   0.045170  -1.893  0.05954 .  
+## height       -0.059703   0.086695  -0.689  0.49171    
+## neck         -0.439315   0.214802  -2.045  0.04193 *  
+## abdom         0.875779   0.070589  12.407  &lt; 2e-16 ***
+## hip          -0.192118   0.132655  -1.448  0.14885    
+## thigh         0.237304   0.131793   1.801  0.07303 .  
+## knee         -0.006595   0.222832  -0.030  0.97642    
+## ankle         0.164831   0.204681   0.805  0.42144    
+## biceps        0.149530   0.157693   0.948  0.34397    
+## forearm       0.424885   0.182801   2.324  0.02095 *  
+## wrist        -1.474317   0.494475  -2.982  0.00316 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.98 on 239 degrees of freedom
+## Multiple R-squared:  0.7489, Adjusted R-squared:  0.7363 
+## F-statistic:  59.4 on 12 and 239 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + 
+##     knee + ankle + biceps + forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.2830  -2.6162  -0.1017   2.8789   9.3713 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -22.66569   11.97691  -1.892  0.05963 .  
+## age           0.05948    0.02954   2.013  0.04521 *  
+## weight       -0.09829    0.04114  -2.389  0.01765 *  
+## neck         -0.43444    0.21445  -2.026  0.04389 *  
+## abdom         0.88762    0.06839  12.979  &lt; 2e-16 ***
+## hip          -0.17180    0.12919  -1.330  0.18483    
+## thigh         0.25327    0.12960   1.954  0.05183 .  
+## knee         -0.02318    0.22128  -0.105  0.91665    
+## ankle         0.17300    0.20411   0.848  0.39752    
+## biceps        0.15695    0.15715   0.999  0.31894    
+## forearm       0.43091    0.18239   2.363  0.01895 *  
+## wrist        -1.51011    0.49120  -3.074  0.00235 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.976 on 240 degrees of freedom
+## Multiple R-squared:  0.7484, Adjusted R-squared:  0.7369 
+## F-statistic:  64.9 on 11 and 240 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + 
+##     ankle + biceps + forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.2552  -2.5979  -0.1133   2.8693   9.3584 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -23.08716   11.25781  -2.051  0.04137 *  
+## age           0.05875    0.02864   2.051  0.04134 *  
+## weight       -0.09965    0.03897  -2.557  0.01117 *  
+## neck         -0.43088    0.21131  -2.039  0.04253 *  
+## abdom         0.88875    0.06740  13.186  &lt; 2e-16 ***
+## hip          -0.17231    0.12884  -1.337  0.18234    
+## thigh         0.24942    0.12403   2.011  0.04544 *  
+## ankle         0.16946    0.20089   0.844  0.39974    
+## biceps        0.15847    0.15616   1.015  0.31123    
+## forearm       0.42946    0.18150   2.366  0.01876 *  
+## wrist        -1.51470    0.48823  -3.102  0.00215 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.968 on 241 degrees of freedom
+## Multiple R-squared:  0.7484, Adjusted R-squared:  0.738 
+## F-statistic: 71.69 on 10 and 241 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + 
+##     biceps + forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.0740  -2.5615  -0.1021   2.7999   9.3199 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -20.61247   10.86240  -1.898   0.0589 .  
+## age           0.05727    0.02857   2.004   0.0461 *  
+## weight       -0.09141    0.03770  -2.424   0.0161 *  
+## neck         -0.45458    0.20931  -2.172   0.0308 *  
+## abdom         0.88098    0.06673  13.203   &lt;2e-16 ***
+## hip          -0.17575    0.12870  -1.366   0.1733    
+## thigh         0.25504    0.12378   2.061   0.0404 *  
+## biceps        0.15178    0.15587   0.974   0.3311    
+## forearm       0.42805    0.18138   2.360   0.0191 *  
+## wrist        -1.40948    0.47175  -2.988   0.0031 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.965 on 242 degrees of freedom
+## Multiple R-squared:  0.7477, Adjusted R-squared:  0.7383 
+## F-statistic: 79.67 on 9 and 242 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + neck + abdom + hip + thigh + 
+##     forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.0574  -2.7411  -0.1912   2.6929   9.4977 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -20.06213   10.84654  -1.850  0.06558 .  
+## age           0.05922    0.02850   2.078  0.03876 *  
+## weight       -0.08414    0.03695  -2.277  0.02366 *  
+## neck         -0.43189    0.20799  -2.077  0.03889 *  
+## abdom         0.87721    0.06661  13.170  &lt; 2e-16 ***
+## hip          -0.18641    0.12821  -1.454  0.14727    
+## thigh         0.28644    0.11949   2.397  0.01727 *  
+## forearm       0.48255    0.17251   2.797  0.00557 ** 
+## wrist        -1.40487    0.47167  -2.978  0.00319 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.965 on 243 degrees of freedom
+## Multiple R-squared:  0.7467, Adjusted R-squared:  0.7383 
+## F-statistic: 89.53 on 8 and 243 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + neck + abdom + thigh + forearm + 
+##     wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.0193  -2.8016  -0.1234   2.9387   9.0019 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -30.17420    8.34200  -3.617 0.000362 ***
+## age           0.06149    0.02852   2.156 0.032047 *  
+## weight       -0.11236    0.03151  -3.565 0.000437 ***
+## neck         -0.37203    0.20434  -1.821 0.069876 .  
+## abdom         0.85152    0.06437  13.229  &lt; 2e-16 ***
+## thigh         0.20973    0.10745   1.952 0.052099 .  
+## forearm       0.51824    0.17115   3.028 0.002726 ** 
+## wrist        -1.40081    0.47274  -2.963 0.003346 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.974 on 244 degrees of freedom
+## Multiple R-squared:  0.7445, Adjusted R-squared:  0.7371 
+## F-statistic: 101.6 on 7 and 244 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + height + neck + abdom + 
+##     hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.2664  -2.5658  -0.0798   2.8976   9.3204 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -17.063433  14.489336  -1.178  0.24011    
+## age           0.056520   0.029888   1.891  0.05983 .  
+## weight       -0.085513   0.045170  -1.893  0.05954 .  
+## height       -0.059703   0.086695  -0.689  0.49171    
+## neck         -0.439315   0.214802  -2.045  0.04193 *  
+## abdom         0.875779   0.070589  12.407  &lt; 2e-16 ***
+## hip          -0.192118   0.132655  -1.448  0.14885    
+## thigh         0.237304   0.131793   1.801  0.07303 .  
+## knee         -0.006595   0.222832  -0.030  0.97642    
+## ankle         0.164831   0.204681   0.805  0.42144    
+## biceps        0.149530   0.157693   0.948  0.34397    
+## forearm       0.424885   0.182801   2.324  0.02095 *  
+## wrist        -1.474317   0.494475  -2.982  0.00316 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.98 on 239 degrees of freedom
+## Multiple R-squared:  0.7489, Adjusted R-squared:  0.7363 
+## F-statistic:  59.4 on 12 and 239 DF,  p-value: &lt; 2.2e-16
+## 
+## Call:
+## lm(formula = brozek ~ age + weight + neck + abdom + thigh + forearm + 
+##     wrist, data = fat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -10.0193  -2.8016  -0.1234   2.9387   9.0019 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -30.17420    8.34200  -3.617 0.000362 ***
+## age           0.06149    0.02852   2.156 0.032047 *  
+## weight       -0.11236    0.03151  -3.565 0.000437 ***
+## neck         -0.37203    0.20434  -1.821 0.069876 .  
+## abdom         0.85152    0.06437  13.229  &lt; 2e-16 ***
+## thigh         0.20973    0.10745   1.952 0.052099 .  
+## forearm       0.51824    0.17115   3.028 0.002726 ** 
+## wrist        -1.40081    0.47274  -2.963 0.003346 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.974 on 244 degrees of freedom
+## Multiple R-squared:  0.7445, Adjusted R-squared:  0.7371 
+## F-statistic: 101.6 on 7 and 244 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<p><em>Note: we have just run a very simple feature selection using stepwise regression. In this method, using backward elimination, we build a model containing all the variables and remove them one by one based on defined criteria (here we have used p-values) and we stop when we have a justifiable model or when removing a predictor does not change the chosen criterion significantly.</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../SM4LS-book/../SM4LS-lm/lm-intro-exercises.html" class="pagination-link" aria-label="Exercises (introduction to linear models)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Exercises (introduction to linear models)</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../SM4LS-book/../SM4LS-lm/lm-lasso-exercises.html" class="pagination-link" aria-label="Exercises (regularization)">
+        <span class="nav-page-text">Exercises (regularization)</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

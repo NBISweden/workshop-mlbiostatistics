@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>11&nbsp; Linear models: regression and classification – Statistical Methods for Life Sciences</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../SM4LS-book/site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../SM4LS-book/site_libs/clipboard/clipboard.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-search/fuse.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../SM4LS-book/">
+<link href="../SM4LS-book/../SM4LS-lm/lm-coeff.html" rel="next">
+<link href="../SM4LS-book/../SM4LS-lm/lm-intro.html" rel="prev">
+<script src="../SM4LS-book/site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/popper.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../SM4LS-book/site_libs/quarto-html/anchor.min.js"></script>
+<link href="../SM4LS-book/site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../SM4LS-book/site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../SM4LS-book/site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../SM4LS-book/site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../SM4LS-book/site_libs/bootstrap/bootstrap-bc91950905f66a0b7e618f69bf449bf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/index.html">Linear Regression</a></li><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/lm-reg-cls.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear models: regression and classification</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../SM4LS-book/">Statistical Methods for Life Sciences</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Probability Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_01intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to probability</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_02discrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Discrete random variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_exr1_discrv_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Discrete random variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_03contrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Continuous random variable</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_04sample.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Sampling and experimental design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/prob_exr2_contrv_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Continuous random variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-probability/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_01hypothesis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Introduction to hypothesis tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_02hypresamp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Hypothesis testing using resampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_exr1_hyporesampling_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Hypothesis tests, resampling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_03hypparm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Parametric tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_04multiple.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Multiple testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_exr2_hypoparam_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Hypothesis tests, parametric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_05interval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Point and interval estimates</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-inference/infe_exr3_interval_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Point and interval estimates</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Linear Regression</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-reg-cls.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear models: regression and classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-coeff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Common cases</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-intro-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (introduction to linear models)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-diagn-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (model diagnostics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-lasso-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (regularization)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-lm/lm-coeff-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (regression coefficients)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Principal Component Analysis</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Clustering</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-clustering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-clustering/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Clustering: art of finding groups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-clustering/exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Generalized Linear Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-glm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Introduction to GLM</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-glm/304-linear-GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Generalized linear models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Mixed Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/environment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environment</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/lm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simple linear regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/lmm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mixed models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-mixedmodels/math.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mixed models (mathematical details)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Survival</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/lab.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">R examples</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-book/../SM4LS-survival/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#linear-models-in-ml-context" id="toc-linear-models-in-ml-context" class="nav-link active" data-scroll-target="#linear-models-in-ml-context"><span class="header-section-number">11.1</span> Linear models in ML context</a></li>
+  <li><a href="#evaluating-regression" id="toc-evaluating-regression" class="nav-link" data-scroll-target="#evaluating-regression"><span class="header-section-number">11.2</span> Evaluating regression</a>
+  <ul class="collapse">
+  <li><a href="#model-fit" id="toc-model-fit" class="nav-link" data-scroll-target="#model-fit">model fit</a></li>
+  <li><a href="#predictions" id="toc-predictions" class="nav-link" data-scroll-target="#predictions">predictions</a></li>
+  </ul></li>
+  <li><a href="#feature-selection" id="toc-feature-selection" class="nav-link" data-scroll-target="#feature-selection"><span class="header-section-number">11.3</span> Feature selection</a></li>
+  <li><a href="#regularized-regression" id="toc-regularized-regression" class="nav-link" data-scroll-target="#regularized-regression"><span class="header-section-number">11.4</span> Regularized regression</a></li>
+  <li><a href="#bias-variance-trade-off" id="toc-bias-variance-trade-off" class="nav-link" data-scroll-target="#bias-variance-trade-off"><span class="header-section-number">11.5</span> Bias-variance trade-off</a></li>
+  <li><a href="#ridge-lasso-and-elastic-nets" id="toc-ridge-lasso-and-elastic-nets" class="nav-link" data-scroll-target="#ridge-lasso-and-elastic-nets"><span class="header-section-number">11.6</span> Ridge, Lasso and Elastic Nets</a></li>
+  <li><a href="#generalized-linear-models" id="toc-generalized-linear-models" class="nav-link" data-scroll-target="#generalized-linear-models"><span class="header-section-number">11.7</span> Generalized linear models</a></li>
+  <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression"><span class="header-section-number">11.8</span> Logistic regression</a>
+  <ul class="collapse">
+  <li><a href="#hypothesis-testing" id="toc-hypothesis-testing" class="nav-link" data-scroll-target="#hypothesis-testing">Hypothesis testing</a></li>
+  <li><a href="#deviance" id="toc-deviance" class="nav-link" data-scroll-target="#deviance">Deviance</a></li>
+  <li><a href="#odds-ratios" id="toc-odds-ratios" class="nav-link" data-scroll-target="#odds-ratios">Odds ratios</a></li>
+  <li><a href="#other-covariates" id="toc-other-covariates" class="nav-link" data-scroll-target="#other-covariates">Other covariates</a></li>
+  </ul></li>
+  <li><a href="#poisson-regression" id="toc-poisson-regression" class="nav-link" data-scroll-target="#poisson-regression"><span class="header-section-number">11.9</span> Poisson regression</a></li>
+  <li><a href="#logistic-lasso" id="toc-logistic-lasso" class="nav-link" data-scroll-target="#logistic-lasso"><span class="header-section-number">11.10</span> Logistic Lasso</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/index.html">Linear Regression</a></li><li class="breadcrumb-item"><a href="../SM4LS-book/../SM4LS-lm/lm-reg-cls.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear models: regression and classification</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear models: regression and classification</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="linear-models-in-ml-context" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="linear-models-in-ml-context"><span class="header-section-number">11.1</span> Linear models in ML context</h2>
+<p>We can think of linear models in machine learning context, as linear models are often used for both building both regression and classification machine learning models and used for predictions It is often the case that some or many of the variables used in a multiple regression model are in fact not associated with the response, and there are <strong>feature selection</strong> approaches that enable us to exclude <strong>irrelevant</strong> variables and as a consequence improve prediction results.</p>
+<ul>
+<li>Indeed, it is known that including irrelevant variables leads to unnecessary complexity in the resulting model, and often worse prediction results.</li>
+<li>There are few approaches to perform <strong>feature selection</strong> or <strong>variable selection</strong>, that is for excluding irrelevant variables from a multiple regression model.</li>
+<li>Here, we can group the feature selection methods by differences classes such as: subset selection, <strong>Shrinkage methods</strong> and dimension reduction. Another classification is by filter methods, wrapper methods and embedded methods.</li>
+<li>Before we can divide more into these methods, we need to discuss how to evaluate regression results. We will need a way of comparing the models and evaluating the predictions outcomes.</li>
+</ul>
+</section>
+<section id="evaluating-regression" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="evaluating-regression"><span class="header-section-number">11.2</span> Evaluating regression</h2>
+<ul>
+<li>Regression models can be evaluated by assessing a model fit, something that we have seen previously with adjusted <span class="math inline">\(R^2\)</span>. Other metrics than can also be expressed in terms of RSS include <strong>Akaike information criterion (AIC)</strong> and <strong>Bayesian information criterion (BIC)</strong>.</li>
+<li>Alternatively, by using data splitting strategies such as validation and cross-validation we can directly evaluate the prediction error. Here, we use metrics such as <strong>Mean Squared Error (MSE)</strong>, <strong>Root Mean Squared Error (RMSE)</strong>, <strong>Mean Absolute Error (MAE)</strong> or <strong>Mean Absolute Percentage Error (MAPE)</strong>-</li>
+</ul>
+<section id="model-fit" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="model-fit">model fit</h3>
+<p><strong>Adjusted R-squared</strong> (as seen before) <span class="math display">\[
+R_{adj}^2=1-\frac{RSS}{TSS}\frac{n-1}{n-p-1} = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}\frac{n-1}{n-p-1}
+\]</span></p>
+<p><strong>AIC</strong> and <strong>BIC</strong></p>
+<p>AIC is grounded in information theory and BIC is derived from a Bayesian point of view. Both are formally defined in likelihood functions. For regression models they can be expressed in terms of RSS because the likelihood of a model in the context of normal errors is directly related to the RSS.</p>
+<p><span class="math display">\[\text{AIC} = n \ln(\text{RSS}/n) + 2p\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> is the number of observations.</li>
+<li><span class="math inline">\(\text{RSS}\)</span> is the residual sum of squares.</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters in the model (including the intercept).</li>
+</ul>
+<p><span class="math display">\[\text{BIC} = n \ln(\text{RSS}/n) + p \ln(n)\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> is the number of observations.</li>
+<li><span class="math inline">\(\text{RSS}\)</span> is the residual sum of squares.</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters in the model.</li>
+</ul>
+<p>Both criteria, AIC and BIC, introduce penalties for the number of parameters to avoid overfitting. BIC introduces a stronger penalty based on the sample size, making it more conservative than AIC. When comparing models using AIC or BIC that incorporate RSS, the objective remains the same: select the model that provides the best balance between goodness of fit and model simplicity. The model with the lower AIC or BIC value is generally preferred, as it indicates either a more parsimonious model or a model that better fits the data (or both).</p>
+</section>
+<section id="predictions" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="predictions">predictions</h3>
+<ul>
+<li><strong>Mean Squared Error (MSE)</strong>: average squared difference between the predicted values and the actual values. <span class="math display">\[MSE = \frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2\]</span></li>
+<li><strong>Root Mean Squared Error (RMSE)</strong>: square root of the MSE <span class="math display">\[RMSE = \sqrt{\frac{1}{N}\sum_{i=1}^{N}({y_i}-\hat{y}_i)^2}\]</span></li>
+<li><strong>MAE</strong>: average absolute difference between the predicted values and the actual values <span class="math display">\[MAE = \frac{1}{N}\sum_{i=1}^{N}|{y_i}-\hat{y}_i|\]</span></li>
+<li><strong>Mean Absolute Percentage Error (MAPE)</strong>: average percentage difference between the predicted values and the actual values.</li>
+</ul>
+<p>The smaller the difference between the predicted values vs.&nbsp;the validation or cross-validation predicted values, the better the model.</p>
+</section>
+</section>
+<section id="feature-selection" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="feature-selection"><span class="header-section-number">11.3</span> Feature selection</h2>
+<p>Feature selection is the process of selecting the most relevant and informative subset of features from a larger set of potential features in order to improve the performance and interpretability of a machine learning model. There are generally three main groups of feature selection methods:</p>
+<ul>
+<li><strong>Filter methods</strong> use statistical measures to score the features and select the most relevant ones, e.g.&nbsp;based on correlation coefficient or <span class="math inline">\(\chi^2\)</span> test. They tend to be computationally efficient but may overlook complex interactions between features and can be sensitive to the choice of metric used to evaluate the feature importance.</li>
+<li><strong>Wrapper methods</strong> use a machine learning algorithm to evaluate the performance of different subsets of features, e.g.&nbsp;forward/backward feature selection. They tend to be computationally heavy.</li>
+<li><strong>Embedded methods</strong> incorporate feature selection as part of the machine learning algorithm itself, e.g.&nbsp;<strong>regularized regression</strong> or <strong>Random Forest</strong>. These methods are computationally efficient and can be more accurate than filter methods.</li>
+</ul>
+</section>
+<section id="regularized-regression" class="level2 page-columns page-full" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="regularized-regression"><span class="header-section-number">11.4</span> Regularized regression</h2>
+<p>Regularized regression expands on the regression by adding a penalty term or terms to shrink the model coefficients of less important features towards zero. This can help to prevent overfitting and improve the accuracy of the predictive model. Depending on the penalty added, we talk about <strong>Ridge</strong>, <strong>Lasso</strong> or <strong>Elastic Nets</strong> regression.</p>
+<p>Previously when talking about regression, we saw that the least squares fitting procedure estimates model coefficients <span class="math inline">\(\beta_0, \beta_1, \cdots, \beta_p\)</span> using the values that minimize the residual sum of squares: <span id="eq-lm"><span class="math display">\[RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 \tag{11.1}\]</span></span></p>
+<p>In <strong>regularized regression</strong> the coefficients are estimated by minimizing slightly different quantity. In <strong>Ridge regression</strong> we estimate <span class="math inline">\(\hat\beta^{L}\)</span> that minimizes <span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \tag{11.2}\]</span></span></p>
+<p>where:</p>
+<p><span class="math inline">\(\lambda \ge 0\)</span> is a <strong>tuning parameter</strong> to be determined separately e.g.&nbsp;via cross-validation</p>
+<p><a href="#eq-ridge" class="quarto-xref">Equation&nbsp;<span>11.2</span></a> trades two different criteria:</p>
+<ul>
+<li>as with least squares, lasso regression seeks coefficient estimates that fit the data well, by making RSS small</li>
+<li>however, the second term <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span>, called <strong>shrinkage penalty</strong> is small when <span class="math inline">\(\beta_1, \cdots, \beta_p\)</span> are close to zero, so it has the effect of <strong>shrinking</strong> the estimates of <span class="math inline">\(\beta_j\)</span> towards zero.</li>
+<li>the tuning parameter <span class="math inline">\(\lambda\)</span> controls the relative impact of these two terms on the regression coefficient estimates
+<ul>
+<li>when <span class="math inline">\(\lambda = 0\)</span>, the penalty term has no effect</li>
+<li>as <span class="math inline">\(\lambda \rightarrow \infty\)</span> the impact of the shrinkage penalty grows and the ridge regression coefficient estimates approach zero</li>
+</ul></li>
+</ul>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="lm-reg-cls_files/figure-html/ridge-run-1.png" class="img-fluid figure-img" width="336"></p>
+<figcaption class="margin-caption">Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bias-variance-trade-off" class="level2 page-columns page-full" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="bias-variance-trade-off"><span class="header-section-number">11.5</span> Bias-variance trade-off</h2>
+<p>Ridge regression’s advantages over least squares estimates stems from <strong>bias-variance trade-off</strong>, another fundamental concept in machine learning.</p>
+<ul>
+<li>The bias-variance trade-off describes the relationship between model complexity, prediction accuracy, and the ability of the model to generalize to new data.</li>
+<li><strong>Bias</strong> refers to the error that is introduced by approximating a real-life problem with a simplified model. A high bias model is one that makes overly simplistic assumptions about the underlying data, resulting in <em>under-fitting</em> and poor accuracy.</li>
+<li><strong>Variance</strong> refers to the sensitivity of a model to fluctuations in the training data. A high variance model is one that is overly complex and captures noise in the training data, resulting in <em>overfitting</em> and poor generalization to new data.</li>
+<li>The goal of machine learning is to find a model with <strong>the right balance between bias and variance</strong>, which can generalize well to new data.</li>
+<li>The bias-variance trade-off can be visualized in terms of MSE, means squared error of the model. The <strong>MSE</strong> can be decomposed into: <span class="math display">\[MSE(\hat\beta) := bias^2(\hat\beta) + Var(\hat\beta) + noise\]</span></li>
+<li>The irreducible error is the inherent noise in the data that cannot be reduced by any model, while the bias and variance terms can be reduced by choosing an appropriate model complexity. The trade-off lies in finding the right balance between bias and variance that minimizes the total MSE.</li>
+<li>In practice, this trade-off can be addressed by <strong>regularizing the model</strong>, selecting an appropriate model complexity, or by using ensemble methods that combine multiple models to reduce the variance (e.g.&nbsp;Random Forest). Ultimately, the goal is to find a model that is both accurate and generalizing.</li>
+</ul>
+<div class="cell page-columns page-full" data-layout-align="center">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-bias-variance" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-fig-align="center" data-cap-location="margin">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/bias-variance.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.1: Squared bias, variance and test mean squared error for ridge regression predictions on a simulated data as a function of lambda demonstrating bias-variance trade-off. Based on Gareth James et. al, A Introduction to statistical learning
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ridge-lasso-and-elastic-nets" class="level2 page-columns page-full" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="ridge-lasso-and-elastic-nets"><span class="header-section-number">11.6</span> Ridge, Lasso and Elastic Nets</h2>
+<p>In <strong>Ridge</strong> regression we minimize: <span id="eq-ridge2"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \tag{11.3}\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span> is also known as <strong>L2</strong> regularization element or <span class="math inline">\(l_2\)</span> penalty</p>
+<p>In <strong>Lasso</strong> regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: <span id="eq-lasso"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j| \tag{11.4}\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}|\beta_j|\)</span> is also known as <strong>L1</strong> regularization element or <span class="math inline">\(l_1\)</span> penalty</p>
+<p>Lasso regression was introduced to help model interpretation. With Ridge regression we improve model performance but unless <span class="math inline">\(\lambda = \infty\)</span> all beta coefficients are non-zero, hence all variables remain in the model. By using <span class="math inline">\(l_1\)</span> penalty we can force some of the coefficients estimates to be exactly equal to 0, hence perform <strong>variable selection</strong></p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="lm-reg-cls_files/figure-html/lasso-run-1.png" class="img-fluid figure-img" width="336"></p>
+<figcaption class="margin-caption">Example of Lasso regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero and are also set to zero for larger lambda values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Elastic Net</strong> use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. <span id="eq-elastic-net"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2  \tag{11.5}\]</span></span></p>
+<p>In the <code>glmnet</code> library we can fit Elastic Net by setting parameters <span class="math inline">\(\alpha\)</span>. Actually, under the hood <code>glmnet</code> minimizes a cost function: <span class="math display">\[\sum_{i_=1}^{n}(y_i-\hat y_i)^2 + \lambda \left ( (1-\alpha) \sum_{j=1}^{p}\beta_j^2 + \alpha \sum_{j=1}^{p}|\beta_j|\right )\]</span> where:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> is the number of samples</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters</li>
+<li><span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\alpha\)</span> hyperparameters control the shrinkage</li>
+</ul>
+<p>When <span class="math inline">\(\alpha = 0\)</span> this corresponds to Ridge regression and when <span class="math inline">\(\alpha=1\)</span> this corresponds to Lasso regression. A value of <span class="math inline">\(0 &lt; \alpha &lt; 1\)</span> gives us <strong>Elastic Net regularization</strong>, combining both L1 and L2 regularization terms.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="lm-reg-cls_files/figure-html/elastic-net-1.png" class="img-fluid figure-img" width="336"></p>
+<figcaption class="margin-caption">Example of Elastic Net regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values and alpha value 0.1, showing the changes of model coefficients as a function of lambda being somewhere between those for Ridge and Lasso regression.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="generalized-linear-models" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="generalized-linear-models"><span class="header-section-number">11.7</span> Generalized linear models</h2>
+<ul>
+<li>GLMs extend linear model framework to outcome variables that do not follow normal distribution.</li>
+<li>They are most frequently used to model binary, categorical or count data.</li>
+<li>For instance, fitting a regression line to binary data yields predicted values that could take any value, including <span class="math inline">\(&lt;0\)</span>,</li>
+<li>not to mention that it is hard to argue that the values of 0 and 1s are normally distributed.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-log-example" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-log-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lm-reg-cls_files/figure-html/fig-log-example-1.png" class="img-fluid figure-img" width="480">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-log-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.2: Example of fitting linear model to binary data, to model obesity status coded as 1 (Yes) and 0 (No) with waist variable. Linear model does not fit the data well in this case and the predicted values can take any value, not only 0 and 1.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="logistic-regression" class="level2 page-columns page-full" data-number="11.8">
+<h2 data-number="11.8" class="anchored" data-anchor-id="logistic-regression"><span class="header-section-number">11.8</span> Logistic regression</h2>
+<p>Let’s look again at the binary <code>obesity</code> status data and try to fit logistic regression model using <code>waist</code> as explanatory variable instead of fitting inappropriate here simple linear model.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-obesity" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-cap-location="margin">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-obesity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lm-reg-cls_files/figure-html/fig-obesity-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-obesity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.3: Obesity status data: jittered plot (left) and box plot of waist stratified by obesity status for the 130 study participants.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Since the response variable takes only two values (Yes/No) we use GLM model</li>
+<li>to fit <strong>logistic regression</strong> model for the <strong>probability of suffering from obesity (Yes).</strong></li>
+<li>We let <span class="math inline">\(p_i=P(Y_i=1)\)</span> denote the probability of suffering from obesity (success)</li>
+<li>and we assume that the response follows binomial distribution: <span class="math inline">\(Y_i \sim Bi(1, p_i)\)</span> distribution.</li>
+<li>We can then write the regression model now as: <span class="math display">\[log(\frac{p_i}{1-p_i})=\beta_0 + \beta_1x_i\]</span> and given the properties of logarithms this is also equivalent to: <span class="math display">\[p_i = \frac{exp(\beta_0 + \beta_1x_i)}{1 + exp(\beta_0 + \beta_1x_i)}\]</span></li>
+</ul>
+<p><br></p>
+<ul>
+<li>In essence, the GLM generalizes linear regression by allowing the linear model to be related to the response variable via a <strong>link function</strong>.</li>
+<li>Here, the <strong>link function</strong> <span class="math inline">\(log(\frac{p_i}{1-p_i})\)</span> provides the link between the binomial distribution of <span class="math inline">\(Y_i\)</span> (suffering from obesity) and the linear predictor (waist)</li>
+<li>Thus the <strong>GLM model</strong> can be written as <span class="math display">\[g(\mu_i)=\mathbf{X}\boldsymbol\beta\]</span> where <code>g()</code> is the link function.</li>
+</ul>
+<p><br></p>
+<p>In R we can use <code>glm()</code> function to fit GLM models:</p>
+<div class="cell">
+<pre><code>## 
+## Call:
+## glm(formula = obese ~ waist, family = binomial(link = "logit"), 
+##     data = data_diabetes)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -17.357      2.973  -5.837 5.30e-09 ***
+## waist         17.174      2.974   5.775 7.71e-09 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 178.71  on 129  degrees of freedom
+## Residual deviance: 102.79  on 128  degrees of freedom
+## AIC: 106.79
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="lm-reg-cls_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="336"></p>
+<figcaption>Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</figcaption>
+</figure>
+</div>
+</div>
+<pre><code>##          3          7          9         11         16         21 
+## 0.98231495 0.93752915 0.07405337 0.41460606 0.22839680 0.72385967</code></pre>
+</div>
+<ul>
+<li>The regression equation for the fitted model is: <span class="math display">\[log(\frac{\hat{p_i}}{1-\hat{p_i}})=-17.357  +  17.174\cdot x_i\]</span></li>
+<li>We see from the output that <span class="math inline">\(\hat{\beta_0} = -17.357\)</span> and <span class="math inline">\(\hat{\beta_1} = 17.174\)</span>.</li>
+<li>These estimates are arrived at via <strong>maximum likelihood estimation</strong>, something that is out of scope here.</li>
+</ul>
+<section id="hypothesis-testing" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="hypothesis-testing">Hypothesis testing</h3>
+<ul>
+<li>Similarly to linear models, we can determine whether each variable is related to the outcome of interest by testing the null hypothesis that the relevant logistic regression coefficient is zero.</li>
+<li>This can be performed by <strong>Wald test</strong> which is equals to estimated logistic regression coefficient divided by its standard error and follows the Standard Normal distribution: <span class="math display">\[W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)\]</span>.</li>
+<li>Alternatively, its square approximates the Chi-squared distribution with 1 degree of freedom: <span class="math display">\[W^2 = \frac{(\hat\beta-\beta)^2}{\hat {var}(\hat\beta)} \sim \chi_1^2\]</span>.</li>
+</ul>
+<p>In our example, we can check whether <code>waist</code> is associated with <code>obesity status</code> by testing null hypothesis: <span class="math inline">\(H_0:\beta_1=0\)</span>. We calculate Wald statistics as <span class="math inline">\(W^2 = \frac{(\hat\beta-0)}{\hat {e.s.e}(\hat\beta)} = \frac{17.174}{2.974} = 5.774714\)</span> and we can find the corresponding p-value using standard normal distribution:</p>
+<div class="cell">
+<pre><code>## [1] 7.70839e-09</code></pre>
+</div>
+<p>which confirms the summary output shown previously above and shows that there is enough evidence to reject the null hypothesis at 5% significance level <span class="math inline">\(p-value &lt;&lt; 0.05\)</span> and conclude that there is a significant association between <code>waist</code> and <code>obesity status</code>.</p>
+</section>
+<section id="deviance" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="deviance">Deviance</h3>
+<ul>
+<li>Deviance is the number that measures the goodness of fit of a logistic regression model.</li>
+<li>We use saturated and residual deviance to assess model, instead of <span class="math inline">\(R^2\)</span> or <span class="math inline">\(R^2(adj)\)</span>.</li>
+<li>We can also use deviance to check the association between explanatory variable and the outcome, an alternative and slightly more powerful test than Wald test (although these two test give similar results when sample size is large).</li>
+<li>In the <strong>likelihood ratio test</strong> the test statistics is the <strong>deviance</strong> for the full model minus the deviance for the full model excluding the relevant explanatory variable. This test statistics follow a Chi-squared distribution with 1 degree of freedom.</li>
+</ul>
+<p><br></p>
+<p>For instance, given our model we have null deviance of 274.4 and residual deviance of 268.7. The difference 5.7 is larger than than 95th percentile of <span class="math inline">\(\chi^2(129-128)\)</span> = 3.841459, where 129 is degrees of freedom for null model and 128 is degrees of freedom for null model excluding the <code>waist</code> explanatory variable.</p>
+<div class="cell">
+<pre><code>## [1] 3.841459</code></pre>
+</div>
+<ul>
+<li>Again <span class="math inline">\(5.7 &gt; 3.84\)</span> and we can conclude that <code>waist</code> is a significant term in the model.</li>
+</ul>
+</section>
+<section id="odds-ratios" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="odds-ratios">Odds ratios</h3>
+<ul>
+<li>In logistic regression we often interpret the model coefficients by taking <span class="math inline">\(e^{\hat{\beta}}\)</span></li>
+<li>and we talk about <strong>odd ratios</strong>.</li>
+<li>For instance we can say, given our above model, <span class="math inline">\(e^{17.174} = 28745736\)</span> that for each unit increase in <code>waist</code> the odds of suffering from obesity get multiplied by 28745736.</li>
+</ul>
+<p>These odds ratios are very high as here we are modeling obesity status with waist measurements, and increasing one unit in waist would mean adding up additional 1m to waist measurements. Typically:</p>
+<ul>
+<li>Odd ratios of 1.0 (or close to 1.0) indicates that exposure is not associated with the outcome.</li>
+<li>Odds ratios <span class="math inline">\(&gt; 1.0\)</span> indicates that the odds of exposure among cases are greater than the odds of exposure among controls.</li>
+<li>Odds raitos <span class="math inline">\(&lt; 1.0\)</span> indicates that the odds of exposure among cases are lower than the odds of exposure among controls.</li>
+<li>The magnitude of the odds ratio is called the <strong>strength of the association</strong>. The further away an odds ratio is from 1.0, the more likely it is that the relationship between the exposure and the disease is causal. For example, an odds ratio of 1.2 is above 1.0, but is not a strong association. An odds ratio of 10 suggests a stronger association.</li>
+</ul>
+</section>
+<section id="other-covariates" class="level3 unnumbered page-columns page-full">
+<h3 class="unnumbered anchored" data-anchor-id="other-covariates">Other covariates</h3>
+<ul>
+<li>We can use the same logic as in multiple regression to expand by models by additional variables, numerical, binary or categorical.</li>
+<li>For instance, we can test whether there is a gender effect when suffering from obesity:</li>
+</ul>
+<div class="cell page-columns page-full">
+<pre data-cap-location="margin"><code>## 
+## Call:
+## glm(formula = obese ~ waist + gender, family = binomial(link = "logit"), 
+##     data = data_diabetes)
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -18.2756     3.1077  -5.881 4.08e-09 ***
+## waist         17.4401     3.0523   5.714 1.11e-08 ***
+## genderfemale   1.2335     0.5228   2.359   0.0183 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 178.708  on 129  degrees of freedom
+## Residual deviance:  96.877  on 127  degrees of freedom
+## AIC: 102.88
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="lm-reg-cls_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="336"></p>
+<figcaption class="margin-caption">Obesity status model with logistic regression given waist and gender exploratory variables. There is some seperation between the fitted lines for men and women and the model summary shows that there is enough evidence to reject a null hypothesis o no association between gender and obesity status.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="poisson-regression" class="level2" data-number="11.9">
+<h2 data-number="11.9" class="anchored" data-anchor-id="poisson-regression"><span class="header-section-number">11.9</span> Poisson regression</h2>
+<ul>
+<li>GLMs can be also applied to count data</li>
+<li>For instance to model hospital admissions due to respiratory disease or number of bird nests in a certain habitat.</li>
+<li>Here, we commonly assume that data follow the Poisson distribution <span class="math inline">\(Y_i \sim Pois(\mu_i)\)</span></li>
+<li>and the corresponding model is: <span class="math display">\[E(Y_i)=\mu_i = \eta_ie^{\mathbf{x_i}^T\boldsymbol\beta}\]</span> with a log link <span class="math inline">\(\ln\mu_i = \ln \eta_i + \mathbf{x_i}^T\boldsymbol\beta\)</span></li>
+<li>Hypothesis testing and assessing model fit follows the same logic as in logistic regression.</li>
+</ul>
+<div id="exm-poisson" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.1 (Number of cancer cases)</strong></span> Suppose we wish to model <span class="math inline">\(Y_i\)</span> the number of cancer cases in the i-th intermediate geographical location (IG) in Glasgow. We have collected data for 271 small regions with between 2500 and 6000 people living in them. Together with cancer occurrence with have the following data:</p>
+<ul>
+<li>Y_all: number of cases of all types of cancer in the IG in 2013</li>
+<li>E_all: expected number of cases of all types of cancer for the IG based on the population size and demographics of the IG in 2013</li>
+<li>pm10: air pollution</li>
+<li>smoke: percentage of people in an area that smoke</li>
+<li>ethnic: percentage of people who are non-white</li>
+<li>log.price: natural log of average house price</li>
+<li>easting and northing: co-ordinates of the central point of the IG divided by 10000</li>
+</ul>
+<p>We can model the <strong>rate of occurrence of cancer</strong> using the very same <code>glm</code> function:¨ - now we use <strong>poisson family distribution</strong> to model counts - and we will include an <strong>offset term</strong> to the model as we are modeling the rate of occurrence of the cancer that has to be adjusted by different number of people living in different regions.</p>
+</div>
+<div class="cell">
+<pre><code>##          IG Y_all     E_all pm10 smoke ethnic log.price  easting northing
+## 1 S02000260   133 106.17907 17.8  21.9   5.58  11.59910 26.16245 66.96574
+## 2 S02000261    38  62.43131 18.6  21.8   7.91  11.84940 26.29271 67.00278
+## 3 S02000262    97 120.00694 18.6  20.8   9.58  11.74106 26.21429 67.04280
+## 4 S02000263    80 109.10245 17.0  14.0  10.39  12.30138 25.45705 67.05938
+## 5 S02000264   181 149.77821 18.6  15.2   5.67  11.88449 26.12484 67.09280
+## 6 S02000265    77  82.31156 17.0  14.6   5.61  11.82004 25.37644 67.09826
+## 
+## Call:
+## glm(formula = Y_all ~ pm10 + smoke + ethnic + log.price + easting + 
+##     northing + offset(log(E_all)), family = poisson, data = cancer)
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -0.8592657  0.8029040  -1.070 0.284531    
+## pm10         0.0500269  0.0066724   7.498 6.50e-14 ***
+## smoke        0.0033516  0.0009463   3.542 0.000397 ***
+## ethnic      -0.0049388  0.0006354  -7.773 7.66e-15 ***
+## log.price   -0.1034461  0.0169943  -6.087 1.15e-09 ***
+## easting     -0.0331305  0.0103698  -3.195 0.001399 ** 
+## northing     0.0300213  0.0111013   2.704 0.006845 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 972.94  on 270  degrees of freedom
+## Residual deviance: 565.18  on 264  degrees of freedom
+## AIC: 2356.2
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<p><strong>Rate ratio</strong></p>
+<ul>
+<li>Similarly to logistic regression, it is common to look at the <span class="math inline">\(e^\beta\)</span>.</li>
+<li>For instance we are interested in the effect of air pollution on health, we could look at the pm10 coefficient.</li>
+<li>The ppm10 coefficient is positive, 0.0500269, indicating that cancer incidence rate increases with increased air pollution.</li>
+<li>The rate ratio allows us to quantify by how much, here by a factor of <span class="math inline">\(e^{0.0500269} = 1.05\)</span>.</li>
+</ul>
+</section>
+<section id="logistic-lasso" class="level2" data-number="11.10">
+<h2 data-number="11.10" class="anchored" data-anchor-id="logistic-lasso"><span class="header-section-number">11.10</span> Logistic Lasso</h2>
+<ul>
+<li>Logistic Lasso combines logistic regression with Lasso regularization to analyze binary outcome data while simultaneously performing variable selection and regularization.</li>
+<li>The equation for Logistic Lasso combines logistic regression with Lasso regularization. We estimate set of coefficients <span class="math inline">\(\hat \beta\)</span> that minimize the combined logistic loss function and the Lasso penalty:</li>
+</ul>
+<p><span class="math display">\[
+\left( \sum_{i=1}^n [y_i \log(p_i) + (1-y_i) \log(1-p_i)] \right) + \lambda \sum_{j=1}^p |\beta_j|
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(y_i\)</span> represents the binary outcome (0 or 1) for the ( i )-th observation.</li>
+<li><span class="math inline">\(p_i\)</span> is the predicted probability of <span class="math inline">\(y_i = 1\)</span> given by the logistic model <span class="math inline">\(p_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_{i1} + \cdots + \beta_p x_{ip})}}\)</span>.</li>
+<li><span class="math inline">\(\beta_0, \beta_1, \ldots, \beta_p\)</span> are the coefficients of the model, including the intercept <span class="math inline">\(\beta_0\)</span>.</li>
+<li><span class="math inline">\(x_{i1}, \ldots, x_{ip}\)</span> are the predictor variables for the <span class="math inline">\(i\)</span>-th observation.</li>
+<li><span class="math inline">\(\lambda\)</span> is the regularization parameter that controls the strength of the Lasso penalty <span class="math inline">\(\lambda \sum_{j=1}^p |\beta_j|\)</span>, which encourages sparsity in the coefficients <span class="math inline">\(\beta_j\)</span> by shrinking some of them to zero.</li>
+<li><span class="math inline">\(n\)</span> is the number of observations, and <span class="math inline">\(p\)</span> is the number of predictors.</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../SM4LS-book/../SM4LS-lm/lm-intro.html" class="pagination-link" aria-label="Introduction to linear models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../SM4LS-book/../SM4LS-lm/lm-coeff.html" class="pagination-link" aria-label="Common cases">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Common cases</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
