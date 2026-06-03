@@ -1,0 +1,157 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Exercises (regularization) {.unnumbered}
+
+**Data for exercises** are on Canvas under Files -> data_exercises --> linear-models
+
+::: {#exr-lasso}
+
+Follow and try to run the code below for fitting Lasso model to predict `BMI` given all the numerical variables in the `diabetes` data set. 
+
+:::
+
+## Load data & reformat data
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(glmnet)
+library(caret)
+library(splitTools)
+
+# import raw data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# preview data
+glimpse(input_diabetes)
+
+# run basic feature engieering of the data
+# exclude bp.2s, pb.2d due to large number of missing data 
+# create BMI based on weight and height
+# keep only numerical variables
+# keep samples for which none missing data is present (complete case analysis)
+
+# define numerical predictors
+pred_numeric <- c("chol", "stab.glu", "hdl", "ratio", "glyhb", "age", "height", "weight", "bp.1s", "bp.1d", "waist", "hip", "time.ppn")
+
+# and only numerical predictors
+conv_factor <- 703 # conversion factor to calculate BMI from inches and pounds BMI = weight (lb) / [height (in)]2 x 703
+data_diabetes <- input_diabetes %>%
+  mutate(BMI = weight / height^2 * 703, BMI = round(BMI, 2)) %>%
+  relocate(BMI, .after = id) %>%
+  dplyr::select(-bp.2s, -bp.2d) %>%
+  select(all_of(c("BMI", pred_numeric))) %>%
+  na.omit()
+  
+# preview reformatted data
+glimpse(data_diabetes)
+
+```
+
+## split data and scale
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# split data into train (70%) and test (30%)
+set.seed(123)
+inds <- partition(data_diabetes$BMI, p = c(train = 0.7, test = 0.3))
+
+data_train <- data_diabetes %>%
+  slice(inds$train)
+
+data_test <- data_diabetes %>%
+  slice(inds$test)
+
+# standardize variables
+# Note: the correct approach is to scale the non-test data (train) 
+# and then scale the test data using the parameters of the train data (e.g. mean or sd)
+# Here we will use preProcess() function from caret package to do that
+# We do not scale response (BMI)
+
+scaling <- preProcess(data_train[, pred_numeric], method = c("center", "scale"))
+data_train[, pred_numeric] <- predict(scaling, data_train[, pred_numeric])
+data_test[, pred_numeric] <- predict(scaling, data_test[, pred_numeric])
+
+# preview scaled data
+glimpse(data_train)
+glimpse(data_test)
+```
+
+## fit Lasso
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# define x (predictors) and y (response)
+x <- model.matrix(BMI ~.-1, data = data_train)
+y <- data_train$BMI
+
+# we use glmnet function to fit Lasso, alpha = 1 for Lasso, alpha = 0 for Ridge
+fit <- glmnet(x, y, alpha=1) 
+
+# by default this returns many Lasso models, fitted across a range of lambda values
+# and we can plot a whole path of models, to see how coefficients change as a function of lambda
+plot(fit, xvar="lambda", label=TRUE)
+
+```
+
+## train Lasso model 
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# To train Lasso model we can use k-fold cross validation
+# We can use cv.glmnet() function for that
+# Alternatively, we could try writing our code from scratch doing more data splits...
+cv <- cv.glmnet(x, y, alpha = 1)
+
+# plot MSE as a function of the lambda
+plot(cv)
+
+```
+
+## create final model
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# value of lambda for which MSE is smallest
+cv$lambda.min
+
+# fit the final model with the selected lambda value
+fit_final <- glmnet(x, y, alpha = 1, lambda =cv$lambda.min) 
+
+# check model coefficients. "." indicates 0
+coef(fit_final)
+
+```
+
+We can see that the largest coefficients (in terms of absolute values) are for `weight` and `height`, which of course it makes sense as we are predicting `BMI` that was defined based on weight and height in the first place. This is naturally for demonstration purposes only.
+
+## predict BMI
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# Let's see how the model performs on new unseen test data
+x_test <- model.matrix(BMI ~.-1, data_test)
+y_pred <- fit_final %>% predict(x_test) %>% as.vector()
+
+plot(data_test$BMI, y_pred, xlab = "BMI", ylab = "predicted BMI")
+cor(data_test$BMI, y_pred)
+```
+
+
+

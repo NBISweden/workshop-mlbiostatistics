@@ -1,0 +1,433 @@
+---
+title: "Introduction to Mixed Models"
+author: "Eva Freyhult"
+date: "2025-06-11"
+date-format: long
+institute: NBIS, SciLifeLab
+embed-resources: true
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default]
+editor: source
+---
+
+```{r setup}
+library(tidyverse)
+library(ggplot2)
+library(lme4)
+```
+
+
+# Simple linear regression
+
+:::{.notes}
+Remember the simple linear regression used to model the relationship between two variables.
+:::
+
+```{r figlm}
+sleep <- sleepstudy |> filter(Subject %in% c(333, 334, 369, 349, 372), Days>=2) |> mutate(Days=Days-2)
+sleep2 <- sleepstudy |> filter(Days>=2) |> mutate(Days=Days-2)
+sleep |> ggplot(aes(x=Days, y=Reaction)) + geom_point() + geom_smooth(method="lm", se=FALSE) + theme_bw() +
+  labs(title = "Reaction time vs Days of sleep deprivation",
+       x = "Days of sleep deprivation",
+       y = "Reaction time (ms)")
+```
+
+# Simple linear regression
+
+$$
+y_i = \beta_0 + \beta_1 x_i + \varepsilon_i
+$$
+
+-   $y_i$: outcome, dependent variable
+-   $x_i$: predictor, independent variable
+-   $\beta_0$: intercept
+-   $\beta_1$: slope
+-   $\varepsilon_i$: error term
+
+---
+
+## Assumptions
+
+:::{.incremental}
+-  **Linearity**: The relationship between x and y is linear
+-  **Independence**: Observations are independent
+:::
+
+## Assumptions
+
+-  **Linearity**: The relationship between x and y is linear
+-  **Independence**: Observations are independent
+-  **Homoscedasticity**: Constant variance of residuals
+
+```{r}
+#| fig-width: 8
+#| fig-height: 3
+library(ggplot2)
+library(dplyr)
+
+set.seed(42)
+
+# Homoscedastic data
+x1 <- rnorm(100)
+y1 <- 2 * x1 + rnorm(100, sd = 1)
+model1 <- lm(y1 ~ x1)
+resid_data1 <- data.frame(
+  fitted = fitted(model1),
+  residuals = resid(model1),
+  type = "Homoscedastic"
+)
+
+# Heteroscedastic data
+x2 <- rnorm(100)
+y2 <- 2 * x2 + rnorm(100, sd = abs(x2))
+model2 <- lm(y2 ~ x2)
+resid_data2 <- data.frame(
+  fitted = fitted(model2),
+  residuals = resid(model2),
+  type = "Heteroscedastic"
+)
+
+# Combine
+resid_data <- bind_rows(resid_data1, resid_data2)
+
+# Plot both
+ggplot(resid_data, aes(x = fitted, y = residuals)) +
+  geom_point(alpha = 0.7) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  facet_wrap(~type) +
+  labs(title = "Residuals vs Fitted") + theme_bw()
+
+```
+
+## Assumptions
+
+-  **Linearity**: The relationship between x and y is linear
+-  **Independence**: Observations are independent
+-  **Homoscedasticity**: Constant variance of residuals
+-  **Normality**: Residuals are normally distributed
+
+```{r lmnorm}
+#| fig-height: 3.5
+#| fig-width: 5
+#| layout-ncol: 2
+# QQ Plot for Normality
+resid_data_norm <- data.frame(residuals = resid(model1))
+ggplot(resid_data_norm, aes(x = residuals)) +
+  geom_histogram(bins=20, fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of residuals") + theme_bw()
+ggplot(resid_data_norm, aes(sample = residuals)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "QQ plot of residuals") + theme_bw()
+```
+
+## Example: Association between age and plasma concentration
+
+```{r simgene}
+simulate_gene_expression <- function(Nsubj = 4, n=10, Gslope = 2, slope=-4, Gint = 100, xm=30, xmsd=5, xsd=2, esd=2) {
+  xmean <- rnorm(Nsubj, mean = xm, sd = xmsd)
+  
+data.frame(subject= rep(as.character(1:Nsubj), each = n),
+           xmean = rep(xmean, each = n)) |>
+           mutate(xd = rnorm(Nsubj * n, mean = 0, sd = xsd), x=xmean+xd, y = Gint + Gslope * xmean + slope * xd + rnorm(Nsubj * n, sd = esd))
+  
+}
+set.seed(3431)
+df <- simulate_gene_expression(xmsd=10, Gslope=2, slope=-2, xsd=5, esd=8) |> rename(group=subject, age=x, conc=y)
+
+df |> ggplot(aes(x=age, y=conc)) + geom_point() + theme_bw()
+```
+
+## Example: Association between age and plasma concentration
+
+```{r figgeneprot}
+df |> ggplot(aes(x=age, y=conc)) + geom_point() + geom_smooth(method="lm", se=FALSE) + theme_bw()
+```
+
+
+## Example: Association between age and plasma concentration
+
+```{r m0, echo=TRUE}
+m0 <- lm(conc ~ age, data = df)
+summary(m0)
+```
+## Example: Association between age and plasma concentration
+
+Are the assumptions fulfilled?
+
+```{r figgeneprot0}
+df |> ggplot(aes(x=conc, y=age, color=group)) + geom_point() + theme_bw()
+```
+
+<!-- ## Example: Association between age and plasma concentration -->
+
+<!-- Are the assumptions fulfilled? -->
+
+<!-- ```{r figgeneprotgroup} -->
+<!-- df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + geom_smooth(method="lm", se=FALSE) + theme_bw() + theme(legend.position = "none") -->
+<!-- ``` -->
+
+## Example: Association between age and plasma concentration
+
+Add group as a variable.
+
+```{r m1, echo=TRUE}
+m1 <- lm(conc ~ age + group, data = df)
+summary(m1)
+```
+
+```{r}
+df |> ggplot(aes(x=conc, y=age, color=group)) + geom_point() + theme_bw()
+df$pred <- predict(m1)
+df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + geom_line(aes(y=pred)) + theme_bw() + theme(legend.position = "none")
+```
+
+
+# Linear mixed models
+
+:::{.notes}
+In our example there were many parameters to fit and what if there were even more batches/groups to consider? We can use linear mixed models to account for the grouping structure of the data.
+:::
+
+**Linear regression** assumes all observations are **independent**, this assumption is **violated** when observations are grouped.
+
+Ignoring the grouping structure can lead to:
+
+  - Misleading conclusions
+  - Incorrect standard errors
+  - Inflated type I error rates
+
+A linear mixed model accounts for the grouping structure by including **random effects**.
+
+
+## Grouping structures
+
+Grouped observations are very common in the life sciences;
+
+- **Repeated measures** Multiple measurements from the same subject.
+- **Longitudinal Studies** Measure of the same subject measures at multple time points.
+- **Nested Designs** Measures of mice within cages within labs.
+- **Multi-omics Studies** Omics data (genomics, transcriptomics, proteomics, etc.) from the same individual
+- **Experimental Designs** Technincal repeats (same sample). Measurements from different batches, labs, regions etc.
+
+:::{.notes}
+Repeated Measurements: Suppose you’re measuring a patient’s blood pressure over time. Measurements from the same patient will naturally be more similar to each other than those from different patients. A mixed-effects model handles this by modeling the variation between patients.
+
+Growth, chnage over time after treatment, etc.
+When tracking the growth of trees over time, measurements from the same tree will be more correlated than those from different trees. Here, a mixed-effects model can account for the individual tree’s growth patterns.
+
+Omics data (genomics, transcriptomics, proteomics, etc.) from the same individual will show correlations due to underlying biological pathways. A mixed-effects model can tease apart the effects of different omic layers while accounting for their relationships within a person.
+:::
+
+## Mixed effects models
+
+**Fixed effects**
+
+- Population level effects
+- Estimated explicitly
+
+**Random effects**
+
+- Account for variation between groups (subjects, batches, etc.)
+- Assumes there is a distribution of effect sizes across groups.
+- Group effects are not estimated individually, instead the variance is estimated
+
+::: {.notes}
+Linear regression focuses on fixed effects, which are the same for all observations.
+
+What if the observations come from different groups, e.g. cohorts or batches?
+
+A fixed effects model assumes that all observations are independent, any differences seen between groups is due to sampling error.
+
+
+Random effectts- Group effects are random samples from a population
+
+Mixed effects models combine fixed and random effects to account for both within-group and between-group variability.
+:::
+
+## Grouping structure
+
+The grouping structure can be cohorts, batches, subjects, schools, hospital, doctor, cage, lab etc.
+
+Should be determined from the study design and not inferred from the data.
+
+Note: The grouping is always categorical.
+
+
+## Model with fixed and random effects
+
+Once the grouping is decided, we can decide what effects are fixed and what effects are random.
+
+The effects can be; 
+
+* Intercept
+* Slope
+* Interaction
+
+
+## Model with fixed and random effects
+
+```{mermaid}
+%%| mermaid-format: png
+flowchart TD
+  Q1["Does the effect vary across groups?"] -->|No| A1["Model as Fixed Effect"]
+  Q1 -->|Yes| Q2["Do we want to estimate the effect for each group?"]
+  Q2 -->|Yes| A2["Model group as fixed effect,<br>i.e include group as covariate"]
+  Q2 -->|No| Q3["Are there many groups?"]
+  Q3 -->|Yes| A3["Use Random Effects"]
+  Q3 -->|No| A4["Random Effects may be unstable,<br>consider Fixed Effects"]
+```
+
+## Example: Concentration and age
+
+Model the association between plasma concentration and age.
+
+The grouping structure here could be e.g. different clinics.
+
+```{r figgeneprotgroup2}
+df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw() + theme(legend.position = "none")
+```
+::: {.notes}
+Clinics may differ in:
+
+- Sampling methods
+- Storage procedures
+- Measurement equipment
+:::
+
+## Model as fixed or random effect
+
+We believe that;
+
+- the effect of age on concentration is the same across clinics, hence **fixed effect**
+- the intercept (baseline concentration) varies between clinics
+
+```{r figgeneprotgroup3}
+df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw() + theme(legend.position = "none")
+```
+
+## Option for intercept
+
+1. **Include group as a fixed effect** to explicitly estimate each group's baseline. This consumes more degrees of freedom, but would allow us to compare clinics.
+2. Model **intercept as a random effect** across groups. Estimate variance over groups, but not the intercept for each group. This is more parsimonious and allows us to focus on the overall effect of age without estimating each clinic's baseline concentration.
+
+## Model with random intercept
+  
+  $$y_{ij} = \beta_0 + \beta_1 x_{ij} + b_{0i} + \varepsilon_{ij}$$
+  
+- $y_{ij}$: outcome, dependent variable (concentration)
+- $\beta_0, \beta_1$: fixed effects (intercept and slope)
+- $b_{0i}$: random intercept per group (for group $i$)
+- $b_{0i} \sim N(0, \sigma_{b_0})$, where $\sigma_{b_0}$ is the standard deviation of the random intercept
+- $\varepsilon_{ij}$: residual error
+
+## Model with random intercept
+
+```{r figgeneprotgroup4}
+library(lme4)
+
+mm <- lmer(conc ~ age + (1 | group), data = df)
+#Show the predicted lines
+df$pred <- predict(mm)
+## With random slope
+mm2 <- lmer(conc ~ age + (1 + age | group), data = df)
+#Show the predicted lines
+df$pred2 <- predict(mm2)
+
+pl <- df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw() + theme(legend.position = "none")
+pl + geom_line(aes(y=pred)) + labs(title = "Predicted concentration by age and group")
+```
+
+
+## Mixed model in R
+
+```{r lmer0, echo=TRUE, eval=FALSE}
+library(lme4)
+
+mm <- lmer(conc ~ age + (1 | group), data = df)
+```
+
+age: Fixed effect
+
+(1 | group): Random intercept for group
+
+## Mixed model in R
+
+```{r lmer, echo=TRUE}
+library(lme4)
+
+mm <- lmer(conc ~ age + (1 | group), data = df)
+summary(mm)
+```
+
+:::{.notes}
+Components
+  
+- **Fixed Effects**: overall effect of time
+- **Random Effects**: variation in intercepts across subjects
+- **Residual**: unexplained variability
+
+Variance Components and 
+
+```{r varcomp, echo=TRUE}
+var_components <- as.data.frame(VarCorr(mm))
+icc <- var_components$vcov[1] / sum(var_components$vcov)
+icc
+```
+
+ICC = proportion of variance due to grouping structure
+:::
+
+## Random slope
+
+If you believe that the slope actually varies between groups, include random slope for age in addition to random intercept.
+
+```{r}
+pl + geom_line(aes(y=pred2)) + labs(title = "Predicted concentration by age and group")
+```
+
+## Model with random slope
+
+  $$y_{ij} = \beta_0 + \beta_1 x_{ij} + b_{0i} + b_{1i} x_{ij} + \varepsilon_{ij} = \beta_0 + b_{0i} + (\beta_1 + b_{1i}) x_{ij} + \varepsilon_{ij}$$
+  
+  - $y_{ij}$: outcome, dependent variable (concentration)
+- $\beta_0, \beta_1$: fixed effects (intercept and slope)
+- $b_{0i}$: random intercept per group (for group $i$)
+- $b_{0i} \sim N(0, \sigma_{b_0})$, where $\sigma_{b_0}$ is the standard deviation of the random intercept
+- $b_{1i} \sim N(0, \sigma_{b_1})$, where $\sigma_{b_1}$ is the standard deviation of the random slope
+- $\varepsilon_{ij}$: residual error
+
+## Random slope in R
+
+```{r rslope, echo=TRUE}
+mm2 <- lmer(conc ~ age + (1 + age | group), data = df)
+summary(mm2)
+```
+
+```{r eval=FALSE, echo=FALSE}
+sleepstudy |> ggplot(aes(x=Days, y=Reaction, color=Subject)) + geom_point() + geom_line() + theme_bw() +
+  labs(title = "Reaction time vs Days of sleep deprivation",
+       x = "Days of sleep deprivation",
+       y = "Reaction time (ms)") + theme_bw() + theme(legend.position = "none")
+mm2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
+summary(mm2)
+```
+
+## Predicting random effects {.smaller}
+
+Fixed effects can be computed using the `fixef()` function.
+
+```{r fixef, echo=TRUE}
+fixef(mm)
+```
+
+The random effects can be predicted using the `ranef()` function.
+
+```{r ranef, echo=TRUE}
+ranef(mm)
+```
+
+The overall mean is given by the fixed effects, and the random effects are the deviations from this mean for each group.
+
