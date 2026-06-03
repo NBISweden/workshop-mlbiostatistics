@@ -31,10 +31,10 @@ The 2026 Canvas course is here: [https://uppsala.instructure.com/courses/119661]
 - Mixed-effects models for repeated or hierarchical data,
 - Survival analysis and time-to-event data
 
-Course material can be found [here](materials.md).
+Course material can be found [here](docs/SM4LS-book/index.html) or [here](materials.md).
 
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Generic schedule
-A typical schedule is under [Schedule tab](schedule.md). Times and sessions may vary slightly from one course event to another.
+A typical schedule is under [Schedule tab](SM4LSschedule.md). Times and sessions may vary slightly from one course event to another.
 
 
 <br/>
