@@ -10,6 +10,7 @@ title:  'Schedule'
 [Pre-course: mathematical foundations](session-precourse-math/docs/index.html)
 
 <br/>
+##### Monday
 
 **09:00 - 10:00** Welcome
 
