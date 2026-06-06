@@ -18,20 +18,21 @@
 - Fill in SciLifeLab training announcement form
 - Once event is life
 - Advertise
-  - email NBIS training
+  - SciLifeLab training catalogue / instance
+  - email NBIS training: education@nbis.se (once the SciLifeLab is approved)
   - SciLifeLab screens (Solna & Uppsala, Lund)
   - LinkedIn NBIS
   - Stockholm BMC screens
   - SciLifeLab Training slack channel
   - Email people from the "register your interest" form, once the announcement is up
   - Internal network emails
+  - NBIS coordinators: site-coordinators@nbis.se
 
 ### Misc
 
 - prepare feedback survey
 - arrange internet access (guest accounts)
 - door sign
-- if course is online: prepare and test Zulip / Slack channel
 
 ## finalize participant list
 
@@ -58,7 +59,7 @@
 
 Email:
 
-- welcome & safte travels
+- welcome & safe travels
 - phone number to get through the doors
 
 ## DURING
@@ -72,7 +73,3 @@ Email:
 - follow-up the feedback survey
 - collect all information in the designated Google Drive course folder
 - send attendance list to admin (jessica.lindberg@icm.uu.se)
-
-## prevoius ideas (not implemnted)
-
-- pre-course survey incl. e.g. preferences for parallel sessions (.markdown, tidyverse, advanced plots), statistical methods, previous NBIS courses, statistical methods experience (never implemented, probably a bad idea)
