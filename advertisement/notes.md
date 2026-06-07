@@ -1,21 +1,34 @@
-# Advertisment
+# Advertisement
+
+Official channels
+
+- Add course instance to SciLifeLab training portal
+- Email education@nbis.se to add course to NBIS channels
+- Advertise on SciLifeLab screens
+- NBIS LinkedIn
+- SciLifeLab training channel
+
+Additional
+
+- Solna BMC Biomedicum screens
+- Email students from register your interest list
+- 
+
 
 ## SciLifeLab training hub announcement
 
-Email .docx template to:
-
-- traininghub@scilifelab.se
-- education@nbis.se
+- Create instances in the SciLifeLab training portal
+- Email: education@nbis.se for adding course to NBIS calendar etc.
 
 ## SciLifeLab screens
 
-Email power point slides to:
-
-- maria.backstrom@scilifelab.uu.se
+- use template
+- Solna / Uppsala: maria.backstrom@scilifelab.uu.se
+- Lund: 
 
 ## Text to circulate in emails
 
-Applications are open for NBIS courses "Introduction to Biostatistics and Machine Learning" and "Machine Learning for Life Sciences". These national courses are available to PhD students, researchers, university staff, and professionals from the life science industry in Sweden who analyze research data. Read more at https://nbisweden.github.io/ML4Life/
+Applications are open for NBIS courses "Statistical Methods for Life Sciences" and "Machine Learning for Life Sciences". These national courses are available to PhD students, researchers, university staff, and professionals from the life science industry in Sweden who analyze research data. Read more at https://nbisweden.github.io/ML4Life/
 
 Introduction to Biostatistics and Machine Learning
 📅 April 7th – 11th, 2025
@@ -27,24 +40,20 @@ Machine Learning for Life Sciences
 📍 BMC, Uppsala
 📝 Apply by: May 2nd
 
-## Neo screens
+## Solna KI Biomedicum screens
+
+- Facility mgm: johanna.steen@ki.se
+- Communication: charlotte.brandt@ki.se (email Lotte)
+
+## KI Neo screens (Huddinge)
 
 - sara.bruce.1@ki.se
 - karin.vikstrom.2@ki.se
 - There is a template, use it
 
-## Biomedicum screens
-
-- Facility mgm: johanna.steen@ki.se
-- Communication: charlotte.brandt@ki.se (email Lotte)
-
-## Aula Medica screens
-
-- Try anki.israelsson@ki.se
-
 ## LinkedIn text (final call)
 
-📣 Last chance to apply for the "Introduction to Biostatistics and Machine Learning course".
+📣 Last chance to apply for the "Statistical Methods for Life Sciences course".
 
 https://nbisweden.github.io/ML4Life/
 

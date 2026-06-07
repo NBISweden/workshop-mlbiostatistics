@@ -21,6 +21,7 @@
   - SciLifeLab training catalogue / instance
   - email NBIS training: education@nbis.se (once the SciLifeLab is approved)
   - SciLifeLab screens (Solna & Uppsala, Lund)
+    - Use one of the powerpoint templates to broadcast your course in the SciLifeLab digital screens in Uppsala and Solna.  Save the filled-in template as an image and email to Maria Bäckström (Scilifelab OO/Comm) maria.backstrom@scilifelab.uu.se.  In order to broadcast the course on screens in Lund, you can contact Sophie Hellstrand sophie.hellstrand@med.lu.se.
   - LinkedIn NBIS
   - Stockholm BMC screens
   - SciLifeLab Training slack channel
