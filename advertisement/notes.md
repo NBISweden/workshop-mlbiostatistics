@@ -12,8 +12,6 @@ Additional
 
 - Solna BMC Biomedicum screens
 - Email students from register your interest list
-- 
-
 
 ## SciLifeLab training hub announcement
 
@@ -24,7 +22,7 @@ Additional
 
 - use template
 - Solna / Uppsala: maria.backstrom@scilifelab.uu.se
-- Lund: 
+- Lund:
 
 ## Text to circulate in emails
 
@@ -67,11 +65,26 @@ Unlock the power of data in life sciences! Whether you're a PhD student, researc
 
 For more details, visit https://nbisweden.github.io/ML4Life/ or contact us at edu.ml-biostats [at] nbis.se
 
-## Slack: final call
+## Slack
 
-The registration is open for NBIS course Introduction to Biostatistics and Machine Learning!
-When: 7-11 April, 2025
-Where: Trippelrummet, BMC, Uppsala
-Apply by: March 14th
-Course webpage: https://uppsala.instructure.com/courses/98820
-Hope to see you at the course!
+📢 Registration is now open for the course Statistical Methods for Life Sciences.
+
+Do you have biological or biomedical data that you would like to analyse, but are unsure where to start? This course provides an introduction to commonly used statistical methods in life science research — no prior statistical knowledge is required.
+
+🌟 Topics include:
+
+- Probability, sampling, and distributions for biological data
+- Sampling variability and resampling
+- PCA and clustering
+- Confidence intervals and hypothesis testing
+- Linear models for continuous outcomes
+- Generalized linear models for binary and count data
+- Mixed-effects models for repeated or hierarchical data,
+- Survival analysis and time-to-event data
+
+📅 When: 7–11 September 2026
+📍 Where: BMC, Uppsala
+🗓️ Apply by: 26 June 2026
+🔗 Course webpage: https://training.scilifelab.se/events/statistical-methods-in-life-sciences
+
+Please feel free to share this with colleagues who may find the course useful!
