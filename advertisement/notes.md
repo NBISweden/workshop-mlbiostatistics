@@ -43,6 +43,18 @@ Machine Learning for Life Sciences
 - Facility mgm: johanna.steen@ki.se
 - Communication: charlotte.brandt@ki.se (email Lotte)
 
+## SU DBB screens
+
+Send an image in PNG, 1920x1080 to Linn
+
+Linn Rylander
+Communicator/Administrator
+Department of Biochemistry and Biophysics
+linn.rylander@dbb.su.se
+
+- When creating your image, please use the template “informationsskärm” in E-post verktyget on the University Staff pages.
+- https://medarbetare.su.se/en/support-and-service/tools-and-systems/communication/production-tool
+
 ## KI Neo screens (Huddinge)
 
 - sara.bruce.1@ki.se
@@ -79,7 +91,7 @@ Do you have biological or biomedical data that you would like to analyse, but ar
 - Confidence intervals and hypothesis testing
 - Linear models for continuous outcomes
 - Generalized linear models for binary and count data
-- Mixed-effects models for repeated or hierarchical data,
+- Mixed-effects models for repeated or hierarchical data
 - Survival analysis and time-to-event data
 
 📅 When: 7–11 September 2026
