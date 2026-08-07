@@ -4,8 +4,11 @@ editor: source
 
 # Multiple testing
 
+Multiple testing is especially important in life-science applications such as genomics, transcriptomics, proteomics, and metabolomics, where thousands of hypotheses may be tested simultaneously.
+
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(gt)
 library(kableExtra)
 options(digits=4)
 ```
@@ -15,19 +18,25 @@ options(digits=4)
 
 ```{r}
 #| label: tbl-errortypes2
-#| tbl-cap: "The outcome of a statistical test is either to accept or reject the null hypothesis H0. The test result might agree with the truth or not, either H0 is true or false. TN - true negative, TP - true positive, FN - false negative, FP - false positive."
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "Type II error, miss, FN", "Reject H0", "Type I error, false alarm, FP", "TP"), byrow=F, ncol=3)) %>% kable_styling(full_width = FALSE, bootstrap_options = "bordered", position="center")
+#| tbl-cap: "A hypothesis test either rejects $H_0$ or fails to reject $H_0$. The decision may be correct or incorrect depending on whether $H_0$ is true or false. TN = true negative, TP = true positive, FN = false negative, FP = false positive."
+tibble(
+  Decision = c("Fail to reject H₀", "Reject H₀"),
+  `H₀ is true` = c("TN", "Type I error, false alarm, FP"),
+  `H₀ is false` = c("Type II error, miss, FN", "TP")
+) |>
+  gt() |>
+  cols_align(align = "center", columns = everything())
 ```
 
 
 Remember from @sec-errortype that the probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
 
 
-$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
-$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Accept }H_0|H_1 \textrm{ is true})$$
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0 \mid H_0 \text{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Fail to reject }H_0 \mid H_1 \text{ is true})$$
 and the statistical power
 
-$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_1\textrm{ is true}).$$
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 \mid H_1\textrm{ is true}).$$
 ```{r}
 #| label: fig-alphabeta
 #| fig-cap: "The probability density functions under H0 and H1, respectively. The probability  of type I error ($\\alpha$) and type II error ($\\beta$) are indicated."
@@ -42,12 +51,12 @@ ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>
   
 ## Multiple testing
   
-  If a single test is perform we know that
+  If a single test is performed, we know that
   
   -   P(One type I error) = $\alpha$
   -   P(No type I error) = $1 - \alpha$
   
-If $m$ independent tests are performed (e.g. investigate many genes or proteins) the risk of false alarm (type I error) increases;
+If $m$ independent tests are performed (e.g. investigate many genes or proteins), the risk of at false alarm (type I error) increases;
   
   -   P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
   -   P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
@@ -61,23 +70,29 @@ ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Numb
 Two common principles for dealing with multiple testing are control of family-wise error rate or false discovery rate.
 
 -   FWER: family-wise error rate, control the probability of one or more false positive $P(N_{FP}>0)$, e.g. Bonferroni, Holm
--   FDR: false discovery rate, control the expected value of the proportion of false positives among hits, $E[N_{FP}/(N_{FP}+N_{TP})]$, e.g. Benjamini-Hochberg, Storey
+-   FDR: false discovery rate, control the expected value of the proportion of false positives among hits (rejected hypotheses), $E[N_{FP}/(N_{FP}+N_{TP})]$ (note: for 0 positives the ratio is defined to be 0), e.g. Benjamini-Hochberg, Storey
 
 ## Bonferroni correction
 
 To achieve a family-wise error rate of $FWER \leq \gamma$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \gamma/m$.
 
-Objections: too conservative
+A disadvantage of the Bonferroni correction is that it can be overly conservative, especially when many tests are performed.
 
-## Benjamini-Hochbergs FDR
+## Benjamini-Hochbergs FDR procedure
 
 ```{r}
-kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "TN", "FN", "Reject H0", "FP", "TP"), byrow=3, ncol=3)) %>% kable_styling(font_size=14)
+tibble(
+  Decision = c("Fail to reject H₀", "Reject H₀"),
+  `H₀ is true` = c("TN", "FP"),
+  `H₀ is false` = c("FN", "TP")
+) |>
+  gt() |>
+  cols_align(align = "center", columns = everything())
 ```
 
-The false discovery rate is the proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
+The false discovery rate is the expected proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
 
-Benjamini-Hochberg's method control the FDR level, $\gamma$, when performing $m$ *independent* tests, as follows:
+The Benjamini-Hochberg procedure controls the FDR level, $\gamma$, underthe assumption of independence (and also under certain forms of positive dependence) when performing $m$ tests, as follows:
 
 1.  Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
 2.  Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
@@ -91,19 +106,22 @@ Sometimes an adjusted significance threshold is not reported, but instead 'adjus
   
   $\tilde p_i = \min(m p_i, 1)$.
 
-A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+A feature's Bonferroni-adjusted p-value represents the smallest family-wise error rate at which that feature would be deemed significant.
 
--   Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+-   Benjamini-Hochberg's 'adjusted' p-values are often referred to as $q$-values and can be compted after sorting the p-values as follows:
   
   $q_i = \min(\frac{m}{i} p_i, 1)$
   
   A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
 
+In practice, adjusted p-values are usually computed using software such as the R function `p.adjust`.  
+
 ::: {#exm-10000}
-# 10000 independent tests (e.g. genes)**
+# 10000 independent tests
 
 ```{r padjust, results="asis"}
 p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
-kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", 10000), `q-value (B-H)`=p.adjust(p, "BH", 10000), check.names=FALSE))
+## Here, only 20 p-values are shown, but the adjustments are computed as if they came from a total of 10000 tests.
+kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", n = 10000), `q-value (B-H)`=p.adjust(p, "BH", n = 10000), check.names=FALSE))
 ```
 :::
