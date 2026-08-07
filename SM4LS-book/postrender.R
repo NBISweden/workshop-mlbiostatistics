@@ -7,10 +7,23 @@ message("--- Restoring original configuration ---")
 if (file.exists("_quarto.yml.bak")) {
   # Parse the file before restoring to identify which folder paths to clean up
   config <- yaml::read_yaml("_quarto.yml.bak")
+  if (!file.exists("_quarto.yml")) {
+    cleanup <- TRUE
+  } else {
+    bak_time <- file.info("_quarto.yml.bak")$mtime |> as.integer()
+    orig_time <- file.info("_quarto.yml")$mtime |> as.integer()
+    cleanup <- bak_time >= orig_time
+  }
+  if (!cleanup) {
+    stop("❌ ERROR: Build halted! The original config file '_quarto.yml' is newer than the backup. Please check for changes before restoring.\n")
+  }
   file.copy("_quarto.yml.bak", "_quarto.yml", overwrite = TRUE)
   unlink("_quarto.yml.bak")
   message("✓ Restored original _quarto.yml config file.")
 } else {
+  if (!file.exists("_quarto.yml")) {
+    stop("❌ ERROR: Build halted! The backup config file '_quarto.yml.bak' is missing, and the original '_quarto.yml' does not exist. Cannot restore configuration.\n")
+  }
   config <- yaml::read_yaml("_quarto.yml")
 }
 
