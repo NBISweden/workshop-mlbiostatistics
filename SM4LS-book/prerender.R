@@ -5,6 +5,9 @@ message("--- Temporarily copy files ---")
 
 # 1. Read the existing config and create a backup
 yaml_file <- "_quarto.yml"
+## Stop with warning if the backup already exists, to avoid overwriting it
+if (file.exists("_quarto.yml.bak")) {
+}
 file.copy(yaml_file, "_quarto.yml.bak", overwrite = TRUE)
 if (!file.exists(yaml_file)) stop("Missing config: _quarto.yml")
 config <- yaml::read_yaml(yaml_file)

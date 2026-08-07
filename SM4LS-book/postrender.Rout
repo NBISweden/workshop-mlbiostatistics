@@ -1,0 +1,54 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # book/clean_chapters.R
+> library(yaml)
+> 
+> message("--- Restoring original configuration ---")
+--- Restoring original configuration ---
+> 
+> # 1. Restore the original _quarto.yml from backup
+> if (file.exists("_quarto.yml.bak")) {
++   # Parse the file before restoring to identify which folder paths to clean up
++   config <- yaml::read_yaml("_quarto.yml.bak")
++   file.copy("_quarto.yml.bak", "_quarto.yml", overwrite = TRUE)
++   unlink("_quarto.yml.bak")
++   message("✓ Restored original _quarto.yml config file.")
++ } else {
++   config <- yaml::read_yaml("_quarto.yml")
++ }
+> 
+> # 2. Safely extract and clean up the temporary directories
+> chapters_list <- unlist(config$book$chapters)
+> external_paths <- chapters_list[grep("^\\.\\./", chapters_list)]
+> external_dirs <- unique(gsub("^\\.\\./([^/]+)/.*$", "\\1", external_paths))
+> 
+> for (dir_name in external_dirs) {
++   target_dir <- paste0("", dir_name)
++   if (dir.exists(target_dir)) {
++     unlink(target_dir, recursive = TRUE)
++     message(paste("Cleaned temporary folder:", target_dir))
++   }
++ }
+> 
+> proc.time()
+   user  system elapsed 
+  0.508   1.344   0.194 
