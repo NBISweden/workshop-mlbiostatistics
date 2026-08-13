@@ -17,7 +17,7 @@ Mixed effects models are powerful statistical tools that allow us to analyze dat
   
 # Setup
 
-You will be using the `lme4` package for fitting mixed models and you need to install this package. In the examples we will use `tidyverse` for data manipulation and `ggplot2` for visualization, but if you prefert other alternatives, that is of course fine.
+You will be using the `lme4` package for fitting mixed models and you need to install this package. In the examples we will use `tidyverse` for data manipulation and `ggplot2` for visualization, but if you prefer other alternatives, that is of course fine.
 
 ```{r setup}
 #| message: false
@@ -70,10 +70,10 @@ databp |>
 Based on the plots, do you think there is variability in blood pressure across hospitals that has to be taken care of?
 
 :::{.callout-tip collapse="true"}
-Yes, the plots suggest that there is variability in blood pressure across hospitals. The boxplots show different medians each hospital, indicating that the baseline blood pressure differs between hospitals. This variability should be accounted for in our analysis.
+Yes, the plots suggest that there is variability in blood pressure across hospitals. The boxplots show different medians for each hospital, indicating that the baseline blood pressure differs between hospitals. This variability should be accounted for in our analysis.
 :::
 
-If not, we can fit a model without taking care of the grouping structure, such as an ordinary linear regression model.
+If we ignore any grouping structure, we can fit an ordinary linear regression model.
 
 Fit a linear regression model to the data with blood pressure as the response variable and drug treatment as the independent variable.
 
@@ -89,10 +89,14 @@ summary(lm_model)
 According to the linear regression model, is the average blood pressure higher in the treatment group compared to the placebo group? By how much does the drug change the blood pressure (on average)?
 
 :::{.callout-tip collapse="true"}
-The average blood pressure is lower in the treatment group compared to the placebo group. The estimated effect of the drug treatment on blood pressure is approximately -5.17, indicating that patients treated with the drug have an average blood pressure that is 5.17 lower than those treated with the placebo.
+The average blood pressure is lower in the treatment group compared to the placebo group. The estimated effect of the drug treatment on blood pressure is approximately -5.17, indicating that patients treated with the drug have an average blood pressure that is 5.17 units lower than those treated with the placebo.
 :::
 
 Is this a valid model given the data structure? Why/why not?
+
+:::{.callout-tip collapse="true"}
+No, not really. The model treats all observations as independent, but patients within the same hospital may be more similar to each other than patients from different hospitals. This violates the independence assumption and can lead to incorrect standard errors and inference.
+:::
 
 To account for the variability in blood pressure across hospitals, fit a mixed model with a random intercept for hospital. Random intercepts allow each hospital to have its own baseline blood pressure.
 
@@ -105,7 +109,7 @@ summary(model1)
 ```
 :::
 
-In addition to the summary function, try `VarCorr` and `fixef`. The function `VarCorr` gives the varioance and correlation a model, including the variance explained by the random intercept for hospital. `fixef` computes the fixed effects of the model.
+In addition to the summary function, try `VarCorr` and `fixef`. The function `VarCorr` gives the variance and correlations in a model, including the the variance of the random intercept for hospital. `fixef` extracts the estimated fixed effects of the model.
 
 :::{.callout-tip collapse="true"}
 ## Code
@@ -124,19 +128,19 @@ Based on the mixed model results, what is the estimated effect of the drug treat
 The estimated effect of the drug treatment on blood pressure is -5.17.
 :::
 
-Based on the mixed model, how much variability in blood pressure is explained by hospital?
+Based on the mixed model, how much variability in blood pressure is due to differences between hospitals?
 
-To compute the variability explained by the random intercept, we can use the variance component from `VarCorr`. The proportion of variance explained by the random effect, called the **intraclass correlation coefficient (ICC)**, can be calculated as:
+To estimate the between-hospital variability, we can use the variance component from `VarCorr`. The proportion of total variance due to differences between hospitals, called the **intraclass correlation coefficient (ICC)**, can be calculated as:
 
 ```{r icc}
 vc <- as.data.frame(VarCorr(model1))
 icc <- vc$vcov[1] / (vc$vcov[1] + vc$vcov[2])
 ```
 
-Based on the variance explain by the random intercept for hospital, do you think it is appropriate to use an ordinary linear regression model instead of a mixed model? Why or why not?
+Based on the variance due to the difference between hospitals, do you think it is appropriate to use an ordinary linear regression model instead of a mixed model? Why or why not?
 
 :::{.callout-tip collapse="true"}
-The variability explained by the random intercept for hospital is substantial, indicating that there are significant differences in blood pressure between hospitals. This suggests that the ordinary linear regression is not appropriate.
+The estimated between-hospital variability is substantial, indicating that there are significant differences in blood pressure between hospitals. This suggests that the ordinary linear regression is not appropriate.
 :::
 
 The random intercepts for each hospital can be computed using the `ranef` function. This gives us the deviations from the overall mean (as reported by the fixed effect intercept) for each hospital.
@@ -177,7 +181,7 @@ sleepall <- sleepstudy |> filter(Days>=2) |> mutate(Days=Days-2)
 sleep <- sleepstudy |> filter(Subject %in% c(333, 334, 369, 349, 372), Days>=2) |> mutate(Days=Days-2)
 ```
 
-Investigate the dataset. What columns are available etc? Plot the data, e.g. using ggplot and add a linear regression line to visualize the relationship between reaction time and days of sleep deprivation.
+Investigate the dataset. What columns are available? Plot the data, e.g. using ggplot and add a linear regression line to visualize the relationship between reaction time and days of sleep deprivation.
 
 :::{.callout-tip collapse="true"}
 ## Code
@@ -242,7 +246,7 @@ The model estimates that reaction time increases by approximately 14.060 millise
 How much variability in reaction time is explained by individual differences?
 
 :::{.callout-tip collapse="true"}
-The variability in reaction time explained by individual differences can be assessed using the variance component from the random intercept; 278.9.
+The estimated variance of the random intercept for Subject is 278.9, which indicates substantial between-subject variability in baseline reaction time.
 :::
 
 Now, include the full dataset and redo the analyses, i.e. visualize and fit a mixed model with random intercept.
@@ -322,7 +326,7 @@ What is the grouping structure in the data?
 
 What covariates could be relevant to include in the model?
 
-First, fit a linear model to the data, ignoring any groupings, but include relevant covariate.
+First, fit a linear model to the data, ignoring the grouping structure, but include any relevant covariates.
 
 Then, fit a mixed model taking the grouping structure into account. Use a random intercept for `Subject` to account for individual differences in growth patterns.
 
@@ -341,7 +345,7 @@ summary(mmortho)
 
 What is the estimated effect of age on distance in the linear model? How does it compare to the mixed model?
 
-What is the estimated variability in distance explained by subject differences? Does this suggest that the random intercept is needed in the model?
+What is the estimated variability in distance due to differences between subjects? Does this suggest that the random intercept is needed in the model?
 
 
 <!-- ## Logistic mixed model: Infection risk in clinics -->

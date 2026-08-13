@@ -11,7 +11,7 @@ execute:
 
 # Introduction
 
-These exercises focus on more complicated grouped structures with more than one grouping level as well as statistical tests for mixed models.
+These exercises focus on more complex grouped structures with more than one grouping level as well as statistical tests for mixed models.
 
 ```{r setup, message=FALSE}
 ## Load R packages
@@ -74,11 +74,11 @@ ggplot(nested_data, aes(x = litter_id, y = weight, color = drug, shape=line)) +
 ```
 :::
 
-Fit three different models;
+Fit three different models:
 
-0. A linear regression model ignoring the grouping structure.
-1. A linear mixed model with a random intercept for litter nested within line.
-2. A linear mixed model with a random slope for drug treatment per litter, nested within line.
+1. A linear regression model ignoring the grouping structure.
+2. A linear mixed model with a random intercept for litter nested within line.
+3. A linear mixed model with a random intercept and random slope for drug treatment for litters nested within lines.
 
 :::{.callout-tip collapse="true"}
 ## Code
@@ -90,14 +90,16 @@ m0 <- lm(weight ~ drug, data = nested_data)
 # Model 2: Random intercept for litter (nested within line)
 m1 <- lmer(weight ~ drug + (1 | line/litter_id), data = nested_data)
 # Compare to this notation
-m1_alt <- lmer(weight ~ drug + (1|line) + (1 | litter_id:line), data = nested_data)
+m1_alt <- lmer(weight ~ drug + (1 | line) + (1 | litter_id:line), data = nested_data)
+# or 
+m1_alt2 <- lmer(weight ~ drug + (1 | line) + (1 | litter_id), data = nested_data)
 
 # Model 3: Add random slope for drug per line
 m2 <- lmer(weight ~ drug + (1 + drug | line/litter_id), data = nested_data)
 ```
 :::
 
-Use `summary()` to study the different models and `anova()` to compare the two linearmixed models with different random effects.
+Use `summary()` to study the different models and `anova()` to compare the linear mixed models with different random-effects structures.
   
 :::{.callout-tip collapse="true"}
 ## Code
@@ -109,13 +111,13 @@ summary(m2)
 ```
 
 ```{r}
-anova(m1, m2, refit= FALSE)
+anova(m1, m2, refit = FALSE)
 ```
 :::
   
   1. Why is model 1 more appropriate than model 0?
   2. For the random intercept model 1, does line or litter account for more variation in weight?
-  3. Does adding a random slope for `drug` improve the model fit?**
+  3. Does adding a random slope for `drug` improve the model fit?
   4. Based on the best model, what is the estimated fixed effect of the drug treatment? Interpret it.
   
 
@@ -134,13 +136,12 @@ print(VarCorr(m1), comp="Variance")
 
 3. **Compare AIC and p-value from the ANOVA.** If model `m2` doesn’t improve AIC much or the p-value is large, the added complexity is not justified.
 
-4. From `summary(m1)`, the fixed effect of `drugtreated` is approximately `-2.3`, indicating that treatment lowers weight by 2g on average.
+4. From `summary(m1)`, the fixed effect of `drugtreated` is approximately `-2.3`, indicating that treatment lowers weight by 2 g on average.
 :::
 
 ## Lab, technician and sample
 
-We will use the `faraway` package to analyze a dataset with a nested structure of lab, technician, and sample. The dataset `eggs` contains measurements of fat content in egg powder.
-Four samples, 2 G samples and 2 H samples, were analyzed by six laboratories, each with two technicians. The samples were each divided into two parts and fat content meassured in each. The goal is to assess the effect of lab and technician on the fat content.
+We will use the `faraway` package to analyze a dataset with a hierarchical structure involving laboratory, technician and sample. The dataset `eggs` contains measurements of fat content in egg powder. Four samples, 2 G samples and 2 H samples, were analyzed by six laboratories, each with two technicians. The samples were each divided into two parts and fat content measured in each. The goal is to assess the effect of lab and technician on the fat content.
 
 ```{r}
 # Load the faraway package and the eggs dataset
@@ -163,10 +164,10 @@ eggs |> ggplot(aes(x= Lab, y = Fat, color = Technician, shape=Sample)) +
 ```
 :::
 
-What is the grouping structure and how is it nested. Using this information fit a linear mixed model.
+What is the grouping structure in the data, and how is it nested? Using this information, fit a linear mixed model.
 
 :::{.callout-tip collapse="true"}
-Sample is nested within Technician, which is nested within Lab.
+Replicate measurements are made on samples, samples are handled by technicians, and technicians are nested within laboratories. Thus, the grouping structure is hierarchical, with technician nested within lab, and sample nested within technician within lab.
 :::
 
 There are multiple ways to specify the random effects structure, use the method that is least confusing to you!
@@ -201,50 +202,14 @@ mo1 <- lmer(distance ~ age + (1|Subject), data = Orthodont)
 summary(mo1)
 ```
 
-There are both boys and girls in the dataset. Subjects are nested within sex. Take this nested grouping structure into account and fit a linear mixed model with random intercept.
-
-:::{.callout-tip collapse="true"}
-## Code
+There are both boys and girls in the dataset. Your PI wants to estimate the effect of sex on the distance. How could you do this? With random intercept per subject, build models with different sets of fixed effects. Start with only intercept and age, then add also sex and finally also the interaction between age and sex.
 
 ```{r}
-##mo2 <- lmer(distance ~ age + (1|Sex/Subject), data = Orthodont)
-mo2 <- lmer(distance ~ age + (1|Sex) + (1|Sex:Subject), data = Orthodont)
-summary(mo2)
-```
-:::
-
-Add also random slope for age, first only per sex, then both in sex and subject (nested within sex).
-
-:::{.callout-tip collapse="true"}
-## Code
-
-```{r}
-mo3 <- lmer(distance ~ age + (1 + age|Sex) + (1|Sex:Subject), data = Orthodont)
-mo4 <- lmer(distance ~ age + (1 + age|Sex) + (1+age|Sex:Subject), data = Orthodont)
-```
-:::
-
-Use likelihood ratio test to compare the four models. Use the significance threshold of 0.05.
-What does the results tell you, which model would you choose?
-
-:::{.callout-tip collapse="true"}
-## Code
-
-```{r}
-## LRT
-anova(mo1, mo2, mo3, mo4, refit = FALSE)
-```
-:::
-
-Your PI changes their mind, they want to estimate the effect of sex on the distance. How could you do this? With random intercept per subject, build models with different sets of fixed effects. Start with only intercept and age, then add also sex and finally also the interaction between age and sex.
-
-```{r}
-mo1 <- lmer(distance ~ age + (1|Subject), data = Orthodont)
 mof2 <- lmer(distance ~ age + Sex + (1|Subject), data = Orthodont)
 mof3 <- lmer(distance ~ age*Sex + (1|Subject), data = Orthodont)
 ```
 
-Compare the models using likelihood ratio test. Use the `anova`function and remember to set `refit=TRUE` to use ML and not REML!
+Compare the models using likelihood ratio test. When comparing models with different fixed effects, the comparison should be based on ML rather than REML. Use the `anova`function and remember to set `refit=TRUE as anova will the refit with ML.
 
 What do the results tell you? Which model would you choose?
 
@@ -260,11 +225,11 @@ anova(mo1, mof2, mof3, refit = TRUE)
 
 In this section you will use the `lmerTest` package to compute p-values for mixed models using Satterthwaite's approximation. This package extends the `lme4` package and provides functions to compute p-values for fixed effects in linear mixed models.
 
-Go back to the exercises "Drug effect on blood pressure" and "Sleep study" from the this morning and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted.
+Go back to the exercises "Drug effect on blood pressure" and "Sleep study" and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted.
 
 # Logistic mixed model
 
-Here we will use the `ohio` dataset in the `faraway` package. This dataset contains information on 537 children and their wheezing status, a binary variable indicating if the child has a pulmonary problem or nor). Each child multiple observations (one for each year from ages 7 to 10, where age 9 is coded as 0). There is also an indicator variable for whether the mother of the child is a smoker.
+Here we will use the `ohio` dataset in the `faraway` package. This dataset contains information on 537 children and their wheezing status, a binary variable indicating if the child has a pulmonary problem or not). Each child has multiple observations (one for each year from ages 7 to 10, where age 9 is coded as 0). There is also an indicator variable for whether the mother of the child is a smoker.
 
 Take a look at the first two children;
 
@@ -298,10 +263,10 @@ mohio <- glmer(resp ~ age + smoke + (1|id), family=binomial, data=ohio)
 summary(mohio)
 ```
 
-We compute the ORs;
+We compute the ORs:
 
 ```{r}
 exp(fixef(mohio))
 ```
 
-According to this model, does the odds for wheezing increase or decrease with age? What about smoking? Are any of the effects statistically significant?
+According to this model, do the odds for wheezing increase or decrease with age? What about smoking? What does the model output suggest about the age and smokling effects?
