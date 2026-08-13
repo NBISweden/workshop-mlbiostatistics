@@ -7,9 +7,9 @@ editor: source
 ::: {#exr-pollentest} 
 # Pollen 
 
-You believe that the proportion of Swedish students allergic to pollen is greater than 0.3 (the proportion allergic to pollen in Sweden). To test this you observe 20 people in a student group at BMC in Uppsala, 9 or them are allergic to pollen.
+You want to investigate if the proportion of Swedish students allergic to pollen is greater than 0.3, the proportion in Sweden as a whole. To do this, you observe 20 people in a student group at BMC in Uppsala, 9 of them are allergic to pollen.
 
-Is this reason to believe that the proportion of Swedish students allergic to pollen i greater than 0.3? Perform a hypothesis test to answer the question.
+Is there reason to believe that the proportion of Swedish students allergic to pollen is greater than 0.3? Perform a hypothesis test to answer the question.
 
 Can you identify any problems with this study setup?
 
@@ -20,7 +20,7 @@ $H_0: \pi=0.3$ $H_1: \pi>0.3$
 
 Set the significance level to $\alpha=0.05$.
 
-Test statistic, $X$, the number of allergic people in a sample of size 20.
+The test statistic is $X$, the number of allergic people in a sample of size 20.
 
 $x_{obs} = 9$
 
@@ -36,12 +36,12 @@ Compute p-value, i.e. if null is true what is the probability to observe $x_{obs
 
 ```{r, echo=TRUE}
 xobs <- 9
-(x <- mean(xnull>=xobs))
+(p <- mean(xnull>=xobs))
 ```
 
-As $p>\alpha$ we will accept the null hypothesis, i.e. there is no reason to belive that the students are more allergic than the general Swedish population.
+As $p>\alpha$ we fail to reject the null hypothesis. The data do not provide evidence against the null hypothesis, i.e. there is no reason to believe that the students are more allergic than the general Swedish population.
 
-Problems with the study: Discuss in your group! Is it reasonable to select 20 students at BMC to answer a question about all students in Sweden?
+Problems with the study: Discuss in your group! Is the sample random? Is it reasonable to select 20 students at BMC to answer a question about all students in Sweden?
 :::
 :::
 
@@ -49,7 +49,7 @@ Problems with the study: Discuss in your group! Is it reasonable to select 20 st
 
 # Diet
 
-A diet study aims to study how the hemoglobin (Hb) levels in blood are affected by an iron-rich diet consisting of tofu, soybeans, broccoli, lentils and peas. To perform the study the dietician has recruited 40 male participants, who are randomly assigned to the iron-rich diet or control group (no change in participants diet), 20 participant in each group.
+A diet study aims to study how the hemoglobin (Hb) levels in blood are affected by an iron-rich diet consisting of tofu, soybeans, broccoli, lentils and peas. To perform the study the dietician has recruited 40 male participants, who are randomly assigned to the iron-rich diet or control group (no change in participants diet), 20 participants in each group.
 
 The observed Hb levels (in g/L);
 
@@ -65,20 +65,20 @@ Perform a hypothesis test to investigate if the Hb level is affected (increased 
 
 Define $H_0$ and $H_1$
 
-$H_0: \mu_{diet} = \mu_{ctrl}$ No difference in mean iron level between control group and iron rich group
+$H_0: \mu_{iron} = \mu_{ctrl}$ No difference in mean Hb level between control group and iron-rich diet group.
 
-$H_1: \mu_{diet} \neq \mu_{ctrl}$
+$H_1: \mu_{iron} \neq \mu_{ctrl}$
 
-Will use the significance level, $\alpha=0.05$
+Will use the significance level, $\alpha=0.05$.
 
-Select test statistic $D = \bar X_d - \bar X_c$, where $\bar X_c$ is the mean Hb level in a control group of 20 people and $\bar X_d$ is the mean Hb level in a diet group of 20 people.
+Select test statistic $D = \bar X_{iron} - \bar X_{ctrl}$, where $\bar X_{ctrl}$ is the mean Hb level in a control group of 20 people and $\bar X_{iron}$ is the mean Hb level in a diet group of 20 people.
 
 The observed value; $d_{obs}$
 
 ```{r, echo=TRUE}
-mdiet <- mean(iron)
+miron <- mean(iron)
 mctrl <- mean(ctrl)
-(dobs <- mdiet - mctrl)
+(dobs <- miron - mctrl)
 ```
 
 Compute null distribution using permutation.
@@ -87,7 +87,7 @@ Compute null distribution using permutation.
 ## Under null all observations are equivalent
 allobs <- c(iron, ctrl)
 dnull <- replicate(10000, {
-  ##Permute the 40 observations and assign the 20 first to the iron group
+  ## Permute the 40 observations and assign first 20 to the iron group
   x <- sample(allobs)
   d <- mean(x[1:20]) - mean(x[21:40])
 })
@@ -100,7 +100,7 @@ Compute p-value;
 (p <- mean(abs(dnull) >= abs(dobs)))
 ```
 
-As $p>\alpha$, the null hypothesis is accepted, i.e. there is no reason to believe that the iron-rich diet affects the blood Hb level.
+As the estimated p-value is `r p`, $p>\alpha$, we fail to reject the null hypothesis. The data do not provide evidence against the null hypothesis, i.e. there is no reason to believe that the iron-rich diet affects the mean Hb level.
 
 :::
 :::
