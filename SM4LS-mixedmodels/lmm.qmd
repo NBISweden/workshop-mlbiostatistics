@@ -1,8 +1,8 @@
 # Mixed models 
 
-As briefly mentioned in the previous chapter, mixed-effects models (also known as multilevel or hierarchical models) are used introduce random effects to account for the cluster variations. This approach allows us to model the dependency structure due to clusters without having to estimate a separate parameter for each cluster effect. Mixed-effects models incorporate the clustering in the variance-covariance structure of the data, which provides a more parsimonious and interpretable model, especially when our primary interest lies in the fixed effects, such as the main effect of `Age` in the previous example.
+As briefly mentioned in the previous chapter, mixed-effects models (also known as multilevel or hierarchical models) are used when observations are grouped and hence not independent. This approach allows us to model the dependency structure due to clusters without having to estimate a separate parameter for each cluster effect. Mixed-effects models incorporate the clustering in the variance-covariance structure of the data, which provides a more parsimonious and interpretable model, especially when our primary interest lies in the fixed effects, such as the main effect of `Age` in the previous example.
 
-Correlated is more common in biology than one might think. For example:
+Correlated observations are more common in biology than one might think. For example:
 
 -   **Repeated Measurements:** Suppose you're measuring a patient's blood pressure over time. Measurements from the same patient will naturally be more similar to each other than those from different patients. A mixed-effects model handles this by modeling the variation between patients.
 
@@ -42,7 +42,7 @@ The primary limitation of using a fixed-effect model, lies in its underlying ass
 
 The random-effects offer a more flexible and realistic approach, especially in contexts where between-study variability is expected or observed. The defining feature of the random-effects model is the assumption that there is a distribution of true effect sizes across studies, and the goal is to estimate the mean of this distribution. This approach accounts for variation not only within studies (due to sampling error) but also between studies, recognizing that different studies may inherently have different true effect sizes due to various factors (e.g., differences in populations, interventions, outcomes measured).
 
-Returning to our scenario of evaluating the impact of a vitamin supplement on the duration of common cold symptoms, let's consider that the clinical trials are conducted across various geographical locations, each with a distinct demographic and environmental profile. These location-based groups could inherently influence how participants respond to the supplement, independent of the supplement's effect itself. We would introduce random intercepts for each geographical location. This means that while we are still interested in estimating the overall effect of the vitamin supplement on symptom duration, we also acknowledge that each location starts from a different baseline in terms of average symptom duration without the supplement. However, we actually don't directly estimate these baselines but rather assume that these baselines are randomly samples from a distribution of baselines in the population with certain statistical properties. Therefore, we are not interested in each single baseline but we want to know statistical properties of the distribution of baselines.
+Returning to our scenario of evaluating the impact of a vitamin supplement on the duration of common cold symptoms, let's consider that the clinical trials are conducted across various geographical locations, each with a distinct demographic and environmental profile. These location-based groups could inherently influence how participants respond to the supplement, independent of the supplement's effect itself. We would introduce random intercepts for each geographical location. This means that while we are still interested in estimating the overall effect of the vitamin supplement on symptom duration, we also acknowledge that each location starts from a different baseline in terms of average symptom duration without the supplement. However, we actually don't directly estimate these baselines but rather assume that these baselines are randomly sampled from a distribution of baselines in the population with certain statistical properties. Therefore, we are not interested in each single baseline but we want to know statistical properties of the distribution of baselines.
 
 In summary, the fixed-effect model’s generalization is limited to the "levels" within the experiment, meaning it applies to populations or conditions that exactly match those of the included studies. It treats the effect as if it were a fixed property of the specific scenarios tested. In contrast, the random-effects model allows for generalization to "levels beyond those that took part in the study," acknowledging that the effect sizes are part of a distribution across a wider population. This model treats the effect as a variable property reflecting a range of possible scenarios, including those not directly observed in the analysis.
 
@@ -50,7 +50,7 @@ This might sounds too complicated or abstract. We are going to clarify this with
 
 ## Ingredients
 
-In this section, we will try to clarify what information do we need in order to fit a linear model.
+In this section, we will try to clarify what information do we need in order to fit a mixed model.
 
 ### Grouping Structure of the Data
 
@@ -58,17 +58,17 @@ The first and most important thing is to understand the data we are dealing with
 
 Without having this information, we cannot use standard mixed models. This grouping must be categorical, not continuous, as mixed models rely on categorical variables to define the levels of the hierarchy or nested structure within the data. Categorical grouping allows us to classify observations into distinct categories or groups that share common characteristics.
 
-It is obvious but worth mentioning that these grouping should not be confused with random effects.Random effects are calculated based on the assumption that data points within the same group may share more similarities with each other than with data points from different categories, thus accounting for the within-group correlation. Therefore, the identification of categorical groupings is not just a step in the analysis but a prerequisite for accurately calculating and interpreting the random effects that are fundamental to the mixed model's approach to data analysis.
+The grouping factor identifies the clusters. The random effect is the model component allowed to vary across these clusters. Random effects are calculated based on the assumption that data points within the same group may share more similarities with each other than with data points from other groups, thus accounting for the within-group correlation. Therefore, the identification of categorical groupings is not just a step in the analysis but a prerequisite for accurately calculating and interpreting the random effects that are fundamental to the mixed model's approach to data analysis.
 
 ::: callout-important
-You cannot use continuous data as grouping if it does not have levels. Without these discrete levels, it becomes impossible to define the clusters or hierarchies necessary for calculating random effects. To effectively employ mixed models, one must either use inherently categorical variables or discretize continuous variables into meaningful categories.
+A grouping variable in standard mixed models should have repeated levels defining the clusters such as patient, clinic, cage or family. The grouping cannot be defined by unique continuous values such as age or BMI.
 :::
 
 ::: callout-note
-Sometimes it is not clear what grouping of data exist. Or even what should be used as grouping. In often (but not always), the grouping is something different than what we are interested in. For example, let's say, we have gathered data from patients with a disease and attempted to find a matched control based on certain characteristics such as age, BMI etc. The group of interest here is disease vs. healthy and a possible grouping variable for random effect would be a match ID for each patient and its matched control.
+Sometimes it is not clear what grouping of data exist. Or even what should be used as grouping. Often (but not always), the grouping is something different than what we are interested in. For example, let's say, we have gathered data from patients with a disease and attempted to find a matched control based on certain characteristics such as age, BMI etc. The group of interest here is disease vs. healthy and a possible grouping variable for random effect would be a match ID for each patient and its matched control.
 :::
 
-The last thing i would like to mention is that, how many levels the random effect grouping should have in order to be included in the model. Although there is no golden consensus about it but most people tend to agree that the number levels of the group factor should be more than five to be accurately modeled by mixed models. Although some argue that with even two levels, mixed model will be like classical linear regression one should be extra cautious about it.
+Very small numbers of groups can make the estimation unstable and mixed models based on only a few groups should be interpreted with caution. There is no no golden consensus, but more than five group levels are usually needed for a stable estimate.
 
 ### Design for fixed and random effects
 
@@ -161,7 +161,7 @@ summary(model_lm)
 
 This model has four different intercepts, one for each group and a single slope that is identical for each group.
 
-Given this result, we have estimated the group coefficients and we can go ahead with comparing the groups or do whatever we wanted to do with these estimates. It is important that here we don't have a global slope. We have four slopes, one for each group.
+Given this result, we have estimated the group coefficients and we can go ahead with comparing the groups or do whatever we wanted to do with these estimates. It is important that here we don't have a global intercept. We have four intercepts, one for each group.
 
 Now it is time to do the same analysis using the mixed model approach. The model that we are going fit using `lmer` function from `lme4` is of form `y ~ 1+x+(1|group)`. This part of the model, `y ~ 1+x`, we already know what it is. However, what this part `(1|group)` is new. The right part of `|` shows what variable we want to use as grouping factor by which we are going to fit our random effect (That is the `group` in our case). The left part of `|` is the effect we want to consider random. The left part is like a formula, similar to classical regression. which in this case, we just used `1`. This means for our main model, `y ~ 1+x` which has an intercept (`1`) and a slope `x`, we would like to consider the intercept as random effect so we use `1`.
 
@@ -191,11 +191,11 @@ as.list(summary(model_lmm))[['varcor']]
 
 Depending of what type of random effect we have been fitting this table can have different headers. But generally, `Groups`, `Name`, `Variance`, `Std.Dev.` and `Corr` are part of it.
 
-Each row of this table correspond to a source of variation in our data that is random because of a certain reason. In our model, we decided to consider only `Intercept` as a random effect for `group`. Therefore, the first row of the table tells us that there is **random** variability in `Intercept` between different group. This variability is quantified by a variance of `r round(as.list(summary(model_lmm))[['varcor']][[1]][1],3)` and a standard deviation of `r  round(sqrt(as.list(summary(model_lmm))[['varcor']][[1]]),3)`. This means that the average effect (or intercept) across groups can deviate from the overall (`global`) intercept by about `r  round(sqrt(as.list(summary(model_lmm))[['varcor']][[1]]),3)` units, indicating substantial between-group variability. This is important to note that, we have actually never estimated any intercept for each group directly. But we have estimated the variability of intercepts across different groups, which allows us to account for the fact that each group may have a different starting point or baseline level in the response variable, even though these specific baseline levels are not directly calculated. You can think about this as the variance of the distribution of intercepts across the groups. Essentially, we're modeling the distribution from which each group's intercept is drawn.
+Each row of this table correspond to a source of variation in our data that is random because of a certain reason. In our model, we decided to consider only `Intercept` as a random effect for `group`. Therefore, the first row of the table tells us that there is **random** variability in `Intercept` between different group. This variability is quantified by a variance of `r round(as.list(summary(model_lmm))[['varcor']][[1]][1],3)` and a standard deviation of `r  round(sqrt(as.list(summary(model_lmm))[['varcor']][[1]]),3)`. This means that the average effect (or intercept) across groups can deviate from the overall (`global`) intercept by about `r  round(sqrt(as.list(summary(model_lmm))[['varcor']][[1]]),3)` units, indicating substantial between-group variability. We did not fit separate fixed intercept parameters for each group, but we we have estimated the variability of intercepts across different groups, which allows us to account for the fact that each group may have a different starting point or baseline level in the response variable, even though these specific baseline levels are not directly calculated. You can think about this as the variance of the distribution of intercepts across the groups. Essentially, we're modeling the distribution from which each group's intercept is drawn.
 
 The second row, labeled `Residual`, refers to the variability within each group that is not explained by the model predictors (because of random sampling). The variance here is `r round(sigma(model_lmm)^2,3)`, with a standard deviation of `r round(sigma(model_lmm),3)`. This residual variance represents the individual differences or noise within groups after accounting for the modeled effects, including the random intercepts.
 
-So before moving on let's summarize what get got so far.
+So before moving on let's summarize what we got so far.
 
 We used mixed models with a **random intercept** to model the effect of age on protein expression. We got an estimated global intercept (baseline) and slope (main effect of interest). We took care of the grouping structure of our data without directly estimating any additional parameters. In fact, what we estimated was `intercept`, `slope`, `variance of Intercept` and `variance of residuals`. One of the coolest thing here is that we would have estimated the exact same number of parameters if our grouping structure had a lot more levels. But if we want to use grouping as covariate (in a classic model), we should have modeled all of those levels!
 
@@ -243,7 +243,7 @@ legend("topright", legend = legend_labels, col = c("blue", "red"), lty = 1)
 
 ```
 
-Here we have plotted  best unbiased estimated trend per group and also the global trend. We can see that all the lines are parallel (as we still did not model slope per group) and there is a deviation of slope in each of the groups compared to the global trend.
+Here we have plotted predicted group-specific lines and also the global trend. We can see that all the lines are parallel (as we still did not model slope per group) and there is a deviation of intercept in each of the groups compared to the global trend.
 
 Looking at @fig-scatter-plot-grouped-lmm, we can see that a lot of variation is because of the differences between the groups. This is exactly what the variance component of the mixed model showed us. The ratio of random intercept and the total variance quantifies how much of the total variability in the outcome is due to variability between groups: $\frac{`{r} round(as.list(summary(model_lmm))[['varcor']][[1]][1],3)`}{`{r} round(sigma(model_lmm)^2,3)`+`{r} round(as.list(summary(model_lmm))[['varcor']][[1]][1],3)`}=`r round(round(as.list(summary(model_lmm))[['varcor']][[1]][1],3)/(round(as.list(summary(model_lmm))[['varcor']][[1]][1],3)+round(sigma(model_lmm)^2,3))*100,2)`\%$. So most of the variation in the data is because of the differences between the groups. 
 
@@ -315,7 +315,7 @@ for (group in unique(data_int$group)) {
   abline(a = fixef(model_lmm_rs)[1], b = fixef(model_lmm_rs)[2], col = "blue")
   
 # Adding a legend to the plot
-legend_labels <- c("Global Effect", "Random Intercept", "Random Intercep and slope")
+legend_labels <- c("Global Effect", "Random Intercept", "Random Intercept and slope")
 legend("topright", legend = legend_labels, col = c("blue", "red","green"), lty = 1)
 
 
@@ -413,7 +413,7 @@ Nested models are particularly powerful for:
 
 #### Example
 
-In R (`lmer`), we can use `(1 | regions/clinics)` for samples nested within clinic, which are in turn nested within regions.
+In R (`lmer`), we can use `(1 | region/clinic)` for samples nested within clinic, which are in turn nested within regions. The notation `region/clinic` is shorthand for `region + region:clinic`.
 
 Let's see one example:
 
@@ -506,7 +506,7 @@ print(model_lmm_nested)
 
 This result is slightly different to what we have seen before using only a single grouping factor. Now we have **clinic within region (clinic:region)** in which the model estimates random intercepts and slopes for clinics nested within regions. This reflects the variability in baseline Protein expression and the effect of Age on Protein expression at the clinic level, indicating that clinics within the same region may still exhibit unique characteristics. The model also estimates random intercepts and slopes at the **region** level, capturing broader variations across regions. This indicates how different regions can have distinct baseline Protein expressions and different relationships between Age and Protein expression.
 
-The model identifies significant variability in baseline Protein expression levels across regions, as indicated by the standard deviation of the intercepts for regions. This variability signifies that different regions start off with different baseline Protein expressions. There's additional variability at the clinic level within each region, though this effect is smaller compared to the variability between regions.
+The model identifies substantial variability in baseline Protein expression levels across regions, as indicated by the standard deviation of the intercepts for regions. This variability signifies that different regions start off with different baseline Protein expressions. There's additional variability at the clinic level within each region, though this effect is smaller compared to the variability between regions.
 
 The slopes, representing the effect of Age on Protein expression, also vary by region and by clinic within regions. This variation in slopes indicates that the relationship between Age and Protein expression is not uniform; it changes from one region to another and even among clinics within the same region. Some regions or clinics might show a positive relationship (increasing Age associated with higher Protein expression), while others show a negative or negligible relationship.
 
@@ -1172,7 +1172,7 @@ It is always a good practice to design the model based on the population/sample 
 :::
 
 
-## Model daignostic
+## Model diagnostic
 
 The assumptions of mixed models are very similar to those of linear models. By far the most informative way of checking the model assumptions is the residuals vs fitted plot. This can be easily plotted using the `plot` function.
 
