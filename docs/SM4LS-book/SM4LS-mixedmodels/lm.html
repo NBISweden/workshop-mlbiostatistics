@@ -368,6 +368,18 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Mixed models (mathematical details)</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/lmm-exr1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Introduction to Mixed Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/lmm-exr2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Mixed models II</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -382,19 +394,19 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-survival/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-survival/regression.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-survival/lab.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">R examples</span></span></a>
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">R examples</span></span></a>
   </div>
 </li>
       </ul>
@@ -491,7 +503,7 @@ F-statistic: 20.07 on 1 and 38 DF,  p-value: 6.627e-05</code></pre>
 </div>
 <p>The intercept, estimated at 106.6762, represents the expected Protein expression when Age is zero. Although having an age of zero is not meaningful in this context, the intercept gives us a starting reference point for the model.</p>
 <p>The slope coefficient for Age (x) is -1.8836, indicating that for each one-unit increase in Age, Protein expression is expected to decrease by approximately 1.88 units. This negative association is significant, as indicated by the p-value of 6.63e-05, which is much lower than the conventional threshold of 0.05 for statistical significance.</p>
-<p>The standard error of the estimate for the slope tells us the average amount that the coefficient estimates vary from the actual average value of our response variable. Here, the standard error for the slope is 0.4204, which is relatively small compared to the estimate itself, suggesting a precise estimate of the slope. So we are pretty confident in what we have estimated. However, while the regression line provides a clear visual indication of the overall trend, it does not account for the potential clustering of data points.</p>
+<p>The standard error of the slope tells us the uncertainty in the estimated slope. Here, the standard error for the slope is 0.4204, which is relatively small compared to the estimate itself, suggesting a precise estimate of the slope. So we are pretty confident in what we have estimated. However, while the regression line provides a clear visual indication of the overall trend, it does not account for the potential clustering of data points.</p>
 <p>If you look more closely, you can see four different clusters of the data.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -523,7 +535,7 @@ Figure&nbsp;18.4: Scatter plot of Age vs.&nbsp;Protein expression including the 
 </div>
 </div>
 <p>More precisely, there is a positive trend in each of the clusters that has not been captured by the model. Instead the model focused on the global pattern. The example that we just saw was a case when both Protein expression and Age are correlated within each cluster.</p>
-<p>You could of course fit single model for each of the group or even using the groups as <code>covariate</code> in the model. Both of these options can be OK in circumstances that we don’t have too many groups and we have enough data in each of groups. Below we try to use the cluster as covariate to see what would happen to the coeffcients.</p>
+<p>You could of course fit a separate model for each group, or include group as a <code>covariate</code> in the model. Both of these options can be OK in circumstances that we don’t have too many groups and we have enough data in each of groups. Below we include cluster as a covariate to see what happens to the coeffcients.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-scatter-plot-mlm" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -539,7 +551,7 @@ Figure&nbsp;18.5: Scatter plot of Age vs.&nbsp;Protein expression including the 
 </div>
 </div>
 <p>As it is clear in the figure, the function <code>lm(y ~ x+group, data = data_int)</code> has fitted four different lines (one for each group). These lines are parallel to each other while each group has a different intercept.</p>
-<p>To make this even more clear we can have a look at the coeffcients of the the model:</p>
+<p>To make this even more clear we can have a look at the coefficients of the the model:</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -597,8 +609,8 @@ Figure&nbsp;18.6: Scatter plot of Age vs.&nbsp;Protein expression including the 
 <p>The interaction terms, specifically the coefficients for <code>x:group2</code>, <code>x:group3</code>, and <code>x:group4</code>, tell us just how much the slope of the relationship between <code>x</code> and <code>y</code> differs for each group compared to our baseline group1. For example, group2 has a slightly lesser slope than group1, indicating that as <code>x</code> increases, <code>y</code> increases but not as rapidly as in group1. Group3 follows a similar pattern, albeit the difference is more modest.</p>
 <p>Most intriguing is group4, where the interaction term is quite pronounced, suggesting that the increase in <code>y</code> with <code>x</code> is significantly less for group4 compared to <code>group1</code> in fact, it’s almost negligible, indicating a nearly flat line. This could mean that for individuals in <code>group4</code>, changes in <code>x</code> do not translate into changes in <code>y</code> as they do for the other groups.</p>
 <p>What we just saw was a simple example of how to handle clustered data in a simple linear regression. Without accounting for these cluster-related differences, the assumption of independence among observations—a cornerstone of linear regression—is violated, as the outcome within a cluster are inherently correlated. This correlation persists even when attempting to control for the cluster’s effect, due to other unobservable factors.</p>
-<p>The consequence of ignoring cluster-level effects might lead to incorrect inferences, as standard errors are usually underestimated, making them appear more precise than they actually are. While the regression coefficients themselves might remain unbiased, the underestimation of standard errors can falsely enhance the significance of findings. Furthermore, we often ten to overestimate the degrees of freedom leading to inflated p-values.</p>
-<p>Addressing this issue often involves introducing indicator variables (similar to what we have done above) to account for cluster effects, allowing for different intercepts or even slope for each cluster. However, this approach becomes impractical with a large number of clusters or when dealing with longitudinal data. Furthermore, we might not even be interested in modeling clusters parameters, we are just interested in some specific questions. Think about the simple dataset we just analyzed, the main effect of interest was <code>Age</code>, however, we had to estimate a lot more parameters in the model to account for the cluster effect. More specifically, in <code>lm(y~x+group)</code> we estimate <em>five</em> parameters and in <code>lm(y~x*group,data_int)</code> we had <em>eight</em> parameters while we basically needed <em>two</em>. These parameters are all degrees of freedom that we spend while we might not even be interested in the cluster level parameters. Now imagine we might have hundreds of nested clustered with limited data, such modeling attemp will quickly become .infeasible and may lead to overfitting. In such cases, the model would consume degrees of freedom excessively, reducing the power of statistical tests and potentially leading to unreliable estimates due to the curse of dimensionality. Moreover, with a high number of parameters relative to the number of observations, standard errors of the estimates increase, which can make the model’s predictions less precise.</p>
+<p>The consequence of ignoring cluster-level effects might lead to incorrect inferences, as standard errors are usually underestimated, making them appear more precise than they actually are. While the regression coefficients themselves might remain unbiased, the underestimation of standard errors can falsely enhance the significance of findings. Furthermore, we often tend to overestimate the degrees of freedom, which can lead to too low p-values.</p>
+<p>Addressing this issue often involves introducing indicator variables (similar to what we have done above) to account for cluster effects, allowing for different intercepts or even slope for each cluster. However, this approach becomes impractical with a large number of clusters or when dealing with longitudinal data. Furthermore, we might not even be interested in modeling clusters parameters, we are just interested in some specific questions. Think about the simple dataset we just analyzed, the main effect of interest was <code>Age</code>, however, we had to estimate a lot more parameters in the model to account for the cluster effect. More specifically, in <code>lm(y~x+group)</code> we estimate <em>five</em> parameters and in <code>lm(y~x*group,data_int)</code> we had <em>eight</em> parameters while we basically needed <em>two</em>. These parameters are all degrees of freedom that we spend while we might not even be interested in the cluster level parameters. Now imagine we might have hundreds of nested clustered with limited data, such modeling attempts will quickly become infeasible and may lead to overfitting. In such cases, the model would consume degrees of freedom excessively, reducing the power of statistical tests and potentially leading to unreliable estimates due to the curse of dimensionality. Moreover, with a high number of parameters relative to the number of observations, standard errors of the estimates increase, which can make the model’s predictions less precise.</p>
 <p>To address these issues, we often resort to mixed-effects models which is the topic of the next chapter.</p>
 
 

@@ -3,11 +3,9 @@
 ```{r}
 #| label: setup
 #| include: FALSE
-library(ggplot2)
-library(reshape2)
 library(knitr)
-library(kableExtra)
 library(tidyverse)
+library(gt)
 library(ggthemes)
 
 options(digits=2)
@@ -34,7 +32,8 @@ The probability mass function of a fair six-sided die can be summarized in a tab
 ```{r}
 #| label: tbl-pmfdice
 #| tbl-cap: "Probability mass function of a fair six-sided dice."
-kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
+tibble(x = 1:6, `p(x)` = round(rep(1/6, 6), 3)) |> gt()
+##kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
 ```
 
 or in a bar plot;
@@ -53,7 +52,8 @@ The nucleotide at a given genomic site can be one of the four nucleotides: {A, C
 #| label: tbl-nucl
 #| tbl-cap: "Probability mass function of a nucleotide site."
 p <- c(A=0.4, C=0.2, T=0.1, G=0.3)
-kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
+tibble(x=names(p), "p(x)"=p) |> gt()
+#kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %>% kable_styling()
 ```
 
 ```{r fig-nucl}
@@ -267,7 +267,8 @@ p & \mathrm{if}\,x=1\, \mathrm{success}\\
 \right.$$
 
 ```{r pbernoulli, eval=FALSE, echo=FALSE}
-kable(matrix(c('x','0','1','p(x)','1-p','p'), byrow=TRUE, ncol=3)) %>% kable_styling("striped", full_width = FALSE)
+tibble(x=c(0,1), "p(x)"=c("1-p", "p")) |> gt()
+#kable(matrix(c('x','0','1','p(x)','1-p','p'), byrow=TRUE, ncol=3)) %>% kable_styling("striped", full_width = FALSE)
 ```
 
 Using the definitions of expected value and variance it can be shown that:

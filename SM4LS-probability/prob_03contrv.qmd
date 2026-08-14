@@ -8,7 +8,6 @@ output: html_document
 #| label: setup
 #| include: FALSE
 library(ggplot2)
-library(reshape2)
 library(knitr)
 library(kableExtra)
 library(tidyverse)
@@ -85,7 +84,7 @@ The cumulative distribution function is increasing from 0 to 1.
 #| layout-ncol: 2
 plot(ggplot(df.nwt, aes(x=w, y=f)) + geom_line() + theme_bw() + xlab("x") + ylab("f(x)") + geom_area(data=df.nwt %>% filter(w<4.0)) + annotate("label",label=sprintf("P(X<4.0) = F(4.0) = %.2f", pnorm(4,3.5,0.5)), x=2.7, y=0.4, hjust=0))
 df.nwt$F <- pnorm(df.nwt$w, 3.5, 0.5)
-plot(ggplot(df.nwt, aes(x=w, y=F)) + geom_line() + xlab("x") + ylab("F(x)") + theme_bw() + geom_point(aes(x=4, y=pnorm(4,3.5,.5))) + annotate("label",label=sprintf("F(4.0)=%.2f", pnorm(4,3.5,.5)), x=4, y=.84, hjust=-0.2))##+ ggtitle("Cumulative distribution function") 
+plot(ggplot(df.nwt, aes(x=w, y=F)) + geom_line() + xlab("x") + ylab("F(x)") + theme_bw() + geom_point(data=data.frame(w=4, F=pnorm(4,3.5,.5))) + annotate("label",label=sprintf("F(4.0)=%.2f", pnorm(4,3.5,.5)), x=4, y=.84, hjust=-0.2))##+ ggtitle("Cumulative distribution function") 
 ```
 
 $$P(X \leq x) = F(x)$$
@@ -245,7 +244,7 @@ Randomly sample 3, 5, 10, 15, 20, 30 values and compute the mean value, $m$. Rep
 #| fig-cap: "Distribution of sample means, where the means are computed based on random samples of sizes 3, 5, 10, 15, 20 and 30, respectively."
 #| fig.width: 5
 #| fig.height: 5
-rs <- data.frame(n = c(3,5,10,15,20,30)) |> group_by(n) |> summarize(m=replicate(10000, mean(sample(miceage, n))), .groups="drop")
+rs <- data.frame(n = c(3,5,10,15,20,30)) |> group_by(n) |> reframe(m=replicate(10000, mean(sample(miceage, n))), .groups="drop")
 rs |> ggplot(aes(x=m, fill=factor(n))) + geom_histogram(bins=50) + theme_bw() + facet_wrap(~factor(n))+ theme(legend.position="none")
 ```
 

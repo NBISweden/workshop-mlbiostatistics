@@ -10,9 +10,10 @@ if (file.exists("_quarto.yml.bak")) {
   if (!file.exists("_quarto.yml")) {
     cleanup <- TRUE
   } else {
+    ## Check if the original config is newer than the backup (it might be a few seconds newer if many files had to be copied), but a longer time difference indicates that the original config was modified manually after the backup was created.
     bak_time <- file.info("_quarto.yml.bak")$mtime |> as.integer()
     orig_time <- file.info("_quarto.yml")$mtime |> as.integer()
-    cleanup <- bak_time >= orig_time
+    cleanup <- orig_time - bak_time < 10
   }
   if (!cleanup) {
     stop("❌ ERROR: Build halted! The original config file '_quarto.yml' is newer than the backup. Please check for changes before restoring.\n")

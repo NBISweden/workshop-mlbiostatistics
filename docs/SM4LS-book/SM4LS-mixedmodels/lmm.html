@@ -400,6 +400,18 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Mixed models (mathematical details)</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/lmm-exr1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Introduction to Mixed Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/lmm-exr2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Mixed models II</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -414,19 +426,19 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-survival/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-survival/regression.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-survival/lab.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">R examples</span></span></a>
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">R examples</span></span></a>
   </div>
 </li>
       </ul>
@@ -465,7 +477,7 @@ window.Quarto = {
   <li><a href="#understand-what-you-are-doing" id="toc-understand-what-you-are-doing" class="nav-link" data-scroll-target="#understand-what-you-are-doing"><span class="header-section-number">19.3.4</span> Understand what you are doing!</a></li>
   </ul></li>
   <li><a href="#model-selection-and-comparisons-using-lrt" id="toc-model-selection-and-comparisons-using-lrt" class="nav-link" data-scroll-target="#model-selection-and-comparisons-using-lrt"><span class="header-section-number">19.4</span> Model selection and comparisons using LRT</a></li>
-  <li><a href="#model-daignostic" id="toc-model-daignostic" class="nav-link" data-scroll-target="#model-daignostic"><span class="header-section-number">19.5</span> Model daignostic</a></li>
+  <li><a href="#model-diagnostic" id="toc-model-diagnostic" class="nav-link" data-scroll-target="#model-diagnostic"><span class="header-section-number">19.5</span> Model diagnostic</a></li>
   <li><a href="#p-value-calculation-and-marginal-means" id="toc-p-value-calculation-and-marginal-means" class="nav-link" data-scroll-target="#p-value-calculation-and-marginal-means"><span class="header-section-number">19.6</span> P-value calculation and marginal means</a>
   <ul class="collapse">
   <li><a href="#anova-type-i-ii-and-iii" id="toc-anova-type-i-ii-and-iii" class="nav-link" data-scroll-target="#anova-type-i-ii-and-iii"><span class="header-section-number">19.6.1</span> ANOVA type I, II, and III</a></li>
@@ -496,8 +508,8 @@ window.Quarto = {
 </header>
 
 
-<p>As briefly mentioned in the previous chapter, mixed-effects models (also known as multilevel or hierarchical models) are used introduce random effects to account for the cluster variations. This approach allows us to model the dependency structure due to clusters without having to estimate a separate parameter for each cluster effect. Mixed-effects models incorporate the clustering in the variance-covariance structure of the data, which provides a more parsimonious and interpretable model, especially when our primary interest lies in the fixed effects, such as the main effect of <code>Age</code> in the previous example.</p>
-<p>Correlated is more common in biology than one might think. For example:</p>
+<p>As briefly mentioned in the previous chapter, mixed-effects models (also known as multilevel or hierarchical models) are used when observations are grouped and hence not independent. This approach allows us to model the dependency structure due to clusters without having to estimate a separate parameter for each cluster effect. Mixed-effects models incorporate the clustering in the variance-covariance structure of the data, which provides a more parsimonious and interpretable model, especially when our primary interest lies in the fixed effects, such as the main effect of <code>Age</code> in the previous example.</p>
+<p>Correlated observations are more common in biology than one might think. For example:</p>
 <ul>
 <li><p><strong>Repeated Measurements:</strong> Suppose you’re measuring a patient’s blood pressure over time. Measurements from the same patient will naturally be more similar to each other than those from different patients. A mixed-effects model handles this by modeling the variation between patients.</p></li>
 <li><p><strong>Nested Designs:</strong> Imagine studying the effectiveness of a new drug on mice housed within different cages. Mice within the same cage might be more alike due to shared environments. A mixed-effects model accounts for both variation between mice and variation between cages.</p></li>
@@ -526,19 +538,19 @@ window.Quarto = {
 <section id="random-effect" class="level3" data-number="19.1.2">
 <h3 data-number="19.1.2" class="anchored" data-anchor-id="random-effect"><span class="header-section-number">19.1.2</span> Random effect</h3>
 <p>The random-effects offer a more flexible and realistic approach, especially in contexts where between-study variability is expected or observed. The defining feature of the random-effects model is the assumption that there is a distribution of true effect sizes across studies, and the goal is to estimate the mean of this distribution. This approach accounts for variation not only within studies (due to sampling error) but also between studies, recognizing that different studies may inherently have different true effect sizes due to various factors (e.g., differences in populations, interventions, outcomes measured).</p>
-<p>Returning to our scenario of evaluating the impact of a vitamin supplement on the duration of common cold symptoms, let’s consider that the clinical trials are conducted across various geographical locations, each with a distinct demographic and environmental profile. These location-based groups could inherently influence how participants respond to the supplement, independent of the supplement’s effect itself. We would introduce random intercepts for each geographical location. This means that while we are still interested in estimating the overall effect of the vitamin supplement on symptom duration, we also acknowledge that each location starts from a different baseline in terms of average symptom duration without the supplement. However, we actually don’t directly estimate these baselines but rather assume that these baselines are randomly samples from a distribution of baselines in the population with certain statistical properties. Therefore, we are not interested in each single baseline but we want to know statistical properties of the distribution of baselines.</p>
+<p>Returning to our scenario of evaluating the impact of a vitamin supplement on the duration of common cold symptoms, let’s consider that the clinical trials are conducted across various geographical locations, each with a distinct demographic and environmental profile. These location-based groups could inherently influence how participants respond to the supplement, independent of the supplement’s effect itself. We would introduce random intercepts for each geographical location. This means that while we are still interested in estimating the overall effect of the vitamin supplement on symptom duration, we also acknowledge that each location starts from a different baseline in terms of average symptom duration without the supplement. However, we actually don’t directly estimate these baselines but rather assume that these baselines are randomly sampled from a distribution of baselines in the population with certain statistical properties. Therefore, we are not interested in each single baseline but we want to know statistical properties of the distribution of baselines.</p>
 <p>In summary, the fixed-effect model’s generalization is limited to the “levels” within the experiment, meaning it applies to populations or conditions that exactly match those of the included studies. It treats the effect as if it were a fixed property of the specific scenarios tested. In contrast, the random-effects model allows for generalization to “levels beyond those that took part in the study,” acknowledging that the effect sizes are part of a distribution across a wider population. This model treats the effect as a variable property reflecting a range of possible scenarios, including those not directly observed in the analysis.</p>
 <p>This might sounds too complicated or abstract. We are going to clarify this with a few examples.</p>
 </section>
 </section>
 <section id="ingredients" class="level2" data-number="19.2">
 <h2 data-number="19.2" class="anchored" data-anchor-id="ingredients"><span class="header-section-number">19.2</span> Ingredients</h2>
-<p>In this section, we will try to clarify what information do we need in order to fit a linear model.</p>
+<p>In this section, we will try to clarify what information do we need in order to fit a mixed model.</p>
 <section id="grouping-structure-of-the-data" class="level3" data-number="19.2.1">
 <h3 data-number="19.2.1" class="anchored" data-anchor-id="grouping-structure-of-the-data"><span class="header-section-number">19.2.1</span> Grouping Structure of the Data</h3>
 <p>The first and most important thing is to understand the data we are dealing with. Before we can make any attempt to use mixed models, we need to know what kind of grouping structure we want to capture. Mixed models are particularly useful when data is collected in groups or clusters, such as measurements from different subjects, schools, geographical locations, or time points within subjects. Identifying the hierarchy or nested structure where observations are grouped within higher-level units is crucial. This grouping structure can significantly influence the correlations among observations, as data points within the same group are likely to be more similar to each other than to data points in different groups. Understanding this structure allows us to correctly model the random effects, which account for the variability at different levels of the data hierarchy, thereby improving the accuracy and interpretability of our results. By incorporating these random effects, mixed models enable us to make inferences about both the fixed effects, which are consistent across groups, and the random effects, which vary across groups.</p>
 <p>Without having this information, we cannot use standard mixed models. This grouping must be categorical, not continuous, as mixed models rely on categorical variables to define the levels of the hierarchy or nested structure within the data. Categorical grouping allows us to classify observations into distinct categories or groups that share common characteristics.</p>
-<p>It is obvious but worth mentioning that these grouping should not be confused with random effects.Random effects are calculated based on the assumption that data points within the same group may share more similarities with each other than with data points from different categories, thus accounting for the within-group correlation. Therefore, the identification of categorical groupings is not just a step in the analysis but a prerequisite for accurately calculating and interpreting the random effects that are fundamental to the mixed model’s approach to data analysis.</p>
+<p>The grouping factor identifies the clusters. The random effect is the model component allowed to vary across these clusters. Random effects are calculated based on the assumption that data points within the same group may share more similarities with each other than with data points from other groups, thus accounting for the within-group correlation. Therefore, the identification of categorical groupings is not just a step in the analysis but a prerequisite for accurately calculating and interpreting the random effects that are fundamental to the mixed model’s approach to data analysis.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -549,7 +561,7 @@ Important
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>You cannot use continuous data as grouping if it does not have levels. Without these discrete levels, it becomes impossible to define the clusters or hierarchies necessary for calculating random effects. To effectively employ mixed models, one must either use inherently categorical variables or discretize continuous variables into meaningful categories.</p>
+<p>A grouping variable in standard mixed models should have repeated levels defining the clusters such as patient, clinic, cage or family. The grouping cannot be defined by unique continuous values such as age or BMI.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -562,10 +574,10 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Sometimes it is not clear what grouping of data exist. Or even what should be used as grouping. In often (but not always), the grouping is something different than what we are interested in. For example, let’s say, we have gathered data from patients with a disease and attempted to find a matched control based on certain characteristics such as age, BMI etc. The group of interest here is disease vs.&nbsp;healthy and a possible grouping variable for random effect would be a match ID for each patient and its matched control.</p>
+<p>Sometimes it is not clear what grouping of data exist. Or even what should be used as grouping. Often (but not always), the grouping is something different than what we are interested in. For example, let’s say, we have gathered data from patients with a disease and attempted to find a matched control based on certain characteristics such as age, BMI etc. The group of interest here is disease vs.&nbsp;healthy and a possible grouping variable for random effect would be a match ID for each patient and its matched control.</p>
 </div>
 </div>
-<p>The last thing i would like to mention is that, how many levels the random effect grouping should have in order to be included in the model. Although there is no golden consensus about it but most people tend to agree that the number levels of the group factor should be more than five to be accurately modeled by mixed models. Although some argue that with even two levels, mixed model will be like classical linear regression one should be extra cautious about it.</p>
+<p>Very small numbers of groups can make the estimation unstable and mixed models based on only a few groups should be interpreted with caution. There is no no golden consensus, but more than five group levels are usually needed for a stable estimate.</p>
 </section>
 <section id="design-for-fixed-and-random-effects" class="level3" data-number="19.2.2">
 <h3 data-number="19.2.2" class="anchored" data-anchor-id="design-for-fixed-and-random-effects"><span class="header-section-number">19.2.2</span> Design for fixed and random effects</h3>
@@ -645,7 +657,7 @@ F-statistic: 181.6 on 4 and 35 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 <p>This model has four different intercepts, one for each group and a single slope that is identical for each group.</p>
-<p>Given this result, we have estimated the group coefficients and we can go ahead with comparing the groups or do whatever we wanted to do with these estimates. It is important that here we don’t have a global slope. We have four slopes, one for each group.</p>
+<p>Given this result, we have estimated the group coefficients and we can go ahead with comparing the groups or do whatever we wanted to do with these estimates. It is important that here we don’t have a global intercept. We have four intercepts, one for each group.</p>
 <p>Now it is time to do the same analysis using the mixed model approach. The model that we are going fit using <code>lmer</code> function from <code>lme4</code> is of form <code>y ~ 1+x+(1|group)</code>. This part of the model, <code>y ~ 1+x</code>, we already know what it is. However, what this part <code>(1|group)</code> is new. The right part of <code>|</code> shows what variable we want to use as grouping factor by which we are going to fit our random effect (That is the <code>group</code> in our case). The left part of <code>|</code> is the effect we want to consider random. The left part is like a formula, similar to classical regression. which in this case, we just used <code>1</code>. This means for our main model, <code>y ~ 1+x</code> which has an intercept (<code>1</code>) and a slope <code>x</code>, we would like to consider the intercept as random effect so we use <code>1</code>.</p>
 <p>Now that we know the structure of the model, let’s go ahead and do the modeling:</p>
 <div class="cell">
@@ -693,9 +705,9 @@ x            2.556149   0.589159 4.338640</code></pre>
 </div>
 </div>
 <p>Depending of what type of random effect we have been fitting this table can have different headers. But generally, <code>Groups</code>, <code>Name</code>, <code>Variance</code>, <code>Std.Dev.</code> and <code>Corr</code> are part of it.</p>
-<p>Each row of this table correspond to a source of variation in our data that is random because of a certain reason. In our model, we decided to consider only <code>Intercept</code> as a random effect for <code>group</code>. Therefore, the first row of the table tells us that there is <strong>random</strong> variability in <code>Intercept</code> between different group. This variability is quantified by a variance of 378.606 and a standard deviation of 19.458. This means that the average effect (or intercept) across groups can deviate from the overall (<code>global</code>) intercept by about 19.458 units, indicating substantial between-group variability. This is important to note that, we have actually never estimated any intercept for each group directly. But we have estimated the variability of intercepts across different groups, which allows us to account for the fact that each group may have a different starting point or baseline level in the response variable, even though these specific baseline levels are not directly calculated. You can think about this as the variance of the distribution of intercepts across the groups. Essentially, we’re modeling the distribution from which each group’s intercept is drawn.</p>
+<p>Each row of this table correspond to a source of variation in our data that is random because of a certain reason. In our model, we decided to consider only <code>Intercept</code> as a random effect for <code>group</code>. Therefore, the first row of the table tells us that there is <strong>random</strong> variability in <code>Intercept</code> between different group. This variability is quantified by a variance of 378.606 and a standard deviation of 19.458. This means that the average effect (or intercept) across groups can deviate from the overall (<code>global</code>) intercept by about 19.458 units, indicating substantial between-group variability. We did not fit separate fixed intercept parameters for each group, but we we have estimated the variability of intercepts across different groups, which allows us to account for the fact that each group may have a different starting point or baseline level in the response variable, even though these specific baseline levels are not directly calculated. You can think about this as the variance of the distribution of intercepts across the groups. Essentially, we’re modeling the distribution from which each group’s intercept is drawn.</p>
 <p>The second row, labeled <code>Residual</code>, refers to the variability within each group that is not explained by the model predictors (because of random sampling). The variance here is 5.931, with a standard deviation of 2.435. This residual variance represents the individual differences or noise within groups after accounting for the modeled effects, including the random intercepts.</p>
-<p>So before moving on let’s summarize what get got so far.</p>
+<p>So before moving on let’s summarize what we got so far.</p>
 <p>We used mixed models with a <strong>random intercept</strong> to model the effect of age on protein expression. We got an estimated global intercept (baseline) and slope (main effect of interest). We took care of the grouping structure of our data without directly estimating any additional parameters. In fact, what we estimated was <code>intercept</code>, <code>slope</code>, <code>variance of Intercept</code> and <code>variance of residuals</code>. One of the coolest thing here is that we would have estimated the exact same number of parameters if our grouping structure had a lot more levels. But if we want to use grouping as covariate (in a classic model), we should have modeled all of those levels!</p>
 <section id="predicting-the-random-intercept" class="level3" data-number="19.3.1">
 <h3 data-number="19.3.1" class="anchored" data-anchor-id="predicting-the-random-intercept"><span class="header-section-number">19.3.1</span> Predicting the random intercept</h3>
@@ -727,7 +739,7 @@ Figure&nbsp;19.2: Scatter plot of Age vs.&nbsp;Protein expression per group with
 </div>
 </div>
 </div>
-<p>Here we have plotted best unbiased estimated trend per group and also the global trend. We can see that all the lines are parallel (as we still did not model slope per group) and there is a deviation of slope in each of the groups compared to the global trend.</p>
+<p>Here we have plotted predicted group-specific lines and also the global trend. We can see that all the lines are parallel (as we still did not model slope per group) and there is a deviation of intercept in each of the groups compared to the global trend.</p>
 <p>Looking at <a href="#fig-scatter-plot-grouped-lmm" class="quarto-xref">Figure&nbsp;<span>19.2</span></a>, we can see that a lot of variation is because of the differences between the groups. This is exactly what the variance component of the mixed model showed us. The ratio of random intercept and the total variance quantifies how much of the total variability in the outcome is due to variability between groups: <span class="math inline">\(\frac{378.606}{5.931+378.606}=98.46\%\)</span>. So most of the variation in the data is because of the differences between the groups.</p>
 </section>
 <section id="random-slope" class="level3" data-number="19.3.2">
@@ -748,10 +760,10 @@ Scaled residuals:
 -1.56057 -0.74656 -0.02922  0.26277  2.22754 
 
 Random effects:
- Groups   Name        Variance Std.Dev. Corr 
- group    (Intercept) 344.655  18.565        
-          x             5.141   2.267   -0.93
- Residual               3.672   1.916        
+ Groups   Name        Variance Std.Dev. Corr  
+ group    (Intercept) 344.655  18.565         
+          x             5.141   2.267   -0.93 
+ Residual               3.672   1.916         
 Number of obs: 40, groups:  group, 4
 
 Fixed effects:
@@ -769,10 +781,10 @@ x -0.904</code></pre>
 <p>The <code>Random effects</code> section of the model summary now includes information about the variability in slopes in addition to the intercepts.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code> Groups   Name        Std.Dev. Corr  
- group    (Intercept) 18.5649        
-          x            2.2675  -0.933
- Residual              1.9164        </code></pre>
+<pre><code> Groups   Name        Std.Dev. Corr   
+ group    (Intercept) 18.5649         
+          x            2.2675  -0.933 
+ Residual              1.9164         </code></pre>
 </div>
 </div>
 <p>We still have the major source of variation in our data caused by <code>Intercept</code> and a smaller, but still present, variability in how age affects protein expression across these clinics (the slope <code>x</code>).</p>
@@ -897,7 +909,7 @@ Important
 </section>
 <section id="example" class="level4" data-number="19.3.3.3">
 <h4 data-number="19.3.3.3" class="anchored" data-anchor-id="example"><span class="header-section-number">19.3.3.3</span> Example</h4>
-<p>In R (<code>lmer</code>), we can use <code>(1 | regions/clinics)</code> for samples nested within clinic, which are in turn nested within regions.</p>
+<p>In R (<code>lmer</code>), we can use <code>(1 | region/clinic)</code> for samples nested within clinic, which are in turn nested within regions. The notation <code>region/clinic</code> is shorthand for <code>region + region:clinic</code>.</p>
 <p>Let’s see one example:</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -921,12 +933,12 @@ Formula: y ~ x + (x | region/clinic)
    Data: data_int_nested
 REML criterion at convergence: 859.4597
 Random effects:
- Groups        Name        Std.Dev. Corr 
- clinic:region (Intercept)  8.124        
-               x            1.104   -0.31
- region        (Intercept) 19.610        
-               x            2.572   -0.25
- Residual                   1.042        
+ Groups        Name        Std.Dev. Corr  
+ clinic:region (Intercept)  8.124         
+               x            1.104   -0.31 
+ region        (Intercept) 19.610         
+               x            2.572   -0.25 
+ Residual                   1.042         
 Number of obs: 240, groups:  clinic:region, 12; region, 4
 Fixed Effects:
 (Intercept)            x  
@@ -934,7 +946,7 @@ Fixed Effects:
 </div>
 </div>
 <p>This result is slightly different to what we have seen before using only a single grouping factor. Now we have <strong>clinic within region (clinic:region)</strong> in which the model estimates random intercepts and slopes for clinics nested within regions. This reflects the variability in baseline Protein expression and the effect of Age on Protein expression at the clinic level, indicating that clinics within the same region may still exhibit unique characteristics. The model also estimates random intercepts and slopes at the <strong>region</strong> level, capturing broader variations across regions. This indicates how different regions can have distinct baseline Protein expressions and different relationships between Age and Protein expression.</p>
-<p>The model identifies significant variability in baseline Protein expression levels across regions, as indicated by the standard deviation of the intercepts for regions. This variability signifies that different regions start off with different baseline Protein expressions. There’s additional variability at the clinic level within each region, though this effect is smaller compared to the variability between regions.</p>
+<p>The model identifies substantial variability in baseline Protein expression levels across regions, as indicated by the standard deviation of the intercepts for regions. This variability signifies that different regions start off with different baseline Protein expressions. There’s additional variability at the clinic level within each region, though this effect is smaller compared to the variability between regions.</p>
 <p>The slopes, representing the effect of Age on Protein expression, also vary by region and by clinic within regions. This variation in slopes indicates that the relationship between Age and Protein expression is not uniform; it changes from one region to another and even among clinics within the same region. Some regions or clinics might show a positive relationship (increasing Age associated with higher Protein expression), while others show a negative or negligible relationship.</p>
 <p>Similar to what we have seen before, the model provides a correlation coefficient between the intercept and slope within clinics nested in regions. A negative correlation suggests that clinics with higher baseline Protein expression tend to have a less steep (or more negative) Age effect, or vice versa.</p>
 <p>Finally, the fixed effect intercept represents the average baseline level of Protein expression when Age is zero, pooled across all regions and clinics. This gives a general starting point for Protein expression across the dataset. And the fixed effect slope indicates the average effect of Age on Protein expression, again pooled across the entire dataset. This effect sizes up the general tendency of how Protein expression changes with Age, irrespective of the region or clinic.</p>
@@ -1032,12 +1044,12 @@ Formula: y ~ x + (x | clinic) + (x | doctor)
    Data: data_int_crossed
 REML criterion at convergence: 732.3083
 Random effects:
- Groups   Name        Std.Dev. Corr 
- clinic   (Intercept) 25.4828       
-          x            0.2434  -0.17
- doctor   (Intercept)  0.4461       
-          x            2.6332  0.82 
- Residual              0.9559       
+ Groups   Name        Std.Dev. Corr  
+ clinic   (Intercept) 25.4828        
+          x            0.2434  -0.17 
+ doctor   (Intercept)  0.4461        
+          x            2.6332  0.82  
+ Residual              0.9559        
 Number of obs: 240, groups:  clinic, 4; doctor, 3
 Fixed Effects:
 (Intercept)            x  
@@ -1172,8 +1184,8 @@ Figure&nbsp;19.8: Scatter plot of treatment vs recovery time (random intercept)
 <p>We have to specifically clarify for <code>lmer</code> which effects we want to be random. In this case, we are going to use the treatment effect as random and check what would happen</p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
-Model failed to converge with max|grad| = 0.00275838 (tol = 0.002, component 1)</code></pre>
+<pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, : Model failed to converge with max|grad| = 0.00275838 (tol = 0.002, component 1)
+  See ?lme4::convergence and ?lme4::troubleshooting.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
@@ -1181,11 +1193,11 @@ Formula: recoveryTime ~ treatment + (1 + treatment | doctor)
    Data: data_int_treatment
 REML criterion at convergence: 2545.443
 Random effects:
- Groups   Name        Std.Dev. Corr       
- doctor   (Intercept)  3.4988             
-          treatmentB   0.4936  -0.84      
-          treatmentC  11.2470  -0.80  0.34
- Residual              1.9710             
+ Groups   Name        Std.Dev. Corr        
+ doctor   (Intercept)  3.4988              
+          treatmentB   0.4936  -0.84       
+          treatmentC  11.2470  -0.80  0.34 
+ Residual              1.9710              
 Number of obs: 600, groups:  doctor, 3
 Fixed Effects:
 (Intercept)   treatmentB   treatmentC  
@@ -1269,10 +1281,10 @@ Formula: recoveryTime ~ treatment * dosage + (1 + dosage | doctor)
    Data: data_int_interaction
 REML criterion at convergence: 4363.593
 Random effects:
- Groups   Name        Std.Dev. Corr 
- doctor   (Intercept) 11.5778       
-          dosage       0.3272  -0.96
- Residual              9.1444       
+ Groups   Name        Std.Dev. Corr  
+ doctor   (Intercept) 11.5778        
+          dosage       0.3272  -0.96 
+ Residual              9.1444        
 Number of obs: 600, groups:  doctor, 3
 Fixed Effects:
       (Intercept)         treatmentB         treatmentC             dosage  
@@ -1306,12 +1318,12 @@ Formula: recoveryTime ~ treatment * dosage + (1 + treatment + dosage |
    Data: data_int_interaction
 REML criterion at convergence: 2791.263
 Random effects:
- Groups   Name        Std.Dev. Corr             
- doctor   (Intercept)  4.8010                   
-          treatmentB   0.3782  -1.00            
-          treatmentC  22.4142   0.85 -0.85      
-          dosage       0.3983  -0.84  0.84 -1.00
- Residual              2.4015                   
+ Groups   Name        Std.Dev. Corr              
+ doctor   (Intercept)  4.8010                    
+          treatmentB   0.3782  -1.00             
+          treatmentC  22.4142   0.85 -0.85       
+          dosage       0.3983  -0.84  0.84 -1.00 
+ Residual              2.4015                    
 Number of obs: 600, groups:  doctor, 3
 Fixed Effects:
       (Intercept)         treatmentB         treatmentC             dosage  
@@ -1347,14 +1359,14 @@ Formula: recoveryTime ~ treatment * dosage + (1 + treatment * dosage |
    Data: data_int_interaction
 REML criterion at convergence: 2580.411
 Random effects:
- Groups   Name              Std.Dev. Corr                         
- doctor   (Intercept)        2.4120                               
-          treatmentB         0.9624   1.00                        
-          treatmentC        29.8022   0.43  0.43                  
-          dosage             0.1633   0.86  0.86  0.84            
-          treatmentB:dosage  0.2238  -1.00 -1.00 -0.47 -0.88      
-          treatmentC:dosage  1.3254  -0.46 -0.46 -1.00 -0.85  0.50
- Residual                    2.0081                               
+ Groups   Name              Std.Dev. Corr                          
+ doctor   (Intercept)        2.4120                                
+          treatmentB         0.9624   1.00                         
+          treatmentC        29.8022   0.43  0.43                   
+          dosage             0.1633   0.86  0.86  0.84             
+          treatmentB:dosage  0.2238  -1.00 -1.00 -0.47 -0.88       
+          treatmentC:dosage  1.3254  -0.46 -0.46 -1.00 -0.85  0.50 
+ Residual                    2.0081                                
 Number of obs: 600, groups:  doctor, 3
 Fixed Effects:
       (Intercept)         treatmentB         treatmentC             dosage  
@@ -1504,8 +1516,8 @@ Important
 </div>
 </div>
 </section>
-<section id="model-daignostic" class="level2" data-number="19.5">
-<h2 data-number="19.5" class="anchored" data-anchor-id="model-daignostic"><span class="header-section-number">19.5</span> Model daignostic</h2>
+<section id="model-diagnostic" class="level2" data-number="19.5">
+<h2 data-number="19.5" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">19.5</span> Model diagnostic</h2>
 <p>The assumptions of mixed models are very similar to those of linear models. By far the most informative way of checking the model assumptions is the residuals vs fitted plot. This can be easily plotted using the <code>plot</code> function.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -1565,18 +1577,20 @@ Caution: You lose important information if you filter this package's results.
 See '? untidy'</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
+<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in ptukey(sqrt(2) * abst, fam.size, zapsmall(df), lower.tail = FALSE):
+NaNs produced</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dosage = 5.5:
- contrast estimate     SE   df t.ratio p.value
- A - B        77.3  0.259 3.28 298.533  &lt;.0001
- A - C        19.2 13.000 2.04   1.476  0.4530
- B - C       -58.1 13.100 2.04  -4.439  0.0819
+ contrast estimate    SE   df t.ratio p.value
+ A - B        77.3  0.27 1.97 286.427      NA
+ A - C        19.2 13.00 2.00   1.476      NA
+ B - C       -58.1 13.10 2.00  -4.438      NA
 
-Degrees-of-freedom method: satterthwaite 
+Degrees-of-freedom method: kenward-roger 
 P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
 </div>
 </div>
@@ -1592,12 +1606,22 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <p>We can visualize this using <code>pwpp</code> function</p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
+<pre><code>Warning in ptukey(sqrt(2) * abst, fam.size, zapsmall(df), lower.tail = FALSE):
+NaNs produced</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in min(pvtmp): no non-missing arguments to min; returning Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in max(pvtmp): no non-missing arguments to max; returning -Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 6 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 6 rows containing missing values or values outside the scale range
+(`geom_segment()`).</code></pre>
 </div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -1612,30 +1636,29 @@ Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></p
 <p>The second comparison we are interested in is the effect of dosage between treatments. We can use <code>emtrends</code> for comparing numberical variables (slopes) across different groups:</p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
+<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in ptukey(sqrt(2) * abst, fam.size, zapsmall(df), lower.tail = FALSE):
+NaNs produced</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$emtrends
  treatment dosage.trend     SE   df lower.CL upper.CL
- A                3.050 0.1100 2.13     2.60     3.50
- B               -1.977 0.0871 2.61    -2.28    -1.67
- C                0.408 0.6890 2.04    -2.50     3.31
+ A                3.050 0.1140 1.96     2.55     3.55
+ B               -1.977 0.0912 1.97    -2.38    -1.58
+ C                0.408 0.6890 2.00    -2.56     3.37
 
-Degrees-of-freedom method: satterthwaite 
+Degrees-of-freedom method: kenward-roger 
 Confidence level used: 0.95 
 
 $contrasts
  contrast estimate    SE   df t.ratio p.value
- A - B        5.03 0.152 2.10  33.014  0.0004
- A - C        2.64 0.769 2.05   3.435  0.1299
- B - C       -2.38 0.714 2.04  -3.339  0.1378
+ A - B        5.03 0.158 1.98  31.758      NA
+ A - C        2.64 0.770 2.00   3.432      NA
+ B - C       -2.38 0.715 2.00  -3.336      NA
 
-Degrees-of-freedom method: satterthwaite 
+Degrees-of-freedom method: kenward-roger 
 P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
 </div>
 </div>
@@ -1665,53 +1688,25 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <p>Type II:</p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
+<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> model term       df1  df2   F.ratio p.value
- treatment          2 2.04 51012.650  &lt;.0001
- dosage             1 2.04     6.160  0.1284
- treatment:dosage   2 2.05   624.940  0.0014</code></pre>
+ treatment          2 1.97 46430.260 &lt;0.0001
+ dosage             1 2.00     6.130  0.1317
+ treatment:dosage   2 1.98   572.390  0.0019</code></pre>
 </div>
 </div>
 <p>Type III:</p>
 <div class="cell">
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
-Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
+<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> model term       df1  df2   F.ratio p.value
- treatment          2 2.04 51012.650  &lt;.0001
- dosage             1 2.04     6.160  0.1284
- treatment:dosage   2 2.05   624.940  0.0014</code></pre>
+ treatment          2 1.97 46430.260 &lt;0.0001
+ dosage             1 2.00     6.130  0.1317
+ treatment:dosage   2 1.98   572.390  0.0019</code></pre>
 </div>
 </div>
 <p>The interpretation is the key here. in the type II model the assumption is that the interaction is tested first and is not significant; if interaction is significant, Type II is generally not recommended. ANOVA type II is more powerful than Type III when interactions are not significant due to its focus on main effects in isolation from interaction effects.</p>
@@ -1739,16 +1734,16 @@ Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></p
 <pre><code>A - B conf.level:  69.15029 100 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>A - C power:  10 %</code></pre>
+<pre><code>A - C power:  20 %</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>A - C conf.level:  0.2528579 44.50161 </code></pre>
+<pre><code>A - C conf.level:  2.521073 55.60955 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>B - C power:  30 %</code></pre>
+<pre><code>B - C power:  60 %</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>B - C conf.level:  6.673951 65.24529 </code></pre>
+<pre><code>B - C conf.level:  26.23781 87.84477 </code></pre>
 </div>
 </div>
 <p>There are also some packages such as <code>simr</code> that can be used to perform power analysis based on simulation.</p>
