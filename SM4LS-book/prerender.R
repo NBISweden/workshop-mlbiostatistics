@@ -5,11 +5,13 @@ message("--- Temporarily copy files ---")
 
 # 1. Read the existing config and create a backup
 yaml_file <- "_quarto.yml"
-## Stop with warning if the backup already exists, to avoid overwriting it
+## Perform cleanup if the backup already exists.
 if (file.exists("_quarto.yml.bak")) {
+  source("postrender.R")
 }
 file.copy(yaml_file, "_quarto.yml.bak", overwrite = TRUE)
-if (!file.exists(yaml_file)) stop("Missing config: _quarto.yml")
+if (!file.exists(yaml_file))  stop("Missing config: _quarto.yml")
+
 config <- yaml::read_yaml(yaml_file)
 
 # 2. Separate external chapters and identify the source folders
@@ -34,8 +36,18 @@ for (dir_name in external_dirs) {
   if (dir.exists(source_dir)) {
     if (dir.exists(target_dir)) unlink(target_dir, recursive = TRUE)
     dir.create(target_dir, showWarnings = FALSE)
-    file.copy(from = list.files(source_dir, full.names = TRUE), 
-              to = target_dir, recursive = TRUE, copy.mode = TRUE)
+    
+    items_to_copy <- list.files(source_dir, full.names = TRUE, all.files = TRUE, no.. = TRUE)
+    
+    ##Don't copy .quarto and *cache
+    items_to_copy <- items_to_copy[
+      !grepl("(^|/)(\\.quarto|cache|[^/]*_cache)$", items_to_copy)
+    ]
+    
+    file.copy(from = items_to_copy, to = target_dir, recursive = TRUE, copy.mode = TRUE)
+    
+    #    file.copy(from = list.files(source_dir, full.names = TRUE), 
+    #              to = target_dir, recursive = TRUE, copy.mode = TRUE)
     message(paste("✓ Copied folder:", source_dir, "-> book/", dir_name))
   }
 }
