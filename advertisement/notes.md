@@ -11,7 +11,9 @@ Official channels
 Additional
 
 - Solna BMC Biomedicum screens
+- Solnca Bioclinium screens
 - Email students from register your interest list
+- SU DBB screens
 
 ## SciLifeLab training hub announcement
 
@@ -22,7 +24,7 @@ Additional
 
 - use template
 - Solna / Uppsala: maria.backstrom@scilifelab.uu.se
-- Lund:
+- Lund: sophie.hellstrand@med.lu.se
 
 ## Text to circulate in emails
 
@@ -42,6 +44,10 @@ Machine Learning for Life Sciences
 
 - Facility mgm: johanna.steen@ki.se
 - Communication: charlotte.brandt@ki.se (email Lotte)
+
+## Solna BioClinicum screens
+
+bioclinicum.karolinska@regionstockholm.se
 
 ## SU DBB screens
 
