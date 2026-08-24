@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -250,6 +285,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -513,11 +554,21 @@ window.Quarto = {
 <li>which variables are associated with the response, e.g.&nbsp;is it only height that explains weight or could it be height and age that are both associated with the response?</li>
 </ul>
 <div class="cell fig-cap-location-bottom" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" data-cap-location="bottom"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data_diabetes <span class="sc">%&gt;%</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> height, <span class="at">y =</span> weight)) <span class="sc">+</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  my.ggtheme <span class="sc">+</span> </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"height [m]"</span>) <span class="sc">+</span> </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"weight [kg]"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-cap-location="bottom">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm-intro_files/figure-html/fig-scatter-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="336">
+<img src="lm-intro_files/figure-html/fig-scatter-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11.1: Scatter plot of weight vs.&nbsp;height for the 130 study participants based on the diabetes data set collected to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia, USA.
@@ -614,6 +665,10 @@ Figure&nbsp;11.3: Examples of a linear models: A) <span class="math inline">\(y_
 <div id="exm-simple-lm" class="theorem example">
 <p><span class="theorem-title"><strong>Example 11.1 (Weight and plasma volume)</strong></span> Let’s look at the example data containing body weight (kg) and plasma volume (liters) for eight healthy men to see what the best-fitting straight line is.</p>
 <p>Example data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 <div class="cell page-columns page-full">
 <div class="cell-output-display page-columns page-full">
@@ -703,9 +758,32 @@ Figure&nbsp;11.6: Scatter plot of the data shows that high plasma volume tends t
 <div id="exm-lss" class="theorem example">
 <p><span class="theorem-title"><strong>Example 11.2 (Least squares)</strong></span> Let’s try least squares method to find coefficient estimates in the <strong>“body weight and plasma volume example”</strong></p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># initial data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># rename variables for convenience</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> weight</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> plasma</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># mean values of x and y</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>x.bar <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>y.bar <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Sum of squares</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>Sxx <span class="ot">&lt;-</span>  <span class="fu">sum</span>((x <span class="sc">-</span> x.bar)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>Sxy <span class="ot">&lt;-</span> <span class="fu">sum</span>((x<span class="sc">-</span>x.bar)<span class="sc">*</span>(y<span class="sc">-</span>y.bar))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Coefficient estimates</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>beta.hat <span class="ot">&lt;-</span> Sxy <span class="sc">/</span> Sxx</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>alpha.hat <span class="ot">&lt;-</span> y.bar <span class="sc">-</span> Sxy<span class="sc">/</span>Sxx<span class="sc">*</span>x.bar</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Print estimated coefficients alpha and beta</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(alpha.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.08572428</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.04361534</code></pre>
 </div>
@@ -713,6 +791,7 @@ Figure&nbsp;11.6: Scatter plot of the data shows that high plasma volume tends t
 </div>
 <p>In R we can use <code>lm()</code>, the built-in function, to fit a linear regression model and we can replace the above code with one line</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(plasma <span class="sc">~</span> weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -775,6 +854,11 @@ Figure&nbsp;11.7: Scatter plot of the data shows that high plasma volume tends t
 <div id="exm-hypothesis-testing" class="theorem example">
 <p><span class="theorem-title"><strong>Example 11.3 (Hypothesis testing)</strong></span> Let’s look again at our example data. This time we will not only fit the linear regression model but also look a bit more closely at the <code>R summary</code> of the model</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(plasma <span class="sc">~</span> weight)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -804,6 +888,7 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 <li>we can use <strong>Student’s t distribution table</strong> or <strong>R code</strong> to obtain the associated <em>P</em>-value</li>
 </ul>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">2.856582</span>, <span class="at">df=</span><span class="dv">6</span>, <span class="at">lower=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.02893095</code></pre>
 </div>
@@ -904,6 +989,13 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 <p>and we can estimate model parameters using <span class="math inline">\(\hat{\mathbf{\beta}}= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y}\)</span>.</p>
 <p>We can do it by hand or in <code>R</code> as follows:</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(plasma) <span class="co"># no. of observation</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(plasma, <span class="at">ncol=</span><span class="dv">1</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">length=</span>n), weight)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># print Y and X to double-check that the format is according to the definition</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]
 [1,] 2.75
@@ -915,6 +1007,7 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 [7,] 3.05
 [8,] 3.12</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       weight
 [1,] 1   58.0
@@ -926,6 +1019,10 @@ F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 [7,] 1   71.0
 [8,] 1   66.0</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># least squares estimate</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># solve() finds inverse of matrix</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>beta.hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)<span class="sc">%*%</span><span class="fu">t</span>(X)<span class="sc">%*%</span>Y</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(beta.hat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             [,1]
        0.08572428
@@ -949,6 +1046,9 @@ weight 0.04361534</code></pre>
 <li>plot original data, fitted regression model, predicted observation and prediction interval</li>
 </ul>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit regression model</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(plasma <span class="sc">~</span> weight)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -969,23 +1069,37 @@ Residual standard error: 0.2188 on 6 degrees of freedom
 Multiple R-squared:  0.5763,    Adjusted R-squared:  0.5057 
 F-statistic:  8.16 on 1 and 6 DF,  p-value: 0.02893</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># find confidence intervals for the model coefficients</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                   2.5 %     97.5 %
 (Intercept) -2.419908594 2.59135716
 weight       0.006255005 0.08097567</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict plasma volume for a new observation of 60 kg</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># we have to create data frame with a variable name matching the one used to build the model</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>new.obs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">weight =</span> <span class="dv">60</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(model, <span class="at">newdata =</span> new.obs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1 
 2.702645 </code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># find prediction intervals</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>prediction.interval <span class="ot">&lt;-</span> <span class="fu">predict</span>(model, <span class="at">newdata =</span> new.obs,  <span class="at">interval =</span> <span class="st">"prediction"</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(prediction.interval)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       fit      lwr      upr
 1 2.702645 2.079373 3.325916</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the original data, fitted regression and predicted value</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(weight, plasma, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">xlab=</span><span class="st">"weight [kg]"</span>, <span class="at">ylab=</span><span class="st">"plasma [l]"</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(weight, model<span class="sc">$</span>fitted.values, <span class="at">col=</span><span class="st">"red"</span>) <span class="co"># fitted model in red</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(new.obs, <span class="fu">predict</span>(model, <span class="at">newdata =</span> new.obs), <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"blue"</span>) <span class="co"># predicted value at 60kg</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(<span class="dv">60</span>, prediction.interval[<span class="dv">2</span>], <span class="dv">60</span>, prediction.interval[<span class="dv">3</span>], <span class="at">lty =</span> <span class="dv">3</span>) <span class="co"># add prediction interval</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lm-intro_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="lm-intro_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1144,6 +1258,14 @@ weight       0.006255005 0.08097567</code></pre>
 </ul>
 <p>Let’s fit a simple model to predict <code>BMI</code> given <code>waist</code> for the diabetes study and see if the model meets the assumptions of linear models.</p>
 <div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb28" data-cap-location="margin"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit simple linear regression model</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(BMI <span class="sc">~</span> waist, <span class="at">data =</span> data_diabetes)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostic plots of the linear model</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># by default plot(model) calls four diagnostics plots</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># par() divides plot window in 2 x 2 grid</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full">
@@ -1201,6 +1323,17 @@ weight       0.006255005 0.08097567</code></pre>
 </ul>
 <p>Let’s remove some observation with higher Cook’s distance from protein data set, re-fit our model and compare the diagnostics plots</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># observations to be removed (based on Residuals vs. Leverage plot)</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">13</span>, <span class="dv">78</span>, <span class="dv">83</span>, <span class="dv">84</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fit models removing observations</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>data_diabetes_flr <span class="ot">&lt;-</span> data_diabetes[<span class="sc">-</span>obs, ]</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>model_flr <span class="ot">&lt;-</span> <span class="fu">lm</span>(BMI <span class="sc">~</span> waist, <span class="at">data =</span> data_diabetes_flr)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plot diagnostics plot</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model_flr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

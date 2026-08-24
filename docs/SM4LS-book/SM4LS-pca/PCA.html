@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -250,6 +285,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -494,8 +535,21 @@ window.Quarto = {
 </header>
 
 
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>nci_url <span class="ot">&lt;-</span> <span class="st">"https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>nci <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="fu">url</span>(nci_url), <span class="at">sep =</span> <span class="st">","</span>, <span class="at">row.names =</span> <span class="dv">1</span>, <span class="at">header =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Studies in biology have become data-intensive as high throughput experiments in Omics have produced data sets of massive volume and complexity. One example is shown in the figure below. It shows a part of the gene expression data for 6830 genes for 64 cell lines obtained from https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv. Many illustrations here are generated from the data.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  table displayed as text</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(nci, <span class="dv">2</span>)[, <span class="fu">sample</span>(<span class="dv">1000</span>, <span class="dv">50</span>)] <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"sample"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>sample, <span class="at">names_to =</span> <span class="st">"gene"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(gene, sample)) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> value), <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fig-nci_complex-text-table" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -512,10 +566,46 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 <p>It makes difficult to get an idea about the contents of the data. Dimensional reduction is frequently used for this challenge. It reduces vast dimensions of a data to a manageable number of dimensions and helps us get a simplified overview of the data. One of the popular methods for the dimensional reduction is principal component analysis (PCA).</p>
 <p>PCA focuses on dispersion or variance of data. Let’s take one of the variables and see how the values of it are dispersed around average.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>corr <span class="ot">&lt;-</span> <span class="fu">cor</span>(nci)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>corr[<span class="fu">upper.tri</span>(corr, <span class="at">diag =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="cn">NA</span>    <span class="co"># to use arrayInd</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>corr[corr <span class="sc">&gt;</span> <span class="fl">0.95</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span>   <span class="co"># avoid too much correlated</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># highly correlated gene pair</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">arrayInd</span>(<span class="fu">which.max</span>(corr), <span class="fu">dim</span>(corr))[<span class="dv">1</span>, ]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">sort</span>(idx)  <span class="co"># switch x and y in PCA plot</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># correlated variables</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>correlated_vs <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">as.data.frame</span>(nci[<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>, idx]))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(correlated_vs) <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"g"</span>, <span class="st">"Variable "</span>, <span class="fu">names</span>(correlated_vs))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig.cap <span class="ot">&lt;-</span> <span class="fu">paste</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The red numbers show the index of each sample."</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The red line shows the mean and the dashed lines show the distance between each observation and mean."</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Select a variable</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>v1 <span class="ot">&lt;-</span> correlated_vs[[<span class="dv">1</span>]]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>v1_name <span class="ot">&lt;-</span> <span class="fu">names</span>(correlated_vs)[<span class="dv">1</span>] </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the values of the variable</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(v1, <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> v1_name, <span class="at">ylim =</span> <span class="fu">range</span>(v1) <span class="sc">*</span> <span class="fl">1.1</span>, <span class="at">xaxt =</span> <span class="st">'n'</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="at">xlab =</span> <span class="st">"Sample index"</span>, <span class="at">mgp =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">mean</span>(v1)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># below or above the points, determined by the comparison with mean</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>pos <span class="ot">&lt;-</span> (v1 <span class="sc">&gt;</span> m) <span class="sc">*</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># sample index</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fu">seq</span>(v1), v1, <span class="fu">seq</span>(v1), <span class="at">cex =</span> <span class="fl">0.65</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pos =</span> pos)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># draw the mean line</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> m, <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># for each observation draw a line from that point to the mean</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(ii <span class="cf">in</span> <span class="fu">seq</span>(v1)) {</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(<span class="at">x0 =</span> ii, <span class="at">x1 =</span> ii, <span class="at">y0 =</span> v1[ii], <span class="at">y1 =</span> m, <span class="at">lty =</span> <span class="st">"dashed"</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="PCA_files/figure-html/dispersion-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="PCA_files/figure-html/dispersion-1.png" class="img-fluid figure-img" width="672"></p>
 <figcaption>The red numbers show the index of each sample. The red line shows the mean and the dashed lines show the distance between each observation and mean.</figcaption>
 </figure>
 </div>
@@ -523,10 +613,39 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 </div>
 <p>The values of individual variables are dispersed as above. Interestingly, multiple variables often have dispersed in the similar pattern.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig.cap <span class="ot">&lt;-</span> <span class="fu">paste</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The red numbers show the index of each sample."</span>, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"The red line shows the mean and the dashed lines show the distance between each observation and mean."</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Two correlated variables</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>vs <span class="ot">&lt;-</span> correlated_vs</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>gap <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the values of the variable</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">seq</span>(vs[[<span class="dv">1</span>]]) <span class="sc">-</span> gap, vs[[<span class="dv">1</span>]], </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="fu">paste</span>(<span class="st">"Variables"</span>, <span class="fu">paste</span>(idx, <span class="at">collapse =</span> <span class="st">" &amp; "</span>)), </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">range</span>(vs[[<span class="dv">1</span>]]) <span class="sc">*</span> <span class="fl">1.1</span>, <span class="at">xaxt =</span> <span class="st">'n'</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="at">xlab =</span> <span class="st">"Sample index"</span>, <span class="at">mgp =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">seq</span>(vs[[<span class="dv">2</span>]]) <span class="sc">+</span> gap, vs[[<span class="dv">2</span>]], <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">pch =</span> <span class="dv">16</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">sapply</span>(vs, mean)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># below or above the points, determined by the comparison with mean</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>pos <span class="ot">&lt;-</span> (vs[[<span class="dv">1</span>]] <span class="sc">&gt;</span> m[<span class="dv">1</span>]) <span class="sc">*</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># sample index</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fu">seq</span>(vs[[<span class="dv">1</span>]]), vs[[<span class="dv">1</span>]], <span class="fu">seq</span>(vs[[<span class="dv">1</span>]]), <span class="at">cex =</span> <span class="fl">0.65</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pos =</span> pos)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># draw the mean line</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> m[<span class="dv">1</span>], <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> m[<span class="dv">2</span>], <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co"># for each observation draw a line from that point to the mean</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(ii <span class="cf">in</span> <span class="fu">seq</span>(vs[[<span class="dv">1</span>]])) {</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(<span class="at">x0 =</span> ii <span class="sc">-</span> gap, <span class="at">x1 =</span> ii <span class="sc">-</span> gap, <span class="at">y0 =</span> vs[[<span class="dv">1</span>]][ii], <span class="at">y1 =</span> m[<span class="dv">1</span>], <span class="at">lty =</span> <span class="st">"dashed"</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(<span class="at">x0 =</span> ii <span class="sc">+</span> gap, <span class="at">x1 =</span> ii <span class="sc">+</span> gap, <span class="at">y0 =</span> vs[[<span class="dv">2</span>]][ii], <span class="at">y1 =</span> m[<span class="dv">2</span>], <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">lty =</span> <span class="st">"dashed"</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="PCA_files/figure-html/dispersion_correlated-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="PCA_files/figure-html/dispersion_correlated-1.png" class="img-fluid figure-img" width="672"></p>
 <figcaption>The red numbers show the index of each sample. The red line shows the mean and the dashed lines show the distance between each observation and mean.</figcaption>
 </figure>
 </div>
@@ -534,6 +653,9 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 </div>
 <p>In the scatter plot of those two variables, the correlation is more obvious.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>opa <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">pty =</span> <span class="st">"s"</span>)   <span class="co"># square plot</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rg <span class="ot">&lt;-</span> <span class="fu">range</span>(vs)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(vs[[<span class="dv">1</span>]], vs[[<span class="dv">2</span>]], <span class="at">xlab =</span> <span class="fu">names</span>(vs)[<span class="dv">1</span>], <span class="at">ylab =</span> <span class="fu">names</span>(vs)[<span class="dv">2</span>], <span class="at">xlim =</span> rg, <span class="at">ylim =</span> rg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -541,12 +663,28 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(opa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>As both variables provide almost identical information redundantly in terms of dispersion across objects (or observations), we can attempt to reduce the number of variables, i.e.&nbsp;the dimension.</p>
 <section id="two-dimensional-data" class="level1" data-number="15">
 <h1 data-number="15"><span class="header-section-number">15</span> Two-dimensional data</h1>
 <p>PCA finds a new variable that explains most of the dispersion or variance of the two variables of interest. The remaining smaller portion of variance in the data is stored in an orthogonal variable to the primary variable. It is achieved by new axes and rotation graphically, which are mathematically expressed by linear combinations of the variables.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>vs <span class="ot">&lt;-</span> correlated_vs</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(<span class="fu">bind_rows</span>(vs))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> pca<span class="sc">$</span>rotation[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">/</span> pca<span class="sc">$</span>rotation[<span class="dv">1</span>, <span class="dv">1</span>]  <span class="co"># slope</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>opa <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">pty =</span> <span class="st">"s"</span>)   <span class="co"># square plot</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>col <span class="ot">&lt;-</span> grDevices<span class="sc">::</span><span class="fu">palette.colors</span>(<span class="at">palette =</span> <span class="st">"Classic Tableau"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rep_len</span>(<span class="fu">length</span>(vs[[<span class="dv">1</span>]])) <span class="co"># individual colors of points</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>rg <span class="ot">&lt;-</span> <span class="fu">range</span>(vs)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(vs[[<span class="dv">1</span>]], vs[[<span class="dv">2</span>]], <span class="at">xlab =</span> <span class="fu">names</span>(vs)[<span class="dv">1</span>], <span class="at">ylab =</span> <span class="fu">names</span>(vs)[<span class="dv">2</span>],</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> col, <span class="at">xlim =</span> rg, <span class="at">ylim =</span> rg)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># PC1</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">b =</span> s, <span class="at">a =</span> pca<span class="sc">$</span>center[<span class="dv">2</span>] <span class="sc">-</span> s <span class="sc">*</span> pca<span class="sc">$</span>center[<span class="dv">1</span>], <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># indicate "New axis"</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fu">mean</span>(rg), <span class="fu">mean</span>(rg), <span class="st">"New primary axis"</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">srt =</span> <span class="fu">atan</span>(s) <span class="sc">/</span> pi <span class="sc">*</span> <span class="dv">180</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -554,6 +692,7 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(opa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let <span class="math inline">\(x_{ij}\)</span> denote an observation <span class="math inline">\(i\)</span> for a variable <span class="math inline">\(j\)</span>, and <span class="math inline">\(y_{i1}\)</span> be a linear combination of <span class="math inline">\(x_{i1}\)</span> and <span class="math inline">\(x_{i2}\)</span>.</p>
 <p><span class="math display">\[y_{i1} = a_{11} x_{i1} + a_{21} x_{i2} = \sum_{j=1}^{2} a_{j1} x_{ij} = \sum_{j=1}^{2} x_{ij} a_{j1}\]</span></p>
@@ -579,6 +718,26 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 \]</span></p>
 <p>The values of the 1st PC, often called PC1 scores, are colorfully highlighted in the scatter plot of the two original variables.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># coordinates after projection onto PC1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> pca<span class="sc">$</span>x</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>x[, <span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="dv">0</span>   <span class="co"># PC2 = 0</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>on_pc1 <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">t</span>(x <span class="sc">%*%</span> <span class="fu">solve</span>(pca<span class="sc">$</span>rotation)) <span class="sc">+</span> pca<span class="sc">$</span>center)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>opa <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">pty =</span> <span class="st">"s"</span>)   <span class="co"># square plot</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(vs[[<span class="dv">1</span>]], vs[[<span class="dv">2</span>]], </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">names</span>(vs)[<span class="dv">1</span>], <span class="at">ylab =</span> <span class="fu">names</span>(vs)[<span class="dv">2</span>], <span class="at">xlim =</span> rg, <span class="at">ylim =</span> rg, <span class="at">type =</span> <span class="st">"n"</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># show the projection</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(<span class="at">x0 =</span> vs[[<span class="dv">1</span>]], <span class="at">x1 =</span> on_pc1[, <span class="dv">1</span>], </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">y0 =</span> vs[[<span class="dv">2</span>]], <span class="at">y1 =</span> on_pc1[, <span class="dv">2</span>],</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(col, <span class="at">alpha =</span> <span class="fl">0.7</span>))</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># indicate "PC1"</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fu">mean</span>(rg), <span class="fu">mean</span>(rg), <span class="st">"The 1st PC"</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">srt =</span> <span class="fu">atan</span>(s) <span class="sc">/</span> pi <span class="sc">*</span> <span class="dv">180</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># before projection</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(vs[[<span class="dv">1</span>]], vs[[<span class="dv">2</span>]], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(col, <span class="at">alpha =</span> <span class="fl">0.3</span>))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co"># PC1</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">b =</span> s, <span class="at">a =</span> pca<span class="sc">$</span>center[<span class="dv">2</span>] <span class="sc">-</span> s <span class="sc">*</span> pca<span class="sc">$</span>center[<span class="dv">1</span>], <span class="at">col =</span> <span class="st">"red"</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># after projection</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(on_pc1[, <span class="dv">1</span>], on_pc1[, <span class="dv">2</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> col)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -586,9 +745,21 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(opa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The scores are presented in the coordinate system of the 1st PC (PC1). As shown below, it is graphically a rotation of the plot above.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>rg <span class="ot">&lt;-</span> <span class="fu">apply</span>(pca<span class="sc">$</span>x, <span class="dv">2</span>, range)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca<span class="sc">$</span>x, <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">mgp =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">pos =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># before projection</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(pca<span class="sc">$</span>x, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(col, <span class="at">alpha =</span> <span class="fl">0.3</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># show the projection</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(<span class="at">x0 =</span> pca<span class="sc">$</span>x[, <span class="dv">1</span>], <span class="at">x1 =</span> x[, <span class="dv">1</span>], </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">y0 =</span> pca<span class="sc">$</span>x[, <span class="dv">2</span>], <span class="at">y1 =</span> <span class="dv">0</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(col, <span class="at">alpha =</span> <span class="fl">0.7</span>))</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(x, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> col)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -633,10 +804,20 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 </section>
 <section id="output-from-pca" class="level1" data-number="18">
 <h1 data-number="18"><span class="header-section-number">18</span> Output from PCA</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># somewhat correlated variables only, otherwise too little variance explained by PC1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>corr <span class="ot">&lt;-</span> <span class="fu">cor</span>(nci)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(corr) <span class="ot">&lt;-</span> <span class="cn">NA</span>    <span class="co"># to use arrayInd</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>is_min_corr <span class="ot">&lt;-</span> <span class="fu">apply</span>(corr, <span class="dv">1</span>, \(x) <span class="fu">max</span>(<span class="fu">abs</span>(x), <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="fl">0.8</span> <span class="sc">&amp;</span> <span class="fu">mean</span>(<span class="fu">abs</span>(x), <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;</span> <span class="fl">0.21</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>min_corr <span class="ot">&lt;-</span> nci[, is_min_corr] </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(min_corr, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <section id="principal-components" class="level2" data-number="18.1">
 <h2 data-number="18.1" class="anchored" data-anchor-id="principal-components"><span class="header-section-number">18.1</span> Principal components</h2>
 <p>The output presented and investigated most frequently from PCA is the first two principal components (PCs). The values of those two PCs, PC1 and PC2 scores, are often presented in a scatter plot. It is called “PCA score plot” or simply “PCA plot”.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>], <span class="at">pch =</span> <span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -651,6 +832,8 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 <!-- f <- sqrt(nrow(pca$x) - 1) -->
 <!-- ``` -->
 <div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggfortify)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
 ℹ Please use tidy evaluation idioms with `aes()`.
@@ -671,6 +854,7 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 <h2 data-number="18.2" class="anchored" data-anchor-id="biplot-scores-loadings"><span class="header-section-number">18.2</span> Biplot (Scores + Loadings)</h2>
 <p>How much each variable contribute to each principal component is stored in vectors. They are called <strong>loadings</strong>, which are often presented together with the scores. The plot is called “Biplot”.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(pca, <span class="at">loadings =</span> <span class="cn">TRUE</span>, <span class="at">loadings.label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -684,6 +868,17 @@ Figure&nbsp;14.1: A part of gene expression data for 6830 genes for 64 cell line
 <h2 data-number="18.3" class="anchored" data-anchor-id="scree-plot"><span class="header-section-number">18.3</span> Scree plot</h2>
 <p>The proportion explained by each principal component is presented in a bar or line plot. It is called “scree plot”.</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>scree <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">pc =</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, <span class="fu">seq</span>(pca<span class="sc">$</span>sdev)),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">s =</span> pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">expl =</span> s <span class="sc">/</span> <span class="fu">sum</span>(s) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pc =</span> <span class="fu">factor</span>(pc, <span class="at">levels =</span> pc)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(scree, <span class="fu">aes</span>(pc, expl)) <span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Principal component"</span>) <span class="sc">+</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Variance explained [%]"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

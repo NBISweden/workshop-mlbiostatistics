@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -41,7 +76,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bc91950905f66a0b7e618f69bf449bf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c9519052eeb2144f46ab8f82e4e0586e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -221,6 +256,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -449,11 +490,42 @@ ul.task-list li input[type="checkbox"] {
 
 <p>Imagine we are given a dataset of only two variables (measurements) for a number of people. This could be the expression of a single gene or a protein, body mass index (BMI), blood pressure, age, or any other quantifiable trait.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">group_count =</span> <span class="dv">5</span>, <span class="at">points_per_group =</span> <span class="dv">10</span>, <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>, <span class="at">group_slope =</span> <span class="dv">2</span>, <span class="at">noise_sd =</span> <span class="dv">50</span>) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>())</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create each group</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>group_count) {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x_start <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="sc">+</span> (i <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">10</span> <span class="sc">/</span> group_count) <span class="co"># Stagger the start of x for each group</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">runif</span>(points_per_group, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> group_count))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply a local positive trend within the group, but maintain the global negative trend</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    local_intercept <span class="ot">&lt;-</span> global_intercept <span class="sc">+</span> global_slope <span class="sc">*</span> (x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> group_count))) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> local_intercept <span class="sc">+</span> group_slope <span class="sc">*</span> (x <span class="sc">-</span> x_start) <span class="sc">+</span> <span class="fu">rnorm</span>(points_per_group, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine this group with the overall dataset</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    group_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y,<span class="at">group=</span>i)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(data, group_data)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># generate simulated data</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>data_int <span class="ot">&lt;-</span> <span class="fu">simulate_grouped_trend</span>(<span class="at">group_count =</span> <span class="dv">4</span>,<span class="at">points_per_group =</span> <span class="dv">10</span>,<span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">2</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,<span class="at">group_slope =</span> <span class="dv">4</span>,<span class="at">noise_sd =</span> <span class="dv">5</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the data</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x,data_int<span class="sc">$</span>y,<span class="at">xlab=</span><span class="st">"Age"</span>,<span class="at">ylab=</span><span class="st">"Protein expression"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm_files/figure-html/fig-scatter-plot-1.png" class="img-fluid figure-img" width="336">
+<img src="lm_files/figure-html/fig-scatter-plot-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.1: A scatter plot of Age vs.&nbsp;Protein expression
@@ -464,11 +536,20 @@ Figure&nbsp;18.1: A scatter plot of Age vs.&nbsp;Protein expression
 </div>
 <p>Our aim here is to examine the relationship between Age and Protein expression, we would apply a simple linear regression model. This statistical method allows us to quantify the relationship between an independent variable (Age) and a dependent variable (Protein expression), assuming a linear relationship between them. The goal here is to determine how Protein expression changes with Age.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a linear regression model</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> data_int)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data with the regression line</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>, <span class="at">main=</span><span class="st">"Linear Regression: Age vs. Protein Expression"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(model, <span class="at">col=</span><span class="st">"red"</span>) <span class="co"># Add the regression line in red</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-lm" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm_files/figure-html/fig-scatter-plot-lm-1.png" class="img-fluid figure-img" width="336">
+<img src="lm_files/figure-html/fig-scatter-plot-lm-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.2: Scatter plot of Age vs.&nbsp;Protein expression including the regression line
@@ -480,6 +561,11 @@ Figure&nbsp;18.2: Scatter plot of Age vs.&nbsp;Protein expression including the 
 <p>The <code>lm()</code> function fits a linear model to the data, allowing us to see the relationship between Age and Protein expression. What this plot suggests is that there is a global decrease in Protein expression as Age increases, which is depicted by the negative slope of the red regression line. The scatter of points around the line indicates variability in Protein expression that is not explained by Age alone.</p>
 <p>Based on the output from the <code>lm()</code> function, we can extract the coefficients and examine the fit of our linear regression model.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the model to see the coefficients</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -506,11 +592,53 @@ F-statistic: 20.07 on 1 and 38 DF,  p-value: 6.627e-05</code></pre>
 <p>The standard error of the slope tells us the uncertainty in the estimated slope. Here, the standard error for the slope is 0.4204, which is relatively small compared to the estimate itself, suggesting a precise estimate of the slope. So we are pretty confident in what we have estimated. However, while the regression line provides a clear visual indication of the overall trend, it does not account for the potential clustering of data points.</p>
 <p>If you look more closely, you can see four different clusters of the data.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data with different colors for each group</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>, <span class="at">main=</span><span class="st">"Linear Regression: Age vs. Protein Expression"</span>, <span class="at">col=</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a linear regression line</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> data_int), <span class="at">col=</span><span class="st">"red"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to draw ellipse</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>draw_ellipse <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, <span class="at">level =</span> <span class="fl">0.95</span>, col){</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the means of x and y</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  xbar <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  ybar <span class="ot">&lt;-</span> <span class="fu">mean</span>(y)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the standard deviations</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  std_x <span class="ot">&lt;-</span> <span class="fu">sd</span>(x)<span class="sc">*</span><span class="dv">2</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  std_y <span class="ot">&lt;-</span> <span class="fu">sd</span>(y)<span class="sc">*</span><span class="dv">2</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the correlation</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  correlation <span class="ot">&lt;-</span> <span class="fu">cor</span>(x, y)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create a sequence of angles</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  t <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2</span><span class="sc">*</span>pi, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the ellipse points</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> std_x <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">+</span> correlation)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> std_y <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> correlation)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  ellipse_x <span class="ot">&lt;-</span> xbar <span class="sc">+</span> a <span class="sc">*</span> <span class="fu">cos</span>(t)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  ellipse_y <span class="ot">&lt;-</span> ybar <span class="sc">+</span> b <span class="sc">*</span> <span class="fu">sin</span>(t)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw the ellipse</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(ellipse_x, ellipse_y, <span class="at">col=</span>col, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw ellipses for each group</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>unique_groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>colors <span class="ot">&lt;-</span> <span class="fu">rainbow</span>(<span class="fu">length</span>(unique_groups))</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (group <span class="cf">in</span> unique_groups) {</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  group_data <span class="ot">&lt;-</span> data_int[data_int<span class="sc">$</span>group <span class="sc">==</span> group, ]</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">draw_ellipse</span>(group_data<span class="sc">$</span>x, group_data<span class="sc">$</span>y, <span class="at">col=</span>group)</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-lm-cluster" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-lm-cluster-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm_files/figure-html/fig-scatter-plot-lm-cluster-1.png" class="img-fluid figure-img" width="336">
+<img src="lm_files/figure-html/fig-scatter-plot-lm-cluster-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-lm-cluster-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.3: Scatter plot of Age vs.&nbsp;Protein expression including the regression line. The clusters are shown by colors
@@ -521,11 +649,36 @@ Figure&nbsp;18.3: Scatter plot of Age vs.&nbsp;Protein expression including the 
 </div>
 <p>While the global pattern seems decreasing, the local pattern per cluster of data increases with Age.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data with different colors for each group</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>, <span class="at">main=</span><span class="st">"Linear Regression: Age vs. Protein Expression"</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw ellipses and regression lines for each group</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>unique_groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>colors <span class="ot">&lt;-</span> <span class="fu">rainbow</span>(<span class="fu">length</span>(unique_groups))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (group <span class="cf">in</span> unique_groups) {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  group_data <span class="ot">&lt;-</span> data_int[data_int<span class="sc">$</span>group <span class="sc">==</span> group, ]</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw ellipse</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">draw_ellipse</span>(group_data<span class="sc">$</span>x, group_data<span class="sc">$</span>y, <span class="at">col=</span>group)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit linear model for the group</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  group_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data=</span>group_data)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get regression line points</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  reg_line_x <span class="ot">&lt;-</span> <span class="fu">range</span>(group_data<span class="sc">$</span>x)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  reg_line_y <span class="ot">&lt;-</span> <span class="fu">predict</span>(group_model, <span class="at">newdata=</span><span class="fu">data.frame</span>(<span class="at">x=</span>reg_line_x))</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw the regression line for the group</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(reg_line_x, reg_line_y, <span class="at">col=</span>group, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-lm-cluster-per-group" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-lm-cluster-per-group-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm_files/figure-html/fig-scatter-plot-lm-cluster-per-group-1.png" class="img-fluid figure-img" width="336">
+<img src="lm_files/figure-html/fig-scatter-plot-lm-cluster-per-group-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-lm-cluster-per-group-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.4: Scatter plot of Age vs.&nbsp;Protein expression including the regression line. The clusters are shown by colors
@@ -537,11 +690,31 @@ Figure&nbsp;18.4: Scatter plot of Age vs.&nbsp;Protein expression including the 
 <p>More precisely, there is a positive trend in each of the clusters that has not been captured by the model. Instead the model focused on the global pattern. The example that we just saw was a case when both Protein expression and Age are correlated within each cluster.</p>
 <p>You could of course fit a separate model for each group, or include group as a <code>covariate</code> in the model. Both of these options can be OK in circumstances that we don’t have too many groups and we have enough data in each of groups. Below we include cluster as a covariate to see what happens to the coeffcients.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a linear regression model</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>model_cov <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x<span class="sc">+</span>group, <span class="at">data =</span> data_int)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the predictions</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>predicted <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_cov)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>, <span class="at">main=</span><span class="st">"Linear Regression: Age vs. Protein Expression"</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add predicted lines</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(<span class="fu">unique</span>(data_int<span class="sc">$</span>group))){</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  group_subset <span class="ot">&lt;-</span> data_int[data_int<span class="sc">$</span>group <span class="sc">==</span> unique_groups[i], ]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(group_subset<span class="sc">$</span>x, group_subset<span class="sc">$</span>predicted, <span class="at">col =</span> i, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-mlm" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-mlm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm_files/figure-html/fig-scatter-plot-mlm-1.png" class="img-fluid figure-img" width="336">
+<img src="lm_files/figure-html/fig-scatter-plot-mlm-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-mlm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.5: Scatter plot of Age vs.&nbsp;Protein expression including the regression line including group covariate
@@ -553,6 +726,10 @@ Figure&nbsp;18.5: Scatter plot of Age vs.&nbsp;Protein expression including the 
 <p>As it is clear in the figure, the function <code>lm(y ~ x+group, data = data_int)</code> has fitted four different lines (one for each group). These lines are parallel to each other while each group has a different intercept.</p>
 <p>To make this even more clear we can have a look at the coefficients of the the model:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_cov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -570,6 +747,28 @@ Coefficients:
 <p>Having explored how different groups can have unique starting points or intercepts in our model, it’s natural to wonder if the relationship between <code>x</code> and <code>y</code>—our slope—might also vary across these groups. Until now, we’ve assumed that a one-unit increase in <code>x</code> has the same impact on <code>y</code> for all groups. But what if this isn’t the case? What if the effect of <code>x</code> on <code>y</code> is stronger for some groups than for others?</p>
 <p>To explore this possibility, we introduce the concept of interaction terms in our model. By fitting a new model, <code>model_cov &lt;- lm(y ~ x*group, data = data_int)</code>, we’re not just looking at how <code>x</code> and <code>group</code> independently predict <code>y</code>, but also how the effect of <code>x</code> on <code>y</code> might change depending on the group. This model allows <code>x</code> to have a different slope for each group, providing a richer understanding of our data. It’s a step towards uncovering more complex patterns and interactions that might exist, shedding light on the nuanced ways in which our variables interplay.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a linear regression model</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>model_cov <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x<span class="sc">*</span>group, <span class="at">data =</span> data_int)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the predictions</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>predicted <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_cov)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>, <span class="at">main=</span><span class="st">"Linear Regression: Age vs. Protein Expression"</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add predicted lines</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(<span class="fu">unique</span>(data_int<span class="sc">$</span>group))){</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  group_subset <span class="ot">&lt;-</span> data_int[data_int<span class="sc">$</span>group <span class="sc">==</span> unique_groups[i], ]</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(group_subset<span class="sc">$</span>x, group_subset<span class="sc">$</span>predicted, <span class="at">col =</span> i, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_cov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -585,7 +784,7 @@ Coefficients:
 <div id="fig-scatter-plot-mlm-interaction" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-mlm-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lm_files/figure-html/fig-scatter-plot-mlm-interaction-1.png" class="img-fluid figure-img" width="336">
+<img src="lm_files/figure-html/fig-scatter-plot-mlm-interaction-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-mlm-interaction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.6: Scatter plot of Age vs.&nbsp;Protein expression including the regression line with interaction

@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -250,6 +285,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -500,8 +541,8 @@ window.Quarto = {
 <li><p>The common factor in survival analysis is the study of <strong>censored data</strong> that arise when studying a unique kind of outcome variable: <strong>time until an event occurs</strong>.</p></li>
 <li><p>This event, can be death, as previously mentioned, but also disease onset or relapse in medical studies. In other fields, we can study time until next purchase (marketing), time until machine failure (engineering), time until a released prisoner commits another crime (criminology), and many more.</p></li>
 <li><p>In fact, survival analysis is applicable whenever censored data occurs, and these cases are <strong>not limited to studying time-based events</strong>. We can use survival analysis methods to study the number of treatment sessions until a patient recovers or the number of attempts until a student passes an exam.</p></li>
-<li><p><strong>Censoring</strong> occurs when the event of interest has not yet been observed by the end of the study. This makes survival analysis especially useful for incomplete data sets, where we can still make use of the available information to estimate the time to event.</p></li>
-<li><p>With survival analysis, we can compare groups (e.g., treatment vs.&nbsp;control) and determine which factors increase or decrease the hazard (risk) of the event occurring over time, even when adjusting for other variables.</p></li>
+<li><p><strong>Censoring</strong> occurs when the event of interest has not yet been observed by the end of the study. This makes survival analysis especially useful for incomplete data sets, where we can still make use of the available information to study time to event patterns.</p></li>
+<li><p>With survival analysis, we can compare groups (e.g., treatment vs.&nbsp;control) and determine which factors are associated with an increase or decrease of the hazard of the event occurring over time, even when adjusting for other variables. Here, the <strong>hazard</strong> can be thought of as the instantaneous event rate at a given time among individuals who have not yet experienced the event. Informally, it can be thought of as the risk of the event happening “right now”.</p></li>
 <li><p>We can incorporate time-dependent variables, allowing the analysis to account for changing risk factors, such as fluctuating health conditions or environmental factors, and include multiple states and/or events. For example, a patient may progress through different stages of a disease (multiple states), or a patient dying from different causes may prevent the occurrence of the primary event being studied (multiple events, competing risks).</p></li>
 </ul>
 </section>
@@ -514,10 +555,10 @@ window.Quarto = {
 </ul>
 <p>The survival time represents the time at which the event of interest occurs, here death. The censoring time represents the time at which the patient is lost to follow-up (e.g.&nbsp;withdraws from the study) or the study ends.</p>
 <p>We observe the <strong>random variable</strong> <span class="math display">\[Y = min (T, C)\]</span></p>
-<p>If the event occurs before censoring (i.e.&nbsp;<span class="math inline">\(T &lt; C\)</span>) then we observe the true survival time <span class="math inline">\(T\)</span>. Otherwise, if censoring occurs before the event (i.e.&nbsp;<span class="math inline">\(T &gt; C\)</span>), we observe the censoring time <span class="math inline">\(C\)</span>.</p>
+<p>If the event occurs before censoring (i.e.&nbsp;<span class="math inline">\(T \le C\)</span>), then we observe the true survival time <span class="math inline">\(T\)</span>. Otherwise, if censoring occurs before the event (i.e.&nbsp;<span class="math inline">\(T &gt; C\)</span>), we observe the censoring time <span class="math inline">\(C\)</span>.</p>
 <p>We also observe a <strong>status indicator</strong></p>
 <p><span class="math display">\[\begin{equation}
-    \sigma =
+    \delta =
     \left\{
         \begin{array}{cc}
                 1 &amp; \mathrm{if\ } T \le C \\
@@ -525,27 +566,47 @@ window.Quarto = {
         \end{array}
     \right.
 \end{equation}\]</span></p>
-<p>A figure below illustrates the data for 10 patients in this ficitious study.</p>
+<p>The figure below illustrates the data for 10 patients in this fictitious study.</p>
 <div class="cell" data-fig-cap-pos="margin">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example data for 10 patients</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">patient =</span> <span class="fu">factor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>),     <span class="co"># Patient IDs</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">23</span>, <span class="dv">24</span>, <span class="dv">9</span>, <span class="dv">7</span>, <span class="dv">14</span>, <span class="dv">16</span>, <span class="dv">19</span>, <span class="dv">20</span>, <span class="dv">24</span>, <span class="dv">24</span>),  <span class="co"># Time to event or censoring</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">status =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)       <span class="co"># Event status (1 = event, 0 = censored)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data with horizontal lines</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> patient)) <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> time, <span class="at">y =</span> patient, <span class="at">yend =</span> patient), <span class="at">color =</span> mycols[<span class="dv">2</span>]) <span class="sc">+</span>  <span class="co">#</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">shape =</span> <span class="fu">factor</span>(status)), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">24</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">16</span>),               </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Censored"</span>, <span class="st">"Event"</span>)) <span class="sc">+</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Time (months)"</span>, <span class="at">y =</span> <span class="st">"Patient"</span>, <span class="at">shape =</span> <span class="st">"Status"</span>) <span class="sc">+</span>  </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-censoring" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-censoring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-censoring-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-censoring-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-censoring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;23.1: Example of right-censored data in a mortatily study lasting 24 months. The horizontal lines represent the time to event or censoring for each patient. The points indicate whether the event occurred (event) or not (censored).
+Figure&nbsp;23.1: Example of right-censored data in a mortality study lasting 24 months. The horizontal lines represent the time to event or censoring for each patient. The points indicate whether the event occurred (event) or not (censored).
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>We we observe 10 <span class="math inline">\((Y, \sigma)\)</span> pairs, which we denote as <span class="math inline">\((y_1, \sigma_1, \dots, (y_n, \sigma_n))\)</span>, where <span class="math inline">\(n = 10\)</span>. From <a href="#fig-censoring" class="quarto-xref">Figure&nbsp;<span>23.1</span></a>, we can see that:</p>
+<p>We observe 10 <span class="math inline">\((Y, \delta)\)</span> pairs, which we denote as <span class="math inline">\((y_1, \delta_1), \dots, (y_n, \delta_n)\)</span>, where <span class="math inline">\(n = 10\)</span>. From <a href="#fig-censoring" class="quarto-xref">Figure&nbsp;<span>23.1</span></a>, we can see that:</p>
 <ul>
-<li>for patient #1 we get <span class="math inline">\((y_1= t_1, \space \sigma_1 = 1)\)</span> since we observe event (death) as ca. 23 months, before the end of the follow-up at 24 months.</li>
-<li>for patient #2 we get <span class="math inline">\((y_2= c_1, \space \sigma_1 = 0)\)</span> since the patient is still alive at the end of the study at 24 months, meaning that the patient has survived at least 24 months (censored)</li>
-<li>for patient #3 we get <span class="math inline">\((y_3= t_3, \space \sigma_3 = 1)\)</span> since we observe event (death) at 9 months</li>
-<li>for patients #4, we get <span class="math inline">\((y_4= c_4, \space \sigma_4 = 0)\)</span>, anther censored data point. The study is not over yet, the patient has not diet but is <strong>lost to follow-up</strong>, e.g.&nbsp;due to withdrawing from the study</li>
+<li>for patient #1 we get <span class="math inline">\((y_1= t_1, \space \delta_1 = 1)\)</span> since we observe event (death) as ca. 23 months, before the end of the follow-up at 24 months.</li>
+<li>for patient #2 we get <span class="math inline">\((y_2= c_2, \space \delta_2 = 0)\)</span> since the patient is still alive at the end of the study at 24 months, meaning that the patient has survived at least 24 months (censored)</li>
+<li>for patient #3 we get <span class="math inline">\((y_3= t_3, \space \delta_3 = 1)\)</span> since we observe event (death) at 9 months</li>
+<li>for patient #4, we get <span class="math inline">\((y_4= c_4, \space \delta_4 = 0)\)</span>, another censored data point. The study is not over yet, the patient has not died but is <strong>lost to follow-up</strong>, e.g.&nbsp;due to withdrawing from the study</li>
 <li>analogously, for patients #5, #6, #8 and #10 we observe survival times, and for patients #7 and #9 we observe censoring times.</li>
 </ul>
 </section>
@@ -556,14 +617,45 @@ Figure&nbsp;23.1: Example of right-censored data in a mortatily study lasting 24
 </section>
 <section id="left-and-interval-censoring" class="level2" data-number="23.4">
 <h2 data-number="23.4" class="anchored" data-anchor-id="left-and-interval-censoring"><span class="header-section-number">23.4</span> Left and interval censoring</h2>
-<p>In addition to right-censored data, we may encounter left and/or interval-censored data. <strong>Left censoring</strong> occurs when the event happened before the observation period started, whereas <strong>interval censoring</strong> occurs when the event is known to have happened between two specific time points within the study.</p>
+<p>In addition to right-censored data, we may encounter left- and/or interval-censored data. <strong>Left censoring</strong> occurs when the event happened before the observation period started, whereas <strong>interval censoring</strong> occurs when the event is known to have happened between two specific time points within the study.</p>
 <p>Imagine an age study in which <strong>left censoring</strong> occurs when a patient was diagnosed with a disease before the study began, but the exact age of diagnosis is unknown. For example, if a patient is known to have been diagnosed before age 25, but the exact age is not recorded, they are left-censored. <strong>Interval censoring</strong> occurs when a patient’s diagnosis happens between two observed ages, but the exact age of diagnosis is unknown. For instance, if a patient was healthy at age 45 and diagnosed by age 55, but the precise age of diagnosis isn’t known, their data is interval-censored.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame for 8 patients</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Left-censored patients were diagnosed before the study, and interval-censored patients were diagnosed between visits</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">patient_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">start_age =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">35</span>, <span class="cn">NA</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">50</span>),   <span class="co"># Start of observation or known age for interval censoring (NA for left-censored)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">end_age =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">50</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">55</span>, <span class="dv">60</span>),     <span class="co"># Age of diagnosis or end of observation</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"Left Censored"</span>, <span class="st">"Fully Observed"</span>, <span class="st">"Fully Observed"</span>, <span class="st">"Fully Observed"</span>, </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"Left Censored"</span>, <span class="st">"Interval Censored"</span>, <span class="st">"Interval Censored"</span>, <span class="st">"Fully Observed"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x =</span> end_age, <span class="at">y =</span> <span class="fu">factor</span>(patient_id), <span class="at">color =</span> type)) <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add points for observed ages (diagnosis age or censoring)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># For interval-censored patients, add a horizontal line to show the interval</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> <span class="fu">subset</span>(data, type <span class="sc">==</span> <span class="st">"Interval Censored"</span>), <span class="fu">aes</span>(<span class="at">x =</span> start_age, <span class="at">xend =</span> end_age, <span class="at">y =</span> <span class="fu">factor</span>(patient_id), <span class="at">yend =</span> <span class="fu">factor</span>(patient_id)),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> mycols[<span class="dv">2</span>], <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># For left-censored patients, add an arrow showing the uncertainty before diagnosis</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> <span class="fu">subset</span>(data, type <span class="sc">==</span> <span class="st">"Left Censored"</span>), <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> end_age, <span class="at">y =</span> <span class="fu">factor</span>(patient_id), <span class="at">yend =</span> <span class="fu">factor</span>(patient_id)),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> mycols[<span class="dv">1</span>], <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.2</span>, <span class="st">"cm"</span>))) <span class="sc">+</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Customize the plot labels and appearance</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Age"</span>, <span class="at">y =</span> <span class="st">"Patient ID"</span>) <span class="sc">+</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Left Censored"</span> <span class="ot">=</span> mycols[<span class="dv">1</span>], <span class="st">"Fully Observed"</span> <span class="ot">=</span> <span class="st">"black"</span>, <span class="st">"Interval Censored"</span> <span class="ot">=</span> mycols[<span class="dv">2</span>])) <span class="sc">+</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>, <span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-left-interval" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-left-interval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-left-interval-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-left-interval-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-left-interval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;23.2: Example of left and interval censoring in an age study. Left-censored patients were diagnosed before the study, and interval-censored patients were diagnosed between visits.
@@ -572,38 +664,48 @@ Figure&nbsp;23.2: Example of left and interval censoring in an age study. Left-c
 </div>
 </div>
 </div>
-<p>In this session, we will focus on right censored data.</p>
+<p>In this chapter, we will focus on right-censored data.</p>
 </section>
 <section id="kaplan-meier-estimator" class="level2" data-number="23.5">
 <h2 data-number="23.5" class="anchored" data-anchor-id="kaplan-meier-estimator"><span class="header-section-number">23.5</span> Kaplan-Meier estimator</h2>
 <p>The <strong>survival curve</strong>, or survival function, is a decreasing function that quantifies the probability of surviving past time <span class="math inline">\(t\)</span> and is defined as <span id="eq-surv"><span class="math display">\[S(t) = Pr(T &gt; t) \tag{23.1}\]</span></span></p>
-<p>The <strong>Kaplan-Meier (KM) estimator</strong> is a non-parametric statistic used to estimate the survival function from lifetime data and is given by: <span id="eq-KM"><span class="math display">\[\hat{S}(t) = \prod_{j=1}^{t} \left( 1 - \frac{d_j}{n_j} \right) \tag{23.2}\]</span></span></p>
+<p>The <strong>Kaplan-Meier (KM) estimator</strong> is a non-parametric statistic used to estimate the survival function from lifetime data and is given by: <span id="eq-KM"><span class="math display">\[\hat{S}(t) = \prod_{t_j\le t} \left( 1 - \frac{d_j}{n_j} \right) \tag{23.2}\]</span></span></p>
 <p>where:</p>
 <ul>
-<li><span class="math inline">\(d_j\)</span>: number of failures at time <span class="math inline">\(t_j\)</span></li>
-<li><span class="math inline">\(n_j\)</span>: number of patients at risk just before time <span class="math inline">\(t_ij\)</span></li>
-<li>and the product is taken over all time intervals in which a death occurred, up to and including <span class="math inline">\(t\)</span></li>
+<li><span class="math inline">\(d_j\)</span>: number of events (failures) at time <span class="math inline">\(t_j\)</span></li>
+<li><span class="math inline">\(n_j\)</span>: number of patients at risk just before time <span class="math inline">\(t_j\)</span></li>
+<li>and the product is taken over all event times up to and including <span class="math inline">\(t\)</span></li>
 </ul>
-<p>Kapalan-Meier estimator is also known as <strong>product-limit</strong> estimator.</p>
+<p>The Kaplan-Meier estimator is also known as the <strong>product-limit</strong> estimator.</p>
 <section id="tooth-filling-example" class="level3" data-number="23.5.1">
 <h3 data-number="23.5.1" class="anchored" data-anchor-id="tooth-filling-example"><span class="header-section-number">23.5.1</span> Tooth filling example</h3>
 <section id="complete-follow-up-data" class="level4" data-number="23.5.1.1">
 <h4 data-number="23.5.1.1" class="anchored" data-anchor-id="complete-follow-up-data"><span class="header-section-number">23.5.1.1</span> Complete follow-up data</h4>
 <p>Suppose we have 10 patients who receive a tooth filling, and we want to track how long these fillings last before they fail (fall out or need replacement). The failure times (in months) for each patient are recorded:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data_tooth <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">patientID =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">11</span>,  <span class="dv">5</span>, <span class="dv">4</span>,  <span class="dv">3</span>,  <span class="dv">7</span>,  <span class="dv">6</span>, <span class="dv">12</span>,  <span class="dv">8</span>), </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">status =</span> <span class="dv">1</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data_tooth)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   10 obs. of  3 variables:
  $ patientID: int  1 2 3 4 5 6 7 8 9 10
  $ time     : num  10 8 11 5 4 3 7 6 12 8
- $ surv     : num  1 1 1 1 1 1 1 1 1 1</code></pre>
+ $ status   : num  1 1 1 1 1 1 1 1 1 1</code></pre>
 </div>
 </div>
-<p>Note that the <code>surv</code> column is a binary indicator of survival status (1 = event, 0 = censored). In this example, we assume all patients have experienced the event (failure) and have complete follow-up data.</p>
-<p>To calculate the Kaplan-Meier Curve:</p>
+<p>Note that the <code>status</code> column is a binary event indicator of survival status (1 = event, 0 = censored). In this example, we assume all patients have experienced the event (failure) and have complete follow-up data.</p>
+<p>To calculate the Kaplan-Meier curve:</p>
 <ol type="1">
-<li>We <strong>sort</strong> the data by time to failure.2.</li>
-<li>For each time, we calculate the <strong>survival probabilities</strong>, i.e.&nbsp;the probability the filling lasting beyond that time.</li>
-<li>We apply the Kaplan-Meier formula (<a href="#eq-KM" class="quarto-xref">Equation&nbsp;<span>23.2</span></a>) to calculate the probability of surviving up to time <span class="math inline">\(t\)</span>, as the product of all individual survival probabilities at each time up to <span class="math inline">\(t\)</span>:</li>
+<li>We <strong>sort</strong> the data by time to failure.</li>
+<li>For each event time, we calculate the <strong>survival probabilities</strong>, i.e.&nbsp;the probability the filling lasting beyond that time.</li>
+<li>We apply the Kaplan-Meier formula (<a href="#eq-KM" class="quarto-xref">Equation&nbsp;<span>23.2</span></a>) to calculate the probability of surviving up to time <span class="math inline">\(t\)</span>, as the product of all individual survival probabilities at each time up to time <span class="math inline">\(t\)</span>:</li>
 </ol>
 <p>In our example:</p>
 <table class="caption-top table">
@@ -692,17 +794,22 @@ Figure&nbsp;23.2: Example of left and interval censoring in an age study. Left-c
 <p>We can see that:</p>
 <ul>
 <li>At 3 months: 10 patients are at risk, and 1 failure occurs, so the survival probability for this period is 0.9.</li>
-<li>For 4 months: 9 patients are at risk (since one patient failed at 3 months), and the survival probability is now cumulative (0.9 from the first interval multiplied by 0.888 from this interval).</li>
+<li>At 4 months: 9 patients are at risk (since one patient failed at 3 months), and the survival probability is now cumulative (0.9 from the first interval multiplied by 0.888 from this interval).</li>
 <li>At time 8 months: two failures occur and the survival probability drops more sharply.</li>
 <li>At time 12 months: the survival probability reaches 0, indicating that all patients experienced the event (tooth filling failure) by the end of the study.</li>
 </ul>
 <p>We can visualize the Kaplan-Meier curve for this data:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit.surv <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> data_tooth)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit.surv, <span class="at">conf.int=</span><span class="cn">FALSE</span>, <span class="at">xlab =</span> <span class="st">"Months"</span>, <span class="at">ylab =</span> <span class="st">"Estimated Probability of Survival"</span>, <span class="at">las =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-tooth-filling-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tooth-filling-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-tooth-filling-1-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-tooth-filling-1-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tooth-filling-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;23.3: Kaplan-Meier survival curve for tooth filling data. The curve shows the estimated probability of survival (filling intact) over time.
@@ -727,52 +834,52 @@ Figure&nbsp;23.3: Kaplan-Meier survival curve for tooth filling data. The curve 
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>3</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>4</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td>5</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td>6</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>5</td>
-<td>7</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>6</td>
-<td>8</td>
-<td>No</td>
-</tr>
-<tr class="odd">
-<td>7</td>
-<td>8</td>
-<td>No</td>
-</tr>
-<tr class="even">
-<td>8</td>
 <td>10</td>
 <td>Yes</td>
 </tr>
+<tr class="even">
+<td>2</td>
+<td>8</td>
+<td>No</td>
+</tr>
 <tr class="odd">
-<td>9</td>
+<td>3</td>
 <td>11</td>
 <td>No</td>
 </tr>
 <tr class="even">
-<td>10</td>
+<td>4</td>
+<td>5</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>4</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>3</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>7</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>6</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>9</td>
 <td>12</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>8</td>
 <td>No</td>
 </tr>
 </tbody>
@@ -792,7 +899,7 @@ Figure&nbsp;23.3: Kaplan-Meier survival curve for tooth filling data. The curve 
 <th>Time<br>(months)</th>
 <th>Patients at Risk<br><span class="math inline">\(n_i\)</span></th>
 <th>Failures<br><span class="math inline">\(d_i\)</span></th>
-<th>C</th>
+<th>Censored</th>
 <th>Survival Probability <br>at <span class="math inline">\(t_i\)</span></th>
 <th>Cumulative Survival<br><span class="math inline">\(S(t)\)</span></th>
 </tr>
@@ -843,7 +950,7 @@ Figure&nbsp;23.3: Kaplan-Meier survival curve for tooth filling data. The curve 
 <td>5</td>
 <td>2</td>
 <td>0</td>
-<td><span class="math inline">\(1 - \frac{2}{5} = 0.0.6\)</span></td>
+<td><span class="math inline">\(1 - \frac{2}{5} = 0.6\)</span></td>
 <td>0.571 <span class="math inline">\(\times\)</span> 0.6 = 0.343</td>
 </tr>
 <tr class="odd">
@@ -880,14 +987,21 @@ Figure&nbsp;23.3: Kaplan-Meier survival curve for tooth filling data. The curve 
 </ul>
 <p>We can see how the censoring data affect the KM curve:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data_tooth[<span class="dv">1</span>, <span class="st">"status"</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>data_tooth[<span class="dv">4</span>, <span class="st">"status"</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fit.surv <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> data_tooth)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit.surv, <span class="at">mark.time=</span><span class="cn">TRUE</span>, <span class="at">conf.int=</span><span class="cn">FALSE</span>,  <span class="at">xlab =</span> <span class="st">"Months"</span>, <span class="at">ylab =</span> <span class="st">"Estiamted Probabiliy of Survival"</span>, <span class="at">las =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-tooth-filling-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tooth-filling-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-tooth-filling-2-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-tooth-filling-2-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tooth-filling-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;23.4: Kaplan-Meier survival curve for tooth filling data. The curve shows the estimated probability of survival (filling intact) over time.
+Figure&nbsp;23.4: Kaplan-Meier survival curve for tooth filling data with censoring. The curve shows the estimated probability of survival (filling intact) over time. Censoring times are indicated with tick marks.
 </figcaption>
 </figure>
 </div>
@@ -897,17 +1011,22 @@ Figure&nbsp;23.4: Kaplan-Meier survival curve for tooth filling data. The curve 
 </section>
 <section id="interpretations" class="level3" data-number="23.5.2">
 <h3 data-number="23.5.2" class="anchored" data-anchor-id="interpretations"><span class="header-section-number">23.5.2</span> Interpretations</h3>
-<p>The Kaplan-Meier curve shows the cumulative survival probabilities. A steeper slope indicates a higher event rate (death rate) and therefore a worse survival prognosis. A flatter slope indicates a lower event rate and therefore a better survival prognosis. The curve may have plateaus or flat areas, indicating periods of relatively stable survival.</p>
+<p>The Kaplan-Meier curve shows the estimated cumulative survival probabilities. A steeper slope indicates a higher event rate (death rate) and therefore a worse survival prognosis. A flatter slope indicates a lower event rate and therefore a better survival prognosis. The curve may have plateaus or flat areas, indicating periods of relatively stable survival.</p>
 <p>At specific time points, you can estimate the survival probability by locating the time point on the horizontal axis and dropping a vertical line to the curve. Then, read the corresponding survival probability from the vertical axis.</p>
 <ul>
-<li>So, what is the probability that a tooth filling will last 10 months? We can estimate this by locating 10 months on the x-axis and dropping a vertical line to the curve. The estimated survival probability at 10 months is approximately 0.343, meaning there is a 34.3.7% chance that a tooth filling will last 10 months.</li>
+<li>So, what is the probability that a tooth filling will last 10 months? We can estimate this by locating 10 months on the x-axis and dropping a vertical line to the curve. The estimated survival probability at 10 months is approximately 0.343, meaning there is a 34.3% chance that a tooth filling will last 10 months or longer.</li>
 </ul>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit.surv, <span class="at">conf.int=</span><span class="cn">FALSE</span>,  <span class="at">xlab =</span> <span class="st">"Months"</span>, <span class="at">ylab =</span> <span class="st">"Estimated Probability of Survival"</span>, <span class="at">las =</span> <span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">10</span>, <span class="at">h =</span> <span class="fl">0.343</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-tooth-filling-2b" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tooth-filling-2b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-tooth-filling-2b-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-tooth-filling-2b-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tooth-filling-2b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;23.5: Kaplan-Meier survival curve for tooth filling data. Red lines indicate the estimated survival probability (tooth being intact) at 10 months.
@@ -916,9 +1035,37 @@ Figure&nbsp;23.5: Kaplan-Meier survival curve for tooth filling data. Red lines 
 </div>
 </div>
 </div>
-<p>If the interest is the average length of survival, or <strong>life expectancy</strong>, following the start of treatment, this may be crudely estimated from the survival curve as the time corresponding to a cumulative probability of survival at 0.5. Alternatively, it can be calculated as: <span class="math display">\[\textrm{Life expectancy} = 0.5 + \sum(\textrm{length of interval} \times \textrm{cumulative chance of survival})\]</span></p>
-<p>If there are multiple curves representing different groups, you can compare their shapes and patterns. If the curves are parallel, it suggests that the groups have similar survival experiences. If the curves diverge or cross, it indicates differences in survival between the groups.</p>
+<p>If the interest is the <strong>median survival time</strong>, this may be estimated from the survival curve as the time corresponding to a cumulative survival probability of 0.5. <!-- Alternatively, it can be calculated as: $$\textrm{Life expectancy} = 0.5 + \sum(\textrm{length of interval} \times \textrm{cumulative chance of survival})$$ --></p>
+<p>If there are multiple curves representing different groups, you can compare their shapes and patterns. If the curves are similar, it suggests that the groups have similar survival experiences, Large differences between the curves, diverging or crossing curves, suggest differences in survival between the groups, although formal inference requires an appropriate statistical test.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data frame for survival data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data_tooth_ext <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">18</span>, <span class="dv">20</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>           <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">16</span>, <span class="dv">18</span>, <span class="dv">22</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">status =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>               <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"M"</span>, <span class="dv">10</span>), <span class="fu">rep</span>(<span class="st">"F"</span>, <span class="dv">10</span>))</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a survival object and</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>surv_object <span class="ot">&lt;-</span> <span class="fu">Surv</span>(<span class="at">time =</span> data_tooth_ext<span class="sc">$</span>time, <span class="at">event =</span> data_tooth_ext<span class="sc">$</span>status)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Kaplan-Meier curves for gender</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(surv_object <span class="sc">~</span> gender, <span class="at">data =</span> data_tooth_ext)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Kaplan-Meier survival curves</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit, </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> data_tooth_ext,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">pval =</span> <span class="cn">FALSE</span>,             <span class="co"># Show p-value for difference in survival</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">FALSE</span>,         <span class="co"># Add confidence interval</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table =</span> <span class="cn">TRUE</span>,       <span class="co"># Show risk table at the bottom</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(), <span class="co"># Use a minimal theme</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab =</span> <span class="st">"Time (Months)"</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">ylab =</span> <span class="st">"Survival Probability"</span>, </span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">palette =</span> mycols[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Ignoring unknown labels:
 • colour : "Strata"</code></pre>
@@ -927,7 +1074,7 @@ Figure&nbsp;23.5: Kaplan-Meier survival curve for tooth filling data. Red lines 
 <div id="fig-tooth-filling-20-part" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tooth-filling-20-part-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-tooth-filling-20-part-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-tooth-filling-20-part-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tooth-filling-20-part-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;23.6: Kaplan-Meier survival curves for a new extended study of tooth filling data, including 20 participants (10 men and 10 women).
@@ -941,21 +1088,36 @@ Figure&nbsp;23.6: Kaplan-Meier survival curves for a new extended study of tooth
 <section id="comparisons-of-hazards" class="level2" data-number="23.6">
 <h2 data-number="23.6" class="anchored" data-anchor-id="comparisons-of-hazards"><span class="header-section-number">23.6</span> Comparisons of hazards</h2>
 <p>Often, in survival analysis we would like to compare the survival patterns of different groups, e.g.&nbsp;is there a group difference between survival times (tooth filling intact) between men and women in the tooth filling study?</p>
-<p>The differences between the survival curves are not constant. For example, both groups start at 1 and the survival probability deceases, with lower survival probability for men at 10 months, but then again higher survival probability at 15 months.</p>
-<p>We solve the problem of allowing for differences in survival time by comparing <strong>hazards</strong> in the two groups over the duration of the follow-up. We also assume that the <strong>ratio of the hazards</strong> in the two groups remains constant over time, even if the underlying hazards change. We assume, that at all times <span class="math inline">\(t\)</span>: <span class="math display">\[\frac{h_1(t)}{h_0(t)} = constant\]</span></p>
+<p>The differences between the survival curves are not constant over time. For example, both groups start at 1 and the survival probability decreases, with lower survival probability for men at 10 months, but then again higher survival probability at 15 months.</p>
+<p>One common way to compare groups is through their <strong>hazards</strong> over the duration of the follow-up. In the Cox proportional hazards framework, we assume that the <strong>ratio of the hazards</strong> in the two groups remains constant over time, even if the underlying hazards change. That is, at all times <span class="math inline">\(t\)</span>: <span class="math display">\[\frac{h_1(t)}{h_0(t)} = \text{constant}\]</span></p>
 <p>where:</p>
 <ul>
 <li><span class="math inline">\(h_1(t)\)</span> and <span class="math inline">\(h_0(t)\)</span> are the hazards in the exposed and unexposed groups at time <span class="math inline">\(t\)</span> (or in one group and the other).</li>
 </ul>
-<p>This assumption is called the <strong>proportional hazards assumption</strong>. It is difficult to estimate the hazard directly from the data, since this would give a series of “spikes” when an even occurs, interspersed with zeros when there is no disease event. Instead we use the <strong>cumulative hazard function</strong>, <span class="math inline">\(H(t)\)</span>. This is the total hazard experienced up to time <span class="math inline">\(t\)</span>, and is estimated by the sum of the risks at each time <span class="math inline">\(t\)</span> at which an event occurs <span class="math display">\[H(t) = \sum_{i=1}^{t}\frac{d_i}{n_i}\]</span></p>
-<p>If the ratio of the hazards in both groups is constant over time, if follows that the ratio of the cumulative hazard functions must also equal this constant <span class="math display">\[\frac{H_1(t)}{H_0(t)} = \frac{h_1(t)}{h_0(t)} = constant\]</span> and applying the rules of logarithms: <span class="math display">\[log(H_1(t) - log(H_0(t)) = log(constant)\]</span></p>
-<p>Therefore, if the proportional hazards assumptions is met, then graphs of the log of the cumulative hazard functions should be parallel.</p>
+<p>This assumption is called the <strong>proportional hazards assumption</strong>.</p>
+<p>It is difficult to estimate the hazard directly from the data, since this would give a series of “spikes” when an even occurs, interspersed with zeros when there is no disease event. Instead we use the <strong>cumulative hazard function</strong>, <span class="math inline">\(H(t)\)</span>. This is the total hazard experienced up to time <span class="math inline">\(t\)</span>, and is estimated by <span class="math display">\[H(t) = \sum_{t_j \le t}\frac{d_j}{n_j}\]</span></p>
+<p>If the ratio of the hazards in both groups is constant over time, if follows that the ratio of the cumulative hazard functions must also equal this constant <span class="math display">\[\frac{H_1(t)}{H_0(t)} = \frac{h_1(t)}{h_0(t)} = constant\]</span> and applying the rules of logarithms: <span class="math display">\[log(H_1(t)) - log(H_0(t)) = log(constant)\]</span></p>
+<p>Therefore, if the proportional hazards assumption hold, then graphs of the log of the cumulative hazard functions should be approximately parallel.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Kaplan-Meier survival curves</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> data_tooth_ext,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">fun =</span> <span class="st">"cumhaz"</span>,           <span class="co"># Add cumulative hazard function</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">pval =</span> <span class="cn">FALSE</span>,             <span class="co"># Show p-value for difference in survival</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">FALSE</span>,         <span class="co"># Add confidence interval</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table =</span> <span class="cn">FALSE</span>,       <span class="co"># Show risk table at the bottom</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(), <span class="co"># Use a minimal theme</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab =</span> <span class="st">"Time (Months)"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">ylab =</span> <span class="st">"Cumulative hazard"</span>, </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">palette =</span> mycols[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-tooth-filling-cumhaz" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tooth-filling-cumhaz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="intro_files/figure-html/fig-tooth-filling-cumhaz-1.png" class="img-fluid figure-img" width="336">
+<img src="intro_files/figure-html/fig-tooth-filling-cumhaz-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tooth-filling-cumhaz-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;23.7: Cumulative hazard functions for the two groups in the extended tooth filling study.
@@ -968,9 +1130,9 @@ Figure&nbsp;23.7: Cumulative hazard functions for the two groups in the extended
 </section>
 <section id="mantel-cox-log-rank-test" class="level2" data-number="23.7">
 <h2 data-number="23.7" class="anchored" data-anchor-id="mantel-cox-log-rank-test"><span class="header-section-number">23.7</span> Mantel-Cox (log-rank test)</h2>
-<p>Assuming the proportional hazards assumption holds, we can test for differences in survival between groups using the <strong>Mantel-Cox test</strong>, also known as the <strong>log-rank test</strong>. It tests the null hypothesis of no difference in survival between two or more independent groups. The test compares the entire survival experience between groups and can be thought of as a test of whether the survival curves are identical (overlapping).</p>
+<p>Assuming the proportional hazards assumption holds, we can test for differences in survival between groups using the <strong>Mantel-Cox test</strong>, also known as the <strong>log-rank test</strong>. It tests the null hypothesis of no difference in survival between two or more independent groups. The test compares the entire survival experience between groups and can be thought of as a test of whether the survival curves are the same.</p>
 <p>The <strong>log-rank test statistic</strong> is constructed by comparing the <strong>observed</strong> number of events (e.g.&nbsp;deaths, failures) in each group to the <strong>expected</strong> number of events, assuming that the survival experiences of the groups are the same. The test statistic is based on a <strong>chi-square distribution</strong>, which tests whether the difference between the observed and expected numbers of events is larger than what we would expect by chance.</p>
-<p>Let’s start with two groups, A and B. If at time <span class="math inline">\(t_j\)</span> there were <span class="math inline">\(d_j\)</span> deaths and there were <span class="math inline">\(n'_{jA}\)</span> and <span class="math inline">\(n'_{jB}\)</span> subjects alive just before <span class="math inline">\(t_j\)</span> in groups A and B respectively, then the data can be arranged in <span class="math inline">\(2\times2\)</span> table:</p>
+<p>Let’s start with two groups, A and B. If at time <span class="math inline">\(t_j\)</span> there were <span class="math inline">\(d_j\)</span> events, and there were <span class="math inline">\(n'_{jA}\)</span> and <span class="math inline">\(n'_{jB}\)</span> subjects at risk just before <span class="math inline">\(t_j\)</span> in groups A and B respectively, then the data can be arranged in a <span class="math inline">\(2\times2\)</span> table:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 12%">
@@ -1021,6 +1183,14 @@ Figure&nbsp;23.7: Cumulative hazard functions for the two groups in the extended
 <p>In more advanced version, the log-rank test incorporates variance into the test statistics. This ensures more accurate and reliable comparisons of survival distributions, particularly when groups differ in size, have varying numbers of individuals at risk, or experience uneven censoring: <span class="math display">\[\chi^2_{MC} = \frac{(O_A - E_A)^2}{V_A} + \frac{(O_B - E_B)^2}{V_B}\]</span> where <span class="math inline">\(V\)</span> stands for total variance across all times at which event occurs, with variance at these points calculated as <span class="math display">\[V(d_{jA}) = \frac{d_j(n'_j - d_j)n'_{jA}n'_{jB}}{n'^2_j(n'_j -1)}\]</span> for group A (and analogously for other groups in the study).</p>
 <p>In our extended tooth filling study, we can compare the survival experiences between men and women:</p>
 <div class="cell" data-code-collapse="false">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the log-rank test</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>log_rank_test <span class="ot">&lt;-</span> <span class="fu">survdiff</span>(surv_object <span class="sc">~</span> gender, <span class="at">data =</span> data_tooth_ext)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the result of the log-rank test</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(log_rank_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 survdiff(formula = surv_object ~ gender, data = data_tooth_ext)

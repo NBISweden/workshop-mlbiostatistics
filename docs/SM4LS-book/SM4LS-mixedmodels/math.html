@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -41,7 +76,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bc91950905f66a0b7e618f69bf449bf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c9519052eeb2144f46ab8f82e4e0586e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -250,6 +285,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -627,11 +668,45 @@ X^\top V^{-1} X \beta = X^\top V^{-1} y
 <p>Before going forward we want to try whether the equation we derived actually work on not.</p>
 <p>Let’s get back to our previous example:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">group_count =</span> <span class="dv">5</span>, <span class="at">points_per_group =</span> <span class="dv">10</span>, <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>, <span class="at">group_slope =</span> <span class="dv">2</span>, <span class="at">noise_sd =</span> <span class="dv">50</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>())</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create each group</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>group_count) {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x_start <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="sc">+</span> (i <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">10</span> <span class="sc">/</span> group_count) <span class="co"># Stagger the start of x for each group</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">runif</span>(points_per_group, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> group_count))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply a local positive trend within the group, but maintain the global negative trend</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    local_intercept <span class="ot">&lt;-</span> global_intercept <span class="sc">+</span> global_slope <span class="sc">*</span> (x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> group_count))) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> local_intercept <span class="sc">+</span> group_slope[i] <span class="sc">*</span> (x <span class="sc">-</span> x_start) <span class="sc">+</span> <span class="fu">rnorm</span>(points_per_group, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd2)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine this group with the overall dataset</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    group_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y,<span class="at">group=</span>i)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(data, group_data)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># generate simulated data</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>data_int <span class="ot">&lt;-</span> <span class="fu">simulate_grouped_trend</span>(<span class="at">group_count =</span> <span class="dv">4</span>,<span class="at">points_per_group =</span> <span class="dv">10</span>,<span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">2</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,<span class="at">group_slope =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>),<span class="at">noise_sd =</span> <span class="dv">5</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># set group to factor</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">factor</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the data</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x,data_int<span class="sc">$</span>y,<span class="at">xlab=</span><span class="st">"Age"</span>,<span class="at">ylab=</span><span class="st">"Protein expression"</span>,<span class="at">col=</span>data_int<span class="sc">$</span>group,<span class="at">pch=</span><span class="fu">as.numeric</span>(data_int<span class="sc">$</span>group))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="math_files/figure-html/fig-scatter-plot-1.png" class="img-fluid figure-img" width="336">
+<img src="math_files/figure-html/fig-scatter-plot-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;22.1: A scatter plot of Age vs.&nbsp;Protein expression
@@ -642,6 +717,29 @@ Figure&nbsp;22.1: A scatter plot of Age vs.&nbsp;Protein expression
 </div>
 <p>Let’s say that we know the structure of V using some prior knowledge (we will cover how V is exactly derived later).</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a diagonal matrix 'var.d' with equal diagonal elements set to 378.6062 (covariance). The dimensions are based on the number of levels in 'data_int$group'.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>var.d <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="fl">378.6062</span>, <span class="at">ncol =</span> <span class="fu">length</span>(<span class="fu">levels</span>(data_int<span class="sc">$</span>group)), <span class="at">nrow=</span><span class="fu">length</span>(<span class="fu">levels</span>(data_int<span class="sc">$</span>group)))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Transpose of the model matrix for the 'group' variable in the dataset 'data_int', excluding intercept (hence '~0+').</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Zt <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>data_int<span class="sc">$</span>group))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the variance-covariance matrix 'V' for the random effects using the matrix 'Zt' and the variance diagonal matrix 'var.d'.</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> (<span class="fu">t</span>(Zt) <span class="sc">%*%</span> var.d <span class="sc">%*%</span> Zt)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the diagonal elements of the variance-covariance matrix 'V' to 384.5376 (total variance).</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(V) <span class="ot">&lt;-</span> <span class="fl">384.5376</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the model matrix 'X' for the fixed effect 'x' using data from 'data_int'.</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data=</span>data_int)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the response variable 'y' from 'data_int'.</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> data_int<span class="sc">$</span>y</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the mixed model solution using generalized least squares, solving the equation (X'V^-1X)^-1X'V^-1y for the fixed effects estimates.</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                 [,1]
 (Intercept) 29.910468
@@ -650,6 +748,12 @@ x            2.556151</code></pre>
 </div>
 <p>Let’s compare this to when we use mixed model:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>model_lmm <span class="ot">&lt;-</span> <span class="fu">lmer</span>(y <span class="sc">~</span> <span class="dv">1</span><span class="sc">+</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>group), <span class="at">data =</span> data_int)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: y ~ 1 + x + (1 | group)
@@ -687,8 +791,47 @@ V^{1/2} V^{1/2} = (P \Lambda^{1/2} P^T) (P \Lambda^{1/2} P^T)
 V^{1/2} V^{1/2} = P \Lambda^{1/2} (P^T P) \Lambda^{1/2} P^T = P \Lambda^{1/2} \Lambda^{1/2} P^T = P \Lambda P^T = V
 \]</span> So, <span class="math inline">\(V^{1/2}\)</span> is the square root of <span class="math inline">\(V\)</span>.</p>
 <p>Let’s create a small function in R to calculate the square root of a matrix:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>matrix_sqrt <span class="ot">&lt;-</span> <span class="cf">function</span>(Sigma) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure the matrix is symmetric</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">all.equal</span>(Sigma, <span class="fu">t</span>(Sigma))) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"The input matrix must be symmetric."</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute the eigenvalues and eigenvectors</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  eigen_decomp <span class="ot">&lt;-</span> <span class="fu">eigen</span>(Sigma)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract eigenvalues and eigenvectors</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  eigenvalues <span class="ot">&lt;-</span> eigen_decomp<span class="sc">$</span>values</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  eigenvectors <span class="ot">&lt;-</span> eigen_decomp<span class="sc">$</span>vectors</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check for negative eigenvalues</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(eigenvalues <span class="sc">&lt;</span> <span class="dv">0</span>)) {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"The matrix must be positive definite."</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute Lambda^1/2</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  Lambda_half <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(eigenvalues))</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute Sigma^1/2</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  Sigma_half <span class="ot">&lt;-</span> eigenvectors <span class="sc">%*%</span> Lambda_half <span class="sc">%*%</span> <span class="fu">t</span>(eigenvectors)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">Sigma_half=</span>Sigma_half,<span class="at">eigenvectors=</span>eigenvectors,<span class="at">eigenvalues=</span>eigenvalues))</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <p>Now what we are going to do is to transform <span class="math inline">\(X\)</span> (the design matrix) and <span class="math inline">\(y\)</span> (our response) using the <span class="math inline">\(V^{1/2}\)</span> and only perform OLS on it:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>V_inv_sqrt <span class="ot">&lt;-</span> <span class="fu">matrix_sqrt</span>(V)<span class="sc">$</span>Sigma_half</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>X_transformed <span class="ot">&lt;-</span> V_inv_sqrt<span class="sc">%*%</span>X</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>y_transformed <span class="ot">&lt;-</span> V_inv_sqrt<span class="sc">%*%</span>y</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">lm</span>(y_transformed<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>X_transformed))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -702,11 +845,19 @@ X_transformed(Intercept)            X_transformedx
 <p>You see that this again gave us the exact same coefficients as mixed model.</p>
 <p>Let’s look at the original data and compare it with the transformed one:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X[,<span class="dv">2</span>],y,<span class="at">col=</span>data_int<span class="sc">$</span>group,<span class="at">main=</span><span class="st">"Original data"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(model_lmm<span class="sc">@</span>beta)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X_transformed[,<span class="dv">2</span>],y_transformed,<span class="at">col=</span>data_int<span class="sc">$</span>group,<span class="at">main=</span><span class="st">"Transformed data"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="at">x=</span>X_transformed[,<span class="dv">2</span>],<span class="at">y=</span><span class="fu">predict</span>(<span class="fu">lm</span>(y_transformed<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>X_transformed)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-transformed" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-transformed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="math_files/figure-html/fig-scatter-plot-transformed-1.png" class="img-fluid figure-img" width="336">
+<img src="math_files/figure-html/fig-scatter-plot-transformed-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-transformed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;22.2: A scatter plot of of transformed X and Y
@@ -717,6 +868,48 @@ Figure&nbsp;22.2: A scatter plot of of transformed X and Y
 </div>
 <p>It is clear that the difference between groups has been removed in the transformed data. We can appreciate this procedure more if we try to increase the variance between the groups and see what happens to the transformation:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the model</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mvtnorm)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>global_intercept_slop <span class="ot">&lt;-</span> model_lmm<span class="sc">@</span>beta</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>max_cov <span class="ot">&lt;-</span> <span class="fl">378.6062</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>total_variance <span class="ot">&lt;-</span> <span class="fl">384.5376</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Animation Data Preparation</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (co <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">0</span>, max_cov, <span class="at">length.out =</span> <span class="dv">20</span>)) {</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  var.d <span class="ot">&lt;-</span> <span class="fu">diag</span>(co, <span class="at">ncol =</span> <span class="fu">length</span>(<span class="fu">levels</span>(data_int<span class="sc">$</span>group)), <span class="at">nrow =</span> <span class="fu">length</span>(<span class="fu">levels</span>(data_int<span class="sc">$</span>group)))</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  Zt <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span> <span class="sc">+</span> data_int<span class="sc">$</span>group))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> (<span class="fu">t</span>(Zt) <span class="sc">%*%</span> var.d <span class="sc">%*%</span> Zt)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(V) <span class="ot">&lt;-</span> total_variance</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  V_inv_sqrt <span class="ot">&lt;-</span> <span class="fu">matrix_sqrt</span>(V)<span class="sc">$</span>Sigma_half</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data =</span> data_int)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> data_int<span class="sc">$</span>y</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  X_transformed <span class="ot">&lt;-</span> V_inv_sqrt <span class="sc">%*%</span> X</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  y_transformed <span class="ot">&lt;-</span> V_inv_sqrt <span class="sc">%*%</span> y</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  transformed_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X_transformed =</span> X_transformed[, <span class="dv">2</span>], y_transformed, <span class="at">Group =</span> data_int<span class="sc">$</span>group, <span class="at">co =</span> co)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  results[[<span class="fu">length</span>(results) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> transformed_data</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all data frames for animation</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>animation_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, results)</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the animation using ggplot2 and gganimate</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(animation_data, <span class="fu">aes</span>(<span class="at">x =</span> X_transformed, <span class="at">y =</span> y_transformed, <span class="at">color =</span> Group)) <span class="sc">+</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span> <span class="fu">stat_ellipse</span>(<span class="fu">aes</span>(<span class="at">x=</span>X_transformed, <span class="at">y=</span>y_transformed,<span class="at">color=</span>Group),<span class="at">type =</span> <span class="st">"norm"</span>)<span class="sc">+</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Variance scaling factor: {closest_state}"</span>, <span class="at">x =</span> <span class="st">"Transformed X"</span>, <span class="at">y =</span> <span class="st">"Transformed Y"</span>) <span class="sc">+</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(co, <span class="at">transition_length =</span> <span class="dv">2</span>, <span class="at">state_length =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>(<span class="st">'linear'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>NULL</code></pre>
 </div>
@@ -732,6 +925,62 @@ Figure&nbsp;22.2: A scatter plot of of transformed X and Y
 <p>In terms of matrix operations: - The matrix <span class="math inline">\(V\)</span> in this case is primarily influencing the variance within each group and does not introduce any off-diagonal terms that would typically cause a rotation. Rotation in the data space would occur if there were covariances between different dimensions (such as would be introduced with random slopes), which would manifest as off-diagonal elements in <span class="math inline">\(V\)</span>.</p>
 <p>In order to true see what the transformation does, we now incorporate a random slope and show it affects the transformation here.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the model</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>model_lmm <span class="ot">&lt;-</span> <span class="fu">lmer</span>(y <span class="sc">~</span> <span class="dv">1</span><span class="sc">+</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>x<span class="sc">|</span>group), <span class="at">data =</span> data_int)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># custome function to extract the V matrix</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>getV1 <span class="ot">&lt;-</span> <span class="cf">function</span>(x,<span class="at">var1=</span><span class="fl">344.65503</span>,<span class="at">var2=</span><span class="fl">5.141458</span>,<span class="at">cov=</span><span class="sc">-</span><span class="fl">39.26625</span>,<span class="at">times=</span><span class="dv">4</span>){</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    Zt <span class="ot">&lt;-</span> <span class="fu">getME</span>(x, <span class="st">"Zt"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  vr <span class="ot">&lt;-</span> <span class="fu">sigma</span>(x)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  original_matrix <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(var1, cov, cov, var2), <span class="at">nrow=</span><span class="dv">2</span>, <span class="at">byrow=</span><span class="cn">TRUE</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>var.d <span class="ot">&lt;-</span> <span class="fu">bdiag</span>(<span class="fu">rep</span>(<span class="fu">list</span>(original_matrix),times))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  var.b <span class="ot">&lt;-</span>(<span class="fu">t</span>(Zt) <span class="sc">%*%</span> var.d <span class="sc">%*%</span> Zt)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  sI <span class="ot">&lt;-</span> vr <span class="sc">*</span> Matrix<span class="sc">::</span><span class="fu">Diagonal</span>(<span class="fu">nobs</span>(x)) <span class="co">#for a sparse matrix</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  var.y <span class="ot">&lt;-</span> var.b <span class="sc">+</span> sI</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Animation Data Preparation</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>varr1<span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">344.65503</span>, <span class="at">length.out =</span> <span class="dv">20</span>)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>varr2<span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">5.141458</span>, <span class="at">length.out =</span> <span class="dv">20</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>corr<span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="sc">-</span><span class="fl">39.26625</span>, <span class="at">length.out =</span> <span class="dv">20</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>) {</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  V<span class="ot">&lt;-</span><span class="fu">getV1</span>(<span class="at">x =</span> model_lmm,<span class="at">var2 =</span> varr2[ii],<span class="at">cov =</span> corr[ii],<span class="at">var1 =</span> varr1[<span class="dv">20</span>])</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  V_inv_sqrt <span class="ot">&lt;-</span> <span class="fu">matrix_sqrt</span>(V)<span class="sc">$</span>Sigma_half</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data =</span> data_int)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> data_int<span class="sc">$</span>y</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  X_transformed <span class="ot">&lt;-</span> V_inv_sqrt <span class="sc">%*%</span> X</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  y_transformed <span class="ot">&lt;-</span> V_inv_sqrt <span class="sc">%*%</span> y</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  transformed_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X_transformed =</span> X_transformed[, <span class="dv">2</span>], y_transformed, <span class="at">Group =</span> data_int<span class="sc">$</span>group, <span class="at">co =</span> varr2[ii])</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  results[[<span class="fu">length</span>(results) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> transformed_data</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  V<span class="ot">&lt;-</span><span class="fu">getV1</span>(<span class="at">x =</span> model_lmm,<span class="at">var2 =</span> varr2[<span class="dv">20</span>],<span class="at">cov =</span> corr[<span class="dv">20</span>],<span class="at">var1 =</span> varr1[<span class="dv">20</span>])</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  V_inv_sqrt <span class="ot">&lt;-</span> <span class="fu">matrix_sqrt</span>(V)<span class="sc">$</span>Sigma_half</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data =</span> data_int)</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> data_int<span class="sc">$</span>y</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  X_transformed <span class="ot">&lt;-</span> V_inv_sqrt <span class="sc">%*%</span> X</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>  y_transformed <span class="ot">&lt;-</span> V_inv_sqrt <span class="sc">%*%</span> y</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>  transformed_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X_transformed =</span> X_transformed[, <span class="dv">2</span>], y_transformed, <span class="at">Group =</span> data_int<span class="sc">$</span>group, <span class="at">co =</span> varr2[ii])</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all data frames for animation</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>animation_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, results)</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(animation_data, <span class="fu">aes</span>(<span class="at">x =</span> X_transformed, <span class="at">y =</span> y_transformed, <span class="at">color =</span> Group)) <span class="sc">+</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span> <span class="fu">stat_ellipse</span>(<span class="fu">aes</span>(<span class="at">x=</span>X_transformed, <span class="at">y=</span>y_transformed,<span class="at">color=</span>Group),<span class="at">type =</span> <span class="st">"norm"</span>)<span class="sc">+</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Variance of slope scaling factor: {closest_state}"</span>, <span class="at">x =</span> <span class="st">"Transformed X"</span>, <span class="at">y =</span> <span class="st">"Transformed Y"</span>) <span class="sc">+</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(co, <span class="at">transition_length =</span> <span class="dv">1</span>, <span class="at">state_length =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>(<span class="st">'linear'</span>)<span class="sc">+</span><span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>,<span class="at">se =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>NULL</code></pre>
 </div>
@@ -759,6 +1008,58 @@ Figure&nbsp;22.2: A scatter plot of of transformed X and Y
 </ul>
 <p>We can clarify this using a simple example:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-scatter-plot-ICC</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A scatter plot of of X and Y showing the effect of ICC"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the model</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>simulate_data <span class="ot">&lt;-</span> <span class="cf">function</span>(n_groups, n_per_group, slope, icc, sigma_within) {</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="dv">0</span>  <span class="co"># Overall intercept (can be set to other values as needed)</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute the variance components</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  sigma_between <span class="ot">&lt;-</span> icc <span class="sc">*</span> sigma_within <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> icc)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate random effects for each group (intercepts)</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  group_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> n_groups, <span class="at">mean =</span> mu, <span class="at">sd =</span> <span class="fu">sqrt</span>(sigma_between))</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prepare data frame</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">group =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_groups, <span class="at">each =</span> n_per_group),</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">rep</span>(<span class="fu">runif</span>(<span class="at">n =</span> n_per_group, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>), <span class="at">times =</span> n_groups)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add the fixed effect (slope) and random effects</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  data<span class="sc">$</span>y <span class="ot">&lt;-</span> slope <span class="sc">*</span> data<span class="sc">$</span>x <span class="sc">+</span> <span class="fu">rep</span>(group_effects, <span class="at">each =</span> n_per_group) <span class="sc">+</span> </span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">rnorm</span>(<span class="at">n =</span> n_groups <span class="sc">*</span> n_per_group, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(sigma_within))</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>results<span class="ot">&lt;-</span><span class="fu">list</span>()</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>data_int <span class="ot">&lt;-</span> <span class="fu">simulate_data</span>(<span class="dv">4</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="fl">0.1</span>,<span class="dv">100</span>)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>ICCs<span class="ot">&lt;-</span><span class="fu">seq</span>(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="at">length.out =</span> <span class="dv">20</span>)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (ICC <span class="cf">in</span> <span class="fu">seq</span>(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="at">length.out =</span> <span class="dv">20</span>)) {</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a> data_int <span class="ot">&lt;-</span> <span class="fu">simulate_data</span>(<span class="dv">4</span>,<span class="dv">10</span>,<span class="dv">10</span>,ICC,<span class="dv">100</span>)</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>  transformed_data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(data_int,<span class="at">ICC=</span>ICC)</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>  results[[<span class="fu">length</span>(results) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> transformed_data</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>animation_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, results)</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>animation_data<span class="sc">$</span>group<span class="ot">&lt;-</span><span class="fu">as.factor</span>(animation_data<span class="sc">$</span>group)</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(animation_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y, <span class="at">color =</span> group)) <span class="sc">+</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span> <span class="fu">stat_ellipse</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>y,<span class="at">color=</span>group),<span class="at">type =</span> <span class="st">"norm"</span>)<span class="sc">+</span></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"ICC: {closest_state}"</span>, <span class="at">x =</span> <span class="st">"X"</span>, <span class="at">y =</span> <span class="st">"Y"</span>) <span class="sc">+</span></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(ICC, <span class="at">transition_length =</span> <span class="dv">1</span>, <span class="at">state_length =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ease_aes</span>(<span class="st">'linear'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: No renderer available. Please install the gifski, av, or magick package to
 create animated output</code></pre>
@@ -1024,12 +1325,71 @@ L(\theta; y) = \frac{1}{(2\pi)^{n/2} |V|^{1/2}} \exp\left(-\frac{1}{2} (y - X\be
 \]</span> Given this function we can go ahead and write a small piece of code to calculate this.</li>
 </ol>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">group_count =</span> <span class="dv">5</span>, <span class="at">points_per_group =</span> <span class="dv">10</span>, <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>, <span class="at">group_slope =</span> <span class="dv">2</span>, <span class="at">noise_sd =</span> <span class="dv">50</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>) {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>())</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create each group</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>group_count) {</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    x_start <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="sc">+</span> (i <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">10</span> <span class="sc">/</span> group_count) <span class="co"># Stagger the start of x for each group</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">runif</span>(points_per_group, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> group_count))</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply a local positive trend within the group, but maintain the global negative trend</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    local_intercept <span class="ot">&lt;-</span> global_intercept <span class="sc">+</span> global_slope <span class="sc">*</span> (x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> group_count))) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> local_intercept <span class="sc">+</span> group_slope[i] <span class="sc">*</span> (x <span class="sc">-</span> x_start) <span class="sc">+</span> <span class="fu">rnorm</span>(points_per_group, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd2)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine this group with the overall dataset</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    group_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y,<span class="at">group=</span>i)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(data, group_data)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co"># generate simulated data</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>data_int <span class="ot">&lt;-</span> <span class="fu">simulate_grouped_trend</span>(<span class="at">group_count =</span> <span class="dv">4</span>,<span class="at">points_per_group =</span> <span class="dv">10</span>,<span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">2</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,<span class="at">group_slope =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>),<span class="at">noise_sd =</span> <span class="dv">5</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="co"># set group to factor</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">factor</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="co"># theta is [sigmal,lambda]</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Design matrix of random effect</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the model matrix 'X' for the fixed effect 'x' using data from 'data_int'.</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data=</span>data_int)</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="co"># get groups (random effects)</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>log1 <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) {</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>],<span class="at">ncol =</span> <span class="fu">length</span>(groups),<span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>  I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>,<span class="at">nrow =</span> <span class="fu">nrow</span>(X),<span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>  V<span class="ot">&lt;-</span>theta[<span class="dv">1</span>]<span class="sc">*</span>(I<span class="sc">+</span>Z<span class="sc">%*%</span>D<span class="sc">%*%</span><span class="fu">t</span>(Z))</span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>  Beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y</span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="fu">log</span>(<span class="fu">det</span>(V)) <span class="sc">+</span> <span class="fu">t</span>(y <span class="sc">-</span> X <span class="sc">%*%</span> Beta) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> (y <span class="sc">-</span> X <span class="sc">%*%</span> Beta)))</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>theta<span class="ot">&lt;-</span>optimization<span class="sc">::</span><span class="fu">optim_nm</span>(<span class="at">fun =</span> log1, <span class="at">k =</span> <span class="dv">2</span>, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">maximum=</span> <span class="cn">FALSE</span>, <span class="at">tol =</span> <span class="fl">0.0000000000001</span>)<span class="sc">$</span>par</span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Residual = "</span>,<span class="fu">sqrt</span>(theta[<span class="dv">1</span>]),<span class="st">" group = "</span>, <span class="fu">sqrt</span>(<span class="fu">prod</span>(theta)),<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Residual =  2.40449  group =  16.61624 </code></pre>
 </div>
 </div>
 <p>if we compare the results to that of <code>lmer</code> we see they are identical:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">VarCorr</span>(<span class="fu">lmer</span>(y<span class="sc">~</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>group),<span class="at">data=</span>data_int,<span class="at">REML =</span> <span class="cn">FALSE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups   Name        Std.Dev.
  group    (Intercept) 16.6162 
@@ -1167,12 +1527,42 @@ e^{-\frac{1}{2} \mathbf{Y}^T (V^{-1} - V^{-1} \mathbf{X} \mathbf{A}) \mathbf{Y}}
 -2\ell_{REML}(\boldsymbol{\theta};\boldsymbol{Y}) = \log |\tilde{\boldsymbol{V}}(\boldsymbol{\theta})| + \log |\boldsymbol{X}^T \tilde{\boldsymbol{V}}^{-1} \boldsymbol{X}| + (\boldsymbol{Y} - \boldsymbol{X}\tilde{\boldsymbol{\beta}}(\boldsymbol{\theta}))^T \tilde{\boldsymbol{V}}^{-1} (\boldsymbol{Y} - \boldsymbol{X}\tilde{\boldsymbol{\beta}}(\boldsymbol{\theta}))
 \]</span> This is our final equation for REML and can be implemented easily:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># theta is [sigmal,lambda]</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Design matrix of random effect</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the model matrix 'X' for the fixed effect 'x' using data from 'data_int'.</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data=</span>data_int)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># get groups (random effects)</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>log_reml <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) {</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>],<span class="at">ncol =</span> <span class="fu">length</span>(groups),<span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>,<span class="at">nrow =</span> <span class="fu">nrow</span>(X),<span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  V<span class="ot">&lt;-</span>theta[<span class="dv">1</span>]<span class="sc">*</span>(I<span class="sc">+</span>Z<span class="sc">%*%</span>D<span class="sc">%*%</span><span class="fu">t</span>(Z))</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  Beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="fu">log</span>(<span class="fu">det</span>(V)) <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">det</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X))<span class="sc">+</span> <span class="fu">t</span>(y <span class="sc">-</span> X <span class="sc">%*%</span> Beta) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> (y <span class="sc">-</span> X <span class="sc">%*%</span> Beta)))</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>theta<span class="ot">&lt;-</span>optimization<span class="sc">::</span><span class="fu">optim_nm</span>(<span class="at">fun =</span> log_reml, <span class="at">k =</span> <span class="dv">2</span>, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">maximum=</span> <span class="cn">FALSE</span>, <span class="at">tol =</span> <span class="fl">0.0000000000001</span>)<span class="sc">$</span>par</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Residual = "</span>,<span class="fu">sqrt</span>(theta[<span class="dv">1</span>]),<span class="st">" group = "</span>, <span class="fu">sqrt</span>(<span class="fu">prod</span>(theta)),<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Residual =  2.435465  group =  19.45779 </code></pre>
 </div>
 </div>
 <p>which gives the same results as</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">VarCorr</span>(<span class="fu">lmer</span>(y<span class="sc">~</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>group),<span class="at">data=</span>data_int,<span class="at">REML =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups   Name        Std.Dev.
  group    (Intercept) 19.4578 
@@ -1296,6 +1686,39 @@ E(u | y) = E(u) + Cov(u, y)Var(y)^{-1}(y - E(y))
 <p>The final predictor <span class="math inline">\(\hat{u}\)</span> is: <span class="math display">\[\hat{u} = \sigma^2DZ^T V^{-1} (y - X\beta)\]</span></p>
 <p>Let’s give this a try to see if it gives us correct results:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Design matrix of random effect</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the model matrix 'X' for the fixed effect 'x' using data from 'data_int'.</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data=</span>data_int)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># get groups (random effects)</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>log_reml <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) {</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>],<span class="at">ncol =</span> <span class="fu">length</span>(groups),<span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>,<span class="at">nrow =</span> <span class="fu">nrow</span>(X),<span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  V<span class="ot">&lt;-</span>theta[<span class="dv">1</span>]<span class="sc">*</span>(I<span class="sc">+</span>Z<span class="sc">%*%</span>D<span class="sc">%*%</span><span class="fu">t</span>(Z))</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  Beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="fu">log</span>(<span class="fu">det</span>(V)) <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">det</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X))<span class="sc">+</span> <span class="fu">t</span>(y <span class="sc">-</span> X <span class="sc">%*%</span> Beta) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> (y <span class="sc">-</span> X <span class="sc">%*%</span> Beta)))</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>theta<span class="ot">&lt;-</span>optimization<span class="sc">::</span><span class="fu">optim_nm</span>(<span class="at">fun =</span> log_reml, <span class="at">k =</span> <span class="dv">2</span>, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">maximum=</span> <span class="cn">FALSE</span>, <span class="at">tol =</span> <span class="fl">0.0000000000001</span>)<span class="sc">$</span>par</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>],<span class="at">ncol =</span> <span class="fu">length</span>(groups),<span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>,<span class="at">nrow =</span> <span class="fu">nrow</span>(X),<span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>V<span class="ot">&lt;-</span>theta[<span class="dv">1</span>]<span class="sc">*</span>(I<span class="sc">+</span>Z<span class="sc">%*%</span>D<span class="sc">%*%</span><span class="fu">t</span>(Z))</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>Beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>u <span class="ot">&lt;-</span> theta[<span class="dv">1</span>]<span class="sc">*</span>D<span class="sc">%*%</span><span class="fu">t</span>(Z)<span class="sc">%*%</span><span class="fu">solve</span>(V)<span class="sc">%*%</span>(y<span class="sc">-</span>X<span class="sc">%*%</span>Beta)</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(u)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>           [,1]
 [1,]  26.705634
@@ -1306,6 +1729,10 @@ E(u | y) = E(u) + Cov(u, y)Var(y)^{-1}(y - E(y))
 </div>
 <p>compare this to <code>lmer</code>:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">ranef</span>(<span class="fu">lmer</span>(y<span class="sc">~</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>group),<span class="at">data=</span>data_int,<span class="at">REML =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>$group
   (Intercept)
@@ -1356,6 +1783,19 @@ F(x | \mu, \sigma^2) = \int_{-\infty}^x \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac
 \]</span></p>
 <p>For instance, if we want to calculate the probability of observing a value less than or equal to 60 from a normal distribution with a mean of 50 and a standard deviation of 10:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Value to calculate the cumulative probability for</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the probability</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>probability <span class="ot">&lt;-</span> <span class="fu">pnorm</span>(x, <span class="at">mean =</span> mu, <span class="at">sd =</span> sigma)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(probability)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.8413447</code></pre>
 </div>
@@ -1376,6 +1816,21 @@ F(x | \mu, \sigma^2) = \int_{-\infty}^x \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac
 </ul>
 <p>Let’s consider an example where we calculate the Z-scores:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data values</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>data_values <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">55</span>, <span class="dv">60</span>, <span class="dv">45</span>, <span class="dv">70</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean and standard deviation of the dataset</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Z-scores</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>z_scores <span class="ot">&lt;-</span> (data_values <span class="sc">-</span> mu) <span class="sc">/</span> sigma</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Output Z-scores</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(z_scores)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -1.0  0.5  1.0 -0.5  2.0</code></pre>
 </div>
@@ -1566,6 +2021,45 @@ t=\frac{c'\beta}{SE}
 <p>Given this the formula for t-statistics for testing coefficients of linear regression will be</p>
 <p><span class="math display">\[t=\frac{c'\beta}{\frac{ Y'Y - Y'X(X'X)^{-1}X'Y}{n-p}\sqrt{(X'X)^{-1}}}\]</span></p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>calculate_t_statistic <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, c) {</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the OLS estimates for beta</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  beta_hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> Y</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate RSS</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  Y_hat <span class="ot">&lt;-</span> X <span class="sc">%*%</span> beta_hat</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  rss <span class="ot">&lt;-</span> <span class="fu">sum</span>((Y <span class="sc">-</span> Y_hat)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Degrees of freedom</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)  <span class="co"># Number of observations</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)  <span class="co"># Number of parameters</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> n <span class="sc">-</span> p</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Variance estimate</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  sigma_squared_hat <span class="ot">&lt;-</span> rss <span class="sc">/</span> df</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculating c'beta</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  c_beta_hat <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(c <span class="sc">%*%</span> beta_hat)</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculating the variance of c'beta_hat</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  var_c_beta_hat <span class="ot">&lt;-</span> sigma_squared_hat <span class="sc">*</span> (c <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> c)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># t-statistic</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>  t_statistic <span class="ot">&lt;-</span> c_beta_hat <span class="sc">/</span> <span class="fu">sqrt</span>(var_c_beta_hat)</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(t_statistic)</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the model matrix 'X' for the fixed effect 'x' using data from 'data_int'.</span></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data=</span>data_int)</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>y<span class="ot">&lt;-</span>data_int<span class="sc">$</span>y</span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">data.frame</span>(<span class="at">t=</span><span class="fu">calculate_t_statistic</span>(<span class="at">X =</span> X,<span class="at">Y =</span> y,<span class="at">c =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)),<span class="at">df=</span><span class="fu">nrow</span>(X)<span class="sc">-</span><span class="fu">ncol</span>(X),</span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">pvalue=</span><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fu">abs</span>(<span class="fu">calculate_t_statistic</span>(<span class="at">X =</span> X,<span class="at">Y =</span> y,<span class="at">c =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))),<span class="at">df=</span><span class="fu">nrow</span>(X)<span class="sc">-</span><span class="fu">ncol</span>(X),<span class="at">lower.tail =</span> <span class="cn">FALSE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>          t df       pvalue
 1 -6.932677 38 3.033548e-08</code></pre>
@@ -1573,6 +2067,10 @@ t=\frac{c'\beta}{SE}
 </div>
 <p>Compare to <code>lm</code> function</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(<span class="fu">lm</span>(y<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>X)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1654,6 +2152,92 @@ d=\frac{2g(\theta)}{g(\hat{\theta})' \Sigma \nabla g(\hat{\theta})}
 \]</span></p>
 <p>We need to compute <span class="math inline">\(\nabla g(\theta)\)</span>, the gradient of <span class="math inline">\(g\)</span> with respect to <span class="math inline">\(\theta\)</span>. This involves differentiating <span class="math inline">\(c' (X'V^{-1}X)^{-1} c\)</span> with respect to each element of <span class="math inline">\(\theta\)</span>. We are just going to estimate this here but in practice this can be found using Jacobian. and <span class="math inline">\(\Sigma\)</span> is going to be estimated using the Hessian of the log-likelihood. Let’s see how we can implement this</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(numDeriv)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">group_count =</span> <span class="dv">5</span>, <span class="at">points_per_group =</span> <span class="dv">10</span>, <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>, <span class="at">group_slope =</span> <span class="dv">2</span>, <span class="at">noise_sd =</span> <span class="dv">50</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>) {</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>())</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create each group</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>group_count) {</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    x_start <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="sc">+</span> (i <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">10</span> <span class="sc">/</span> group_count) <span class="co"># Stagger the start of x for each group</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">runif</span>(points_per_group, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> group_count))</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply a local positive trend within the group, but maintain the global negative trend</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    local_intercept <span class="ot">&lt;-</span> global_intercept <span class="sc">+</span> global_slope <span class="sc">*</span> (x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> group_count))) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd)</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> local_intercept <span class="sc">+</span> group_slope[i] <span class="sc">*</span> (x <span class="sc">-</span> x_start) <span class="sc">+</span> <span class="fu">rnorm</span>(points_per_group, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd2)</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine this group with the overall dataset</span></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>    group_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y,<span class="at">group=</span>i)</span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(data, group_data)</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a><span class="co"># generate simulated data</span></span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>data_int <span class="ot">&lt;-</span> <span class="fu">simulate_grouped_trend</span>(<span class="at">group_count =</span> <span class="dv">4</span>,<span class="at">points_per_group =</span> <span class="dv">10</span>,<span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">2</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,<span class="at">group_slope =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>),<span class="at">noise_sd =</span> <span class="dv">5</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>)</span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a><span class="co"># set group to factor</span></span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">factor</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Design matrix of random effect</span></span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span><span class="dv">0</span><span class="sc">+</span>data_int<span class="sc">$</span>group)</span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the model matrix 'X' for the fixed effect 'x' using data from 'data_int'.</span></span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>x, <span class="at">data=</span>data_int)</span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a><span class="co"># get groups (random effects)</span></span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a>groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a>y<span class="ot">&lt;-</span>data_int<span class="sc">$</span>y</span>
+<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-45"><a href="#cb37-45" aria-hidden="true" tabindex="-1"></a>c<span class="ot">&lt;-</span><span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ncol=</span><span class="dv">2</span>)</span>
+<span id="cb37-46"><a href="#cb37-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the log-likelihood function (as negative log-likelihood)</span></span>
+<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a>log_reml <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) {</span>
+<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>], <span class="at">ncol =</span> <span class="fu">length</span>(groups), <span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a>  I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>, <span class="at">nrow =</span> <span class="fu">nrow</span>(X), <span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> theta[<span class="dv">1</span>] <span class="sc">*</span> (I <span class="sc">+</span> Z <span class="sc">%*%</span> D <span class="sc">%*%</span> <span class="fu">t</span>(Z))</span>
+<span id="cb37-52"><a href="#cb37-52" aria-hidden="true" tabindex="-1"></a>  Beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y</span>
+<span id="cb37-53"><a href="#cb37-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="fu">log</span>(<span class="fu">det</span>(V)) <span class="sc">+</span> <span class="fu">log</span>(<span class="fu">det</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X)) <span class="sc">+</span> <span class="fu">t</span>(y <span class="sc">-</span> X <span class="sc">%*%</span> Beta) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> (y <span class="sc">-</span> X <span class="sc">%*%</span> Beta)))</span>
+<span id="cb37-54"><a href="#cb37-54" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-55"><a href="#cb37-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-56"><a href="#cb37-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-57"><a href="#cb37-57" aria-hidden="true" tabindex="-1"></a>theta<span class="ot">&lt;-</span>optimization<span class="sc">::</span><span class="fu">optim_nm</span>(<span class="at">fun =</span> log_reml, <span class="at">k =</span> <span class="dv">2</span>, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">maximum=</span> <span class="cn">FALSE</span>, <span class="at">tol =</span> <span class="fl">0.0000000000001</span>)<span class="sc">$</span>par</span>
+<span id="cb37-58"><a href="#cb37-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-59"><a href="#cb37-59" aria-hidden="true" tabindex="-1"></a>theta<span class="ot">&lt;-</span><span class="fu">matrix</span>(theta,<span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb37-60"><a href="#cb37-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the Hessian at the estimates</span></span>
+<span id="cb37-61"><a href="#cb37-61" aria-hidden="true" tabindex="-1"></a>hessian_matrix <span class="ot">&lt;-</span> <span class="fu">hessian</span>(log_reml, theta)</span>
+<span id="cb37-62"><a href="#cb37-62" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">solve</span>(hessian_matrix)</span>
+<span id="cb37-63"><a href="#cb37-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-64"><a href="#cb37-64" aria-hidden="true" tabindex="-1"></a><span class="co"># define g matrix</span></span>
+<span id="cb37-65"><a href="#cb37-65" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(theta) {</span>
+<span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>], <span class="at">ncol =</span> <span class="fu">length</span>(groups), <span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a>  I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>, <span class="at">nrow =</span> <span class="fu">nrow</span>(X), <span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a>  V <span class="ot">&lt;-</span> theta[<span class="dv">1</span>] <span class="sc">*</span> (I <span class="sc">+</span> Z <span class="sc">%*%</span> D <span class="sc">%*%</span> <span class="fu">t</span>(Z))</span>
+<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>((c) <span class="sc">%*%</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(c))</span>
+<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the gradient of a function by numerical approximation</span></span>
+<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a>g_grad<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(<span class="fu">grad</span>(g,theta))</span>
+<span id="cb37-74"><a href="#cb37-74" aria-hidden="true" tabindex="-1"></a>var_S2<span class="ot">&lt;-</span><span class="fu">t</span>(g_grad)<span class="sc">%*%</span>Sigma<span class="sc">%*%</span>g_grad</span>
+<span id="cb37-75"><a href="#cb37-75" aria-hidden="true" tabindex="-1"></a>S2<span class="ot">&lt;-</span><span class="fu">g</span>(theta)</span>
+<span id="cb37-76"><a href="#cb37-76" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> (<span class="dv">2</span> <span class="sc">*</span> S2<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> var_S2</span>
+<span id="cb37-77"><a href="#cb37-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-78"><a href="#cb37-78" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="at">x =</span> theta[<span class="dv">2</span>],<span class="at">ncol =</span> <span class="fu">length</span>(groups),<span class="at">nrow =</span> <span class="fu">length</span>(groups))</span>
+<span id="cb37-79"><a href="#cb37-79" aria-hidden="true" tabindex="-1"></a>I <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span>,<span class="at">nrow =</span> <span class="fu">nrow</span>(X),<span class="at">ncol =</span> <span class="fu">nrow</span>(X))</span>
+<span id="cb37-80"><a href="#cb37-80" aria-hidden="true" tabindex="-1"></a>V<span class="ot">&lt;-</span>theta[<span class="dv">1</span>]<span class="sc">*</span>(I<span class="sc">+</span>Z<span class="sc">%*%</span>D<span class="sc">%*%</span><span class="fu">t</span>(Z))</span>
+<span id="cb37-81"><a href="#cb37-81" aria-hidden="true" tabindex="-1"></a>Beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">solve</span>(V) <span class="sc">%*%</span> y</span>
+<span id="cb37-82"><a href="#cb37-82" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-83"><a href="#cb37-83" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">data.frame</span>(<span class="at">df=</span>d,<span class="at">t=</span>Beta[<span class="dv">2</span>]<span class="sc">/</span><span class="fu">sqrt</span>(S2),<span class="at">pvalue=</span><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(Beta[<span class="dv">2</span>]<span class="sc">/</span><span class="fu">sqrt</span>(S2),<span class="at">df=</span>d,<span class="at">lower.tail =</span> <span class="cn">FALSE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>       df       t      pvalue
 1 36.7423 4.33864 0.000107513</code></pre>
@@ -1661,19 +2245,26 @@ d=\frac{2g(\theta)}{g(\hat{\theta})' \Sigma \nabla g(\hat{\theta})}
 </div>
 <p>Compare this to <code>lmerTest</code> results:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>model<span class="ot">&lt;-</span><span class="fu">lmer</span>(y<span class="sc">~</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>group),<span class="at">data=</span>data_int,<span class="at">REML =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Welcome to emmeans.
 Caution: You lose important information if you filter this package's results.
 See '? untidy'</code></pre>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
-</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>trends <span class="ot">&lt;-</span> <span class="fu">emtrends</span>(model, <span class="at">var =</span> <span class="st">"x"</span>, <span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(trends, <span class="at">infer =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>    x x.trend    SE   df lower.CL upper.CL t.ratio p.value
- 17.1    2.56 0.602 36.8     1.34     3.78   4.249  0.0001
+ 17.1    2.56 0.589 36.7     1.36     3.75   4.339  0.0001
 
-Degrees-of-freedom method: kenward-roger 
+Degrees-of-freedom method: satterthwaite 
 Confidence level used: 0.95 </code></pre>
 </div>
 </div>
