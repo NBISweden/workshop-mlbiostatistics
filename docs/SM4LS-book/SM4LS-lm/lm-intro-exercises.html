@@ -287,6 +287,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -516,14 +522,26 @@ window.Quarto = {
 <p>Check your calculations by fitting the model using <code>lm()</code> function.</p>
 <p>The below code can get you started.</p>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>inch2m <span class="ot">&lt;-</span> <span class="fl">2.54</span><span class="sc">/</span><span class="dv">100</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pound2kg <span class="ot">&lt;-</span> <span class="fl">0.45</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>data_diabetes <span class="ot">&lt;-</span> diabetes <span class="sc">%&gt;%</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">height  =</span> height <span class="sc">*</span> inch2m, <span class="at">height =</span> <span class="fu">round</span>(height, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">waist =</span> waist <span class="sc">*</span> inch2m) <span class="sc">%&gt;%</span>  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weight =</span> weight <span class="sc">*</span> pound2kg, <span class="at">weight =</span> <span class="fu">round</span>(weight, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BMI =</span> weight <span class="sc">/</span> height<span class="sc">^</span><span class="dv">2</span>, <span class="at">BMI =</span> <span class="fu">round</span>(BMI, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">obese=</span> <span class="fu">cut</span>(BMI, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">29.9</span>, <span class="dv">100</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diabetic =</span> <span class="fu">ifelse</span>(glyhb <span class="sc">&gt;</span> <span class="dv">7</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>), <span class="at">diabetic =</span> <span class="fu">factor</span>(diabetic, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div id="exr-lm-hypothesis" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 2 (Hypothesis testing)</strong></span> Your colleague Anna is interested in association between BMI and cholesterol, both total cholesterol (chol) and high density lipoprotein fraction (hdl). She has correctly fitted linear model using lm() function but her computer broke and she only has the below output:</p>
 </div>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Coefficients:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#               Estimate Std. Error t value Pr(&gt;|t|)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (Intercept)  3.471e+01  2.940e+00  11.808  &lt; 2e-16 ***</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># chol         1.965e-05  1.231e-02</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># hdl         -9.371e-02  3.220e-02</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Coefficients:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#               Estimate Std. Error t value Pr(&gt;|t|)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (Intercept)  3.471e+01  2.940e+00  11.808  &lt; 2e-16 ***</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># chol         1.965e-05  1.231e-02</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># hdl         -9.371e-02  3.220e-02</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Can you help Anna finding out whether <code>chol</code> and <code>hdl</code> are significantly associated with <code>BMI</code>? What are the t-value statistics and the corresponding p-values? Calculate these values without fitting the model and then fit the model to double check your calculations.</p>
 <div id="exr-lm-assess-fit" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 3 (Evaluate model fit)</strong></span> After helping Anna you got interested in whether your initial model containing <code>age</code> and <code>waist</code> is a better fit to the data than Anna’s model containing <code>chol</code> and <code>hdl</code>. Evaluate model fit by calculating <span class="math inline">\(R^2(adj)\)</span> based on the equation:</p>
@@ -537,29 +555,57 @@ window.Quarto = {
 <div class="proof solution">
 <p><span class="proof-title"><em>Solution</em>. </span><a href="#exr-lm-fit" class="quarto-xref">Exercise&nbsp;<span>1</span></a></p>
 <div class="cell">
-<pre><code>##                     BMI
-## (Intercept) -2.39192911
-## age         -0.05716479
-## waist       35.46856117
-## 
-## Call:
-## lm(formula = BMI ~ age + waist, data = data_diabetes)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -12.6952  -2.8803  -0.5864   2.2229  18.7443 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -2.39193    2.95646  -0.809   0.4200    
-## age         -0.05716    0.02551  -2.241   0.0267 *  
-## waist       35.46856    2.68192  13.225   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 4.358 on 127 degrees of freedom
-## Multiple R-squared:  0.5841, Adjusted R-squared:  0.5776 
-## F-statistic: 89.19 on 2 and 127 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>inch2m <span class="ot">&lt;-</span> <span class="fl">2.54</span><span class="sc">/</span><span class="dv">100</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pound2kg <span class="ot">&lt;-</span> <span class="fl">0.45</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data_diabetes <span class="ot">&lt;-</span> diabetes <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">height  =</span> height <span class="sc">*</span> inch2m, <span class="at">height =</span> <span class="fu">round</span>(height, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">waist =</span> waist <span class="sc">*</span> inch2m) <span class="sc">%&gt;%</span>  </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weight =</span> weight <span class="sc">*</span> pound2kg, <span class="at">weight =</span> <span class="fu">round</span>(weight, <span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BMI =</span> weight <span class="sc">/</span> height<span class="sc">^</span><span class="dv">2</span>, <span class="at">BMI =</span> <span class="fu">round</span>(BMI, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">obese=</span> <span class="fu">cut</span>(BMI, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">29.9</span>, <span class="dv">100</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diabetic =</span> <span class="fu">ifelse</span>(glyhb <span class="sc">&gt;</span> <span class="dv">7</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>), <span class="at">diabetic =</span> <span class="fu">factor</span>(diabetic, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># define Y</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> data_diabetes <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="st">"BMI"</span>) <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># define X</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(data_diabetes)), data_diabetes<span class="sc">$</span>age, data_diabetes<span class="sc">$</span>waist)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># alternatively we case use model.matrix() to define X</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> age <span class="sc">+</span> waist, <span class="at">data =</span> data_diabetes)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># least square estimate</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>beta.hat <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)<span class="sc">%*%</span><span class="fu">t</span>(X)<span class="sc">%*%</span>Y</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(beta.hat)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="do">##                     BMI</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -2.39192911</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="do">## age         -0.05716479</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="do">## waist       35.46856117</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># check calculations using lm() function</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>reg_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(BMI <span class="sc">~</span> age <span class="sc">+</span> waist, <span class="at">data =</span> data_diabetes)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg_1)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = BMI ~ age + waist, data = data_diabetes)</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="do">## -12.6952  -2.8803  -0.5864   2.2229  18.7443 </span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -2.39193    2.95646  -0.809   0.4200    </span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="do">## age         -0.05716    0.02551  -2.241   0.0267 *  </span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="do">## waist       35.46856    2.68192  13.225   &lt;2e-16 ***</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 4.358 on 127 degrees of freedom</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.5841, Adjusted R-squared:  0.5776 </span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 89.19 on 2 and 127 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div class="proof solution">
@@ -573,82 +619,111 @@ window.Quarto = {
 </ul>
 <p>This means that to check if the there is an association between <code>chol</code> and <code>BMI</code> we check if there is enough evidence to reject the null hypothesis of <span class="math inline">\(H_0: \beta = 0\)</span>. Here, t-statistics equals to <span class="math inline">\(\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})} = \frac{1.965\times 10^{05} - 0}{1.231\times 10^{05}} = 0.001596263\)</span> and a corresponding p-values can be found:</p>
 <div class="cell">
-<pre><code>## [1] 0.9987289</code></pre>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="fl">0.001596263</span>, <span class="at">df=</span><span class="dv">130</span> <span class="sc">-</span> <span class="dv">3</span>, <span class="at">lower.tail =</span> F)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.9987289</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Assuming 5% significance level, we do not have enough evidence to reject the null hypothesis in favor of the alternative as p-value is large <span class="math inline">\(p = 0.99873 &gt; 0.05\)</span>. This means we do not observe association between <code>chol</code> and <code>BMI.</code></p>
 <p>Analogously, for <code>age</code> we have t-statistics equal to <span class="math inline">\(\frac{\hat{\beta}-\beta}{e.s.e(\hat{\beta})} = \frac{-9.371\times 10^{02} - 0}{3.220\times 10^{02}} = -2.910248\)</span> and a corresponding p-value equals to:</p>
 <div class="cell">
-<pre><code>## [1] 0.004265831</code></pre>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pt</span>(<span class="sc">-</span><span class="fl">2.910248</span>, <span class="at">df=</span><span class="dv">130</span> <span class="sc">-</span> <span class="dv">3</span>, <span class="at">lower.tail =</span> T)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.004265831</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Here, p-value is small and we can thus reject the null hypothesis in favour of the alternative and conclude that there is an association between <code>hdl</code> and <code>BMI</code>.</p>
 <p>To check our calculations we can re-fit the linear model and print the entire summary.</p>
 <div class="cell">
-<pre><code>## 
-## Call:
-## lm(formula = BMI ~ chol + hdl, data = data_diabetes)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -12.8952  -4.8988  -0.9225   3.0629  21.7951 
-## 
-## Coefficients:
-##               Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.471e+01  2.940e+00  11.808  &lt; 2e-16 ***
-## chol         1.965e-05  1.231e-02   0.002  0.99873    
-## hdl         -9.371e-02  3.220e-02  -2.910  0.00426 ** 
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 6.538 on 127 degrees of freedom
-## Multiple R-squared:  0.0643, Adjusted R-squared:  0.04956 
-## F-statistic: 4.363 on 2 and 127 DF,  p-value: 0.0147</code></pre>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>reg_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(BMI <span class="sc">~</span> chol <span class="sc">+</span> hdl, <span class="at">data =</span> data_diabetes)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg_2)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = BMI ~ chol + hdl, data = data_diabetes)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="do">## -12.8952  -4.8988  -0.9225   3.0629  21.7951 </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)  3.471e+01  2.940e+00  11.808  &lt; 2e-16 ***</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="do">## chol         1.965e-05  1.231e-02   0.002  0.99873    </span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="do">## hdl         -9.371e-02  3.220e-02  -2.910  0.00426 ** </span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 6.538 on 127 degrees of freedom</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.0643, Adjusted R-squared:  0.04956 </span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 4.363 on 2 and 127 DF,  p-value: 0.0147</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div class="proof solution">
 <p><span class="proof-title"><em>Solution</em>. </span><a href="#exr-lm-assess-fit" class="quarto-xref">Exercise&nbsp;<span>3</span></a></p>
 <div class="cell">
-<pre><code>## [1] 0.5775851
-## [1] 0.04956166</code></pre>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data_diabetes)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="co"># beta for age and beta for waist (model 1)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="co"># beta for chol and beta for hdl (model 2)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate TSS</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>TSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((data_diabetes<span class="sc">$</span>BMI <span class="sc">-</span> <span class="fu">mean</span>(data_diabetes<span class="sc">$</span>BMI))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate RSS and R2_adj (model 1)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># model BMI ~ age + waist </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>reg_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(BMI <span class="sc">~</span> age <span class="sc">+</span> waist, <span class="at">data =</span> data_diabetes)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> reg_1</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>RSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((reg<span class="sc">$</span>residuals)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>R2_adj <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (RSS<span class="sc">/</span>(n<span class="sc">-</span>p<span class="dv">-1</span>))<span class="sc">/</span>(TSS<span class="sc">/</span>(n<span class="dv">-1</span>))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(R2_adj)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.5775851</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate RSS and R2_adj (model 2)</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># model BMI ~ chol + hdl</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>reg_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(BMI <span class="sc">~</span> chol <span class="sc">+</span> hdl, <span class="at">data =</span> data_diabetes)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> reg_2</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>RSS <span class="ot">&lt;-</span> <span class="fu">sum</span>((reg<span class="sc">$</span>residuals)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>R2_adj <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (RSS<span class="sc">/</span>(n<span class="sc">-</span>p<span class="dv">-1</span>))<span class="sc">/</span>(TSS<span class="sc">/</span>(n<span class="dv">-1</span>))</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(R2_adj)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 0.04956166</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<pre><code>## 
-## Call:
-## lm(formula = BMI ~ age + waist, data = data_diabetes)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -12.6952  -2.8803  -0.5864   2.2229  18.7443 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -2.39193    2.95646  -0.809   0.4200    
-## age         -0.05716    0.02551  -2.241   0.0267 *  
-## waist       35.46856    2.68192  13.225   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 4.358 on 127 degrees of freedom
-## Multiple R-squared:  0.5841, Adjusted R-squared:  0.5776 
-## F-statistic: 89.19 on 2 and 127 DF,  p-value: &lt; 2.2e-16
-## 
-## Call:
-## lm(formula = BMI ~ chol + hdl, data = data_diabetes)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -12.8952  -4.8988  -0.9225   3.0629  21.7951 
-## 
-## Coefficients:
-##               Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.471e+01  2.940e+00  11.808  &lt; 2e-16 ***
-## chol         1.965e-05  1.231e-02   0.002  0.99873    
-## hdl         -9.371e-02  3.220e-02  -2.910  0.00426 ** 
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 6.538 on 127 degrees of freedom
-## Multiple R-squared:  0.0643, Adjusted R-squared:  0.04956 
-## F-statistic: 4.363 on 2 and 127 DF,  p-value: 0.0147</code></pre>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check calculations</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg_1)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = BMI ~ age + waist, data = data_diabetes)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="do">## -12.6952  -2.8803  -0.5864   2.2229  18.7443 </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="do">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept) -2.39193    2.95646  -0.809   0.4200    </span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="do">## age         -0.05716    0.02551  -2.241   0.0267 *  </span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="do">## waist       35.46856    2.68192  13.225   &lt;2e-16 ***</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 4.358 on 127 degrees of freedom</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.5841, Adjusted R-squared:  0.5776 </span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 89.19 on 2 and 127 DF,  p-value: &lt; 2.2e-16</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg_2)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="do">## Call:</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="do">## lm(formula = BMI ~ chol + hdl, data = data_diabetes)</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="do">## Residuals:</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="do">##      Min       1Q   Median       3Q      Max </span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="do">## -12.8952  -4.8988  -0.9225   3.0629  21.7951 </span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="do">## Coefficients:</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="do">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="do">## (Intercept)  3.471e+01  2.940e+00  11.808  &lt; 2e-16 ***</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="do">## chol         1.965e-05  1.231e-02   0.002  0.99873    </span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="do">## hdl         -9.371e-02  3.220e-02  -2.910  0.00426 ** </span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="do">## ---</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="do">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="do">## Residual standard error: 6.538 on 127 degrees of freedom</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="do">## Multiple R-squared:  0.0643, Adjusted R-squared:  0.04956 </span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="do">## F-statistic: 4.363 on 2 and 127 DF,  p-value: 0.0147</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <!-- **Data for exercises** are on Canvas under Files -> data_exercises -->

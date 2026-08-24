@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -252,6 +287,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -497,6 +538,7 @@ window.Quarto = {
 <li>Examine the contents and data types of the data set <em>iris</em>. R functions <code>str</code>, <code>summary</code> and <code>pairs</code> can be useful for this.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(iris)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   150 obs. of  5 variables:
  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
@@ -505,6 +547,7 @@ window.Quarto = {
  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
  $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(iris)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Sepal.Length   Sepal.Width    Petal.Length   Petal.Width        Species  
  Min.   :4.30   Min.   :2.00   Min.   :1.00   Min.   :0.1   setosa    :50  
@@ -514,6 +557,7 @@ window.Quarto = {
  3rd Qu.:6.40   3rd Qu.:3.30   3rd Qu.:5.10   3rd Qu.:1.8                  
  Max.   :7.90   Max.   :4.40   Max.   :6.90   Max.   :2.5                  </code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(iris)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -526,10 +570,12 @@ window.Quarto = {
 <li>As Setosa is somewhat different from the other two species, we will limit our analysis to these two. Leave the data of Versicolor and Virginica only, and examine the contents of the data.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vv <span class="ot">&lt;-</span> iris[iris<span class="sc">$</span>Species <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"versicolor"</span>, <span class="st">"virginica"</span>), ]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(vv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -537,13 +583,23 @@ window.Quarto = {
 <ol start="3" type="a">
 <li>The first 4 columns contains 4 different measures and the last column has species. Split the data into a numeric matrix <code>m</code> and a character vector <code>species</code>.</li>
 </ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(vv[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>species <span class="ot">&lt;-</span> vv[, <span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <ol start="4" type="a">
 <li>Transform each variable to have the same mean 0 and the same standard deviation using <code>scale</code>.</li>
 </ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>csm <span class="ot">&lt;-</span> <span class="fu">scale</span>(m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <ol start="5" type="a">
 <li>Compute eigenvectors and eigenvalues of the variance-covariance matrix of the transformed (or scaled) <code>m</code> using <code>cov</code> and <code>eigen</code>.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">cov</span>(csm)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">eigen</span>(s)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(e)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>eigen() decomposition
 $values
@@ -561,6 +617,8 @@ $vectors
 <li>Compute the scores of the first principal component (PC). Matrix dot product in R is <code>%*%</code> as <code>A %*% B</code> for <span class="math inline">\(\mathbf{A} \mathbf{B}\)</span>.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pc1 <span class="ot">&lt;-</span> csm <span class="sc">%*%</span> e<span class="sc">$</span>vectors[, <span class="dv">1</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pc1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]
 51 -0.527
@@ -575,9 +633,11 @@ $vectors
 <li>Compute the proportion of variance explained by each PC and find the rotation matrix or loading matrix.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>e<span class="sc">$</span>values <span class="sc">/</span> <span class="fu">sum</span>(e<span class="sc">$</span>values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.74 0.14 0.10 0.02</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>e<span class="sc">$</span>vectors   <span class="co"># rotation matrix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      [,1]  [,2]   [,3]  [,4]
 [1,] -0.51  0.22  0.693  0.46
@@ -585,6 +645,7 @@ $vectors
 [3,] -0.54  0.38 -0.019 -0.75
 [4,] -0.51  0.13 -0.718  0.46</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>e<span class="sc">$</span>vectors <span class="sc">%*%</span> <span class="fu">diag</span>(<span class="fu">sqrt</span>(e<span class="sc">$</span>values))  <span class="co"># loading matrix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      [,1]  [,2]   [,3]   [,4]
 [1,] -0.87  0.16  0.441  0.132
@@ -596,10 +657,14 @@ $vectors
 <ol start="8" type="a">
 <li>Using <code>prcomp</code>, perform PCA. Don’t forget to add <code>scale. = TRUE</code> in the arguments of the function. The default is <code>scale. = FALSE</code> though the help of the function states scaling is recommended.</li>
 </ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(m, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <ol type="i">
 <li>Compare the scores from our manual computation using eigenvector and from <code>prcomp</code>.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(pca<span class="sc">$</span>x[, <span class="dv">1</span>], pc1[, <span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -608,6 +673,7 @@ $vectors
 <li>Compute the proportion of explained variance using the output from <code>prcomp</code>. Compare the results with that of g).</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.74 0.14 0.10 0.02</code></pre>
 </div>
@@ -616,6 +682,7 @@ $vectors
 <li>Find the rotation matrix or loading matrix from the output of <code>prcomp</code> and compare it with that of g).</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>rotation   <span class="co"># rotation matrix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>               PC1   PC2    PC3   PC4
 Sepal.Length -0.51 -0.22  0.693 -0.46
@@ -623,6 +690,7 @@ Sepal.Width  -0.43  0.89  0.056  0.14
 Petal.Length -0.54 -0.38 -0.019  0.75
 Petal.Width  -0.51 -0.13 -0.718 -0.46</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>rotation <span class="sc">%*%</span> <span class="fu">diag</span>(pca<span class="sc">$</span>sdev)    <span class="co"># loadings</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>              [,1]  [,2]   [,3]   [,4]
 Sepal.Length -0.87 -0.16  0.441 -0.132
@@ -635,10 +703,11 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 <li>Draw a PCA score plot for PC1 and PC2. Add colors by <code>species</code>. What does the plot show?</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -648,10 +717,11 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 <li>Draw a PCA score plot for PC2 and PC3.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca<span class="sc">$</span>x[, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -660,10 +730,11 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 <li>Draw a scree plot.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -676,10 +747,11 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 </ol></li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">biplot</span>(pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -702,12 +774,14 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 <li>Examine the contents and data types of the data set <code>nci</code>. Check the dimension of the data first. This is much larger than <code>iris</code>.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> num [1:64, 1:6830] 0.3 0.68 0.94 0.28 0.485 ...
  - attr(*, "dimnames")=List of 2
   ..$ : chr [1:64] "s1" "s2" "s3" "s4" ...
   ..$ : chr [1:6830] "g1" "g2" "g3" "g4" ...</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m[, <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       g1                g2                g3                g4        
  Min.   :-1.0600   Min.   :-2.1900   Min.   :-1.7100   Min.   :-2.610  
@@ -735,10 +809,14 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 <ol start="2" type="a">
 <li>Using <code>prcomp</code>, perform PCA.</li>
 </ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(m, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <ol start="3" type="a">
 <li>Compute the proportion of variance explained by each PC.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] 1.1e-01 6.8e-02 5.8e-02 4.2e-02 3.7e-02 3.6e-02 3.1e-02 2.7e-02 2.5e-02
 [10] 2.4e-02 2.4e-02 2.2e-02 2.0e-02 2.0e-02 1.9e-02 1.8e-02 1.7e-02 1.6e-02
@@ -754,6 +832,7 @@ Petal.Width  -0.87 -0.10 -0.458 -0.130</code></pre>
 <li>Find the rotation matrix. Show the first 5 columns and rows only.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>rotation[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       PC1     PC2    PC3     PC4     PC5
 g1 -0.0107  0.0013 0.0085 -0.0035 -0.0101
@@ -767,10 +846,11 @@ g5 -0.0077 -0.0025 0.0138  0.0095  0.0041</code></pre>
 <li>Draw a PCA score plot for PC1 and PC2.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -779,10 +859,11 @@ g5 -0.0077 -0.0025 0.0138  0.0095  0.0041</code></pre>
 <li>Draw a PCA score plot for PC2 and PC3.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca<span class="sc">$</span>x[, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -791,10 +872,11 @@ g5 -0.0077 -0.0025 0.0138  0.0095  0.0041</code></pre>
 <li>Draw a scree plot.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -803,10 +885,11 @@ g5 -0.0077 -0.0025 0.0138  0.0095  0.0041</code></pre>
 <li>Draw a bi-plot. Note it can take long time.</li>
 </ol>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">biplot</span>(pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exercises_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="exercises_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

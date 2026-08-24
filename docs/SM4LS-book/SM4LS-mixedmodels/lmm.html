@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -41,7 +76,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bc91950905f66a0b7e618f69bf449bf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c9519052eeb2144f46ab8f82e4e0586e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -253,6 +288,12 @@ window.Quarto = {
   <div class="sidebar-item-container"> 
   <a href="../SM4LS-inference/infe_06anova.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr4_anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises: Analysis of variance (ANOVA)</span></a>
   </div>
 </li>
       </ul>
@@ -600,11 +641,45 @@ Note
 <p>We get back our simulated data in the previous chapter and try to model it using mixed models. Before proceeding make sure that you have installed <code>lme4</code> package as this is what we are going to use throughout this section.</p>
 <p>Just to remind you, the idea was to examine the relationship between Age and Protein expression.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">group_count =</span> <span class="dv">5</span>, <span class="at">points_per_group =</span> <span class="dv">10</span>, <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>, <span class="at">group_slope =</span> <span class="dv">2</span>, <span class="at">noise_sd =</span> <span class="dv">50</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>())</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create each group</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>group_count) {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x_start <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="sc">+</span> (i <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">10</span> <span class="sc">/</span> group_count) <span class="co"># Stagger the start of x for each group</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">runif</span>(points_per_group, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> group_count))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply a local positive trend within the group, but maintain the global negative trend</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    local_intercept <span class="ot">&lt;-</span> global_intercept <span class="sc">+</span> global_slope <span class="sc">*</span> (x_start <span class="sc">+</span> (<span class="dv">10</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> group_count))) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> local_intercept <span class="sc">+</span> group_slope[i] <span class="sc">*</span> (x <span class="sc">-</span> x_start) <span class="sc">+</span> <span class="fu">rnorm</span>(points_per_group, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> noise_sd2)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine this group with the overall dataset</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    group_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y,<span class="at">group=</span>i)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(data, group_data)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># generate simulated data</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>data_int <span class="ot">&lt;-</span> <span class="fu">simulate_grouped_trend</span>(<span class="at">group_count =</span> <span class="dv">4</span>,<span class="at">points_per_group =</span> <span class="dv">10</span>,<span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">2</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,<span class="at">group_slope =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">1</span>),<span class="at">noise_sd =</span> <span class="dv">5</span>,<span class="at">noise_sd2=</span><span class="dv">2</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># set group to factor</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>data_int<span class="sc">$</span>group <span class="ot">&lt;-</span> <span class="fu">factor</span>(data_int<span class="sc">$</span>group)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the data</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x,data_int<span class="sc">$</span>y,<span class="at">xlab=</span><span class="st">"Age"</span>,<span class="at">ylab=</span><span class="st">"Protein expression"</span>,<span class="at">col=</span>data_int<span class="sc">$</span>group,<span class="at">pch=</span><span class="fu">as.numeric</span>(data_int<span class="sc">$</span>group))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.1: A scatter plot of Age vs.&nbsp;Protein expression
@@ -632,6 +707,12 @@ Note
 </div>
 </div>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a linear regression model</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>model_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="dv">1</span><span class="sc">+</span>x<span class="sc">+</span>group, <span class="at">data =</span> data_int)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -661,6 +742,13 @@ F-statistic: 181.6 on 4 and 35 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>Now it is time to do the same analysis using the mixed model approach. The model that we are going fit using <code>lmer</code> function from <code>lme4</code> is of form <code>y ~ 1+x+(1|group)</code>. This part of the model, <code>y ~ 1+x</code>, we already know what it is. However, what this part <code>(1|group)</code> is new. The right part of <code>|</code> shows what variable we want to use as grouping factor by which we are going to fit our random effect (That is the <code>group</code> in our case). The left part of <code>|</code> is the effect we want to consider random. The left part is like a formula, similar to classical regression. which in this case, we just used <code>1</code>. This means for our main model, <code>y ~ 1+x</code> which has an intercept (<code>1</code>) and a slope <code>x</code>, we would like to consider the intercept as random effect so we use <code>1</code>.</p>
 <p>Now that we know the structure of the model, let’s go ahead and do the modeling:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a mixed linear regression model</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>model_lmm <span class="ot">&lt;-</span> <span class="fu">lmer</span>(y <span class="sc">~</span> <span class="dv">1</span><span class="sc">+</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>group), <span class="at">data =</span> data_int)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_lmm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: y ~ 1 + x + (1 | group)
@@ -690,6 +778,10 @@ x -0.719</code></pre>
 </div>
 <p>This output has some key differences to the previous approach. The first thing is in the fixed effect part:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.list</span>(<span class="fu">summary</span>(model_lmm))[[<span class="st">'coefficients'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             Estimate Std. Error  t value
 (Intercept) 29.910511  14.012502 2.134559
@@ -698,6 +790,10 @@ x            2.556149   0.589159 4.338640</code></pre>
 </div>
 <p>Unlike <code>lm</code>, here there is no estimate for each group. There is a single intercept and a single slope. These are <code>global</code> trends in the data with their corresponding <code>Std. Error</code> and <code>t value</code>. But what happen with random effect and grouping of the data. This is what we can see in the <code>Random effects</code> part of the output:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.list</span>(<span class="fu">summary</span>(model_lmm))[[<span class="st">'varcor'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups   Name        Std.Dev.
  group    (Intercept) 19.4578 
@@ -713,6 +809,10 @@ x            2.556149   0.589159 4.338640</code></pre>
 <h3 data-number="19.3.1" class="anchored" data-anchor-id="predicting-the-random-intercept"><span class="header-section-number">19.3.1</span> Predicting the random intercept</h3>
 <p>Despite that we have not estimated the intercept for each of the group, we can still predict what would the intercept be for each of the groups. We are going to see in the math section how that can be done, but for now, we skip the details and directly use the function <code>ranef</code> from <code>lme4</code> package.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">ranef</span>(model_lmm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>$group
   (Intercept)
@@ -726,11 +826,39 @@ with conditional variances for "group" </code></pre>
 </div>
 <p>In this particular case, it gave us the differences from the overall intercept estimated in the mixed effects model. By extracting the random effects using the <code>ranef</code> function, we obtain the specific adjustments needed for each group. We can now use the global intercept and these adjustments to visualize the predicted intercept.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the initial scatter plot with points colored by group and shape determined by group</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>data_int<span class="sc">$</span>group, <span class="at">pch=</span><span class="fu">as.numeric</span>(data_int<span class="sc">$</span>group))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Looping through each unique group in the dataset</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (group <span class="cf">in</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)) {</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Subset data for the current group</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  group_data <span class="ot">&lt;-</span> data_int[data_int<span class="sc">$</span>group <span class="sc">==</span> group,]</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the intercept for the group by adding the fixed intercept to the group's random effect</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  intercept <span class="ot">&lt;-</span> <span class="fu">fixef</span>(model_lmm)[<span class="dv">1</span>] <span class="sc">+</span> <span class="fu">ranef</span>(model_lmm)[[<span class="dv">1</span>]][group, <span class="dv">1</span>]</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract the fixed effect slope from the model</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="fu">fixef</span>(model_lmm)[<span class="dv">2</span>]</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw a line for the group using the calculated intercept and slope</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">y =</span> intercept <span class="sc">+</span> slope <span class="sc">*</span> group_data<span class="sc">$</span>x, <span class="at">x =</span> group_data<span class="sc">$</span>x, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">1</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw a global effect line using the fixed effect intercept and slope from the model</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fu">fixef</span>(model_lmm)[<span class="dv">1</span>], <span class="at">b =</span> <span class="fu">fixef</span>(model_lmm)[<span class="dv">2</span>], <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding a legend to the plot</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>legend_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Global Effect"</span>, <span class="st">"Random Intercept"</span>)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> legend_labels, <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>), <span class="at">lty =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.2: Scatter plot of Age vs.&nbsp;Protein expression per group with random intercept
@@ -748,6 +876,12 @@ Figure&nbsp;19.2: Scatter plot of Age vs.&nbsp;Protein expression per group with
 <p>Implementing a random slope model accommodates the hypothesis that the effect of age could be influenced by factors specific to each clinic, such as demographic characteristics, environmental factors, or other clinic-specific variables not captured in the dataset.</p>
 <p>To fit this model, we modify our <code>lmer</code> function call as follows:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a mixed linear regression model with random slopes</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>model_lmm_rs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(y <span class="sc">~</span> <span class="dv">1</span><span class="sc">+</span>x<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>x<span class="sc">|</span>group), <span class="at">data =</span> data_int)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_lmm_rs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: y ~ 1 + x + (1 + x | group)
@@ -780,6 +914,10 @@ x -0.904</code></pre>
 <p>Looking at fixed effect, we still have the global intercept and slope. There is a small change compared to the previous model but the major change now is in the random effect part.</p>
 <p>The <code>Random effects</code> section of the model summary now includes information about the variability in slopes in addition to the intercepts.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">VarCorr</span>(model_lmm_rs))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code> Groups   Name        Std.Dev. Corr   
  group    (Intercept) 18.5649         
@@ -790,11 +928,48 @@ x -0.904</code></pre>
 <p>We still have the major source of variation in our data caused by <code>Intercept</code> and a smaller, but still present, variability in how age affects protein expression across these clinics (the slope <code>x</code>).</p>
 <p>A high correlation between the intercept and slope within the random effects suggests a linear relationship in the random part of the model. This indicates that clinics with higher baseline protein expression also have a stronger positive relationship between age and protein expression.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the initial scatter plot with points colored by group and shape determined by group</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int<span class="sc">$</span>x, data_int<span class="sc">$</span>y, <span class="at">xlab=</span><span class="st">"Age"</span>, <span class="at">ylab=</span><span class="st">"Protein expression"</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>data_int<span class="sc">$</span>group, <span class="at">pch=</span><span class="fu">as.numeric</span>(data_int<span class="sc">$</span>group))</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Looping through each unique group in the dataset</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (group <span class="cf">in</span> <span class="fu">unique</span>(data_int<span class="sc">$</span>group)) {</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Subset data for the current group</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  group_data <span class="ot">&lt;-</span> data_int[data_int<span class="sc">$</span>group <span class="sc">==</span> group,]</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the intercept for the group by adding the fixed intercept to the group's random effect</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  intercept <span class="ot">&lt;-</span> <span class="fu">fixef</span>(model_lmm_rs)[<span class="dv">1</span>] <span class="sc">+</span> <span class="fu">ranef</span>(model_lmm_rs)[[<span class="dv">1</span>]][group, <span class="dv">1</span>]</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract the fixed effect slope from the model</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="fu">fixef</span>(model_lmm_rs)[<span class="dv">2</span>]<span class="sc">+</span><span class="fu">ranef</span>(model_lmm_rs)[[<span class="dv">1</span>]][group, <span class="dv">2</span>]</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw a line for the group using the calculated intercept and slope</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">y =</span> intercept <span class="sc">+</span> slope <span class="sc">*</span> group_data<span class="sc">$</span>x, <span class="at">x =</span> group_data<span class="sc">$</span>x, <span class="at">col =</span> <span class="st">"green"</span>, <span class="at">lty =</span> <span class="dv">1</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  intercept <span class="ot">&lt;-</span> <span class="fu">fixef</span>(model_lmm)[<span class="dv">1</span>] <span class="sc">+</span> <span class="fu">ranef</span>(model_lmm)[[<span class="dv">1</span>]][group, <span class="dv">1</span>]</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract the fixed effect slope from the model</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">&lt;-</span> <span class="fu">fixef</span>(model_lmm)[<span class="dv">2</span>]</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="at">y =</span> intercept <span class="sc">+</span> slope <span class="sc">*</span> group_data<span class="sc">$</span>x, <span class="at">x =</span> group_data<span class="sc">$</span>x, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">1</span>)</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Draw a global effect line using the fixed effect intercept and slope from the model</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">a =</span> <span class="fu">fixef</span>(model_lmm_rs)[<span class="dv">1</span>], <span class="at">b =</span> <span class="fu">fixef</span>(model_lmm_rs)[<span class="dv">2</span>], <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding a legend to the plot</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>legend_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Global Effect"</span>, <span class="st">"Random Intercept"</span>, <span class="st">"Random Intercept and slope"</span>)</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> legend_labels, <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>,<span class="st">"green"</span>), <span class="at">lty =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-rs" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-rs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-rs-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-rs-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-rs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.3: Scatter plot of Age vs.&nbsp;Protein expression per group with random intercept and slope
@@ -826,6 +1001,68 @@ Important
 <h4 data-number="19.3.3.1" class="anchored" data-anchor-id="nested-designs"><span class="header-section-number">19.3.3.1</span> Nested designs</h4>
 <p>Nested designs occur when one level of grouping is entirely contained within another level, without any overlap between groups at the same level. In the context of mixed models, this translates to data where, for instance, patients are grouped within clinics, and clinics are grouped within regions. Each patient belongs to one and only one clinic, and each clinic belongs to one and only one region. The key characteristic of nested designs is that the groups at one level do not intersect or overlap with groups at another level.</p>
 <div class="cell" data-layout-align="default">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>graph TD</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    A[Region 1] </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    A --&gt; B[Clinic 1]</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    A --&gt; C[Clinic 2]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    A --&gt; D[Clinic 3]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    B -.-&gt; M1[Patient 1]</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    B -.-&gt; N2[Patient 2]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    B -.-&gt; O3[Patient 3]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    C -.-&gt; P4[Patient 4]</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    C -.-&gt; Q5[Patient 5]</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    C -.-&gt; R6[Patient 6]</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    D -.-&gt; S7[Patient 7]</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    D -.-&gt; T8[Patient 8]</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    D -.-&gt; U9[Patient 9]</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    E[Region 2]</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    E --&gt; F[Clinic 4]</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    E --&gt; G[Clinic 5]</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    E --&gt; H[Clinic 6]</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    F -.-&gt; V10[Patient 10]</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    F -.-&gt; W11[Patient 11]</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    F -.-&gt; X12[Patient 12]</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    G -.-&gt; Y13[Patient 13]</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    G -.-&gt; Z14[Patient 14]</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    G -.-&gt; A15[Patient 15]</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    H -.-&gt; B16[Patient 16]</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    H -.-&gt; C17[Patient 17]</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>    H -.-&gt; D18[Patient 18]</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>    I[Region 3]</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>    I --&gt; J[Clinic 7]</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    I --&gt; K[Clinic 8]</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    I --&gt; L[Clinic 9]</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    J -.-&gt; E19[Patient 19]</span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>    J -.-&gt; F20[Patient 20]</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>    J -.-&gt; G21[Patient 21]</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>    K -.-&gt; H22[Patient 22]</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>    K -.-&gt; I23[Patient 23]</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>    K -.-&gt; J24[Patient 24]</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>    L -.-&gt; K25[Patient 25]</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>    L -.-&gt; L26[Patient 26]</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>    L -.-&gt; M27[Patient 27]</span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    classDef region fill:#f9f,stroke:#333,stroke-width:2px;</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    classDef clinic fill:#ccf,stroke:#333,stroke-width:2px;</span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>    classDef patient fill:#cff,stroke:#333,stroke-width:1px;</span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>    class A,E,I region;</span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    class B,C,D,F,G,H,J,K,L clinic;</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>    class M1,N2,O3,P4,Q5,R6,S7,T8,U9,V10,W11,X12,Y13,Z14,A15,B16,C17,D18,E19,F20,G21,H22,I23,J24,K25,L26,M27 patient;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
@@ -912,11 +1149,79 @@ Important
 <p>In R (<code>lmer</code>), we can use <code>(1 | region/clinic)</code> for samples nested within clinic, which are in turn nested within regions. The notation <code>region/clinic</code> is shorthand for <code>region + region:clinic</code>.</p>
 <p>Let’s see one example:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend_nested <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">region_count =</span> <span class="dv">3</span>, <span class="at">clinics_per_region =</span> <span class="dv">5</span>, <span class="at">measurements_per_clinic =</span> <span class="dv">10</span>,</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                                                         <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                                                         <span class="at">region_effects =</span> <span class="fu">c</span>(), <span class="at">region_slopes =</span> <span class="fu">c</span>(),</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                                                         <span class="at">clinic_effects =</span> <span class="fu">list</span>(), <span class="at">clinic_slopes =</span> <span class="fu">list</span>()) {</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>(), <span class="at">clinic =</span> <span class="fu">integer</span>(), <span class="at">region =</span> <span class="fu">integer</span>())</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  clinic_id_counter <span class="ot">=</span> <span class="dv">1</span> <span class="co"># Initialize a counter for clinic IDs across regions</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create data for each region</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (region <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>region_count) {</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Use the specific region effect and slope</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    region_effect_adj <span class="ot">=</span> region_effects[region]</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    region_slope_adj <span class="ot">=</span> region_slopes[region]</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop to create data for each clinic within a region</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (clinic <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>clinics_per_region) {</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>      x_start <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>) <span class="sc">+</span> <span class="dv">10</span> <span class="sc">*</span> (clinic <span class="sc">-</span> <span class="dv">1</span>) <span class="co"># More continuous x values across clinics</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">=</span> <span class="fu">runif</span>(measurements_per_clinic, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> <span class="dv">10</span>) <span class="co"># Continuous x for measurements</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Use the specific clinic effect and slope</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>      clinic_effect <span class="ot">=</span> clinic_effects[[region]][clinic]</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>      clinic_slope <span class="ot">=</span> clinic_slopes[[region]][clinic]</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Simulate measurements for each clinic</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>measurements_per_clinic) {</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Model y incorporating both global and specific slopes and effects</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>        y <span class="ot">=</span> (global_intercept <span class="sc">+</span> region_effect_adj <span class="sc">+</span> clinic_effect) <span class="sc">+</span> </span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>            (global_slope <span class="sc">+</span> region_slope_adj <span class="sc">+</span> clinic_slope) <span class="sc">*</span> x[i] <span class="sc">+</span> </span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>            <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>) <span class="co"># Assuming measurement_noise_sd is constant for simplicity</span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Combine this measurement with the overall dataset</span></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>        data <span class="ot">=</span> <span class="fu">rbind</span>(data, <span class="fu">data.frame</span>(<span class="at">x =</span> x[i], <span class="at">y =</span> y, <span class="at">clinic =</span> clinic_id_counter, <span class="at">region =</span> region))</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>      clinic_id_counter <span class="ot">&lt;-</span> clinic_id_counter <span class="sc">+</span> <span class="dv">1</span> <span class="co"># Increment clinic ID for unique identification across regions</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a>data_int_nested<span class="ot">&lt;-</span><span class="fu">simulate_grouped_trend_nested</span>(<span class="at">region_count =</span> <span class="dv">4</span>,</span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">clinics_per_region =</span> <span class="dv">3</span>,</span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">measurements_per_clinic =</span> <span class="dv">20</span>,</span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">global_slope =</span> <span class="dv">0</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,</span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">region_effects =</span> <span class="fu">rnorm</span>(<span class="dv">4</span>,<span class="at">mean =</span> <span class="dv">0</span>,<span class="at">sd =</span> <span class="dv">20</span>),</span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">region_slopes=</span><span class="fu">rnorm</span>(<span class="dv">4</span>,<span class="at">mean =</span> <span class="fl">0.1</span>,<span class="at">sd =</span> <span class="dv">2</span>),</span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>       <span class="at">clinic_effects =</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,<span class="cf">function</span>(i){<span class="fu">rnorm</span>(<span class="dv">3</span>,<span class="at">mean =</span> <span class="dv">0</span>,<span class="at">sd =</span> <span class="dv">10</span>)}),</span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">clinic_slopes =</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,<span class="cf">function</span>(i){<span class="fu">rnorm</span>(<span class="dv">3</span>,<span class="at">mean =</span> <span class="fl">0.1</span>,<span class="at">sd =</span> <span class="dv">1</span>)}))</span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int_nested<span class="sc">$</span>x,data_int_nested<span class="sc">$</span>y,<span class="at">col=</span>data_int_nested<span class="sc">$</span>region,<span class="at">pch=</span>data_int_nested<span class="sc">$</span>clinic,<span class="at">xlab =</span> <span class="st">"Age"</span>,<span class="at">ylab =</span> <span class="st">"Protein expression"</span>)</span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"top"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Region"</span>, <span class="fu">unique</span>(data_int_nested<span class="sc">$</span>region)),</span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="fu">unique</span>(data_int_nested<span class="sc">$</span>region), <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Regions"</span>,<span class="at">horiz=</span>T)</span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Clinic"</span>, <span class="fu">unique</span>(data_int_nested<span class="sc">$</span>clinic)),</span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">unique</span>(data_int_nested<span class="sc">$</span>clinic), <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Clinics"</span>, <span class="at">inset =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-nested" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-nested-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-nested-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-nested-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-nested-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.4: Scatter plot of Age vs.&nbsp;Protein expression for nested design
@@ -927,6 +1232,12 @@ Figure&nbsp;19.4: Scatter plot of Age vs.&nbsp;Protein expression for nested des
 </div>
 <p>In this example, we simulated a number of samples from a few clinics from different regions. From the beginning the experimental design was nested in a way that, a single sample was from a single clinic and a single clinic was from one and only one region. Looking at <a href="#fig-scatter-plot-grouped-lmm-nested" class="quarto-xref">Figure&nbsp;<span>19.4</span></a>, we can already see that there is a very big baseline difference between regions. Within each region, there is also some baseline differences between clinics but it is less dominant than the region differences. Furthermore, the effect of Age on Protein expression seems to be different slightly across different regions (some have positive effect, some negative and some close to zero) and to a lesser extend within each region but across clinics. Given this informal interpretation of the data we go forward and do the modeling considering both the intercept and slope as random effects.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model_lmm_nested <span class="ot">&lt;-</span> <span class="fu">lmer</span>(y<span class="sc">~</span>x<span class="sc">+</span>(x<span class="sc">|</span>region<span class="sc">/</span>clinic),data_int_nested)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_nested)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: y ~ x + (x | region/clinic)
@@ -955,6 +1266,64 @@ Fixed Effects:
 <h4 data-number="19.3.3.4" class="anchored" data-anchor-id="crossed-designs"><span class="header-section-number">19.3.3.4</span> Crossed designs</h4>
 <p>The last experimental design I want to mention is the full crossed design, which contrasts with the nested structure we’ve explored so far. In a crossed design, each level of one grouping factor can be combined with each level of another grouping factor, creating a matrix-like structure of group combinations. This design is particularly relevant in experiments where the interaction effects between two or more independent grouping factors are of interest, and these factors are not hierarchically related but rather orthogonal or independent of each other.</p>
 <div class="cell" data-layout-align="default">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>graph TD</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    A[Clinic 1]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    E[Clinic 2]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    I[Clinic 3]</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    B[Doctor 1]</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    C[Doctor 2]</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    D[Doctor 3]</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    M1[Sample 1]</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    M2[Sample 2]</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    M3[Sample 3]</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    M4[Sample 4]</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    M5[Sample 5]</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    A -.-&gt; B</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    A -.-&gt; C</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    A -.-&gt; D</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    E -.-&gt; B</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    E -.-&gt; C</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    E -.-&gt; D</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    I -.-&gt; B</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    I -.-&gt; C</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    I -.-&gt; D</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    %% Patients connected to clinics to show they can come from any clinic, implying crossed with regions</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    B --&gt; M1</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    B --&gt; M2</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    B --&gt; M3</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>    B --&gt; M4</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    B --&gt; M5</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    C --&gt; M1</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    C --&gt; M2</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    C --&gt; M3</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    C --&gt; M4</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    C --&gt; M5</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    D --&gt; M1</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    D --&gt; M2</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>    D --&gt; M3</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>    D --&gt; M4</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    D --&gt; M5</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>    %% Additional patient connections omitted for brevity</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>    classDef region fill:#f9f,stroke:#333,stroke-width:2px;</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>    classDef clinic fill:#ccf,stroke:#333,stroke-width:2px;</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>    classDef patient fill:#cff,stroke:#333,stroke-width:1px;</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>    class A,E,I region;</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>    class B,C,D,F,G,H,J,K,L clinic;</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>    class M1,M2,M3,M4,M5 patient;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
@@ -1022,11 +1391,74 @@ Fixed Effects:
 </div>
 <p>One hypothetical study (probably very rare!) is a study designed to explore the effects of age on protein expression within a single patient, our research employs a unique crossed design where the patient visits multiple doctors across various clinics at different ages. Recognizing the potential for variability introduced by the differing methodologies and environments inherent to each clinic, as well as the distinct clinical approaches of each doctor. Specifically, we want to analyze the data, treating age as a continuous fixed effect to investigate its influence on protein expression. Concurrently, we model doctors and clinics as random effects to account for the variability they introduce into the protein expression measurements. This allows us not only to assess the general trend of protein expression changes over time but also to explore how these changes might be modulated differently across the various clinical settings and by different medical professionals.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>simulate_grouped_trend_crossed <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">clinic_count =</span> <span class="dv">3</span>, <span class="at">doctor_count =</span> <span class="dv">5</span>, <span class="at">measurements_per_combination =</span> <span class="dv">10</span>,</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">global_slope =</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">global_intercept =</span> <span class="dv">30</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">clinic_effects =</span> <span class="fu">c</span>(), <span class="at">clinic_slopes =</span> <span class="fu">c</span>(),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">doctor_effects =</span> <span class="fu">c</span>(), <span class="at">doctor_slopes =</span> <span class="fu">c</span>()) {</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># Setting a seed for reproducibility</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initialize an empty data frame to store the simulated data</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">numeric</span>(), <span class="at">y =</span> <span class="fu">numeric</span>(), <span class="at">doctor =</span> <span class="fu">integer</span>(), <span class="at">clinic =</span> <span class="fu">integer</span>())</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Validate or adjust lengths of effects and slopes arrays to match counts</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(clinic_effects) <span class="sc">!=</span> clinic_count) clinic_effects <span class="ot">&lt;-</span> <span class="fu">rep</span>(clinic_effects[<span class="dv">1</span>], clinic_count)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(clinic_slopes) <span class="sc">!=</span> clinic_count) clinic_slopes <span class="ot">&lt;-</span> <span class="fu">rep</span>(clinic_slopes[<span class="dv">1</span>], clinic_count)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(doctor_effects) <span class="sc">!=</span> doctor_count) doctor_effects <span class="ot">&lt;-</span> <span class="fu">rep</span>(doctor_effects[<span class="dv">1</span>], doctor_count)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(doctor_slopes) <span class="sc">!=</span> doctor_count) doctor_slopes <span class="ot">&lt;-</span> <span class="fu">rep</span>(doctor_slopes[<span class="dv">1</span>], doctor_count)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop to create data for each combination of clinic and doctor</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (clinic <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>clinic_count) {</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (doctor <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>doctor_count) {</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>      x_start <span class="ot">=</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">10</span>) <span class="co"># Continuous x values</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">=</span> <span class="fu">runif</span>(measurements_per_combination, <span class="at">min =</span> x_start, <span class="at">max =</span> x_start <span class="sc">+</span> <span class="dv">10</span>) <span class="co"># Continuous x for measurements</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Use the specific effect and slope for the current clinic and doctor</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>      clinic_effect_adj <span class="ot">=</span> clinic_effects[clinic]</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>      clinic_slope_adj <span class="ot">=</span> clinic_slopes[clinic]</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>      doctor_effect <span class="ot">=</span> doctor_effects[doctor]</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>      doctor_slope <span class="ot">=</span> doctor_slopes[doctor]</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Simulate measurements for each combination of clinic and doctor</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>measurements_per_combination) {</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Model y incorporating both global and specific slopes and effects</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>        y <span class="ot">=</span> (global_intercept <span class="sc">+</span> clinic_effect_adj <span class="sc">+</span> doctor_effect) <span class="sc">+</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>            (global_slope <span class="sc">+</span> clinic_slope_adj <span class="sc">+</span> doctor_slope) <span class="sc">*</span> x[i] <span class="sc">+</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>            <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>) <span class="co"># Assuming measurement_noise_sd is constant for simplicity</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Combine this measurement with the overall dataset</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>        data <span class="ot">=</span> <span class="fu">rbind</span>(data, <span class="fu">data.frame</span>(<span class="at">x =</span> x[i], <span class="at">y =</span> y, <span class="at">doctor =</span> doctor, <span class="at">clinic =</span> clinic))</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>data_int_crossed<span class="ot">&lt;-</span><span class="fu">simulate_grouped_trend_crossed</span>(<span class="at">clinic_count =</span> <span class="dv">4</span>,</span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">doctor_count =</span> <span class="dv">3</span>,</span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">measurements_per_combination =</span> <span class="dv">20</span>,</span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">global_slope =</span> <span class="dv">1</span>,<span class="at">global_intercept =</span> <span class="dv">100</span>,</span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">clinic_effects =</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">20</span>,<span class="dv">40</span>,<span class="dv">60</span>),</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>                                                             <span class="at">clinic_slopes=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">1.5</span>,<span class="fl">0.9</span>,<span class="fl">1.1</span>),</span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>       <span class="at">doctor_effects =</span> <span class="fu">c</span>(<span class="fl">1.3</span>,<span class="fl">1.2</span>,<span class="dv">2</span>),</span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">doctor_slopes =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(data_int_crossed<span class="sc">$</span>x,data_int_crossed<span class="sc">$</span>y,<span class="at">col=</span>data_int_crossed<span class="sc">$</span>clinic,<span class="at">pch=</span>data_int_crossed<span class="sc">$</span>doctor,<span class="at">xlab =</span> <span class="st">"Age"</span>,<span class="at">ylab =</span> <span class="st">"Protein expression"</span>)</span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"top"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Clinic"</span>, <span class="fu">unique</span>(data_int_crossed<span class="sc">$</span>clinic)),</span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="fu">unique</span>(data_int_crossed<span class="sc">$</span>clinic), <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Clinics"</span>,<span class="at">horiz=</span>T)</span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Doctor"</span>, <span class="fu">unique</span>(data_int_crossed<span class="sc">$</span>doctor)),</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">unique</span>(data_int_crossed<span class="sc">$</span>doctor), <span class="at">col =</span> <span class="st">"black"</span>, <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Doctors"</span>, <span class="at">inset =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-crossed" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-crossed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-crossed-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-crossed-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-crossed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.5: Scatter plot of Age vs.&nbsp;Protein expression for crossed design
@@ -1038,6 +1470,11 @@ Figure&nbsp;19.5: Scatter plot of Age vs.&nbsp;Protein expression for crossed de
 <p>Ok! Now it is a bit more complicated than before. What <a href="#fig-scatter-plot-grouped-lmm-crossed" class="quarto-xref">Figure&nbsp;<span>19.5</span></a> tells us is that there appears to be quite a big differences in baseline between different clinics (colors). The effect of age on protein expression seems to be consistently go up in each clinic. However, looking at the doctors (shapes), we see that all three of them are quite consistent when it comes to baseline but one of them has a big slope differences compare to the other two.</p>
 <p>Basically, the results of modeling tells us the same thing:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_lmm_crossed <span class="ot">&lt;-</span> <span class="fu">lmer</span>(y<span class="sc">~</span>x<span class="sc">+</span>(x<span class="sc">|</span>clinic)<span class="sc">+</span>(x<span class="sc">|</span>doctor),data_int_crossed)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_crossed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: y ~ x + (x | clinic) + (x | doctor)
@@ -1073,6 +1510,10 @@ Note
 <p>One way to make sure that you are using the correct formulation of the random effect is to ask yourself whether this is design is nested or not. If the design is not nested you should use the crossed formulation.</p>
 <p>For example for smaller designs we can check using <code>xtabs</code></p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">xtabs</span>(<span class="sc">~</span>region<span class="sc">+</span>clinic,data_int_nested))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      clinic
 region  1  2  3  4  5  6  7  8  9 10 11 12
@@ -1084,6 +1525,10 @@ region  1  2  3  4  5  6  7  8  9 10 11 12
 </div>
 <p>and compare to a crossed design</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">xtabs</span>(<span class="sc">~</span>clinic<span class="sc">+</span>doctor,data_int_crossed))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>      doctor
 clinic  1  2  3
@@ -1104,11 +1549,56 @@ clinic  1  2  3
 <p>Statistical models can become very complex especially when many variables of different types (countinous, categorical etc) are of interest or one is to look at interactions. What we want to do here in this section is to explore a few cases that involve creating models of more than one variable.</p>
 <p>Consider a simple scenario where some patients have been given three treatments by different doctors.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>simulatePatientData_treatment_doctor <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">numDoctors =</span> <span class="dv">30</span>, <span class="at">numPatients =</span> <span class="dv">10</span>, <span class="at">seed =</span> <span class="dv">12345</span>) {</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  intercept <span class="ot">=</span> <span class="dv">50</span>  <span class="co"># Baseline recovery time</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  treatmentEffect <span class="ot">=</span> <span class="fu">c</span>(<span class="at">A =</span> <span class="dv">0</span>, <span class="at">B =</span> <span class="sc">-</span><span class="dv">50</span>, <span class="at">C =</span> <span class="sc">-</span><span class="dv">20</span>)  <span class="co"># Treatment effect on recovery time</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate data</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  doctors <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>numDoctors, <span class="at">each =</span> numPatients)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  treatment <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>), <span class="at">size =</span> numDoctors <span class="sc">*</span> numPatients, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Random effects for doctors</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  doctorIntercept <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(numDoctors, <span class="dv">0</span>, <span class="dv">2</span>)  <span class="co"># Variation in doctor baseline recovery times</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  doctorTreatmentBEffect <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(numDoctors, <span class="dv">0</span>, <span class="dv">2</span>)  <span class="co"># Variation in treatment B effect by doctor</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  doctorTreatmentCEffect <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(numDoctors, <span class="dv">0</span>, <span class="dv">2</span>)  <span class="co"># Variation in treatment C effect by doctor</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate recovery time</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  doctor_var<span class="ot">&lt;-</span><span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">1.4</span>,<span class="dv">0</span>),<span class="fu">c</span>(<span class="fl">1.2</span>,<span class="dv">1</span>,<span class="dv">0</span>),<span class="fu">c</span>(<span class="fl">0.9</span>,<span class="fl">1.3</span>,<span class="dv">20</span>))</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  tr<span class="ot">&lt;-</span>treatmentEffect[treatment]</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">unique</span>(doctors))</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>   {</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>     tr[treatment<span class="sc">==</span><span class="st">"A"</span> <span class="sc">&amp;</span> doctors<span class="sc">==</span>i]<span class="ot">&lt;-</span>tr[treatment<span class="sc">==</span><span class="st">"A"</span> <span class="sc">&amp;</span>doctors<span class="sc">==</span>i]<span class="sc">+</span>doctor_var[[i]][<span class="dv">1</span>]</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>     tr[treatment<span class="sc">==</span><span class="st">"B"</span> <span class="sc">&amp;</span> doctors<span class="sc">==</span>i]<span class="ot">&lt;-</span>tr[treatment<span class="sc">==</span><span class="st">"B"</span> <span class="sc">&amp;</span>doctors<span class="sc">==</span>i]<span class="sc">+</span>doctor_var[[i]][<span class="dv">2</span>]</span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>     tr[treatment<span class="sc">==</span><span class="st">"C"</span> <span class="sc">&amp;</span> doctors<span class="sc">==</span>i]<span class="ot">&lt;-</span>tr[treatment<span class="sc">==</span><span class="st">"C"</span> <span class="sc">&amp;</span>doctors<span class="sc">==</span>i]<span class="sc">+</span>doctor_var[[i]][<span class="dv">3</span>]</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>  recoveryTime <span class="ot">&lt;-</span> intercept<span class="sc">+</span>tr <span class="sc">+</span> </span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>                  <span class="co">#(treatment == "B") * doctorTreatmentBEffect[doctors] + </span></span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a>                  <span class="co">#(treatment == "C") * doctorTreatmentCEffect[doctors] + </span></span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>                  doctorIntercept[doctors] <span class="sc">+</span></span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rnorm</span>(numDoctors <span class="sc">*</span> numPatients, <span class="dv">0</span>, <span class="dv">2</span>)  <span class="co"># Add some observation noise</span></span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">doctor =</span> doctors, <span class="at">treatment =</span> treatment, <span class="at">recoveryTime =</span> recoveryTime)</span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>data_int_treatment <span class="ot">&lt;-</span> <span class="fu">simulatePatientData_treatment_doctor</span>(<span class="at">numDoctors =</span> <span class="dv">3</span>,<span class="at">numPatients =</span> <span class="dv">200</span>)</span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>data_int_treatment<span class="sc">$</span>treatment <span class="ot">&lt;-</span> <span class="fu">factor</span>(data_int_treatment<span class="sc">$</span>treatment)</span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int_treatment<span class="sc">$</span>recoveryTime <span class="sc">~</span> <span class="fu">jitter</span>(<span class="fu">as.numeric</span>(data_int_treatment<span class="sc">$</span>treatment), <span class="dv">1</span>), <span class="at">col=</span><span class="fu">as.factor</span>(data_int_treatment<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_treatment<span class="sc">$</span>doctor)),<span class="at">xaxt=</span><span class="st">"n"</span>,<span class="at">xlab=</span><span class="st">"Treatment"</span>,<span class="at">ylab =</span> <span class="st">"Recovery Time"</span>)</span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>))</span>
+<span id="cb30-41"><a href="#cb30-41" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"top"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Doctor"</span>, <span class="fu">unique</span>(data_int_treatment<span class="sc">$</span>doctor)),</span>
+<span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">unique</span>(data_int_treatment<span class="sc">$</span>doctor), <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Doctor"</span>,<span class="at">horiz=</span>T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.6: Scatter plot of treatment vs recovery time
@@ -1119,6 +1609,11 @@ Figure&nbsp;19.6: Scatter plot of treatment vs recovery time
 </div>
 <p>In this example, we have three treatments each given by three different doctors. What we are interested in is the treatment effect. However, what we believe is that patients going to different doctors might experience slightly different outcomes not just because of the treatment itself but also due to the specific practices or approaches of each doctor. Therefore, to accurately assess the treatment effect, we need to account for the variability introduced by the doctors. We decide to use random intercept model <code>lmer(recoveryTime~treatment+(1|doctor),data_int_treatment)</code>.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>model_lmm_treatment <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>doctor),data_int_treatment)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_treatment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: recoveryTime ~ treatment + (1 | doctor)
@@ -1137,11 +1632,24 @@ Fixed Effects:
 <p>In the linear mixed model we’ve fitted, it’s essential to note that due to the categorical nature of the treatment variable, there is no “slope” for the treatment variable in the conventional sense. Instead, the model estimates the differences in the intercept (mean recovery time) for treatments B and C relative to treatment A which is the same as the slope of the regression line in this case. Therefore, In the model, treatment effects are represented as shifts from the baseline (treatment A) rather than as distinct slopes or lines. If we look at the estimated fixed effects, we see that we have an intercept and two more coefficients for treatment B and treatment C. The intercept represents the expected recovery time for treatment A, and the coefficients for treatmentB and treatmentC represent the deviation in recovery time from treatment A.</p>
 <p>Let’s plot these effects first before interpreting the random effects:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(data_int_treatment<span class="sc">$</span>recoveryTime <span class="sc">~</span> <span class="fu">jitter</span>(<span class="fu">as.numeric</span>(data_int_treatment<span class="sc">$</span>treatment), <span class="dv">1</span>), <span class="at">col=</span><span class="fu">as.factor</span>(data_int_treatment<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_treatment<span class="sc">$</span>doctor)),<span class="at">xaxt=</span><span class="st">"n"</span>,<span class="at">xlab=</span><span class="st">"Treatment"</span>,<span class="at">ylab =</span> <span class="st">"Recovery Time"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>))</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"top"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Doctor"</span>, <span class="fu">unique</span>(data_int_treatment<span class="sc">$</span>doctor)),</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">unique</span>(data_int_treatment<span class="sc">$</span>doctor), <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Doctor"</span>,<span class="at">horiz=</span>T)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">fixef</span>(model_lmm_treatment)[<span class="dv">1</span>],<span class="at">b =</span> <span class="dv">0</span>,<span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">fixef</span>(model_lmm_treatment)[<span class="dv">1</span>]<span class="sc">+</span><span class="fu">fixef</span>(model_lmm_treatment)[<span class="dv">2</span>],<span class="at">b =</span> <span class="dv">0</span>,<span class="at">col=</span><span class="dv">2</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">fixef</span>(model_lmm_treatment)[<span class="dv">1</span>]<span class="sc">+</span><span class="fu">fixef</span>(model_lmm_treatment)[<span class="dv">3</span>],<span class="at">b =</span> <span class="dv">0</span>,<span class="at">col=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-fixed-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-fixed-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-fixed-effect-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-fixed-effect-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-fixed-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.7: Scatter plot of treatment vs recovery time (fixed effects)
@@ -1153,6 +1661,10 @@ Figure&nbsp;19.7: Scatter plot of treatment vs recovery time (fixed effects)
 <p>Given such a fit, what do you think the random intercept model actually does?</p>
 <p>The answer to this question is actually quite simple. What we asked <code>lmer</code> to do, was to assume that the <code>Intercept</code> is the random effect. In this particular example the intercept is the baseline level of the treatment A. Therefore, the random intercept captures variability at the doctor level around the baseline effect of treatment A:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">coef</span>(model_lmm_treatment))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>$doctor
   (Intercept) treatmentB treatmentC
@@ -1167,11 +1679,35 @@ attr(,"class")
 <p>Despite that we saw that there is three lines (three intercepts) in this model, only the first one is assume to be random. The coefficients for treatments B and C are relative to this random baseline and have not been allowed to change depending on the doctor. This model is sufficient if we assume that the effect of the treatments is consistent across all doctors, meaning that the difference in recovery times between treatments does not vary from one doctor to another. Essentially, it assumes that each treatment’s effectiveness is uniform regardless of who administers it.</p>
 <p>Let’s plot these effects before proceeding:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>doctor_effects <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">doctor=</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),<span class="fu">coef</span>(model_lmm_treatment)<span class="sc">$</span>doctor)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(doctor_effects)[<span class="dv">2</span>]<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"intercept"</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate adjusted means for treatments B and C</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>doctor_effects<span class="sc">$</span>treatmentB_effect <span class="ot">=</span> doctor_effects<span class="sc">$</span>intercept <span class="sc">+</span> doctor_effects<span class="sc">$</span>treatmentB</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>doctor_effects<span class="sc">$</span>treatmentC_effect <span class="ot">=</span> doctor_effects<span class="sc">$</span>intercept <span class="sc">+</span> doctor_effects<span class="sc">$</span>treatmentC</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="cn">NULL</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">ylim=</span><span class="fu">range</span>(<span class="fu">c</span>(doctor_effects<span class="sc">$</span>intercept, doctor_effects<span class="sc">$</span>treatmentB_effect, doctor_effects<span class="sc">$</span>treatmentC_effect)), <span class="at">xlab=</span><span class="st">"Doctor"</span>, <span class="at">ylab=</span><span class="st">"Recovery Time"</span>, <span class="at">main=</span><span class="st">"Effect of Doctor and Treatment on Recovery Time"</span>,<span class="at">xaxt=</span><span class="st">"n"</span>)</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>))</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>intercept, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"blue"</span>) <span class="co"># Baseline (A)</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentB_effect, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"red"</span>) <span class="co"># Treatment B</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentC_effect, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"green"</span>) <span class="co"># Treatment C</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect points with lines to show the constant effect across doctors</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>intercept, <span class="at">col=</span><span class="st">"blue"</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentB_effect, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentC_effect, <span class="at">col=</span><span class="st">"green"</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"right"</span>, <span class="at">legend=</span><span class="fu">c</span>(<span class="st">"Baseline (A)"</span>, <span class="st">"Treatment B"</span>, <span class="st">"Treatment C"</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>, <span class="st">"green"</span>), <span class="at">pch=</span><span class="dv">19</span>, <span class="at">lty=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-random-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-random-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-random-effect-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-random-effect-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-random-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.8: Scatter plot of treatment vs recovery time (random intercept)
@@ -1183,10 +1719,18 @@ Figure&nbsp;19.8: Scatter plot of treatment vs recovery time (random intercept)
 <p>What this plot tells us is that, each doctor might have certain way of treating patient which affect the overall recovery time. However, what we assume is that the treatment specific effects are constant across the doctors. That means that no matter which doctor a patient go to, there is a <strong>constant</strong> shift in recovery time when the patient switch between the treatments. But what if some doctors are much more skilled that others to administrate a certain type of treatments? The previous model does not allow for the examination of how the effect of <strong>each treatment</strong> might vary by doctor, as it assumes a fixed effect of treatments across all doctors.</p>
 <p>We have to specifically clarify for <code>lmer</code> which effects we want to be random. In this case, we are going to use the treatment effect as random and check what would happen</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>model_lmm_treatment_rnd <span class="ot">&lt;-</span>  <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">|</span>doctor),data_int_treatment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, : Model failed to converge with max|grad| = 0.00275838 (tol = 0.002, component 1)
   See ?lme4::convergence and ?lme4::troubleshooting.</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_treatment_rnd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: recoveryTime ~ treatment + (1 + treatment | doctor)
@@ -1207,11 +1751,36 @@ optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 wa
 </div>
 <p>If we look at the random effect part of the model, it is now more clear that There is not only a big difference between the doctors when it comes to treatment A but also an even larger difference in treatment C.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>doctor_effects <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">doctor=</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),<span class="fu">coef</span>(model_lmm_treatment_rnd)<span class="sc">$</span>doctor)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(doctor_effects)[<span class="dv">2</span>]<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"intercept"</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate adjusted means for treatments B and C</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>doctor_effects<span class="sc">$</span>treatmentB_effect <span class="ot">=</span> doctor_effects<span class="sc">$</span>intercept <span class="sc">+</span> doctor_effects<span class="sc">$</span>treatmentB</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>doctor_effects<span class="sc">$</span>treatmentC_effect <span class="ot">=</span> doctor_effects<span class="sc">$</span>intercept <span class="sc">+</span> doctor_effects<span class="sc">$</span>treatmentC</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="cn">NULL</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">ylim=</span><span class="fu">range</span>(<span class="fu">c</span>(doctor_effects<span class="sc">$</span>intercept, doctor_effects<span class="sc">$</span>treatmentB_effect, doctor_effects<span class="sc">$</span>treatmentC_effect)), <span class="at">xlab=</span><span class="st">"Doctor"</span>, <span class="at">ylab=</span><span class="st">"Recovery Time"</span>, <span class="at">main=</span><span class="st">"Effect of Doctor and Treatment on Recovery Time"</span>,<span class="at">xaxt=</span><span class="st">"n"</span>)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>))</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>intercept, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"blue"</span>) <span class="co"># Baseline (A)</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentB_effect, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"red"</span>) <span class="co"># Treatment B</span></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentC_effect, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"green"</span>) <span class="co"># Treatment C</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect points with lines to show the constant effect across doctors</span></span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>intercept, <span class="at">col=</span><span class="st">"blue"</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentB_effect, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(doctor_effects<span class="sc">$</span>doctor, doctor_effects<span class="sc">$</span>treatmentC_effect, <span class="at">col=</span><span class="st">"green"</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"right"</span>, <span class="at">legend=</span><span class="fu">c</span>(<span class="st">"Baseline (A)"</span>, <span class="st">"Treatment B"</span>, <span class="st">"Treatment C"</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>, <span class="st">"green"</span>), <span class="at">pch=</span><span class="dv">19</span>, <span class="at">lty=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-random-effect2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-random-effect2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-random-effect2-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-random-effect2-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-random-effect2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.9: Scatter plot of treatment vs recovery time (random intercept and deviation)
@@ -1226,11 +1795,62 @@ Figure&nbsp;19.9: Scatter plot of treatment vs recovery time (random intercept a
 <h4 data-number="19.3.4.1" class="anchored" data-anchor-id="models-with-interaction"><span class="header-section-number">19.3.4.1</span> Models with interaction</h4>
 <p>In this example, our aim is to explore how the effectiveness of various treatments may vary with changes in dosage, and whether these effects are consistent across different doctors.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>simulatePatientData <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">numDoctors =</span> <span class="dv">30</span>, <span class="at">numPatients =</span> <span class="dv">10</span>,doctor_dosage,doctor_var, <span class="at">seed =</span> <span class="dv">12345</span>) {</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Parameters</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  intercept <span class="ot">=</span> <span class="dv">50</span>  <span class="co"># Baseline recovery time</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  treatmentEffect <span class="ot">=</span> <span class="fu">c</span>(<span class="at">A =</span> <span class="dv">0</span>, <span class="at">B =</span> <span class="sc">-</span><span class="dv">50</span>, <span class="at">C =</span> <span class="sc">-</span><span class="dv">20</span>)  <span class="co"># Treatment effect on recovery time</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  dosageEffect <span class="ot">=</span> <span class="fu">c</span>(<span class="at">A =</span> <span class="dv">3</span>, <span class="at">B =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">C =</span> <span class="dv">1</span>) <span class="co"># Effect of dosage on recovery time</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Simulate data</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  doctors <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>numDoctors, <span class="at">each =</span> numPatients)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  treatment <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>), <span class="at">size =</span> numDoctors <span class="sc">*</span> numPatients, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>  dosage <span class="ot">&lt;-</span> <span class="fu">runif</span>(numDoctors <span class="sc">*</span> numPatients, <span class="at">min =</span> <span class="dv">1</span>, <span class="at">max =</span> <span class="dv">10</span>)  <span class="co"># Dosage levels between 1 and 10</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>  dosageEffect<span class="ot">&lt;-</span><span class="fu">rep</span>(dosageEffect,<span class="at">each=</span>numPatients)</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Random effects for doctors</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>  doctorIntercept <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(numDoctors, <span class="dv">0</span>, <span class="dv">2</span>)  <span class="co"># Variation in doctor baseline recovery times</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate recovery time</span></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>  tr<span class="ot">&lt;-</span>treatmentEffect[treatment]</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">unique</span>(doctors))</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>   {</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>     tr[treatment<span class="sc">==</span><span class="st">"A"</span> <span class="sc">&amp;</span> doctors<span class="sc">==</span>i]<span class="ot">&lt;-</span>tr[treatment<span class="sc">==</span><span class="st">"A"</span> <span class="sc">&amp;</span>doctors<span class="sc">==</span>i]<span class="sc">+</span>doctor_var[[i]][<span class="dv">1</span>]</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>     tr[treatment<span class="sc">==</span><span class="st">"B"</span> <span class="sc">&amp;</span> doctors<span class="sc">==</span>i]<span class="ot">&lt;-</span>tr[treatment<span class="sc">==</span><span class="st">"B"</span> <span class="sc">&amp;</span>doctors<span class="sc">==</span>i]<span class="sc">+</span>doctor_var[[i]][<span class="dv">2</span>]</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>     tr[treatment<span class="sc">==</span><span class="st">"C"</span> <span class="sc">&amp;</span> doctors<span class="sc">==</span>i]<span class="ot">&lt;-</span>tr[treatment<span class="sc">==</span><span class="st">"C"</span> <span class="sc">&amp;</span>doctors<span class="sc">==</span>i]<span class="sc">+</span>doctor_var[[i]][<span class="dv">3</span>]</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>  recoveryTime <span class="ot">&lt;-</span> intercept<span class="sc">+</span>tr <span class="sc">+</span></span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">unlist</span>(doctor_dosage)[<span class="fu">paste</span>(doctors,<span class="st">"."</span>,treatment,<span class="at">sep=</span><span class="st">""</span>)] <span class="sc">*</span> dosage <span class="sc">+</span> doctorIntercept[doctors] <span class="sc">+</span></span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rnorm</span>(numDoctors <span class="sc">*</span> numPatients, <span class="dv">0</span>, <span class="dv">2</span>)  <span class="co"># Add some observation noise</span></span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">doctor =</span> doctors, <span class="at">treatment =</span> treatment, <span class="at">dosage =</span> dosage, <span class="at">recoveryTime =</span> recoveryTime)</span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(data)</span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the data</span></span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a>data_int_interaction <span class="ot">&lt;-</span> <span class="fu">simulatePatientData</span>(<span class="at">numDoctors =</span> <span class="dv">3</span>,<span class="at">numPatients =</span> <span class="dv">200</span>,<span class="at">doctor_dosage=</span><span class="fu">list</span>(<span class="st">"1"</span><span class="ot">=</span><span class="fu">c</span>(<span class="at">A =</span> <span class="dv">3</span>, <span class="at">B =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">C =</span> <span class="dv">1</span>),</span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"2"</span><span class="ot">=</span><span class="fu">c</span>(<span class="at">A =</span> <span class="dv">3</span>, <span class="at">B =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">C =</span> <span class="dv">1</span>),<span class="st">"3"</span><span class="ot">=</span><span class="fu">c</span>(<span class="at">A =</span> <span class="dv">3</span>, <span class="at">B =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">C =</span> <span class="sc">-</span><span class="dv">1</span>)),<span class="at">doctor_var=</span><span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">1.4</span>,<span class="dv">0</span>),<span class="fu">c</span>(<span class="fl">1.2</span>,<span class="dv">1</span>,<span class="dv">0</span>),<span class="fu">c</span>(<span class="fl">0.9</span>,<span class="dv">1</span>,<span class="dv">50</span>)))</span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-40"><a href="#cb42-40" aria-hidden="true" tabindex="-1"></a>data_int_interaction<span class="sc">$</span>treatment<span class="ot">&lt;-</span><span class="fu">factor</span>(data_int_interaction<span class="sc">$</span>treatment,<span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>))</span>
+<span id="cb42-41"><a href="#cb42-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-42"><a href="#cb42-42" aria-hidden="true" tabindex="-1"></a> <span class="fu">plot</span>(data_int_interaction<span class="sc">$</span>dosage,data_int_interaction<span class="sc">$</span>recoveryTime,<span class="at">col=</span><span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>doctor)),</span>
+<span id="cb42-43"><a href="#cb42-43" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">"Dosage"</span>,<span class="at">ylab=</span><span class="st">"Recovery time"</span>)</span>
+<span id="cb42-44"><a href="#cb42-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-45"><a href="#cb42-45" aria-hidden="true" tabindex="-1"></a> <span class="fu">legend</span>(<span class="st">"top"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Doctor"</span>, <span class="fu">unique</span>(data_int_interaction<span class="sc">$</span>doctor)),</span>
+<span id="cb42-46"><a href="#cb42-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">unique</span>(data_int_interaction<span class="sc">$</span>doctor), <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Doctor"</span>,<span class="at">horiz=</span>T)</span>
+<span id="cb42-47"><a href="#cb42-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Treatment"</span>, <span class="fu">levels</span>(data_int_interaction<span class="sc">$</span>treatment)),</span>
+<span id="cb42-48"><a href="#cb42-48" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch=</span><span class="dv">1</span>,<span class="at">col =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(<span class="fu">levels</span>(data_int_interaction<span class="sc">$</span>treatment)), <span class="at">cex =</span> <span class="fl">0.8</span>, <span class="at">title =</span> <span class="st">"Treatment"</span>,<span class="at">horiz=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.10: Scatter plot of treatment vs recovery time vs dosage
@@ -1241,6 +1861,11 @@ Figure&nbsp;19.10: Scatter plot of treatment vs recovery time vs dosage
 </div>
 <p>What we believe is that there is dose-response relationship that is not uniform across all treatments. In other words, the impact of increasing dosage on treatment effectiveness might depend on the specific type of treatment being administered. To investigate this hypothesis, we incorporate interaction terms into our mixed model.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>model_lmm_treatment_dosse <span class="ot">&lt;-</span>  <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>doctor),data_int_interaction)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_treatment_dosse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: recoveryTime ~ treatment * dosage + (1 | doctor)
@@ -1260,11 +1885,30 @@ treatmentB:dosage  treatmentC:dosage
 </div>
 <p>Similar to the previous case, we start assuming a random intercept in the model. What we see is that there is a big variation across different doctors when it comes to the baseline of the treatment A. However, here we only assumed that there is only the level of treatment A is random across the doctors. Let’s look at the fitted lines:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">plot</span>(data_int_interaction<span class="sc">$</span>dosage,data_int_interaction<span class="sc">$</span>recoveryTime,<span class="at">col=</span><span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>doctor)),</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">"Dosage"</span>,<span class="at">ylab=</span><span class="st">"Recovery time"</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(dr <span class="cf">in</span> <span class="fu">unique</span>(data_int_interaction<span class="sc">$</span>doctor))</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>],</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">2</span>],</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">5</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">2</span>)</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">3</span>],</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_dosse)[[<span class="dv">1</span>]][dr,<span class="dv">6</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">3</span>)</span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.11: Scatter plot of treatment vs recovery time vs dosage, fitted lines
@@ -1275,6 +1919,11 @@ Figure&nbsp;19.11: Scatter plot of treatment vs recovery time vs dosage, fitted 
 </div>
 <p>What is clear is that the fit does not look that promising specially when it comes to the Doctor 3 (treatment C). One might suspect that the effect of dosage administration can also depend on the doctor. In this case, we need to model the dosage as random effect:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>model_lmm_treatment_doss_rnd <span class="ot">&lt;-</span>  <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>dosage<span class="sc">|</span>doctor),data_int_interaction)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_treatment_doss_rnd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: recoveryTime ~ treatment * dosage + (1 + dosage | doctor)
@@ -1292,11 +1941,30 @@ Fixed Effects:
 treatmentB:dosage  treatmentC:dosage  
            -4.737             -2.218  </code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">plot</span>(data_int_interaction<span class="sc">$</span>dosage,data_int_interaction<span class="sc">$</span>recoveryTime,<span class="at">col=</span><span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>doctor)),</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">"Dosage"</span>,<span class="at">ylab=</span><span class="st">"Recovery time"</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(dr <span class="cf">in</span> <span class="fu">unique</span>(data_int_interaction<span class="sc">$</span>doctor))</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>],</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">2</span>],</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">5</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">2</span>)</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">3</span>],</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">6</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">3</span>)</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted2-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted2-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.12: Scatter plot of treatment vs recovery time vs dosage, fitted lines
@@ -1308,9 +1976,17 @@ Figure&nbsp;19.12: Scatter plot of treatment vs recovery time vs dosage, fitted 
 <p>Looking at the plot above and the output of the mixed model, the fit does not look much better than before. <code>Dosage</code> alone also does not seem to explain much of the variability. So what are we missing?</p>
 <p>Similar to the previous scenario, not only the baseline treatment level (treatment A) is changing across the doctors but also the rate at which the doctors perform the treatment change. So let’s incorporate this:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>model_lmm_treatment_doss_trt_rnd <span class="ot">&lt;-</span>  <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">+</span>dosage<span class="sc">|</span>doctor),data_int_interaction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>boundary (singular) fit: see help('isSingular')</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_treatment_doss_trt_rnd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: recoveryTime ~ treatment * dosage + (1 + treatment + dosage |  
@@ -1332,11 +2008,30 @@ treatmentB:dosage  treatmentC:dosage
            -5.068             -2.727  
 optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings </code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">plot</span>(data_int_interaction<span class="sc">$</span>dosage,data_int_interaction<span class="sc">$</span>recoveryTime,<span class="at">col=</span><span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>doctor)),</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">"Dosage"</span>,<span class="at">ylab=</span><span class="st">"Recovery time"</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(dr <span class="cf">in</span> <span class="fu">unique</span>(data_int_interaction<span class="sc">$</span>doctor))</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>],</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">2</span>],</span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">5</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">2</span>)</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">3</span>],</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_doss_trt_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">6</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">3</span>)</span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted3-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted3-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.13: Scatter plot of treatment vs recovery time vs dosage, fitted lines
@@ -1349,9 +2044,17 @@ Figure&nbsp;19.13: Scatter plot of treatment vs recovery time vs dosage, fitted 
 <p>What this means is that so far, what we have done is modeling <code>(Intercept)</code>, <code>treatmentB</code>, <code>treatmentC</code>, <code>dosage</code> as random effects. But <code>treatmentB:dosage</code> and <code>treatmentC:dosage</code> are still fixed. This translate to a scenario that we believe there is a general differences between the doctors in a way that they administrate a <em>specific</em> treatment and also how they generally work with doses. But what if a doctor is much more skilled in administrating a dosage for a specific treatment?</p>
 <p>In this case, we have to model the interaction as random effect:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>model_lmm_treatment_int_rnd <span class="ot">&lt;-</span>  <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>boundary (singular) fit: see help('isSingular')</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(model_lmm_treatment_int_rnd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML ['lmerMod']
 Formula: recoveryTime ~ treatment * dosage + (1 + treatment * dosage |  
@@ -1375,11 +2078,32 @@ treatmentB:dosage  treatmentC:dosage
            -5.027             -2.642  
 optimizer (nloptwrap) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings </code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">plot</span>(data_int_interaction<span class="sc">$</span>dosage,data_int_interaction<span class="sc">$</span>recoveryTime,<span class="at">col=</span><span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>treatment),<span class="at">pch=</span><span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(data_int_interaction<span class="sc">$</span>doctor)),</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">xlab=</span><span class="st">"Dosage"</span>,<span class="at">ylab=</span><span class="st">"Recovery time"</span>)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(dr <span class="cf">in</span> <span class="fu">unique</span>(data_int_interaction<span class="sc">$</span>doctor))</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>],</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">2</span>],</span>
+<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">5</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">2</span>)</span>
+<span id="cb58-14"><a href="#cb58-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-15"><a href="#cb58-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">1</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">3</span>],</span>
+<span id="cb58-16"><a href="#cb58-16" aria-hidden="true" tabindex="-1"></a>       <span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">4</span>]<span class="sc">+</span><span class="fu">coef</span>(model_lmm_treatment_int_rnd)[[<span class="dv">1</span>]][dr,<span class="dv">6</span>],<span class="at">lty=</span>dr,<span class="at">col=</span><span class="dv">3</span>)</span>
+<span id="cb58-17"><a href="#cb58-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-18"><a href="#cb58-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted4" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted4-1.png" class="img-fluid figure-img" width="336">
+<img src="lmm_files/figure-html/fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted4-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatter-plot-grouped-lmm-treatment-dose-random-effect-fitted4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.14: Scatter plot of treatment vs recovery time vs dosage, fitted lines
@@ -1414,6 +2138,14 @@ Important
 </div>
 <p>So let’s start with the random part of the model that included the interaction.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">+</span>dosage<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>m4 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">anova</span>(m1,m2,m3,m4,<span class="at">refit=</span><span class="cn">FALSE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Data: data_int_interaction
 Models:
@@ -1481,6 +2213,14 @@ Important
 </div>
 <p>Give we now know that our interaction model was the best one, we can now proceed with refining our model by selecting the most appropriate fixed effects. We will keep the random part constant across the models and change the fixed part:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span><span class="dv">1</span><span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">+</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>m4 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">anova</span>(m1,m2,m3,m4,<span class="at">refit=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Data: data_int_interaction
 Models:
@@ -1520,10 +2260,14 @@ Important
 <h2 data-number="19.5" class="anchored" data-anchor-id="model-diagnostic"><span class="header-section-number">19.5</span> Model diagnostic</h2>
 <p>The assumptions of mixed models are very similar to those of linear models. By far the most informative way of checking the model assumptions is the residuals vs fitted plot. This can be easily plotted using the <code>plot</code> function.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model_lmm_treatment_int_rnd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lmm_files/figure-html/residul_vs_fitted-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="lmm_files/figure-html/residul_vs_fitted-1.png" class="img-fluid figure-img" width="672"></p>
 <figcaption>Scatter plot of residuals vs fitted values</figcaption>
 </figure>
 </div>
@@ -1562,6 +2306,12 @@ Important
 <li>If the residuals plot shows patterns, this might suggest that important predictors or interactions between predictors are missing from the model. Investigating the nature of these patterns can guide the inclusion of additional terms in the model.</li>
 </ul>
 <p>There are other types of diagnostics tools and plots that can be used in different scenarios. <code>performance</code> package provides an easy to use function to check the assumptions of linear models. You need to install <code>performance</code> package to run the following code:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">check_model</span>(model_lmm_treatment_int_rnd, <span class="at">panel =</span> T,<span class="at">check =</span> <span class="st">"all"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 <section id="p-value-calculation-and-marginal-means" class="level2" data-number="19.6">
 <h2 data-number="19.6" class="anchored" data-anchor-id="p-value-calculation-and-marginal-means"><span class="header-section-number">19.6</span> P-value calculation and marginal means</h2>
@@ -1571,26 +2321,33 @@ Important
 <p>One of the most important aspects of EMMs is their ability to provide clear, comparable insights even in the face of unbalanced data. Unlike simpler analytical methods that may be biased when data lack symmetry across groups or conditions, EMMs adjust for these differences, offering an accurate representation of group effects. There are great guidelines on how to use <code>emmeans</code> <a href="https://cran.r-project.org/web/packages/emmeans/">here</a> so please read them if you want to get more complex analysis done.</p>
 <p>In our case however, we are interested in two comparisons. First we are going to compare the treatments and then the dosage effect.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Welcome to emmeans.
 Caution: You lose important information if you filter this package's results.
 See '? untidy'</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>em_object <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(model_lmm_treatment_int_rnd,<span class="at">specs =</span> <span class="st">"treatment"</span>,<span class="at">by =</span> <span class="st">"dosage"</span>,<span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">pairs</span>(em_object))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
-<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in ptukey(sqrt(2) * abst, fam.size, zapsmall(df), lower.tail = FALSE):
-NaNs produced</code></pre>
+<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dosage = 5.5:
- contrast estimate    SE   df t.ratio p.value
- A - B        77.3  0.27 1.97 286.427      NA
- A - C        19.2 13.00 2.00   1.476      NA
- B - C       -58.1 13.10 2.00  -4.438      NA
+ contrast estimate     SE   df t.ratio p.value
+ A - B        77.3  0.259 3.28 298.533 &lt;0.0001
+ A - C        19.2 13.000 2.04   1.476  0.4530
+ B - C       -58.1 13.100 2.04  -4.439  0.0819
 
-Degrees-of-freedom method: kenward-roger 
+Degrees-of-freedom method: satterthwaite 
 P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
 </div>
 </div>
@@ -1605,28 +2362,22 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <p>In summary, at a dosage of 5.5, there is strong evidence that treatment A significantly differs from treatment B, with A being more effective or yielding higher response values. The comparisons between A and C, and between B and C, do not show statistically significant differences at the conventional level, although the trend suggests treatment A might be more effective than C, and B less effective than both A and C.</p>
 <p>We can visualize this using <code>pwpp</code> function</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pwpp</span>(em_object)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning in ptukey(sqrt(2) * abst, fam.size, zapsmall(df), lower.tail = FALSE):
-NaNs produced</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in min(pvtmp): no non-missing arguments to min; returning Inf</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in max(pvtmp): no non-missing arguments to max; returning -Inf</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 6 rows containing missing values or values outside the scale range
-(`geom_point()`).</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 6 rows containing missing values or values outside the scale range
-(`geom_segment()`).</code></pre>
+<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
 </div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="lmm_files/figure-html/pairwise-p-value-plot-1.png" class="img-fluid figure-img" width="336"></p>
+<p><img src="lmm_files/figure-html/pairwise-p-value-plot-1.png" class="img-fluid figure-img" width="672"></p>
 <figcaption>Example of Pairwise P-value plot</figcaption>
 </figure>
 </div>
@@ -1635,30 +2386,36 @@ NaNs produced</code></pre>
 <p>Each comparison is associated with a vertical line segment that joins the scale positions of the two EMMs being compared, and whose horizontal position is determined by the P value of that comparison.</p>
 <p>The second comparison we are interested in is the effect of dosage between treatments. We can use <code>emtrends</code> for comparing numberical variables (slopes) across different groups:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>em_object_trend <span class="ot">&lt;-</span> <span class="fu">emtrends</span>(model_lmm_treatment_int_rnd, pairwise <span class="sc">~</span> treatment, <span class="at">var =</span> <span class="st">"dosage"</span>,<span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(em_object_trend)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
-<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in ptukey(sqrt(2) * abst, fam.size, zapsmall(df), lower.tail = FALSE):
-NaNs produced</code></pre>
+<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$emtrends
  treatment dosage.trend     SE   df lower.CL upper.CL
- A                3.050 0.1140 1.96     2.55     3.55
- B               -1.977 0.0912 1.97    -2.38    -1.58
- C                0.408 0.6890 2.00    -2.56     3.37
+ A                3.050 0.1100 2.13     2.60     3.50
+ B               -1.977 0.0871 2.61    -2.28    -1.67
+ C                0.408 0.6890 2.04    -2.50     3.31
 
-Degrees-of-freedom method: kenward-roger 
+Degrees-of-freedom method: satterthwaite 
 Confidence level used: 0.95 
 
 $contrasts
  contrast estimate    SE   df t.ratio p.value
- A - B        5.03 0.158 1.98  31.758      NA
- A - C        2.64 0.770 2.00   3.432      NA
- B - C       -2.38 0.715 2.00  -3.336      NA
+ A - B        5.03 0.152 2.10  33.014  0.0004
+ A - C        2.64 0.769 2.05   3.435  0.1299
+ B - C       -2.38 0.714 2.04  -3.339  0.1378
 
-Degrees-of-freedom method: kenward-roger 
+Degrees-of-freedom method: satterthwaite 
 P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
 </div>
 </div>
@@ -1687,26 +2444,62 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <p>We can use <code>joint_tests</code> from <code>emmeans</code> package to perform type II and type III ANOVA:</p>
 <p>Type II:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">joint_tests</span>(model_lmm_treatment_int_rnd,<span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>) <span class="do">## type 3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
-<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
+<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> model term       df1  df2   F.ratio p.value
- treatment          2 1.97 46430.260 &lt;0.0001
- dosage             1 2.00     6.130  0.1317
- treatment:dosage   2 1.98   572.390  0.0019</code></pre>
+ treatment          2 2.04 51012.650 &lt;0.0001
+ dosage             1 2.04     6.160  0.1284
+ treatment:dosage   2 2.05   624.940  0.0014</code></pre>
 </div>
 </div>
 <p>Type III:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">joint_tests</span>(model_lmm_treatment_int_rnd,<span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>) <span class="do">## type 3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
-<pre><code>Cannot use mode = "satterthwaite" because *lmerTest* package is not installed</code></pre>
+<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03
+Warning: Model failed to converge with 1 negative eigenvalue: -1.7e-03</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> model term       df1  df2   F.ratio p.value
- treatment          2 1.97 46430.260 &lt;0.0001
- dosage             1 2.00     6.130  0.1317
- treatment:dosage   2 1.98   572.390  0.0019</code></pre>
+ treatment          2 2.04 51012.650 &lt;0.0001
+ dosage             1 2.04     6.160  0.1284
+ treatment:dosage   2 2.05   624.940  0.0014</code></pre>
 </div>
 </div>
 <p>The interpretation is the key here. in the type II model the assumption is that the interaction is tested first and is not significant; if interaction is significant, Type II is generally not recommended. ANOVA type II is more powerful than Type III when interactions are not significant due to its focus on main effects in isolation from interaction effects.</p>
@@ -1720,30 +2513,80 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <p>One way to calculate power is through data simulation. This process involves generating a large number of datasets that resemble the expected structure and variation of your real-world data, under both the null hypothesis (where the effect you’re testing for is absent) and the alternative hypothesis (where the effect is present). In the case of power analysis, we simulate data assuming the effect we’re testing for does exist at a specific magnitude. This allows us to see how often we can expect to correctly detect the effect, given the true difference and our study design. The key to these simulations is the introduction of randomness in a controlled manner. By introducing randomness in this way, each simulated dataset gives us one possible outcome of our study if it were conducted under the exact same conditions. Running thousands of these simulations provides a robust overview of the range of possible outcomes we might expect. We can use <code>simulate</code> function to generate simulated data:</p>
 <p>For speeding up the process we are going to use only 10 simulations. In reality this number must be much higher.</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>simple_model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recoveryTime<span class="sc">~</span>treatment<span class="sc">*</span>dosage<span class="sc">+</span>(<span class="dv">1</span><span class="sc">+</span>treatment<span class="sc">*</span>dosage<span class="sc">|</span>doctor),data_int_interaction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>boundary (singular) fit: see help('isSingular')</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>simulated_data<span class="ot">&lt;-</span><span class="fu">simulate</span>(<span class="at">object =</span> simple_model,<span class="at">nsim =</span> <span class="dv">10</span>,<span class="at">seed =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <p>Each of the simulated recovery times is now in a column of <code>simulated_data</code>. We can fit a model for each of these new responses followed by statistical analysis.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>tmp_data<span class="ot">&lt;-</span>data_int_interaction</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>stat_information<span class="ot">&lt;-</span><span class="fu">lapply</span>(simulated_data,<span class="cf">function</span>(x){</span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a> simple_model_refit <span class="ot">&lt;-</span> <span class="fu">refit</span>(simple_model,x)</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>  em_obj <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(simple_model_refit,<span class="at">specs =</span> <span class="st">"treatment"</span>,<span class="at">by =</span> <span class="st">"dosage"</span>,<span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>)</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="fu">pairs</span>(em_obj,<span class="at">adjust=</span><span class="st">"none"</span>))</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>cp_A_B<span class="ot">&lt;-</span><span class="fu">sapply</span>(stat_information,<span class="cf">function</span>(x){x[<span class="dv">1</span>,<span class="st">"p.value"</span>]})</span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a>cp_A_C<span class="ot">&lt;-</span><span class="fu">sapply</span>(stat_information,<span class="cf">function</span>(x){x[<span class="dv">2</span>,<span class="st">"p.value"</span>]})</span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>cp_B_C<span class="ot">&lt;-</span><span class="fu">sapply</span>(stat_information,<span class="cf">function</span>(x){x[<span class="dv">3</span>,<span class="st">"p.value"</span>]})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <p>After extracting the p-values for each comparisons and for each simulation. We can define power as proportion of the p-values lower than our alpha level. We can even calculate confidence intervals etc:</p>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"A - B power: "</span>,<span class="fu">mean</span>(cp_A_B<span class="sc">&lt;</span><span class="fl">0.05</span>)<span class="sc">*</span><span class="dv">100</span>,<span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>A - B power:  100 %</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"A - B conf.level: "</span>,<span class="fu">binom.test</span>(<span class="at">x =</span> <span class="fu">sum</span>(cp_A_B<span class="sc">&lt;</span><span class="fl">0.05</span>), <span class="at">n =</span> <span class="fu">length</span>(cp_A_B), </span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">conf.level =</span> .<span class="dv">95</span>)<span class="sc">$</span>conf.int<span class="sc">*</span><span class="dv">100</span>,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>A - B conf.level:  69.15029 100 </code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"A - C power: "</span>,<span class="fu">mean</span>(cp_A_C<span class="sc">&lt;</span><span class="fl">0.05</span>)<span class="sc">*</span><span class="dv">100</span>,<span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>A - C power:  20 %</code></pre>
+<pre><code>A - C power:  10 %</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"A - C conf.level: "</span>,<span class="fu">binom.test</span>(<span class="at">x =</span> <span class="fu">sum</span>(cp_A_C<span class="sc">&lt;</span><span class="fl">0.05</span>), <span class="at">n =</span> <span class="fu">length</span>(cp_A_C), </span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">conf.level =</span> .<span class="dv">95</span>)<span class="sc">$</span>conf.int<span class="sc">*</span><span class="dv">100</span>,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>A - C conf.level:  2.521073 55.60955 </code></pre>
+<pre><code>A - C conf.level:  0.2528579 44.50161 </code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"B - C power: "</span>,<span class="fu">mean</span>(cp_B_C<span class="sc">&lt;</span><span class="fl">0.05</span>)<span class="sc">*</span><span class="dv">100</span>,<span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>B - C power:  60 %</code></pre>
+<pre><code>B - C power:  30 %</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"B - C conf.level: "</span>,<span class="fu">binom.test</span>(<span class="at">x =</span> <span class="fu">sum</span>(cp_B_C<span class="sc">&lt;</span><span class="fl">0.05</span>), <span class="at">n =</span> <span class="fu">length</span>(cp_B_C), </span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">conf.level =</span> .<span class="dv">95</span>)<span class="sc">$</span>conf.int<span class="sc">*</span><span class="dv">100</span>,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>B - C conf.level:  26.23781 87.84477 </code></pre>
+<pre><code>B - C conf.level:  6.673951 65.24529 </code></pre>
 </div>
 </div>
 <p>There are also some packages such as <code>simr</code> that can be used to perform power analysis based on simulation.</p>
