@@ -1,0 +1,65 @@
+---
+title: "Rank-based tests"
+editor: source
+---
+
+# Rank-based tests
+
+```{r setup, include=FALSE}
+library(tidyverse)
+options(digits=4)
+```
+
+Hypothesis tests that are based on knowledge of the probability distributions (e.g. normal or binomial) that the data follow are known as **parametric tests**. When data do not meet the parametric test assumptions, we can use **non-parametric** tests, also called distribution free tests, that replace the data with their ranks.
+
+Rank-based tests are often useful when the data are skewed, contain outliers, or are measured on an ordinal scale.
+
+Instead of analyzing the observed values directly, rank-based tests are based on the ranks of the observations. Large values receive high ranks and small values receive low ranks.
+
+Rank-based tests that are commonly used as alternatives to t-tests are:
+
+- one-sample or paired t-test $\rightarrow$ Wilcoxon signed-rank test
+- two-sample t-test $\rightarrow$ Mann–Whitney test / Wilcoxon rank-sum test
+
+## Two independent samples
+
+For comparing two independent groups when a two-sample t-test is not appropriate, a rank-based alternative is the **Mann–Whitney test**, also known as the **Wilcoxon rank-sum test**.
+
+Suppose we have two independent samples from two populations and want to investigate whether the groups differ in location.
+
+The hypotheses may be written as
+
+$$H_0: \text{the two groups come from the same distribution}$$
+$$H_1: \text{the two groups differ in location}$$
+
+In practice, the test is often interpreted as a test of whether one group has a higher median than the other, but this interpretation is only valid if the distribution shapes in the two groups are similar.
+
+The test is performed by pooling all observations from both groups, ranking them from smallest to largest, and comparing the sums of ranks between the groups. A significant Mann-Whitney U test means that scores in one group generally rank higher than scores in the other.
+
+In R, the Mann–Whitney / Wilcoxon rank-sum test can be performed using the function `wilcox.test` with two independent samples.
+
+```{r, echo=TRUE}
+x1 <- c(18, 21, 19, 25, 27, 23, 22)
+x2 <- c(14, 15, 17, 16, 19, 18, 15)
+wilcox.test(x1, x2)
+```
+
+## Paired samples
+
+For paired data, a rank-based alternative to the paired t-test is the **Wilcoxon signed-rank test**. This test can also be used for the one sample setting, where one sample is compared to a known location parameter.
+
+As for the paired t-test, the analysis is based on the within-pair differences. However, instead of using the observed differences directly, the Wilcoxon signed-rank test uses the ranks of the absolute differences together with their signs.
+
+The hypotheses are commonly expressed as
+
+$$H_0: \text{the distribution of within-pair differences is centered at 0}$$
+$$H_1: \text{the distribution of within-pair differences is not centered at 0}$$
+
+
+In R, the Wilcoxon signed-rank test can be performed using `wilcox.test` with `paired=TRUE`.
+
+```{r, echo=TRUE}
+before <- c(132, 128, 136, 141, 130, 125, 138, 129)
+after  <- c(127, 125, 130, 136, 128, 121, 134, 126)
+wilcox.test(after, before, paired=TRUE)
+```
