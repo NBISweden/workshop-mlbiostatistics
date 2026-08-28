@@ -1,0 +1,655 @@
+---
+editor: source
+title: "Statistical inference, part II"
+subtitle: "Rank-based tests, multiple testing, interval estimates and ANOVA"
+author: "Eva Freyhult"
+date: "2026-09-10"
+date-format: long
+institute: NBIS, SciLifeLab
+embed-resources: true
+format: 
+  revealjs:
+    slide-number: true
+    self-contained: true
+    theme: [default, custom.scss]
+---
+
+```{r, include=FALSE}
+require(tidyverse)
+library(ggbeeswarm)
+require(ggplot2)
+require(reshape2)
+require(knitr)
+require(kableExtra)
+require(latex2exp)
+library(ggforce)
+library(gt)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
+options(digits=4)
+cols <- c("black", "#045C64", "#F47D20", "#491F53", "#A7C947")
+```
+# Rank-based tests
+
+Rank-based tests are useful alternatives when the assumptions of parametric tests are doubtful. They are often used when the data are skewed, contain outliers, are measured on an ordinal scale, or when the sample size is small and normality is uncertain.
+
+Instead of using the observed values directly, rank-based tests are based on the ordering of the observations.
+
+- one-sample or paired t-test $\rightarrow$ Wilcoxon signed-rank test
+- two-sample t-test $\rightarrow$ Mann–Whitney / Wilcoxon rank-sum test
+- one-way ANOVA $\rightarrow$ Kruskal–Wallis test
+
+## Two independent samples
+
+For comparing two independent groups when a two-sample t-test is not appropriate, a rank-based alternative is the **Mann–Whitney test**, also known as the **Wilcoxon rank-sum test**.
+
+The hypotheses may be written as
+
+$$H_0: \text{the two groups come from the same distribution}$$
+$$H_1: \text{the two groups differ in location}$$
+
+In practice, the test is often interpreted as a test of whether one group tends to have larger values than the other.
+
+The test is performed by pooling all observations from both groups, ranking them from smallest to largest, and comparing the sums of ranks between the groups.
+
+In R:
+
+```{r, echo=TRUE}
+x1 <- c(18, 21, 19, 25, 27, 23, 22)
+x2 <- c(14, 15, 17, 16, 19, 18, 15)
+wilcox.test(x1, x2)
+```
+
+## Paired samples
+
+For paired data, a rank-based alternative to the paired t-test is the **Wilcoxon signed-rank test**.
+
+As for the paired t-test, the analysis is based on the within-pair differences. However, instead of using the observed differences directly, the Wilcoxon signed-rank test uses the ranks of the absolute differences together with their signs.
+
+The hypotheses are commonly expressed as
+
+$$H_0: \text{the distribution of within-pair differences is centered at 0}$$
+$$H_1: \text{the distribution of within-pair differences is not centered at 0}$$
+
+In R:
+
+```{r, echo=TRUE}
+before <- c(132, 128, 136, 141, 130, 125, 138, 129)
+after  <- c(127, 125, 130, 136, 128, 121, 134, 126)
+wilcox.test(after, before, paired=TRUE)
+```
+
+## Choosing test
+
+## Choosing test
+
+| Study design | Parametric test | Rank-based alternative | Resampling option |
+|---|---|---|---|
+| One sample | One-sample t-test | Wilcoxon signed-rank test | Bootstrap test or simulation under $H_0$ |
+| Two independent groups | Two-sample t-test | Mann–Whitney / Wilcoxon rank-sum test | Permutation test |
+| Paired samples | Paired t-test | Wilcoxon signed-rank test | Permute within pairs / flip signs of pair differences |
+| More than two independent groups | One-way ANOVA | Kruskal–Wallis test | Permutation test |
+
+The choice of test depends on the study design and whether the assumptions of the parametric test are reasonable.
+
+# Multiple testing
+
+## Error types
+
+```{r}
+#| label: tbl-errortypes2
+#| tbl-cap: "A hypothesis test either rejects $H_0$ or fails to reject $H_0$. The decision may be correct or incorrect depending on whether $H_0$ is true or false. TN = true negative, TP = true positive, FN = false negative, FP = false positive."
+tibble(
+  Decision = c("Fail to reject H₀", "Reject H₀"),
+  `H₀ is true` = c("TN", "Type I error, false alarm, FP"),
+  `H₀ is false` = c("Type II error, miss, FN", "TP")
+) |>
+  gt() |>
+  cols_align(align = "center", columns = everything())
+```
+
+::::{.columns}
+:::{.column width="50%"}
+
+Remember that the probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
+
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = \\ P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = \\ P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
+
+and the statistical power
+
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_0\textrm{ is false}).$$
+:::
+:::{.column width="50%"}
+
+```{r alphabeta}
+#| fig-width: 5
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5)  + geom_area(data=df %>% filter(x<q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + annotate("label", x=1.2, y=0.08, label="beta", parse=TRUE, color="orange") + geom_vline(xintercept=q)
+```
+:::
+::::
+
+## Multiple testing
+
+:::: {.columns}
+::: {.column width="50%"}
+
+### Perform one test:
+  
+  - P(One type I error) = $\alpha$
+  - P(No type I error) = $1 - \alpha$
+  
+
+### Perform $m$ independent tests:
+  
+  - P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+  - P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
+  
+:::
+
+::: {.column width="50%"}
+
+```{r multiple, echo=FALSE, out.width="100%", fig.align="center", fig.width=4, fig.height=4}
+a=0.05
+k <- 1:100
+ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
+```
+
+:::
+
+::::
+
+## Multiple testing correction
+
+Two common principles for dealing with multiple testing are control of family-wise error rate or false discovery rate.
+
+- FWER: family-wise error rate, control the probability of one or more false positives, $P(N_{FP}>0)$, e.g. Bonferroni, Holm
+- FDR: false discovery rate, control the expected proportion of false positives among the rejected hypotheses, $E[N_{FP}/(N_{FP}+N_{TP})]$, e.g. Benjamini-Hochberg, Storey
+
+## Bonferroni correction
+
+To achieve a family-wise error rate of $FWER \leq \gamma$ when performing $m$ tests, declare significance and reject the null hypothesis for any test with $p \leq \gamma/m$.
+
+A disadvantage of the Bonferroni correction is that it can be overly conservative, especially when many tests are performed.
+
+## Benjamini-Hochberg FDR procedure
+
+```{r}
+tibble(
+  Decision = c("Fail to reject H₀", "Reject H₀"),
+  `H₀ is true` = c("TN", "FP"),
+  `H₀ is false` = c("FN", "TP")
+) |>
+  gt() |>
+  cols_align(align = "center", columns = everything())
+```
+
+The false discovery rate is the expected proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
+
+The Benjamini-Hochberg procedure controls the FDR level, $\gamma$, under the assumption of independence (and also under certain forms of positive dependence) when performing $m$ tests, as follows:
+  
+1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
+2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
+3. Declare significance for all tests $1, 2, \dots, j$.
+
+## 'Adjusted' p-values
+  
+Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
+  
+- Using Bonferroni's method the 'adjusted' p-values are:
+  
+  $\tilde p_i = \min(m p_i, 1)$.
+
+A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+  
+- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+  
+  $q_i = \min(\frac{m}{i} p_i, 1)$
+  
+  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
+
+In practice, adjusted p-values are usually computed using software such as the R function `p.adjust`.
+
+## Example, 10000 independent tests (e.g. genes) {-}
+
+```{r padjust, results="asis"}
+p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
+kable(data.frame(`p-value`=sprintf("%.3g", p), `adj p (Bonferroni)` = p.adjust(p, "bonferroni", n = 10000), `q-value (B-H)`=p.adjust(p, "BH", n = 10000), check.names=FALSE))
+```
+
+# Point and interval estimates {#sec-estimates}
+
+## Point estimate
+
+Unknown population parameters can be estimated from random samples drawn from the population of interest. A value computed from the sample can be used as a **point estimate**, that is, a single-number estimate of the population parameter.
+
+An **estimator** is a random variable computed from the sample, whereas an **estimate** is its observed value for a particular sample.
+
+## Bias and precision
+
+The sample proportion and sample mean are unbiased estimators of the corresponding population parameters. Although these estimators are unbiased, they still vary from sample to sample. In general, the variability decreases as the sample size increases.
+
+An estimator is **unbiased** if its expected value equals the population parameter it is intended to estimate.
+
+```{r}
+#| label: fig-biasprecision
+#| fig-cap: "Bias and precision."
+#| message: false
+#| warning: false
+#| echo: false
+#| out-width: "70%"
+
+set.seed(1234)
+bias <- c(Biased=1.5, Unbiased=0)
+precision= c(Precise=0.5, Unprecise=2)
+df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutate(m=bias[B], s=precision[P]) |> group_by(B, P) |> reframe(x=rnorm(10, mean=m, sd=s), y=rnorm(10, mean=m, sd=s)) 
+
+ggplot() + geom_point(data=df, aes(x=x, y=y, color=B, shape=P)) + facet_grid(B~P) + geom_circle(data=data.frame(x0=0, y0=0,r=1:6), aes(x0=x0,y0=y0,r=r)) + theme_classic() + theme(panel.grid=element_blank(), axis.ticks  = element_blank(), axis.text=element_blank(), legend.position = "none") + xlab("") + ylab("")
+```
+
+:::{.notes}
+The expected value of an **unbiased** point estimate is the the population parameter that it estimates. This means that if you would repeat the sampling many times and compute the point estimate of interest, e.g. sample mean, the average of the sample means would be the population mean.
+:::
+
+## Interval estimates
+
+- To show the uncertainty an **interval estimate** for a population parameter can be computed based on sample data.
+
+- An interval estimate is an interval of possible values that with high probability contains the true population parameter.
+
+- The width of the interval estimate can be determined from the sampling distribution.
+
+
+## Confidence interval
+
+A confidence interval is a type of interval estimate associated with a confidence level. 
+
+> An interval that with probability $1 - \alpha$ cover the population parameter $\theta$ is called a confidence interval for $\theta$ with confidence level $1 - \alpha$.
+
+## Sampling distribution of mean
+
+$$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+```{r meanX, out.width="100%", fig.align="center", fig.width=7}
+x<-seq(-3.5,3.5,.01)
+df.nwt <- data.frame(x=x, f=dnorm(x))
+lbl <- sprintf("%iSE", -3:3)
+lbl[4]=expression(mu)
+pl <- ggplot(df.nwt, aes(x=x, y=f)) + geom_line() + theme_bw() + theme_bw() + scale_x_continuous(breaks=-3:3, labels=lbl) + xlab("")
+pl
+```
+
+## Sampling distribution of mean
+
+$$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+```{r meanX1, out.width="100%", fig.align="center", fig.width=7}
+(pl <- pl + annotate("segment",x=-1.96,xend=1.96, y=0.18, yend=0.18, size=1) +
+  annotate("segment",x=-1.96,xend=-1.96, y=0.17,yend=0.19, size=1) +
+  annotate("segment",x=1.96,xend=1.96, y=0.17,yend=0.19, size=1) + annotate("label", x=0, y=0.18, label="95%") + geom_vline(xintercept=-1.96, linetype=3) + geom_vline(xintercept=1.96, linetype=3))
+```
+
+
+## Sampling distribution of mean
+
+$$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+```{r meanX2, out.width="100%", fig.align="center", fig.width=7}
+set.seed(1111)
+samples <- data.frame(x=rnorm(40), y=-Inf) |> mutate(col=x>1.96|x<(-1.96))
+pl + geom_point(data=samples[1,,drop=FALSE], aes(x=x, y=y, color=col), shape="|", stroke=10) + theme(legend.position = "none") + scale_color_manual(values=c("black", "red"))
+```
+
+
+## Sampling distribution of mean
+
+$$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+```{r meanX3, out.width="100%", fig.align="center", fig.width=7}
+set.seed(1111)
+samples <- data.frame(x=rnorm(40), y=-Inf) |> mutate(col=x>1.96|x<(-1.96))
+pl + geom_point(data=samples, aes(x=x, y=y, color=col), shape="|", stroke=10) + theme(legend.position = "none") + scale_color_manual(values=c("black", "red"))
+```
+
+## Confidence interval
+
+Based on a random sample compute the sample mean $m$.
+
+```{r samplem}
+#| fig-height: 1
+#| fig-width: 7
+pl2 <- ggplot(data.frame(x=0), aes(x=x, y=0)) +
+    scale_x_continuous(limits = c(-10,15)) +
+  scale_y_continuous(limits = c(-1,1)) +
+  scale_color_manual(values = unname(colours)) + geom_hline(yintercept = 0) + 
+  theme(panel.background = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank())
+
+pl2 + geom_point(size = 10) + geom_text(label="m", color="white")
+```
+
+Use what is known about the sampleing distribution and compute a confidence interval around $m$.
+
+```{r}
+#| out-width: "30%"
+#| fig-width: 7
+#| fig-height: 3.5
+pl
+```
+
+
+```{r samplemCI}
+#| fig-height: 1
+#| fig-width: 7
+pl2 + annotate("segment",x=-5,xend=5, y=0, yend=0, size=2) +
+  annotate("segment",x=-5,xend=-5, y=-0.5,yend=0.5, size=2) +
+  annotate("segment",x=5,xend=5, y=-0.5,yend=0.5, size=2) + geom_point(size = 10) + geom_text(label="m", color="white") 
+```
+
+
+
+## Confidence interval of mean
+
+If $\sigma$ is known
+
+$$Z = \frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \sim N(0, 1)$$
+
+## Standard normal distribution
+
+$$P\left(-z_{\alpha/2} < Z <z_{\alpha/2}\right) = 1-\alpha$$
+
+:::{.columns}
+:::{.column width="50%"}
+```{r ZCI95, out.width="100%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
+x<-seq(-3,3,0.01)
+df <- data.frame(x=x, f=dnorm(x, 0, 1))
+pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("z") + ylab("f(z)") + scale_x_continuous(breaks=c(-1.5,0,1.5), labels=c("-z","0","z")) +
+     theme(panel.grid.minor = element_blank(),
+              panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92")))
+pl  + geom_area(data=df %>% filter(x>(-1.5) & x<1.5)) + annotate("label",label=TeX("$P(-z_{\\alpha/2} \\leq Z \\leq z_{\\alpha/2}) = 1 - \\alpha$"), x=0, y=0.11, hjust=0.5)
+```
+:::
+::::
+
+## Standard normal distribution
+
+$$P\left(-z_{\alpha/2} < Z <z_{\alpha/2}\right) = 1-\alpha$$
+
+:::{.columns}
+:::{.column width="50%"}
+```{r ZCI95a, out.width="100%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
+pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("$P(Z \\leq -z)=\\alpha/2$"), x=-1.6, y=0.07, hjust=1, size=3) + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("$P(Z \\geq z) = \\alpha/2$"), x=1.6, y=0.07, hjust=0, size=3)
+plot(pl)
+```
+:::
+:::{.column width="50%"}
+$z_{\alpha/2}$ is the value such that $P(Z \geq z_{\alpha/2}) = \frac{\alpha}{2} \iff P(Z \leq z_{\alpha/2}) = 1 - \frac{\alpha}{2}$.
+
+For a 95% confidence, $\alpha = 0.05$ and $z_{\alpha/2} = 1.96$. For 90% or 99% confidence $z_{0.05} = 1.64$ and $z_{0.005}=2.58$. 
+:::
+::::
+
+## Confidence interval of mean
+
+If $\sigma$ is known
+
+$$Z = \frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \sim N(0, 1)$$
+From the standard normal distribution we know;
+
+$$P(-z_{\alpha/2}<Z<z_{\alpha/2}) = 1-\alpha$$
+
+. . .
+
+$$P(-z_{\alpha/2}<\frac{\bar X-\mu}{SEM}<z_{\alpha/2}) = 1-\alpha$$
+
+. . .
+
+$$P(\mu-z_{\alpha/2}SEM<\bar X<\mu+z_{\alpha/2}SEM) = 1-\alpha$$
+
+. . .
+
+$$P(\bar X-z_{\alpha/2}SEM<\mu<\bar X+z_{\alpha/2}SEM) = 1-\alpha$$
+
+. . .
+
+Replace with an observed sample mean, $\bar x$.
+
+
+$$P(\bar x_{obs}-z_{\alpha/2}SEM<\mu<\bar x_{obs}+z_{\alpha/2}SEM) = 1-\alpha$$
+
+
+:::{.notes}
+On board show what this means, i.e. an observed samples mean and the CI around it
+:::
+
+## Confidence interval of mean
+
+If $\sigma$ is known
+
+$$Z = \frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \sim N(0, 1)$$
+
+The confidence interval with confidence level $1-\alpha$;
+
+$$[\bar x_{obs} - z_{\alpha/2}SEM, \bar x_{obs} + z_{\alpha/2}SEM]$$
+
+or 
+
+$$\mu = \bar x_{obs} \pm z_{\alpha/2}SEM$$
+where $SEM = \frac{\sigma}{\sqrt{n}}$.
+
+## Confidence interval of mean
+
+The mean of a sample of $n$ independent and identically normal distributed observations $X_i$ is normally distributed;
+
+$$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+  
+If $\sigma$ is unknown  and $n$ is small?
+
+. . .
+
+
+Use the statistic $t=\frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}} \sim t(n-1)$, t-distributed with $n-1$ degrees of freedom.
+
+. . .
+
+::::{.columns}
+:::{.column width="50%"}
+It follows that 
+
+$$
+\begin{aligned}
+P\left(-t < \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}} < t\right) = 1 - \alpha \iff \\
+P\left(\bar X - t \frac{s}{\sqrt{n}} < \mu < \bar X + t \frac{}{\sqrt{n}}\right) = 1 - \alpha
+\end{aligned}
+$$
+:::
+
+:::{.column width="50%" .fragment .fade-in}
+
+The confidence interval;
+
+$$[\bar x_{obs} - t \frac{s}{\sqrt{n}}, \bar x_{obs} + t \frac{s}{\sqrt{n}}]$$
+
+or 
+
+$$\mu = \bar x_{obs} \pm t \frac{s}{\sqrt{n}}$$
+:::
+::::
+
+
+## Confidence interval of mean
+
+The confidence interval with confidence level $1-\alpha$ is thus;
+
+$$\mu = \bar x_{obs} \pm t \frac{s}{\sqrt{n}}$$
+  
+For a 95% confidence interval and $n=5$, $t=$ `r qt(.975, df=4)`.
+
+The $t$ values for different values of $\alpha$ and degrees of freedom are tabulated and can be computed in R using the function `qt`.
+
+```{r, echo=TRUE}
+n=5
+alpha = 0.05
+## t value
+qt(1-alpha/2, df=n-1)
+```
+
+## Example
+
+You study the BMI of male diabetic patients. In a sample of size 6 you observe; $27, 25, 31, 29, 30, 22$. Assume that the BMI is normally distributed and calculate a 95% confidence interval for the mean BMI in male diabetic patients.
+
+
+:::{.}
+The sample mean is $\bar x = 27.3$ and the sample standard deviation is $s = 3.39$. The degrees of freedom is $n-1 = 5$ and the $t$ value for a 95% confidence interval is `r qt(0.975, df=5)`.
+
+The confidence interval is $\bar x \pm t \frac{s}{\sqrt{n}} = 27.3 \pm 2.57 \frac{3.39}{\sqrt{6}} = 27.3 \pm 3.5$.
+
+```{r echo=TRUE}
+x <- c(27, 25, 31, 29, 30, 22)
+(m <- mean(x))
+(s <- sd(x))
+(q <- qt(0.975, df=5))
+(SEM <- s/sqrt(6))
+(CI <- m + c(-1,1)*q*SEM)
+```
+
+:::
+
+
+
+
+## Bootstrap interval
+
+If the sampling distribution is unknown, a bootstrap interval can be computed instead.
+
+Bootstrapping is performed by resampling with replacement from the available random sample. The resulting bootstrap distribution can then be used to calculate, for example, a 95% bootstrap interval.
+
+```{r}
+#| echo: true
+x <- c(27, 25, 31, 29, 30, 22)
+mboot <- replicate(1000, mean(sample(x, replace=TRUE)))
+ciboot <- quantile(mboot, c(0.025, 0.975))
+```
+
+```{r CIbootmean}
+#| out-width: "70%"
+#| fig-width: 7
+#| fig-height: 5
+#| fig-align: "center"
+ggplot(data.frame(mboot=mboot), aes(x=mboot)) + geom_histogram(aes(fill=mboot>ciboot[1] & mboot<ciboot[2]), color="white", binwidth=0.5) + theme_bw() + theme(legend.position="none") + geom_line(data=data.frame(x=ciboot, y=25), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=25, label="95%") + scale_fill_manual(values=c("black", "red")) + xlab("Bootstrap mean")
+```
+
+# Analysis of variance (ANOVA)
+
+With one numeric response variable of interest and one categorical variable with $k$ groups, we can use **one-way ANOVA** to test if the group means are equal.
+
+Hypotheses:
+
+$$H_0: \mu_1=\mu_2=\cdots=\mu_k$$
+$$H_1: \text{not all group means are equal}$$
+
+## ANOVA compares between-group and within-group variation
+
+$$F = \frac{\text{variation between groups}}{\text{variation within groups}}$$
+
+```{r figanova}
+#| fig-width: 7
+#| fig-height: 4
+#| fig-align: "center"
+x <- seq(0, 10, length.out = 500)
+df1 <- bind_rows(
+  data.frame(x = x, y = dnorm(x, mean = 3.8, sd = 0.9), group = "A"),
+  data.frame(x = x, y = dnorm(x, mean = 5, sd = 0.9), group = "B"),
+  data.frame(x = x, y = dnorm(x, mean = 6.2, sd = 0.9), group = "C"))
+df2 <- bind_rows(
+  data.frame(x = x, y = dnorm(x, mean = 2.5, sd = 0.6), group = "A"),
+  data.frame(x = x, y = dnorm(x, mean = 5.0, sd = 0.6), group = "B"),
+  data.frame(x = x, y = dnorm(x, mean = 7.5, sd = 0.6), group = "C"))
+df <- bind_rows(df1 |> mutate(type="Large within-group variaton"), df2 |> mutate(type="Small within-group variation"))
+
+df |> ggplot(aes(x = x, y = y, color = group)) +
+  geom_line(linewidth = 1.2) +
+  theme_bw() +
+  labs(x = "Response", y = "Density", color = "Group") +
+  facet_wrap(~type, ncol=1) + scale_color_manual(values=cols[c(2,3,5)])
+```
+
+## Sum of squares
+
+The sum of squares (SS) is a measure of variation, the cumulative squared deviation of each observation from the mean.
+
+In ANOVA, we partition the total variation ($SS_{total}$) in the response variable into two components: the variation between groups ($SS_{between}$) and the variation within groups ($SS_{within}$).
+
+$$SS_{total} = SS_{between} + SS_{within}$$
+
+$$SS_{between} = \sum_{i=1}^k n_i (\bar Y_i - \bar Y)^2$$
+$$SS_{within} = \sum_{i=1}^k \sum_{j=1}^{n_i} (Y_{ij} - \bar Y_i)^2$$
+
+## Mean squares and F statistic
+
+The mean squares are computed by dividing the sum of squares by their respective degrees of freedom:
+
+$$MS_{between} = \frac{SS_{between}}{k - 1}$$
+$$MS_{within} = \frac{SS_{within}}{N - k}$$
+
+and the ANOVA test statistic, the F statistic, is computed as
+
+$$F = \frac{MS_{between}}{MS_{within}}$$
+
+Under $H_0$, the F statistic is F distributed with $k - 1$ and $N - k$ degrees of freedom.
+
+## Assumptions
+
+The one-way ANOVA has three main assumptions:
+
+- independent observations
+- approximately normally distributed observations within groups
+- equal variances across groups
+
+If the assumptions are doubtful, a rank-based alternative is the **Kruskal–Wallis test**.
+
+## Post hoc test
+
+The ANOVA test is an omnibus test. A significant ANOVA result indicates that at least one group mean is different from the others, but it does not specify which groups differ.
+
+To identify the specific group differences, we can perform post hoc pairwise comparisons between the groups. A common post hoc test is **Tukey's Honest Significant Difference (HSD)** test.
+
+In R, one-way ANOVA can be fitted using `aov`, and post hoc comparisons can be performed using `TukeyHSD`:
+
+```{r anova, echo=TRUE}
+set.seed(123)
+df <- data.frame(
+  group = factor(rep(c("A", "B", "C"), each = 10)),
+  response = c(rnorm(10, mean = 5, sd = 1), rnorm(10, mean = 6, sd = 1), rnorm(10, mean = 7, sd = 1))
+)
+fit <- aov(response ~ group, data = df)
+summary(fit)
+TukeyHSD(fit)
+```
+
+## Kruskal-Wallis test
+
+If the assumptions of one-way ANOVA are not fulfilled, a rank-based alternative is the **Kruskal–Wallis test**. This test compares the groups using the ranks of the observations rather than the raw values.
+
+A significant Kruskal–Wallis test indicates that at least one group differs from the others, but like ANOVA, it does not show which groups differ.
+
+In R, the Kruskal–Wallis test can be performed using the function `kruskal.test`.
+
+```{r KW, echo=TRUE}
+kruskal.test(response ~ group, data = df)
+```
+
+## Summary
+
+- Rank-based tests are useful alternatives when the assumptions of parametric tests are doubtful.
+- The choice of test depends on the study design.
+- When many tests are performed, the risk of false positives increases and p-values should be adjusted.
+- Confidence intervals quantify the uncertainty of an estimate.
+- ANOVA compares more than two group means.
+- Kruskal–Wallis is a rank-based alternative to one-way ANOVA.
+```
