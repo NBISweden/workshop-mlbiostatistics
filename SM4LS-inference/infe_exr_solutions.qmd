@@ -1,0 +1,907 @@
+---
+editor: source
+---
+
+# Exercises: Statistical inference
+
+Exercises marked * are extra and can be skipped if the time is short.
+
+## Hypothesis tests, resampling
+
+::: {#exr-diet}
+
+# Diet
+
+A diet study aims to study how the hemoglobin (Hb) levels in blood are affected by an iron-rich diet consisting of tofu, soybeans, broccoli, lentils and peas. To perform the study the dietician has recruited 40 male participants, who are randomly assigned to the iron-rich diet or control group (no change in participants diet), 20 participants in each group.
+
+The observed Hb levels (in g/L);
+
+```{r irondiet, echo=TRUE}
+ctrl <- c(197, 186, 157, 170, 193, 188, 175, 186, 177, 191, 168, 193, 191, 189, 188, 192, 179, 186, 197, 203)
+iron <- c(187, 218, 196, 210, 206, 178, 181, 193, 172, 202, 169, 221, 183, 222, 185, 174, 192, 192, 162, 211)
+```
+
+Perform a hypothesis test to investigate if the Hb level is affected (increased or decreased) by the iron-rich diet.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+Define $H_0$ and $H_1$
+
+$H_0: \mu_{iron} = \mu_{ctrl}$ No difference in mean Hb level between control group and iron-rich diet group.
+
+$H_1: \mu_{iron} \neq \mu_{ctrl}$
+
+Will use the significance level, $\alpha=0.05$.
+
+Select test statistic $D = \bar X_{iron} - \bar X_{ctrl}$, where $\bar X_{ctrl}$ is the mean Hb level in a control group of 20 people and $\bar X_{iron}$ is the mean Hb level in a diet group of 20 people.
+
+The observed value; $d_{obs}$
+
+```{r, echo=TRUE}
+miron <- mean(iron)
+mctrl <- mean(ctrl)
+(dobs <- miron - mctrl)
+```
+
+Compute null distribution using permutation.
+
+```{r histironnull, echo=TRUE}
+## Under null all observations are equivalent
+allobs <- c(iron, ctrl)
+dnull <- replicate(10000, {
+  ## Permute the 40 observations and assign first 20 to the iron group
+  x <- sample(allobs)
+  d <- mean(x[1:20]) - mean(x[21:40])
+})
+hist(dnull)
+```
+
+Compute p-value;
+
+```{r, echo=TRUE}
+(p <- mean(abs(dnull) >= abs(dobs)))
+```
+
+As the estimated p-value is `r p`, $p>\alpha$, we fail to reject the null hypothesis. The data do not provide evidence against the null hypothesis, i.e. there is no reason to believe that the iron-rich diet affects the mean Hb level.
+
+:::
+:::
+
+::: {#exr-pollentest} 
+# Pollen* 
+
+You want to investigate if the proportion of Swedish students allergic to pollen is greater than 0.3, the proportion in Sweden as a whole. To do this, you observe 20 people in a student group at BMC in Uppsala, 9 of them are allergic to pollen.
+
+Is there reason to believe that the proportion of Swedish students allergic to pollen is greater than 0.3? Perform a hypothesis test to answer the question.
+
+Can you identify any problems with this study setup?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+$H_0: \pi=0.3$ $H_1: \pi>0.3$
+
+Set the significance level to $\alpha=0.05$.
+
+The test statistic is $X$, the number of allergic people in a sample of size 20.
+
+$x_{obs} = 9$
+
+Simulate null distribution
+
+```{r histpnull, eval=TRUE}
+urn <- c(1,1,1,0,0,0,0,0,0,0)
+xnull <- replicate(10000, sum(sample(urn, 20, replace=TRUE)))
+hist(xnull)
+```
+
+Compute p-value, i.e. if null is true what is the probability to observe $x_{obs}$ or higher?
+
+```{r, echo=TRUE}
+xobs <- 9
+(p <- mean(xnull>=xobs))
+```
+
+As $p>\alpha$ we fail to reject the null hypothesis. The data do not provide evidence against the null hypothesis, i.e. there is no reason to believe that the students are more allergic than the general Swedish population.
+
+Problems with the study: Discuss in your group! Is the sample random? Is it reasonable to select 20 students at BMC to answer a question about all students in Sweden?
+:::
+:::
+
+## Hypothesis tests, parametric
+
+::: {#exr-Hb1}
+The hemoglobin value (Hb) in women is on average 140 g/L. You observe the following Hb values in a set of five male blood donors: 154, 140, 147, 162, 172. Assume that Hb is normally distributed. Is there a reason to believe that the mean Hb value in men differs from that in women?
+
+:::{.callout-note collapse="true"}
+
+# Solution
+Let $X$ denote the Hb value in g/L for male blood donors.
+
+$$H_0: \mu = 140$$
+$$H_1: \mu \neq 140$$
+
+Use the significance level $\alpha=0.05$.
+
+Use the test statistic
+$T = \frac{\bar X - \mu_0}{SE},$
+where $\mu_0$ is the population mean under $H_0$, i.e. 140, and the standard error of the sample mean is estimated by
+$SE \approx \frac{s}{\sqrt{n}}.$
+
+Compute $t_{obs} = \frac{\bar x-140}{s/\sqrt{n}}.$
+
+```{r Hb1, echo=TRUE}
+x <- c(154, 140, 147, 162, 172)
+## sample mean
+m <- mean(x)
+## estimated standard error of the sample mean
+SE <- sd(x)/sqrt(5)
+## Observed value of the test statistic
+(tobs <- (m - 140)/SE)
+```
+
+Compute the p-value. For a two-sided test $P(|T|>|t_{obs}|) = P(T>|t_{obs}|) + P(T<-|t_{obs}|)$.
+
+```{r, echo=TRUE}
+## P(T>tobs)
+pt(tobs, df=4, lower.tail=FALSE)
+## p = P(t>tobs) + P(t<-tobs) = 2 * P(t>tobs)
+(p <- 2*pt(tobs, df=4, lower.tail=FALSE))
+```
+
+As $p > \alpha$, we fail to reject the null hypothesis. The data do not provide evidence that the Hb value in men differs from that of women (140 g/L).
+
+Note that the same can be achieved using the function `t.test`;
+
+```{r}
+t.test(x, mu=140)
+```
+
+:::
+:::
+
+::: {#exr-Hb2}
+
+The hemoglobin value (Hb) in men is on average 188 g/L. The Hb values in @exr-Hb1 were actually measured after the men had donated blood. Is there a reason to believe that the mean Hb level for men after blood donation is less than 188 g/L?
+
+:::{.callout-note collapse="true"}
+
+# Solution
+
+$H_0: \mu = 188$ $H_1: \mu < 188$
+
+Use the significance level $\alpha=0.05$.
+
+Use the test statistic $T = \frac{\bar X - \mu_0}{SE},$ where $\mu_0=188$ and the standard error is estimated by $SE \approx \frac{s}{\sqrt{n}}.$
+
+Compute $t_{obs} = \frac{\bar x - 188}{s/\sqrt{n}}$
+
+```{r, echo=TRUE}
+## Observed value of test statistic
+(tobs <- (m-188)/SE)
+```
+
+Compute the p-value, $P(T<t_{obs})$
+
+```{r, echo=TRUE}
+## p=P(T<tobs)
+(p <- pt(tobs, df=4, lower.tail=TRUE))
+```
+
+As $p < \alpha$ the null hypothesis is rejected and we can conclude that the data provide evidence that the mean Hb value after blood donation is less than 188 g/L.
+
+Note that the same can be achieved using the function `t.test`;
+
+```{r echo=TRUE}
+t.test(x, mu=188, alternative="less")
+```
+
+:::
+:::
+
+
+::: {#exr-Hb3}
+
+By observing the Hb values in 5 male blood donors: 154, 140, 147, 162, 172 g/L, and 5 female blood donors: 123, 140, 137, 132, 127 g/L, is there a reason to believe that the Hb level is higher in men than in women?
+
+:::{.callout-note collapse="true"}
+
+# Solution
+
+Let $X_m$ denote the Hb value in men and $X_w$ the Hb value in women.
+
+$$H_0: \mu_m = \mu_w$$
+$$H_1: \mu_m > \mu_w$$
+
+Use the significance level $\alpha=0.05$.
+
+Use the test statistic $T = \frac{\bar X_m - \bar X_w}{SE}$. If we assume equal variances we can use Student's t-test and compute SE using the pooled standard deviation. An alternative is to use Welch's t-test (unequal variances t-test) and compute $SE=\sqrt{\frac{s_m^2}{n_m} + \frac{s_w^2}{n_w}}$. The test statistic is t-distributed and the degrees of freedom are approximated using the Welch-Satterthwaite's equation, as implemented in `t.test`.
+
+```{r, echo=TRUE}
+x <- c(154, 140, 147, 162, 172)
+y <- c(123, 140, 137, 132, 127)
+## Perform Welch's t-test with unequal variances
+tt <- t.test(x, y, alternative="greater")
+tt
+```
+
+As the p-value $p=`r tt$p.value`$ is less than $\alpha$, we reject the null hypothesis and conclude that the data provide evidence that the mean Hb is higher in male blood donors than in female.
+
+:::
+:::
+
+::: {#exr-Hb4}
+
+Based on statistics from blodcentralen we learn that male Hb values (before donation) are normally distributed with mean 188 g/L and standard deviation 16 g/L. Using this new information and the following observed Hb values in five male donors after donation: 154, 140, 147, 162, 172 g/L, is there reason to believe that the mean Hb value for men after blood donation is lower than 188 g/L?
+
+:::{.callout-note collapse="true"}
+
+# Solution
+$H_0: \mu = 188$ $H_1: \mu < 188$
+
+Use $\alpha = 0.05$.
+
+Under $H_0$, the Hb value for a single male donor is normally distributed with mean 188 g/L and standard deviation 16 g/L.
+
+$X \sim N(188, 16^2)$
+
+Since the sample size is 5, the sample mean is normally distributed with $\bar X \sim N\left(188, \frac{16^2}{5}\right),$ so the standard error of mean is $SE = \frac{16}{\sqrt{5}}$.
+
+
+Use the test statistic
+
+$Z = \frac{\bar X - 188}{16/\sqrt{5}} \sim N(0,1)$
+
+Compute $z_{obs}$
+
+```{r}
+x <- c(154, 140, 147, 162, 172)
+m <- mean(x)
+SE <- 16/sqrt(5)
+zobs <- (m - 188)/SE
+```
+
+Compute the p-value:
+$$p=P(\bar X \leq x_{obs}) = P(Z \leq zobs).$$
+
+```{r}
+(p <- pnorm(zobs))
+```
+
+As $p < \alpha$, we reject $H_0$ and conclude that the data provide evidence that the mean Hb value for men after blood donation is lower than 188 g/L.
+
+:::
+:::
+
+::: {#exr-mice12}
+
+In order to study the effect of high-fat diet, 12 mice are fed normal diet (control group) and 12 mice are fed high-fat diet. After a couple of weeks, the mouse weights in grams are recorded:
+
+```{r miceobs, echo=FALSE}
+## 12 HF mice
+xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
+## 12 control mice
+xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
+```
+
+High-fat mice (g): `r xHF`
+
+Normal diet mice (g): `r xN`
+
+Does high-fat diet increase body weight in mice?
+
+a)  Assume equal variances.
+b)  Do not assume equal variances.
+
+:::{.callout-note collapse="true"}
+
+# Solution
+
+a)
+
+```{r ttesteqvar, echo=TRUE, eval=TRUE}
+## Student's t-test with pooled variances
+t.test(xHF, xN, var.equal=TRUE, alternative="greater")
+```
+
+b)  
+
+```{r ttestuneqvar, echo=TRUE, eval=TRUE}
+## Unequal variances with Welch approximation to the degrees of freedom (the default)
+t.test(xHF, xN, var.equal=FALSE, alternative="greater")
+```
+
+:::
+:::
+
+::: {#exr-pairedHb}
+# Paired Hb values
+
+Hemoglobin values (g/L) are measured in 8 blood donors before and after blood donation:
+
+```{r, echo=TRUE}
+before <- c(154, 149, 162, 158, 171, 165, 160, 156)
+after  <- c(146, 141, 153, 150, 163, 156, 152, 149)
+```
+
+Is there evidence that blood donation lowers the mean Hb level?
+a) State the null and alternative hypotheses.
+b) Explain why a paired test should be used rather than a two-sample test.
+c) Perform a paired t-test in R.
+d) What do you conclude?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Let $D_i = \text{Hb}_{after, i} - \text{Hb}_{before, i}$ be the within-pair differences.
+$H_0: \mu_D = 0$
+$H_1: \mu_D < 0$
+b) The observations are paired because each donor is measured twice. The analysis should therefore be based on the within-donor differences.
+c)
+```{r}
+t.test(after, before, paired=TRUE, alternative="less")
+```
+
+d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that blood donation lowers mean Hb.
+:::
+:::
+
+::: {#exr-pairedHb}
+# Paired t-test
+
+Hemoglobin values (Hb, g/L) are measured in 8 blood donors before and after blood donation:
+
+```{r, echo=TRUE}
+before <- c(154, 149, 162, 158, 171, 165, 160, 156)
+after  <- c(146, 141, 153, 150, 163, 156, 152, 149)
+```
+
+Is there evidence that blood donation lowers the mean Hb level?
+
+a) State the null and alternative hypotheses.  
+b) Explain why a paired test should be used rather than a two-sample test.  
+c) Perform a paired t-test in R.  
+d) What do you conclude?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Let $D_i = \text{after}_i - \text{before}_i$ denote the within-donor differences.
+
+$$H_0: \mu_D = 0$$
+$$H_1: \mu_D < 0$$
+
+b) The observations are paired because each donor is measured twice. The analysis should therefore be based on the within-donor differences.
+
+c) Perform a paired t-test:
+
+```{r, echo=TRUE}
+t.test(after, before, paired=TRUE, alternative="less")
+```
+
+d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that blood donation lowers mean Hb.
+:::
+:::
+
+
+## Rank-based tests
+
+::: {#exr-wilcox-ranksum}
+# Mann-Whitney / Wilcoxon rank-sum test
+
+The following pain scores were recorded for two independent treatment groups A and B. The scores are ordinal, where higher values indicate more pain.
+
+```{r, echo=TRUE}
+A <- c(2, 3, 1, 4, 2, 3, 2)
+B <- c(5, 4, 6, 3, 5, 4, 6)
+```
+
+a) Why might a rank-based test be more appropriate than a two-sample t-test here?  
+b) State the null and alternative hypotheses.  
+c) Perform an apropriate rank-based test.  
+d) What is your conclusion?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) The response is ordinal, so a rank-based test is more appropriate than a t-test based on numerical means.
+
+b)
+
+$$H_0: \text{the two groups come from the same distribution}$$
+$$H_1: \text{the two groups differ in location}$$
+
+c) Perform the test in R:
+
+```{r, echo=TRUE}
+wilcox.test(A, B)
+```
+
+d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that the two treatment groups differ.
+:::
+:::
+
+::: {#exr-wilcox-paired}
+# Wilcoxon signed-rank test
+
+The following symptom scores were recorded in 8 patients before and after treatment:
+
+```{r, echo=TRUE}
+before <- c(8, 7, 6, 9, 8, 7, 9, 6)
+after  <- c(6, 5, 5, 7, 7, 6, 8, 5)
+```
+
+You want to investigate if the treatment had an effect.
+
+a) Is this a paired design?  
+b) What could be an appropriate test?  
+c) Perform the test in R!  
+d) What is your conclusion?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Each patient is measured twice, so the observations are paired.
+
+b) The sample size is small and the symptom score is ordinal/discrete, so a rank-based paired test is reasonable.
+
+c) Perform the Wilcoxon signed rank test in R:
+
+```{r, echo=TRUE}
+wilcox.test(after, before, paired=TRUE, alternative="less")
+```
+
+d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that symptom scores are lower after treatment.
+:::
+:::
+
+
+## Multiple testing 
+
+::: {#exr-mult1}
+# Many tests
+
+A study tests 100 independent null hypotheses using significance level $\alpha=0.05$.
+
+a) What is the probability of making at least one type I error if all 100 null hypotheses are true?  
+b) Compute the Bonferroni-adjusted significance threshold for controlling the family-wise error rate at 0.05.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a)
+
+$$P(\text{at least one type I error}) = 1-(1-\alpha)^{100} = 1-(0.95)^{100}$$
+
+```{r, echo=TRUE}
+1 - (1 - 0.05)^100
+```
+
+b)
+
+$$\frac{0.05}{100} = 0.0005$$
+:::
+:::
+
+::: {#exr-mult2}
+# Adjusted p-values
+
+Eight hypotheses were tested, giving the following p-values:
+
+```{r, echo=TRUE}
+p <- c(0.0003, 0.001, 0.004, 0.012, 0.021, 0.049, 0.11, 0.24)
+```
+
+a) Compute Bonferroni-adjusted p-values.  
+b) Compute Benjamini-Hochberg adjusted p-values.  
+c) Which hypotheses are significant at FWER 0.05 using Bonferroni?  
+d) Which hypotheses are significant at FDR 0.05 using Benjamini-Hochberg?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) and b)
+
+```{r, echo=TRUE}
+p.adjust(p, method="bonferroni")
+p.adjust(p, method="BH")
+```
+
+c) Bonferroni significance can be assessed either using the adjusted p-values or the Bonferroni threshold $0.05/8$.
+
+d) Benjamini-Hochberg significance can be assessed using the BH-adjusted p-values and comparing them to 0.05.
+:::
+:::
+
+## Point and interval estimates 
+
+::: {#exr-CIHb}
+You measure the Hb value in 10 50-year old men and get the following observations; 145, 165, 134, 167, 158, 176, 156, 189, 143, 123 g/L.
+
+a) Compute a 95% bootstrap interval for the mean Hb value.
+b) Compute the sample mean Hb value
+c) Compute the sample variance
+d) Compute the sample standard deviation
+e) Assume that Hb is normally distributed and compute a point estimate and a 95% confidence interval for the mean Hb value.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a)  
+
+```{r histmboot, echo=TRUE}
+obs <- c(145, 165, 134, 167, 158, 176, 156, 189, 143, 123)
+mboot <- replicate(1000, {
+  x <- sample(obs, size=10, replace=TRUE)
+  mean(x)
+})
+hist(mboot)
+## The 95% bootstrap interval is:
+quantile(mboot, c(0.025, 0.975))
+```
+
+b)  Sample mean
+
+```{r, echo=TRUE}
+(m <- mean(obs))
+```
+
+c)  Sample variance
+
+```{r, echo=TRUE}
+(v <- var(obs))
+```
+
+d)  Sample standard deviation
+
+```{r, echo=TRUE}
+(s <- sd(obs))
+```
+
+e)  The point estimate is the sample mean, $m=`r m`$.
+
+The sample size is small ($n=10$) and the population standard deviation unknown, hence we use the t-statistic;
+
+$$T = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}}$$ and compute the 95% confidence interval as
+
+$$m \pm t_{\alpha/2, n-1} \frac{s}{\sqrt{n}}$$
+
+```{r, echo=TRUE}
+n <- length(obs)
+tcrit <- qt(0.975, df=9)
+##95% confidence interval 
+c(m - tcrit*s/sqrt(n), m + tcrit*s/sqrt(n))
+```
+
+:::
+:::
+
+::: {#exr-CIscale}
+A scale has a normally distributed error with mean 0 and standard deviation 2.3 g. You measure an object 10 times and observe the mean weight 43 g.
+
+a) Compute a 95% confidence interval of the object's mean weight
+b) Compute a 90% confidence interval of the object's mean weight
+
+:::{.callout-note collapse="true"}
+# Hint
+Because the measurement error standard deviation is known, a normal-based confidence interval can be used.
+:::
+
+:::{.callout-note collapse="true"}
+# Solution
+
+The measured weight is a random variable $X \sim N(\mu, \sigma^2)$. You know that $\sigma = 2.3$, $\mu$ is the weight of the object.
+
+a)  Compute a 95% confidence interval of the sample mean weight
+
+```{r, echo=TRUE}
+## 95% confidence interval
+m <- 43
+sigma <- 2.3
+n <- 10
+z <- qnorm(0.975)
+c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
+```
+
+b)  Compute a 90% confidence interval of the sample mean weight
+
+```{r, echo=TRUE}
+z <- qnorm(0.95)
+c(m - z*sigma/sqrt(10), m + z*sigma/sqrt(10))
+```
+
+:::
+:::
+
+::: {#exr-CIprop}
+# CI, proportions*
+
+The 95% confidence interval for a proportion can be computed using the formula $p \pm z SE,$ where $p$ the sample proportion and the standard error $SE = \sqrt{\frac{p(1-p)}{n}}$. $z=1.96$ for a 95% confidence interval.
+
+We study the proportion of pollen allergic people in Uppsala and in a random sample of size 100 observe 42 pollen allergic people.
+
+  a) Calculate a 95% confidence interval for $\pi$
+  b) How can we get a narrower confidence interval?
+  c) We computed a 95% interval, what if we want a 90% confidence interval?
+  d) or a 99% confidence interval?
+
+:::{.callout-note collapse="true"}
+# Solution
+a)
+
+```{r}
+p <- 42/100
+n <- 100
+SE <- sqrt(p*(1-p)/n)
+z <- qnorm(0.975)
+#The approximate confidence interval for a proportion is
+c(p - z*SE, p + z*SE)
+```
+
+b)  A narrower confidence interval can be obtained by increasing the sample size. It can also be made narrower by lowering the confidence level, for example from 95% to 90%.
+
+c)  Change the z number,
+
+The approximate confidence interval for a proportion is
+
+$$p \pm z SE$$
+
+For a 90% confidence interval use z=1.64
+
+```{r, echo=TRUE}
+p <- 0.42
+n <- 100
+SE <- sqrt(p*(1-p)/n)
+z <- qnorm(0.95)
+c(p - z*SE, p + z*SE)
+```
+
+d)  or a 99% confidence interval?
+
+```{r, echo=TRUE}
+z <- qnorm(0.995)
+c(p - z*SE, p + z*SE)
+```
+
+:::
+:::
+
+
+::: {#exr-BMCsmokers}
+# Smokers*
+
+You observe 150 students at BMC of which 25 are smokers. Compute a 95% confidence interval for the proportion of smokers among BMC students.
+
+:::{.callout-note collapse="true"}
+# Solution
+Point estimate of the proportion of smokers; $p=25/150=1/6$.
+
+The approximate confidence interval for a proportion is
+
+$p \pm z SE.$
+
+```{r, echo=TRUE}
+p <- 25/150
+n <- 150
+z <-qnorm(0.975)
+SE <- sqrt(p*(1-p)/n)
+## 95% CI
+c(p - z*SE, p + z*SE)
+```
+
+:::
+:::
+
+
+## Analysis of variance (ANOVA) 
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggbeeswarm)
+```
+
+::: {#exr-anovawhy}
+# Why ANOVA?
+
+You want to compare the mean Hb level in three groups: a control group, a vegetarian diet group, and an iron-rich diet group.
+
+a) Why is a two-sample t-test not sufficient here?  
+b) State the null and alternative hypotheses for a one-way ANOVA.  
+c) What does a significant ANOVA result tell you?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) A two-sample t-test compares only two groups at a time. Since there are three groups here, repeated pairwise t-tests would be needed, which increases the risk of Type I error.
+
+b) The hypotheses are
+
+$$H_0: \mu_1=\mu_2=\mu_3$$
+$$H_1: \text{not all group means are equal}$$
+
+c) A significant ANOVA result means that there is evidence that at least one group mean differs from the others. However, it does not tell us which groups differ.
+:::
+:::
+
+::: {#exr-anovaf}
+# Compute the F statistic
+
+A one-way ANOVA is performed for $k=3$ groups with total sample size $N=18$. The following sums of squares are obtained:
+
+- $SS_{between}=48$
+- $SS_{within}=72$
+
+a) Compute the degrees of freedom for the between-group and within-group variation.  
+b) Compute $MS_{between}$ and $MS_{within}$.  
+c) Compute the F statistic.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) The degrees of freedom are
+
+$$df_{between}=k-1=3-1=2$$
+$$df_{within}=N-k=18-3=15$$
+
+b) The mean squares are
+
+$$MS_{between}=\frac{SS_{between}}{df_{between}}=\frac{48}{2}=24$$
+$$MS_{within}=\frac{SS_{within}}{df_{within}}=\frac{72}{15}=4.8$$
+
+c) The F statistic is
+
+$$F=\frac{MS_{between}}{MS_{within}}=\frac{24}{4.8}=5$$
+
+:::
+:::
+
+::: {#exr-anovatable}
+# Interpret an ANOVA table
+
+A one-way ANOVA gives the following table:
+
+| Source   | Df | Sum Sq | Mean Sq | F value | Pr(>F) |
+|----------|---:|-------:|--------:|--------:|-------:|
+| group    |  2 |  180.4 |   90.2  |   5.63  | 0.008  |
+| Residual | 27 |  432.3 |   16.0  |         |        |
+
+a) What is the null hypothesis?  
+b) Is there evidence of a difference among the groups at the 5% significance level?  
+c) Which row corresponds to the within-group variation?  
+d) Does this result tell which groups differ?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) The null hypothesis is
+
+$$H_0: \mu_1=\mu_2=\mu_3$$
+
+b) Yes. Since the p-value is 0.008 and $0.008<0.05\), we reject $H_0$.
+
+c) The residual row corresponds to the within-group variation.
+
+d) No. The ANOVA test is an omnibus test. It tells us that at least one group mean differs, but not which groups differ.
+:::
+:::
+
+::: {#exr-anovar}
+# One-way ANOVA in R
+
+The following Hb values (g/L) were observed in three groups of participants:
+
+```{r diets, echo=TRUE}
+ctrl <- c(145, 152, 149, 143, 150)
+diet1 <- c(154, 158, 160, 151, 156)
+diet2 <- c(166, 162, 170, 168, 164)
+##Combine in a data frame
+df <- data.frame(
+  Hb = c(ctrl, diet1, diet2),
+  group = factor(rep(c("control", "diet1", "diet2"), each=5))
+)
+```
+
+Perform an ANOVA test to investigate whether the mean Hb levels differ among the three groups.
+
+a) State the null and alternative hypotheses.
+b) Plot the data to visualize the group locations and spread.
+c) Perform a one-way ANOVA in R.  
+d) Interpret the result.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) The hypotheses are
+
+$$H_0: \mu_{control}=\mu_{diet1}=\mu_{diet2}$$
+$$H_1: \text{not all group means are equal}$$
+
+b) Plot the data:
+
+```{r diethb, echo=TRUE}
+## Using a beeswarm like plot
+df |> ggplot(aes(x = group, y = Hb)) + geom_quasirandom() + theme_bw() + xlab("Group") + ylab("Hb value")
+## Using a boxplot
+df |> ggplot(aes(x = group, y = Hb)) + geom_boxplot() + theme_bw() + xlab("Group") + ylab("Hb value")
+## Can also be done using plot
+plot(df$group, df$Hb)
+```
+
+c) Perform one-way ANOVA in R:
+
+```{r dietanova, echo=TRUE}
+fit <- aov(Hb ~ group, data = df)
+summary(fit)
+```
+
+d) The ANOVA p-value is `r summary(fit)[[1]][1, "Pr(>F)"]`. Because the p-value is below 0.05, we reject $H_0$ and conclude that there is evidence that not all group means are equal.
+:::
+:::
+
+::: {#exr-anovaposthoc}
+# Post hoc comparisons
+
+Continue with the data from @exr-anovar.
+
+a) Why are post hoc tests needed after a significant ANOVA result?  
+b) Perform Tukey’s HSD test in R.  
+c) Which pairs of groups differ significantly? Use the significance level 0.05.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) ANOVA is an omnibus test. A significant ANOVA result tells us that at least one group mean differs, but it does not tell us which groups differ. To identify the specific differences, post hoc pairwise comparisons are needed.
+
+b) Perform Tukey’s HSD test:
+
+```{r, echo=TRUE}
+TukeyHSD(fit)
+```
+
+c) The output shows that the pairwise comparisons between all three pairs are significant, because the adjusted p-values are below 0.05.
+:::
+:::
+
+::: {#exr-kruskal}
+# Kruskal-Wallis test
+
+The following biomarker values were observed in three treatment groups:
+
+```{r}
+ctrl <- c(4.8, 4.9, 5.0, 5.0, 5.1, 5.2)
+trt1 <- c(5.6, 6.0, 6.4, 6.8, 7.2, 7.6)
+trt2 <- c(3.9, 4.6, 5.5, 6.3, 7.2, 8.1)
+
+df2 <- data.frame(
+  biomarker = c(ctrl, trt1, trt2),
+  group = factor(rep(c("control", "treatment1", "treatment2"), each=6))
+)
+
+df2 |> ggplot(aes(x = group, y = biomarker)) + geom_quasirandom() + theme_bw() + xlab("Group") + ylab("Biomarker value")
+```
+
+a) Why might the Kruskal-Wallis test be a reasonable alternative to one-way ANOVA?  
+b) State the null and alternative hypotheses.  
+c) Perform the Kruskal-Wallis test in R.  
+d) What do you conclude?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) The Kruskal-Wallis test is a rank-based alternative to one-way ANOVA. It can be useful when the assumptions of ANOVA, such as approximate normality within groups, are doubtful.
+
+b) The null hypothesis is that the groups have the same distribution, or equivalently that the mean ranks are equal across groups.
+
+$$H_0: \text{the group distributions are the same}$$
+$$H_1: \text{at least one group differs}$$
+
+c) Perform the Kruskal-Wallis test in R:
+
+```{r, echo=TRUE}
+kruskal.test(biomarker ~ group, data = df2)
+```
+
+d) As the p-value is below 0.05, we reject $H_0$ and conclude that there is evidence that at least one group differs from the others.
+:::
+:::
