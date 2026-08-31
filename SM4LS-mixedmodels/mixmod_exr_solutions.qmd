@@ -10,10 +10,10 @@ execute:
   echo: true
   cache: false
 ---
-  
-Mixed effects models are powerful statistical tools that allow us to analyze data with hierarchical or grouped structures. In these exercises, we will explore the use of mixed models in R.
 
-You will be using the `lme4` package for fitting mixed models and you need to install this package. In the examples we will use `tidyverse` for data manipulation and `ggplot2` for visualization, but if you prefer other alternatives, that is of course fine.
+Mixed-effects models are powerful statistical tools for analyzing data with hierarchical or grouped structures. In these exercises, we will explore the use of mixed models in R.
+
+You will use the `lme4` package for fitting mixed models, so make sure it is installed. In the examples we also use `tidyverse` and `ggplot2` for data manipulation and visualization, but you are welcome to use other alternatives.
 
 ```{r setup}
 #| message: false
@@ -22,24 +22,25 @@ library(tidyverse)
 library(ggplot2)
 ```
 
-# Random intercept and slope
+# Random intercepts and random slopes
 
-In these exercises we cover both models with **random intercept** and **random slope** using the `lme4` package in R.
+In these exercises we cover both models with **random intercepts** and **random slopes** using the `lme4` package in R.
 
 ::: {#exr-drugbp}
 
 ## Drug effect on blood pressure
-  
-A study investigates how a drug affects blood pressure. 200 patients are recruited at 10 hospitals. We suspect that the average blood pressure differs between hospitals, mainly due to different routines for measurement, but we expect the drug effect to be consistent.
+
+A study investigates how a drug affects blood pressure. A total of 200 patients are recruited from 10 hospitals. We suspect that average blood pressure differs between hospitals, mainly due to different measurement routines, but we expect the drug effect to be consistent across hospitals.
 
 ```{r databp}
 ## Generate the data
-databp <- data.frame(hospital=factor(rep(1:10, each=20)),
-                 drug=rep(c("placebo", "treatment"), times=100),
-                 bp=c(123.9,114.6,119.8,113.3,115.0,121.7,120.2,102.9,121.3,110.4,112.4,111.7,112.6,109.1,114.6,104.3,121.9,113.5,112.1,119.0,121.2,112.6,123.6,118.5,123.2,117.5,121.8,113.8,117.5,112.2,115.6,113.0,112.8,124.9,125.1,108.5,117.1,111.7,123.0,113.7,127.5,121.1,126.0,128.1,125.1,128.8,118.5,124.2,126.9,122.3,128.1,118.7,124.6,116.1,120.9,122.8,128.5,121.5,130.8,131.5,117.8,103.7,125.3,111.7,116.8,120.4,118.9,109.2,121.2,114.6,120.3,117.2,118.4,118.5,119.2,116.9,125.8,117.5,118.7,121.0,125.5,118.3,121.7,112.4,127.3,112.5,131.5,123.2,119.3,110.4,117.0,116.8,119.3,113.8,115.8,115.3,116.6,107.2,118.6,120.1,124.0,124.9,118.8,121.6,129.5,123.4,127.4,118.7,122.6,116.7,127.4,117.1,124.4,120.6,136.1,118.6,128.0,122.3,122.1,121.5,129.1,119.1,122.0,114.7,111.6,122.5,114.5,120.5,131.4,109.6,125.4,115.5,114.0,109.3,113.8,114.2,114.5,120.3,132.3,110.4,118.9,113.8,116.6,104.9,114.3,108.5,117.8,108.1,119.8,108.1,120.2,104.7,108.6,126.1,112.9,111.4,118.1,107.5,117.5,111.8,116.2,112.6,117.1,122.9,113.5,106.8,117.4,113.8,119.4,110.0,111.9,118.6,115.5,107.9,116.1,111.3,122.8,112.7,121.0,109.8,119.3,111.6,118.7,108.7,111.7,123.2,121.2,107.0,115.2,107.3,129.2,119.8,116.9,115.9,116.1,110.8,114.3,110.2,126.5,112.9))
+databp <- data.frame(hospital = factor(rep(1:10, each = 20)),
+  drug = rep(c("placebo", "treatment"), times = 100),
+  bp = c(123.9,114.6,119.8,113.3,115.0,121.7,120.2,102.9,121.3,110.4,112.4,111.7,112.6,109.1,114.6,104.3,121.9,113.5,112.1,119.0,121.2,112.6,123.6,118.5,123.2,117.5,121.8,113.8,117.5,112.2,115.6,113.0,112.8,124.9,125.1,108.5,117.1,111.7,123.0,113.7,127.5,121.1,126.0,128.1,125.1,128.8,118.5,124.2,126.9,122.3,128.1,118.7,124.6,116.1,120.9,122.8,128.5,121.5,130.8,131.5,117.8,103.7,125.3,111.7,116.8,120.4,118.9,109.2,121.2,114.6,120.3,117.2,118.4,118.5,119.2,116.9,125.8,117.5,118.7,121.0,125.5,118.3,121.7,112.4,127.3,112.5,131.5,123.2,119.3,110.4,117.0,116.8,119.3,113.8,115.8,115.3,116.6,107.2,118.6,120.1,124.0,124.9,118.8,121.6,129.5,123.4,127.4,118.7,122.6,116.7,127.4,117.1,124.4,120.6,136.1,118.6,128.0,122.3,122.1,121.5,129.1,119.1,122.0,114.7,111.6,122.5,114.5,120.5,131.4,109.6,125.4,115.5,114.0,109.3,113.8,114.2,114.5,120.3,132.3,110.4,118.9,113.8,116.6,104.9,114.3,108.5,117.8,108.1,119.8,108.1,120.2,104.7,108.6,126.1,112.9,111.4,118.1,107.5,117.5,111.8,116.2,112.6,117.1,122.9,113.5,106.8,117.4,113.8,119.4,110.0,111.9,118.6,115.5,107.9,116.1,111.3,122.8,112.7,121.0,109.8,119.3,111.6,118.7,108.7,111.7,123.2,121.2,107.0,115.2,107.3,129.2,119.8,116.9,115.9,116.1,110.8,114.3,110.2,126.5,112.9)
+)
 ```
 
-a. Visualize the data using e.g. boxplots or jitter plots, both overall and by hospital. Based on the plots, do you think there is variability in blood pressure across hospitals that has to be taken care of?
+a. Visualize the data using, for example, boxplots or jitter plots, both overall and by hospital. Based on the plots, do you think there is variability in blood pressure across hospitals that should be accounted for?
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -55,18 +56,18 @@ databp %>%
 ```
 
 ```{r fig-bpperhospital}
-#| fig-cap: "Blood pressure vs drug treatment, per hospital"
-## Blood pressure per hospital and drug treatment
+#| fig-cap: "Blood pressure vs hospital and drug treatment"
 databp |>
   ggplot(aes(x = hospital, y = bp, color = drug)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
   geom_jitter(width = 0.2, alpha = 0.5) +
   theme_bw()
 ```
-Yes, the plots suggest that there is variability in blood pressure across hospitals. The boxplots show different medians for each hospital, indicating that the baseline blood pressure differs between hospitals. This variability should be accounted for in our analysis.
+
+Yes, the plots suggest that there is variability in blood pressure across hospitals. The hospital-specific boxplots show different baseline levels per hospital, which indicates that  grouping structure should be taken into account.
 :::
 
-b. If we ignore any grouping structure, we can fit an ordinary linear regression model. Fit a linear regression model to the data with blood pressure as the response variable and drug treatment as the independent variable. According to the linear regression model, is the average blood pressure higher in the treatment group compared to the placebo group? By how much does the drug change the blood pressure (on average)?
+b. If we ignore the grouping structure, we can fit an ordinary linear regression model. Fit a linear regression model with blood pressure as the response and drug treatment as the independent variable. According to this model, is the average blood pressure higher in the treatment group or in the placebo group? By how much does the drug change blood pressure on average?
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -76,32 +77,31 @@ lm_model <- lm(bp ~ drug, data = databp)
 summary(lm_model)
 ```
 
-The average blood pressure is lower in the treatment group compared to the placebo group. The estimated effect of the drug treatment on blood pressure is approximately -5.17, indicating that patients treated with the drug have an average blood pressure that is 5.17 units lower than those treated with the placebo.
+The average blood pressure is lower in the treatment group than in the placebo group. The estimated treatment effect is approximately `-5.17`, meaning that the treatment reduces blood pressure by about 5.17 units on average.
 :::
 
-c. Is this linear model a valid model given the data structure? Why/why not?
+c. Is this linear model valid given the data structure? Why or why not?
 
 :::{.callout-tip collapse="true"}
 ## Solution
 
-No, not really. The model treats all observations as independent, but patients within the same hospital may be more similar to each other than patients from different hospitals. This violates the independence assumption and can lead to incorrect standard errors and inference.
+No, not really. The model treats all observations as independent, but patients from the same hospital may be more similar to each other than patients from different hospitals. This violates the independence assumption and may lead to incorrect standard errors and inference.
 :::
 
-d. To account for the variability in blood pressure across hospitals, fit a mixed model with a random intercept for hospital. Random intercepts allow each hospital to have its own baseline blood pressure. Investigate the model using the functions `summary`, `VarCorr`and `fixef`.
+d. To account for variability in blood pressure across hospitals, fit a mixed model with a random intercept for hospital. Random intercepts allow each hospital to have its own baseline blood pressure. Investigate the model using the functions `summary`, `VarCorr`, and `fixef`.
 
 :::{.callout-tip collapse="true"}
 ## Solution
 
-```{r bplmer1, results="hide"}
+```{r bplmer1}
 model1 <- lmer(bp ~ drug + (1 | hospital), data = databp)
 summary(model1)
-```
 
-In addition to the summary function, try `VarCorr` and `fixef`. The function `VarCorr` gives the variance and correlations in a model, including the the variance of the random intercept for hospital. `fixef` extracts the estimated fixed effects of the model.
-
-print(VarCorr(model1), comp="Variance")
+VarCorr(model1)
 fixef(model1)
 ```
+
+`VarCorr()` gives the variance components, including the variance of the random intercept for hospital. `fixef()` extracts the estimated fixed effects.
 :::
 
 e. Based on the mixed model results, what is the estimated effect of the drug treatment on blood pressure?
@@ -109,7 +109,7 @@ e. Based on the mixed model results, what is the estimated effect of the drug tr
 :::{.callout-tip collapse="true"}
 ## Solution
 
-The estimated effect of the drug treatment on blood pressure is -5.17.
+The estimated fixed effect of treatment is about `-5.17`, so the drug is estimated to lower blood pressure by approximately 5.17 units on average.
 :::
 
 f. Based on the mixed model, how much variability in blood pressure is due to differences between hospitals?
@@ -117,27 +117,32 @@ f. Based on the mixed model, how much variability in blood pressure is due to di
 :::{.callout-tip collapse="true"}
 ## Solution
 
-To estimate the between-hospital variability, we can use the variance component from `VarCorr`. The proportion of total variance due to differences between hospitals, called the **intraclass correlation coefficient (ICC)**, can be calculated as:
+We can quantify the between-hospital variability using the variance components and compute the **intraclass correlation coefficient (ICC)**:
 
 ```{r icc}
 vc <- as.data.frame(VarCorr(model1))
+vc
 icc <- vc$vcov[1] / (vc$vcov[1] + vc$vcov[2])
+icc
 ```
+
+The ICC gives the proportion of total variance attributable to differences between hospitals.
 :::
 
-g. Based on the variance due to the difference between hospitals, do you think it is appropriate to use an ordinary linear regression model instead of a mixed model? Why or why not?
-
-:::{.callout-tip collapse="true"}
-The estimated between-hospital variability is substantial, indicating that there are significant differences in blood pressure between hospitals. This suggests that the ordinary linear regression is not appropriate.
-:::
-
-h. The random intercepts for each hospital can be computed using the `ranef` function. This gives us the deviations from the overall mean (as reported by the fixed effect intercept) for each hospital.
-
-Compute the random effects using `ranef`. What would the average blood pressure be at hospital 3 for a patient treated with the placebo?
+g. Based on the estimated between-hospital variability, do you think it is appropriate to use an ordinary linear regression model instead of a mixed model? Why or why not?
 
 :::{.callout-tip collapse="true"}
 ## Solution
 
+The estimated between-hospital variability is substantial, the ICC is clearly above 0. This means that a non-negligible part of the total variation is due to hospital-level differences. Hence, it is more appropriate to use a mixed model, since ordinary linear regression ignores this dependence structure.
+:::
+
+h. The random intercepts for each hospital can be obtained using the `ranef()` function. This gives the deviation of each hospital from the overall intercept.
+
+Compute the random effects using `ranef()`. What is the estimated average blood pressure at hospital 3 for a patient receiving the placebo?
+
+:::{.callout-tip collapse="true"}
+## Solution
 
 ```{r bprandom}
 ## Note that `ranef` gives the deviations from the overall mean for each hospital.
@@ -146,19 +151,21 @@ ranef(model1)
 ## The average blood pressure at a specific hospital is the sum of the fixed and random effect
 fixef(model1)[1] + ranef(model1)$hospital[3,1]
 ```
+
+This gives the estimated mean blood pressure for placebo patients at hospital 3.
 :::
 
 :::
 
-:::{.exr sleep}
+:::{#exr-sleep}
 
 ## Sleep study
 
-The `sleepstudy` dataset from the `lme4` package contains data on reaction times of subjects measured over several days of sleep deprivation (not allowed more than 3h of sleep).
+The `sleepstudy` dataset from the `lme4` package contains reaction times for subjects measured over several days of sleep deprivation.
 
-Days 0 and 1 are adaptation and training and will be excluded. Day 2 is baseline, but for simplicity we will rename it to 0.
+Days 0 and 1 correspond to adaptation and training, and will be excluded. Day 2 is the baseline day, but for simplicity we rename it to 0.
 
-We will initially work with a subset of the data from only 5 subjects.
+We will initially work with a subset containing only 5 subjects.
 
 ```{r sleep}
 ##Remove the first two days (before baseline) and adjust Days to be 0 at baseline.
@@ -167,7 +174,7 @@ sleepall <- sleepstudy |> filter(Days>=2) |> mutate(Days=Days-2)
 sleep <- sleepstudy |> filter(Subject %in% c(333, 334, 369, 349, 372), Days>=2) |> mutate(Days=Days-2)
 ```
 
-a. Investigate the dataset. What columns are available? Plot the data, e.g. using ggplot and add a linear regression line to visualize the relationship between reaction time and days of sleep deprivation, both overall and separately per subject.
+a. Investigate the dataset. What columns are available? Plot the data, e.g. using `ggplot2` and add a linear regression line to visualize the relationship between reaction time and days of sleep deprivation, both overall and separately per subject.
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -175,8 +182,8 @@ a. Investigate the dataset. What columns are available? Plot the data, e.g. usin
 ```{r fig-lm}
 #| fig-cap: "Reaction time vs Days of sleep deprivation"
 #| fig-subcap:
-#|  - "Overall"
-#|  - "Per subject"
+#|   - "Overall"
+#|   - "Per subject"
 #| layout-ncol: 2
 head(sleep, 12)
 ##Plot Reaction time vs days of sleep deprivation, treat all measurements as independent
@@ -191,7 +198,9 @@ sleep |> ggplot(aes(x=Days, y=Reaction, color=Subject)) + geom_point() + geom_sm
 ```
 :::
 
-b. Fit a linear model to the data, ignoring the individual differences.
+b. Fit a linear model to the data, ignoring individual differences.
+
+According to this model, by how many milliseconds does reaction time increase per day of sleep deprivation?
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -200,17 +209,14 @@ b. Fit a linear model to the data, ignoring the individual differences.
 lm_sleep <- lm(Reaction ~ Days, data = sleep)
 summary(lm_sleep)
 ```
+
+
+The estimated slope is approximately `14.06`, so reaction time increases by about 14.06 milliseconds per day of sleep deprivation.
 :::
 
-According to this model, how many milliseconds does reaction time increase per day of sleep deprivation?
+c. Fit a mixed model with a random intercept for each subject to account for individual differences in baseline reaction time.
 
-:::{.callout-tip collapse="true"}
-## Solution
-
-The model estimates that reaction time increases by approximately 14.060 milliseconds per day of sleep deprivation.
-:::
-
-Fit a mixed model with a random intercept for each subject to account for individual differences in reaction time.
+According to this model, by how many milliseconds does reaction time increase per day of sleep deprivation?
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -219,25 +225,20 @@ Fit a mixed model with a random intercept for each subject to account for indivi
 mm1_sleep <- lmer(Reaction ~ Days + (1 | Subject), data = sleep)
 summary(mm1_sleep)
 ```
+
+
+The fixed effect of `Days` gives the average increase in reaction time per day. In this subset, it is approximately the same as in the ordinary linear model, around `14.06` ms/day.
 :::
 
-According to this models, how many milliseconds does reaction time increase per day of sleep deprivation?
+d. How much variability in reaction time is due to differences between subjects?
 
 :::{.callout-tip collapse="true"}
 ## Solution
 
-The model estimates that reaction time increases by approximately 14.060 milliseconds per day of sleep deprivation, which is the same as in the linear model.
+The random-intercept variance from `VarCorr(mm1_sleep)` gives the between-subject variability in baseline reaction times. You can also compute an ICC if you want the proportion of total variance attributable to subject differences.
 :::
 
-How much variability in reaction time is explained by individual differences?
-
-:::{.callout-tip collapse="true"}
-## Solution
-
-The estimated variance of the random intercept for Subject is 278.9, which indicates substantial between-subject variability in baseline reaction time.
-:::
-
-Now, include the full dataset and redo the analyses, i.e. visualize and fit a mixed model with random intercept.
+e. Now include the full dataset and repeat the analysis: visualize the data and fit a mixed model with a random intercept for subject.
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -253,14 +254,15 @@ sleepall |> ggplot(aes(x=Days, y=Reaction, color=Subject)) + geom_point() + geom
 ```{r sleepall}
 mm_sleepall <- lmer(Reaction ~ Days + (1 | Subject), data = sleepall)
 summary(mm_sleepall)
+VarCorr(mm_sleepall)
 ```
 :::
 
 What is the estimated fixed effect of sleep deprivation on reaction time in the full dataset?
 
-What is the estimated variability in reaction time explained by subject differences?
+What is the estimated variability in reaction time due to subject differences?
 
-The plot suggests that also the slope varies between subjects, i.e. some subjects are more affected by sleep deprivation than others. Investigate this further by including a random slope for `Days` within `Subject`.
+f. The plot suggests that the slope may also vary between subjects i.e., some subjects are more affected by sleep deprivation than others. Investigate this further by including a random slope for `Days` within `Subject`.
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -268,33 +270,47 @@ The plot suggests that also the slope varies between subjects, i.e. some subject
 ```{r sleep-random-slope}
 mm2_sleepall <- lmer(Reaction ~ Days + (Days | Subject), data = sleepall)
 summary(mm2_sleepall)
+VarCorr(mm2_sleepall)
 ```
 :::
 
-Based on the model with random slope, what is the average effect of sleep deprivation on reaction time? How does it compare to the model with only a random intercept?
+Based on the model with a random slope, what is the average effect of sleep deprivation on reaction time? How does it compare with the model with only a random intercept?
 
-Compute the random effects for the model with random slope using `ranef(mm2_sleepall)`.
-What is the estimated effect of sleep deprivation on reaction time for subject 309?
+Compute the random effects for the random-slope model using `ranef(mm2_sleepall)`. What is the estimated effect of sleep deprivation on reaction time for subject 309?
+
+:::{.callout-tip collapse="true"}
+## Solution
+
+```{r}
+ranef(mm2_sleepall)$Subject
+fixef(mm2_sleepall)["Days"] + ranef(mm2_sleepall)$Subject["309", "Days"]
+```
+
+The subject-specific slope for subject 309 is the sum of:
+- the fixed slope for `Days`, and
+- the random slope deviation for subject 309.
+:::
 
 :::
 
-:::{.exr ortho1}
+:::{#exr-ortho1}
 
-## Orthodontic measurement over time
+## Orthodontic measurements over time
 
 The `Orthodont` dataset from the `nlme` package contains orthodontic measurements of patients over time. The dataset includes measurements of the distance from the pituitary to the pterygomaxillary fissure (mm).
 
-Use this dataset to study how the distance changes with age, accounting for individual differences in growth patterns. Also, take any relevant covariates into account.
+Use this dataset to study how the distance changes with age, while accounting for individual differences in growth patterns. Also, take any relevant covariates into account.
 
 ```{r ortho, message=FALSE}
 library(nlme)
 data("Orthodont", package = "nlme")
 ```
 
-Start by looking at the data table.
+Start by looking at the data.
 
 ```{r}
 summary(Orthodont)
+head(Orthodont)
 ```
 
 Visualize the data.
