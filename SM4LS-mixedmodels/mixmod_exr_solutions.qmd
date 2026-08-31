@@ -64,7 +64,7 @@ databp |>
   theme_bw()
 ```
 
-Yes, the plots suggest that there is variability in blood pressure across hospitals. The hospital-specific boxplots show different baseline levels per hospital, which indicates that  grouping structure should be taken into account.
+Yes, the plots suggest that there is variability in blood pressure across hospitals. The hospital-specific boxplots show different baseline levels per hospital, which indicates that the grouping structure should be taken into account.
 :::
 
 b. If we ignore the grouping structure, we can fit an ordinary linear regression model. Fit a linear regression model with blood pressure as the response and drug treatment as the independent variable. According to this model, is the average blood pressure higher in the treatment group or in the placebo group? By how much does the drug change blood pressure on average?
@@ -134,7 +134,7 @@ g. Based on the estimated between-hospital variability, do you think it is appro
 :::{.callout-tip collapse="true"}
 ## Solution
 
-The estimated between-hospital variability is substantial, the ICC is clearly above 0. This means that a non-negligible part of the total variation is due to hospital-level differences. Hence, it is more appropriate to use a mixed model, since ordinary linear regression ignores this dependence structure.
+The estimated between-hospital variability is substantial, and the ICC is clearly above 0. This means that a non-negligible part of the total variation is due to hospital-level differences. Hence, it is more appropriate to use a mixed model, since ordinary linear regression ignores this dependence structure.
 :::
 
 h. The random intercepts for each hospital can be obtained using the `ranef()` function. This gives the deviation of each hospital from the overall intercept.
@@ -148,7 +148,7 @@ Compute the random effects using `ranef()`. What is the estimated average blood 
 ## Note that `ranef` gives the deviations from the overall mean for each hospital.
 ranef(model1)
 
-## The average blood pressure at a specific hospital is the sum of the fixed and random effect
+## The average blood pressure at a specific hospital is the sum of the fixed and random effects
 fixef(model1)[1] + ranef(model1)$hospital[3,1]
 ```
 
@@ -262,7 +262,7 @@ What is the estimated fixed effect of sleep deprivation on reaction time in the 
 
 What is the estimated variability in reaction time due to subject differences?
 
-f. The plot suggests that the slope may also vary between subjects i.e., some subjects are more affected by sleep deprivation than others. Investigate this further by including a random slope for `Days` within `Subject`.
+f. The plot suggests that the slope may also vary between subjects, i.e., some subjects are more affected by sleep deprivation than others. Investigate this further by including a random slope for `Days` within `Subject`.
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -297,7 +297,7 @@ The subject-specific slope for subject 309 is the sum of:
 
 ## Orthodontic measurements over time
 
-The `Orthodont` dataset from the `nlme` package contains orthodontic measurements of patients over time. The dataset includes measurements of the distance from the pituitary to the pterygomaxillary fissure (mm).
+The `Orthodont` dataset from the `nlme` package contains orthodontic measurements on patients over time. The dataset includes measurements of the distance from the pituitary to the pterygomaxillary fissure (mm).
 
 Use this dataset to study how the distance changes with age, while accounting for individual differences in growth patterns. Also, take any relevant covariates into account.
 
@@ -347,6 +347,7 @@ lmortho <- lm(distance ~ age + Sex, data=Orthodont)
 summary(lmortho)
 mmortho <- lmer(distance ~ age + Sex + (1 | Subject), data=Orthodont)
 summary(mmortho)
+VarCorr(mmortho)
 ```
 :::
 
@@ -507,8 +508,8 @@ m1_alt <- lmer(weight ~ drug + (1 | line) + (1 | litter_id:line), data = nested_
 # or 
 m1_alt2 <- lmer(weight ~ drug + (1 | line) + (1 | litter_id), data = nested_data)
 
-# Model 3: Add random slope for drug per line
-m2 <- lmer(weight ~ drug + (1 + drug | line/litter_id), data = nested_data)
+# Model 3: Add random slope for drug per litter within line
+m2 <- lmer(weight ~ drug + (1 + drug | line/litter), data = nested_data)
 ```
 :::
 
@@ -612,21 +613,21 @@ data("Orthodont", package = "nlme")
 summary(Orthodont)
 ```
 
-When assessing the change of `distance` with increased `age` it is important to take the grouping structure into account. Each child is measured multiple times, so we need to account for the correlation of measurements within subjects. Add a random intercept for subject and fit a linear mixed model to assess the association between distance and age.
+When assessing the change in `distance` with increasing `age`, it is important to take the grouping structure into account. Each child is measured multiple times, so we need to account for the correlation of measurements within subjects. Add a random intercept for subject and fit a linear mixed model to assess the association between distance and age.
 
 ```{r}
 mo1 <- lmer(distance ~ age + (1|Subject), data = Orthodont)
 summary(mo1)
 ```
 
-There are both boys and girls in the dataset. Your PI wants to estimate the effect of sex on the distance. How could you do this? With random intercept per subject, build models with different sets of fixed effects. Start with only intercept and age, then add also sex and finally also the interaction between age and sex.
+There are both boys and girls in the dataset. Your PI wants to estimate the effect of sex on the distance. How could you do this? With a random intercept per subject, build models with different sets of fixed effects. Start with only intercept and age, then add also sex and finally also the interaction between age and sex.
 
 ```{r}
 mof2 <- lmer(distance ~ age + Sex + (1|Subject), data = Orthodont)
 mof3 <- lmer(distance ~ age*Sex + (1|Subject), data = Orthodont)
 ```
 
-Compare the models using likelihood ratio test. When comparing models with different fixed effects, the comparison should be based on ML rather than REML. Use the `anova`function and remember to set `refit=TRUE as anova will the refit with ML.
+Compare the models using a likelihood ratio test. When comparing models with different fixed effects, the comparison should be based on ML rather than REML. Use the `anova` function and remember to set `refit = TRUE`, as `anova` will refit the models with ML.
 
 What do the results tell you? Which model would you choose?
 
@@ -648,9 +649,9 @@ Go back to the exercises "Drug effect on blood pressure" and "Sleep study" and u
 
 # Logistic mixed model
 
-Here we will use the `ohio` dataset in the `faraway` package. This dataset contains information on 537 children and their wheezing status, a binary variable indicating if the child has a pulmonary problem or not). Each child has multiple observations (one for each year from ages 7 to 10, where age 9 is coded as 0). There is also an indicator variable for whether the mother of the child is a smoker.
+Here we will use the `ohio` dataset in the `faraway` package. This dataset contains information on 537 children and their wheezing status, a binary variable indicating if the child has a pulmonary problem or not. Each child has multiple observations (one for each year from ages 7 to 10, where age 9 is coded as 0). There is also an indicator variable for whether the mother of the child is a smoker.
 
-Take a look at the first two children;
+Take a look at the first two children:
 
 ```{r}
 library(faraway)
@@ -673,7 +674,7 @@ To compute the odds ratios (OR), we exponentiate the coefficients:
 exp(coef(mohio_glm))
 ```
 
-According to this model, does the odds for wheezing increase or decrease with age? What about smoking? Are any of the effects statistically significant?
+According to this model, do the odds of wheezing increase or decrease with age? What about smoking? Are any of the effects statistically significant?
 
 The above model is however incorrect as it ignores the fact that each child has multiple observations. To take this grouping into account, we can use a mixed model with a random intercept for each child.
 
@@ -688,4 +689,5 @@ We compute the ORs:
 exp(fixef(mohio))
 ```
 
-According to this model, do the odds for wheezing increase or decrease with age? What about smoking? What does the model output suggest about the age and smoking effects?
+According to this model, do the odds of wheezing increase or decrease with age? What about smoking? What does the model output suggest about the age and smoking effects?
+```
