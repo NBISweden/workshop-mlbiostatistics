@@ -235,10 +235,18 @@ d. How much variability in reaction time is due to differences between subjects?
 :::{.callout-tip collapse="true"}
 ## Solution
 
+```{r}
+VarCorr(mm1_sleep)
+```
+
 The random-intercept variance from `VarCorr(mm1_sleep)` gives the between-subject variability in baseline reaction times. You can also compute an ICC if you want the proportion of total variance attributable to subject differences.
 :::
 
 e. Now include the full dataset and repeat the analysis: visualize the data and fit a mixed model with a random intercept for subject.
+
+What is the estimated fixed effect of sleep deprivation on reaction time in the full dataset?
+
+What is the estimated variability in reaction time due to subject differences?
 
 :::{.callout-tip collapse="true"}
 ## Solution
@@ -256,11 +264,10 @@ mm_sleepall <- lmer(Reaction ~ Days + (1 | Subject), data = sleepall)
 summary(mm_sleepall)
 VarCorr(mm_sleepall)
 ```
+
+The fixed effect of `Days` gives the average increase in reaction time per day in the full dataset. The random-intercept variance gives the variability in baseline reaction time due to differences between subjects.
 :::
 
-What is the estimated fixed effect of sleep deprivation on reaction time in the full dataset?
-
-What is the estimated variability in reaction time due to subject differences?
 
 f. The plot suggests that the slope may also vary between subjects, i.e., some subjects are more affected by sleep deprivation than others. Investigate this further by including a random slope for `Days` within `Subject`.
 
@@ -316,7 +323,7 @@ head(Orthodont)
 Visualize the data.
 
 :::{.callout-tip collapse="true"}
-## Code 
+## Solution
 
 ```{r fig-orthodont, results="hide"}
 Orthodont |> 
@@ -338,7 +345,7 @@ First, fit a linear model to the data, ignoring the grouping structure, but incl
 Then, fit a mixed model taking the grouping structure into account. Use a random intercept for `Subject` to account for individual differences in growth patterns.
 
 :::{.callout-tip collapse="true"}
-## Code
+## Solution
 
 The groups would be the individual subjects, and the covariates could be `age` and `Sex`.
 
@@ -354,6 +361,14 @@ VarCorr(mmortho)
 What is the estimated effect of age on distance in the linear model? How does it compare to the mixed model?
 
 What is the estimated variability in distance due to differences between subjects? Does this suggest that the random intercept is needed in the model?
+
+:::{.callout-tip collapse="true"}
+## Hint
+
+The estimated effect of age is given by the coefficient of `age` in each model. In many repeated-measures settings, the estimated slope is similar in the linear and mixed models, but the mixed model gives more appropriate standard errors because it accounts for the dependence within subject.
+
+The estimated variability due to differences between subjects is given by the random-intercept variance in `VarCorr(mmortho)`. If this variance is clearly larger than 0, that suggests that a random intercept is needed.
+:::
 
 :::
 
@@ -469,7 +484,7 @@ nested_data <- expand.grid(
 Visualize the data, e.g. using boxplots and jitter plots, both overall and showing the line and litter.
 
 :::{.callout-tip collapse="true"}
-## Code
+## Solution
 
 ```{r fig-drugweight}
 #| fig-cap: "Weight by Drug Treatment"
@@ -495,7 +510,7 @@ Fit three different models:
 3. A linear mixed model with a random intercept and random slope for drug treatment for litters nested within lines.
 
 :::{.callout-tip collapse="true"}
-## Code
+## Solution
 
 ```{r}
 # Model 1: Ignore nesting
@@ -516,7 +531,7 @@ m2 <- lmer(weight ~ drug + (1 + drug | line/litter), data = nested_data)
 Use `summary()` to study the different models and `anova()` to compare the linear mixed models with different random-effects structures.
   
 :::{.callout-tip collapse="true"}
-## Code
+## Solution
 
 ```{r}
 summary(m0)
@@ -536,7 +551,7 @@ anova(m1, m2, refit = FALSE)
   
 
 :::{.callout-tip collapse="true"}
-## Solutions
+## Solution
   
 1. **Model `m1` accounts for the nested structure**—ignoring it can underestimate standard errors and inflate Type I error.
 
@@ -550,7 +565,7 @@ print(VarCorr(m1), comp="Variance")
 
 3. **Compare AIC and p-value from the ANOVA.** If model `m2` doesn’t improve AIC much or the p-value is large, the added complexity is not justified.
 
-4. From `summary(m1)`, the fixed effect of `drugtreated` is approximately `-2.3`, indicating that treatment lowers weight by 2 g on average.
+4. From `summary(m1)`, the fixed effect of `drugtreated` is approximately `-2.3`, indicating that treatment lowers weight by 2.3 g on average.
 :::
 
 ## Lab, technician and sample
@@ -568,7 +583,7 @@ head(eggs)
 Visualize the data.
 
 :::{.callout-tip collapse="true"}
-## Code
+## Solution
 
 ```{r}
 #| fig-cap: "Fat content by Lab and Technician"
@@ -581,22 +596,26 @@ eggs |> ggplot(aes(x= Lab, y = Fat, color = Technician, shape=Sample)) +
 What is the grouping structure in the data, and how is it nested? Using this information, fit a linear mixed model.
 
 :::{.callout-tip collapse="true"}
+## Solution
+
 Replicate measurements are made on samples, samples are handled by technicians, and technicians are nested within laboratories. Thus, the grouping structure is hierarchical, with technician nested within lab, and sample nested within technician within lab.
-:::
-
-There are multiple ways to specify the random effects structure, use the method that is least confusing to you!
-
-:::{.callout-tip collapse="true"}
-## Code
 
 ```{r}
 ##These two models are equivalent, try it!
 mfat <- lmer(Fat ~ 1 + (1|Lab/Technician/Sample), data = eggs)
 mfat <- lmer(Fat ~ 1 + (1|Lab) + (1|Lab:Technician) + (1|Lab:Technician:Sample), data = eggs)
+summary(mfat)
+VarCorr(mfat)
 ```
 :::
 
 Examine the model output and interpret the random effects. At what level is the most variation in fat content?
+
+:::{.callout-tip collapse="true"}
+## Hint
+
+Use `VarCorr(mfat)` to compare the variance components at the lab, technician-within-lab, and sample-within-technician-within-lab levels. The level with the largest estimated variance contributes the most to the total variability in fat content.
+:::
 
 :::
 
@@ -632,11 +651,13 @@ Compare the models using a likelihood ratio test. When comparing models with dif
 What do the results tell you? Which model would you choose?
 
 :::{.callout-tip collapse="true"}
-## Code
+## Solution
 
 ```{r}
 anova(mo1, mof2, mof3, refit = TRUE)
 ```
+
+Choose the simplest model that adequately describes the data. If adding `Sex` improves the fit, keep `mof2`. If the interaction `age:Sex` also improves the fit, keep `mof3`. Otherwise, prefer the simpler model.
 :::
 
 :::
@@ -646,6 +667,25 @@ anova(mo1, mof2, mof3, refit = TRUE)
 In this section you will use the `lmerTest` package to compute p-values for mixed models using Satterthwaite's approximation. This package extends the `lme4` package and provides functions to compute p-values for fixed effects in linear mixed models.
 
 Go back to the exercises "Drug effect on blood pressure" and "Sleep study" and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted.
+
+:::{.callout-tip collapse="true"}
+## Solution
+
+```{r}
+library(lmerTest)
+
+model1_test <- lmer(bp ~ drug + (1 | hospital), data = databp)
+summary(model1_test)
+
+mm1_sleep_test <- lmer(Reaction ~ Days + (1 | Subject), data = sleep)
+summary(mm1_sleep_test)
+
+mm_sleepall_test <- lmer(Reaction ~ Days + (1 | Subject), data = sleepall)
+summary(mm_sleepall_test)
+```
+
+The `summary()` output from `lmerTest` includes approximate p-values for the fixed effects.
+:::
 
 # Logistic mixed model
 
@@ -660,6 +700,12 @@ head(ohio, 8)
 ```
 
 What would the grouping structure be in this case?
+
+:::{.callout-tip collapse="true"}
+## Solution
+
+The grouping variable is `id`, since each child has repeated observations over time.
+:::
 
 If we ignore the grouping structure, we can fit a logistic regression model using `glm()`:
 
@@ -676,6 +722,12 @@ exp(coef(mohio_glm))
 
 According to this model, do the odds of wheezing increase or decrease with age? What about smoking? Are any of the effects statistically significant?
 
+:::{.callout-tip collapse="true"}
+## Hint
+
+The sign of the coefficient for `age` tells us whether the odds of wheezing increase or decrease with age. The coefficient for `smoke` tells us how maternal smoking is associated with the odds of wheezing. Statistical significance can be assessed from the p-values in `summary(mohio_glm)`, and the odds ratios are obtained from `exp(coef(mohio_glm))`.
+:::
+
 The above model is however incorrect as it ignores the fact that each child has multiple observations. To take this grouping into account, we can use a mixed model with a random intercept for each child.
 
 ```{r}
@@ -690,4 +742,10 @@ exp(fixef(mohio))
 ```
 
 According to this model, do the odds of wheezing increase or decrease with age? What about smoking? What does the model output suggest about the age and smoking effects?
+
+:::{.callout-tip collapse="true"}
+## Hint
+
+The sign of the fixed effects tells us whether the odds of wheezing increase or decrease with age and with maternal smoking. The exponentiated fixed effects, `exp(fixef(mohio))`, give the corresponding odds ratios. Comparing this model with the ordinary logistic regression allows us to see how accounting for repeated observations within child affects the estimates and inference.
+:::
 ```
