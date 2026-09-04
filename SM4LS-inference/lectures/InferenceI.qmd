@@ -35,14 +35,225 @@ options(digits=2)
 ![](../figures/Lampa.jpg)
 :::
 :::{.column width="92%"}
-A **hypothesis test** is a type of inference about evaluating if a hypothesis about a population is supported by the observations of a random sample (i.e by the data available).
+A **hypothesis test** is a type of inference used to evaluate if a hypothesis about a population is supported by the observations of a random sample (i.e by the data available).
 :::
 ::::
 
 Typically, the hypotheses that are tested are assumptions about properties of a population, such as proportion, mean, mean difference, variance etc.
 
+. . .
 
 ![](../figures/hypotestest.jpg){width=50% fig-align="center"}
+
+
+## A first hypothesis test example
+
+In Sweden as a whole, about **30%** of people are allergic to pollen.
+
+We observe **100 people in Uppsala**, and **42** of them are allergic to pollen.
+
+**Question:**  
+Is there reason to believe that the true proportion in Uppsala is greater than 0.3?
+
+. . .
+
+This is a typical **hypothesis testing** question.
+
+## Null and alternative hypotheses
+
+Let $\pi$ denote the true proportion of pollen allergy in the Uppsala population.
+
+We want to investigate whether the proportion in Uppsala is greater than in Sweden as a whole.
+
+$$
+H_0:\pi=0.30
+$$
+
+$$
+H_1:\pi>0.30
+$$
+
+. . .
+
+- $H_0$: no increase in Uppsala
+- $H_1$: higher proportion in Uppsala
+
+
+## Observed statistic
+
+A simple summary of the sample is the **sample proportion**:
+
+$$
+p=\frac{x}{n}
+$$
+
+where
+
+- $x$ = number allergic in the sample
+- $n$ = sample size
+
+In our example:
+
+$$
+x=42,\qquad n=100
+$$
+
+so
+
+$$
+p_{obs}=\frac{42}{100}=0.42
+$$
+## What would we expect if $H_0$ were true?
+
+If $H_0$ is true, then the pollen allergy proportion in Uppsala is also 0.30.
+
+Then a sample of 100 people from Uppsala should behave like a random sample where
+
+- 30% are allergic
+- 70% are not allergic
+
+. . .
+
+So we ask:
+
+**If the true proportion is 0.30, how unusual is an observed sample proportion of 0.42?**
+
+## Simulate under $H_0$ in R
+
+We can simulate many samples of size 100 under the null hypothesis.
+
+```{r echo=TRUE}
+set.seed(13)
+
+pnull <- replicate(10000, {
+  x <- sample(c(0, 1), size = 100, replace = TRUE, prob = c(0.7, 0.3))
+  mean(x)
+})
+```
+
+Each simulated value is a sample proportion from a world where $H_0$ is true.
+
+
+---
+
+## Null distribution
+
+This is an estimated null distribution of the sample proportion.
+
+```{r}
+#| fig-width: 5
+#| fig-height: 3.5
+#| fig-align: center
+#| out-width: 70%
+ggplot(data.frame(p = pnull), aes(x = p)) +
+  geom_histogram(binwidth = 0.02, color = "white") +
+  geom_vline(xintercept = 0.42, color = "red") +
+  theme_bw() +
+  xlab("Sample proportion") +
+  ylab("Frequency")
+```
+
+The red line marks the observed value, $p_{obs}=0.42$.
+
+
+## p-value
+
+The **p-value** is the probability of observing the value we got, or something even more extreme, **if $H_0$ is true**.
+
+Here:
+
+$$
+p\text{-value}=P(P\geq 0.42\mid H_0)
+$$
+
+Estimate it from the simulated null distribution:
+
+```{r echo=TRUE}
+mean(pnull >= 0.42)
+```
+
+. . .
+
+If this probability is very small, then the observed result would be unusual under $H_0$.
+
+
+## Decision
+
+Suppose we use the significance level
+
+$$
+\alpha=0.05
+$$
+
+If the p-value is less than 0.05, we reject $H_0$.
+
+. . .
+
+Here, the p-value is small, so we reject $H_0$.
+
+**Conclusion:**  
+The data provide evidence that the proportion of pollen allergy in Uppsala is greater than 0.30.
+
+
+## What did we just do?
+
+In this example, we:
+
+1. Defined a **null hypothesis** and an **alternative hypothesis**
+2. Computed an **observed statistic**
+3. Simulated the **null distribution**
+4. Computed a **p-value**
+5. Reached a conclusion by comparing the p-value to $\alpha$
+
+. . .
+
+This is the basic structure of a **hypothesis test**.
+
+## We were slightly sloppy...
+
+In our first example, we introduced the main idea of a hypothesis test:
+
+- compare the observed result to what we would expect under $H_0$
+- compute a p-value
+- decide whether the result is surprising under $H_0$
+
+. . .
+
+But we skipped one important step:
+
+**the significance level, $\alpha$, should be chosen before looking at the result.**
+
+To perform a hypothesis test properly, we should follow a more careful recipe.
+
+
+## To perform a hypothesis test
+
+::: {.smaller style="font-size: 35px" .incremental}
+1.  Define $H_0$ and $H_1$
+2.  Select an appropriate significance level, $\alpha$
+
+::: {.notes}
+The significance level is the acceptable risk of false alarm, i.e. to say *"I have a hit"*, *"I found a difference"*, when the null hypothesis (*"there is no difference"*) is true.
+:::
+
+3.  Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
+
+::: {.notes}
+For example the difference in means, the proportion of successes, the correlation coefficient etc.
+:::
+
+4.  Assume that $H_0$ is true and compute the sampling distribution of $T$.
+
+::: {.notes}
+We will get back to the null distribution in the next slide
+:::
+
+5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value.
+6.  Based on the p-value either reject or fail to reject $H_0$.
+:::
+
+
+
 
 ## The null and alternative hypothesis 
 
@@ -96,31 +307,7 @@ df1 |> ggplot(aes(x=group, y=x, color=group)) + geom_boxplot() + theme_bw() + xl
 :::
 ::::
 
-## To perform a hypothesis test
 
-::: {.smaller style="font-size: 35px" .incremental}
-1.  Define $H_0$ and $H_1$
-2.  Select an appropriate significance level, $\alpha$
-
-::: {.notes}
-The significance level is the acceptable risk of false alarm, i.e. to say *"I have a hit"*, *"I found a difference"*, when the null hypothesis (*"there is no difference"*) is true.
-:::
-
-3.  Select appropriate test statistic, $T$, and compute the observed value, $t_{obs}$
-
-::: {.notes}
-For example the difference in means, the proportion of successes, the correlation coefficient etc.
-:::
-
-4.  Assume that the $H_0$ is true and compute the sampling distribution of $T$.
-
-::: {.notes}
-We will get back to the null distribution in the next slide
-:::
-
-5.  Compare the observed value, $t_{obs}$, with the computed sampling distribution under $H_0$ and compute a p-value. The p-value is the probability of observing a value at least as extreme as the observed value, if $H_0$ is true.
-6.  Based on the p-value either reject or fail to reject $H_0$.
-:::
 
 
 
@@ -156,6 +343,17 @@ plot(pl + scale_x_continuous(breaks=c(-2,-1.5,0,1.5,2), labels=c("-2", "-xobs","
               panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92"))))
 ```
 
+## Significance level
+
+The **significance level**, $\alpha$, is the risk of false alarm.
+
+$\alpha$ should be set before the hypothesis test is performed. 
+
+Common values to use are $\alpha=0.05$ or 0.01.
+
+* If the p-value is above the significance level, $p>\alpha$, $H_0$ is not rejected.
+* If the p-value is below the significance level, $p \leq \alpha$, $H_0$ is rejected.
+
 ## Error types {.auto-animate}
 
 A hypothesis test is used to draw inference about a population based on a random sample. The inference made might of course be wrong. There are two types of errors;
@@ -172,9 +370,8 @@ A hypothesis test is used to draw inference about a population based on a random
 
 The probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively.
 
-
-$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
-$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Fail to reject }H_0|H_1 \textrm{ is true})$$
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0 \mid H_0 \textrm{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Fail to reject }H_0 \mid H_1 \textrm{ is true})$$
 
 The significance level, $\alpha$, is the risk of false alarm.
 
@@ -217,27 +414,11 @@ The risk of false alarm is controlled by setting the significance level to a des
 :::
 
 
-## Significance level
-
-The **significance level**, $\alpha$, is the risk of false alarm.
-
-$\alpha$ should be set before the hypothesis test is performed. 
-
-Common values to use are $\alpha=0.05$ or 0.01.
-
-
-
-* If the p-value is above the significance level, $p>\alpha$, $H_0$ is not rejected.
-* If the p-value is below the significance level, $p \leq \alpha$, $H_0$ is rejected.
-
-
-
-
 ## Statistical power
 
 **Statistical power** is defined as
 
-$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_1\textrm{ is true}).$$
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 \mid H_1\textrm{ is true}).$$
 
 
 
@@ -309,19 +490,6 @@ In a permutation test the null distribution is computed by permuting (rearrangin
 The null distribution is a distribution of test statistics that could be explained by the random sampling. If the observed effect is much more extreme than what could be explained just by the random sampling, we can conclude that there is a difference between the groups (the treatment has an effect).
 :::
 
-## Comparing means
-
-:::{.notes}
-Check lecture notes for other examples, e.g. comparing proportions.
-:::
-
-Three common situations where means are compared:
-
-- **One sample**: compare the mean of a sample to a prespecified value
-- **Two independent samples**: compare the means of two different groups
-- **Paired samples**: compare two linked observations, for example before and after treatment in the same individual
-
-These study designs lead to different hypothesis tests.
 
 ## Permutation example {auto-animate="true" auto-animate-easing="ease-in-out"}
 
@@ -538,7 +706,7 @@ $$\alpha = 0.05$$
 
 **3. Test statistic**
 
-Of interest; the mean weight difference between high-fat and control mice 
+Of interest: the mean weight difference between high-fat and control mice 
 
 $$D = \bar X_2 - \bar X_1$$
 
@@ -546,14 +714,9 @@ Mean weight of 12 (randomly selected) mice on ordinary diet, $\bar X_1$. $E[\bar
 
 Mean weight of 12 (randomly selected) mice on high-fat diet, $\bar X_2$. $E[\bar X_2] = E[X_2] = \mu_2$
 
-Observed values;
+Observed values:
 
 ```{r, echo=FALSE}
-## 12 HF mice
-xHF <- c(25, 30, 23, 18, 31, 24, 39, 26, 36, 29, 23, 32)
-## 12 control mice
-xN <- c(27, 25, 22, 23, 25, 37, 24, 26, 21, 26, 30, 24)
-
 ##Compute mean body weights of the two samples
 mHF <- mean(xHF)
 mN <- mean(xN) 
@@ -571,11 +734,11 @@ $d_{obs} = \bar x_2 - \bar x_1 = `r dobs`$, difference in mean weights
 
 **4. Null distribution**
 
-If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the same diet.
+If high-fat diet has no effect, i.e. if $H_0$ were true, the result would be as if all mice were given the same diet.
 
 ::: {.columns}
 ::: {.column width="50%"}
-The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
+The 24 mice were initially from the same population. Depending on how the mice are randomly assigned to the high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
 
 :::
 ::: {.column width="50%"}
@@ -592,11 +755,11 @@ for (i in o) {
 
 **4. Null distribution**
 
-If high-fat diet has no effect, i.e. if $H_0$ was true, the result would be as if all mice were given the same diet.
+If high-fat diet has no effect, i.e. if $H_0$ were true, the result would be as if all mice were given the same diet.
 
 ::: {.columns}
 ::: {.column width="50%"}
-The 24 mice were initially from the same population, depending on how the mice are randomly assigned to high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
+The 24 mice were initially from the same population. Depending on how the mice are randomly assigned to the high-fat and normal group, the mean weights would differ, even if the two groups were treated the same.
 :::
 ::: {.column width="50%"}
 :::{.columns}
@@ -627,12 +790,12 @@ for (i in o2[13:24]) {
 
 Random reassignment to two groups can be accomplished using permutation.
 
-Assume $H_0$ is true, i.e. assume all mice are equivalent and
+Assume $H_0$ is true, i.e. assume all mice are exchangeable, and
 
 1.  Randomly reassign 12 of the 24 mice to 'high-fat' and the remaining 12 to 'control'.
-2.  Compute difference in mean weights
+2.  Compute the difference in mean weights.
 
-If we repeat 1-2 many times we get the sampling distribution when $H_0$ is true, the so called null distribution, of difference in mean weights.
+If we repeat steps 1 and 2 many times, we get the sampling distribution of the mean difference when $H_0$ is true, that is, the null distribution.
 
 ## Permutation example
 
@@ -662,7 +825,7 @@ ggplot(data.frame(d=dnull.perm), aes(x=d)) + geom_histogram(bins=25, color="whit
 
 **5. Compute p-value**
 
-What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ was true?
+What is the probability to get an at least as extreme mean difference as our observed value, $d_{obs}$, if $H_0$ were true?
 
 ```{r micepval, echo=FALSE, eval=FALSE}
 ## Compute the p-value
@@ -670,17 +833,30 @@ sum(dnull.perm>dobs)/length(dnull.perm)
 mean(dnull.perm>dobs)
 ```
 
-$P(\bar X_2 - \bar X_2 \geq d_{obs} | H_0) =$ `r sprintf("%.3g",mean(dnull.perm>=dobs))`
+$$P(\bar X_2 - \bar X_2 \geq d_{obs} \mid H_0) = `r sprintf("%.3g",mean(dnull.perm>=dobs))`$$
 
 ## Permutation example
 
 **6. Conclusion?**
 
 
-# Parametric tests
+## Parametric tests
 
 If the null distribution was already known (or could be computed based on a few assumptions) resampling would not be necessary.
 
+## Comparing means
+
+:::{.notes}
+Check lecture notes for other examples, e.g. comparing proportions.
+:::
+
+Three common situations where means are compared:
+
+- **One sample**: compare the mean of a sample to a prespecified value
+- **Two independent samples**: compare the means of two different groups
+- **Paired samples**: compare two linked observations, for example before and after treatment in the same individual
+
+These study designs lead to different hypothesis tests.
 ## One sample, mean
 
 A one sample test of means compares the mean of a sample to a prespecified value.
@@ -690,9 +866,9 @@ The hypotheses:
 $$H_0: \mu = \mu_0 \\
 H_1: \mu \neq \mu_0$$
 
-The alternative hypothesis, $H_1,$ above is for the **two sided** hypothesis test.
+The alternative hypothesis, $H_1,$ above is for the **two-sided** hypothesis test.
 
-Other options are the **one sided** alternatives;
+Other options are the **one-sided** alternatives;
 
 ::: {.r-stack}
 * $H_1: \mu > \mu_0$ or
@@ -701,29 +877,29 @@ Other options are the **one sided** alternatives;
 
 ## One sample, mean, mouse example
 
-We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3.0 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g, is there reason to believe that high fat diet affect mice body weight?
+We know that the weight of a mouse on normal diet is normally distributed with mean 24.0 g and standard deviation 3.0 g. To investigate if body weight of mice is changed by high-fat diet, 10 mice are fed on high-fat diet for three weeks. The mean weight of the high-fat mice is 26.0 g. Is there reason to believe that high-fat diet affects mouse body weight?
 
 ## One sample, mean, mouse example
 
-The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3.0$
+The body weight of a mouse is $X \sim N(\mu, \sigma^2)$, where $\mu=24.0$ and $\sigma=3.0$.
 
 Hence, the mean weight of $n=10$ independent mice from the same population is  
-$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
+$$\bar X \sim N\left(\mu, \frac{\sigma^2}{n}\right).$$
 
 ## One sample, mean, mouse example
 
 The body weight of a mouse is $X \sim N(\mu, \sigma),$ where $\mu=24.0$ and $\sigma=3$.
 
 Hence, the mean weight of $n=10$ independent mice from the same population is  
-$$\bar X \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right).$$
+$$\bar X \sim N\left(\mu, \frac{\sigma^2}{n}\right).$$
 
 An appropriate test statistic is 
 
 $$Z = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}}$$
-If $\sigma$ is known, $Z\sim N(0,1)$.
+If $\sigma$ is known, then $Z\sim N(0,1)$.
 
 
-## One sample t-test
+## One-sample t-test
 
 For small $n$ and unknown $\sigma$, the test statistic
 
@@ -733,11 +909,11 @@ is t-distributed with $df=n-1$ degrees of freedom.
 
 ## Two samples, mean
 
-A two sample test of means is used to determine if two population means are equal.
+A two-sample test of means is used to determine if two population means are equal.
 
-Two independent samples are collected (one from each population) and the means are compared. Can for example be used to determine if a treatment group is different compared to a control group, in terms of the mean of a property of interest.
+Two independent samples are collected (one from each population) and the means are compared. This can for example be used to determine if a treatment group differs from a control group in terms of the mean of a property of interest.
 
-The hypotheses;
+The hypotheses:
 
 $$H_0: \mu_2 = \mu_1\\
 H_1: \mu_2 \neq \mu_1$$
@@ -749,12 +925,12 @@ H_1: \mu_2 < \mu_1$$
 
 ## Two samples, mean
 
-Assume that observations from both populations are normally distributed;
+Assume that observations from both populations are normally distributed:
 
 $$
 \begin{aligned}
-X_1 \sim N(\mu_1, \sigma_1) \\
-X_2 \sim N(\mu_2, \sigma_2)
+X_1 \sim N(\mu_1, \sigma_1^2) \\
+X_2 \sim N(\mu_2, \sigma_2^2)
 \end{aligned}
 $$
 
@@ -762,24 +938,30 @@ Then it follows that the sample means will also be normally distributed;
 
 $$
 \begin{aligned}
-\bar X_1 \sim N(\mu_1, \sigma_1/\sqrt{n_1}) \\
-\bar X_2 \sim N(\mu_2, \sigma_2/\sqrt{n_2})
+\bar X_1 \sim N\left(\mu_1, \frac{\sigma_1^2}{n_1}\right) \\
+\bar X_2 \sim N\left(\mu_2, \frac{\sigma_2^2}{n_2}\right)
 \end{aligned}
 $$
 
 The mean difference $D = \bar X_2 - \bar X_1$ is thus also normally distributed:
 
-$$D = \bar X_2 - \bar X_1 = N\left(\mu_2-\mu_1, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
+$$D = \bar X_2 - \bar X_1 \sim N\left(\mu_2-\mu_1, \frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}\right)$$
 
 ## Two samples, mean
 
-If $H_0$ is true: $$D = \bar X_2 - \bar X_1 = N\left(0, \sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}\right)$$
+If $H_0$ is true:
 
-The test statistic: $$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}}$$ is standard normal, i.e. $Z \sim N(0,1)$.
+$$
+D = \bar X_2 - \bar X_1 \sim N\left(0, \frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}\right)
+$$
 
-However, note that the test statistic require the standard deviations $\sigma_1$ and $\sigma_2$ to be known.
+The test statistic:
 
-<!-- --- -->
+$$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{\sigma_2^2}{n_2} + \frac{\sigma_1^2}{n_1}}}$$ 
+is standard normal, i.e. $Z \sim N(0,1)$.
+
+However, note that the test statistic requires the standard deviations $\sigma_1$ and $\sigma_2$ to be known.
+
 
 ## Two samples, mean
 ### Unknown variances
@@ -789,7 +971,7 @@ What if the population standard deviations are not known?
 ## Two samples, mean
 ### Unknown variances, large sample sizes
 
-If the sample sizes are large, we can replace the known standard deviations with our sample standard deviations and according to the central limit theorem assume that 
+If the sample sizes are large, we can replace the population standard deviations by the sample standard deviations and, according to the central limit theorem, assume that 
 
 $$Z = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}} \sim N(0,1)$$
 
@@ -801,14 +983,14 @@ and proceed as before.
 $$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
 is t-distributed.
 
-If equal variances can be assumed Student's t-test can be used otherwise Welch's t-test for unequal variances.
+If equal variances can be assumed, Student's t-test can be used; otherwise Welch's t-test for unequal variances is used.
 
 ## Two samples, mean
 ### Unknown equal variances, small sample sizes
 
 **Student's t-test**
 
-Assume equal variances in the two populations and compute the pooled sample standard deviation;
+Assume equal variances in the two populations and compute the pooled sample variance:
 
 $$
   s_p^2 = \frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}
@@ -816,7 +998,7 @@ $$
   
 and the test statistic
 
-$$t = \frac{\bar X_1 - \bar X_2}{\sqrt{s_p^2(\frac{1}{n_1} + \frac{1}{n_2})}},$$
+$$t = \frac{\bar X_1 - \bar X_2}{\sqrt{s_p^2\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}},$$
   
 which is t-distributed with $n_1+n_2-2$ degrees of freedom.
 
@@ -825,12 +1007,14 @@ which is t-distributed with $n_1+n_2-2$ degrees of freedom.
 
 **Welch's t-test**
 
-For unequal variances the following test statistic can be used;
+For unequal variances the test statistic is
 
 $$t = \frac{\bar X_2 - \bar X_1}{\sqrt{\frac{s_2^2}{n_2} + \frac{s_1^2}{n_1}}}$$
-$t$ is $t$-distributed and the degrees of freedom can be computed using Welch approximation.
+$t$ is $t$-distributed and the degrees of freedom are approximated using Welch's method.
 
-Fortunately, the t-test is implemented in R, e.g. in the function `t.test` in the R-package `stats`. This function can compute both Student's t-test with equal variances and Welch's t-test with unequal variances.
+The degrees of freedom are approximated using Welch's method.
+
+Fortunately, the t-test is implemented in R, for example in the function `t.test` in the `stats` package. This function can compute both Student's t-test with equal variances and Welch's t-test with unequal variances.
 
 ## Paired samples
 
@@ -879,6 +1063,7 @@ The choice of test depends on the study design.
 
 - A hypothesis test compares an observed test statistic to a null distribution.
 - The p-value is the probability of the observed value, or something more extreme, if $H_0$ is true.
+- The significance level should be chosen before looking at the result.
 - Resampling gives an intuitive way to construct a null distribution without relying on strong parametric distributional assumptions.
 - Common mean-comparison tests are:
   - one-sample t-test
