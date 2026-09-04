@@ -1,0 +1,1034 @@
+---
+title: "Survival Analysis"
+format: 
+  revealjs:
+    slide-number: true
+    view-distance: 10
+    theme: [default]
+    mermaid: 
+      theme: forest
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+execute:
+  cache: true
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(ggbeeswarm)
+library(gridExtra)
+library(ggmosaic)
+library(scales)
+library(ggthemes)
+```
+
+## Survival analysis 🏕️ {.smaller} 
+
+```{r}
+#| include: false
+#| message: false
+#| warning: false
+
+library(ISLR2)
+library(janitor)
+library(skimr)
+library(tidyverse)
+library(RColorBrewer)
+library(survival)
+library(survminer)
+
+mycols <- brewer.pal(6, "Set1")
+```
+
+Statistical methods for **time-to-event data**
+
+- Originally applied to time until death in mortality studies
+- Now widely used in many fields:
+  - Medicine: time to relapse
+  - Marketing: time to next purchase
+  - Engineering: time to failure
+  - Criminology: time to reoffend
+
+. . .
+
+**Key feature:** the outcome is time until an event, often with **censoring**.
+
+. . .
+
+Survival analysis is not limited to calendar time, it can also be applied to for example:
+
+- Number of treatment sessions until recovery
+- Number of attempts until passing an exam
+
+## Survival and censoring times {.smaller}
+
+Let's imagine:
+
+  - a mortality study of terminally ill patients receiving a medical treatment. 
+  - a follow-up period of **24 months** 
+- the outcome of interest is **time until death**
+- for each patient, we record the **time until death or censoring**
+
+. . .
+
+For each patient, we suppose there is: 
+
+- a true **survival time** $T$
+  - representing the time at which the event of interest occurs (here death)
+- a **censoring time** $C$
+  - representing the time at which the patient is lost to follow-up or the study ends.
+
+:::{.notes}
+- a true **survival time** $T$
+  - representing the time at which the event of interest occurs (here death)
+- a **censoring time** $C$
+  - representing the time at which the patient is lost to follow-up or the study ends.
+:::
+
+
+. . .
+
+We observe the **random variable** $$Y = \min (T, C)$$
+
+
+- If $T \leq C$, we observe the event time $T$
+- If $T > C$, we observe the censoring time $C$
+
+and an event indicator
+
+$$
+    \delta =
+    \left\{
+        \begin{array}{cc}
+                1 & \mathrm{if\ } T \le C \\
+                0 & \mathrm{if\ } T>C \\
+        \end{array}
+    \right.
+$$
+
+## Survival and censoring times {.smaller}
+
+```{r}
+#| label: fig-censoring
+#| fig-cap: Example of right-censored data in a mortality study lasting 24 months. The horizontal lines represent the time to event or censoring for each patient. The points indicate whether the event occurred (event) or not (censored).
+#| fig-cap-pos: margin
+
+# Example data for 10 patients
+data <- data.frame(
+  patient = factor(1:10),     # Patient IDs
+  time = c(23, 24, 9, 7, 14, 16, 19, 20, 24, 24),  # Time to event or censoring
+  status = c(1, 0, 1, 0, 1, 1, 0, 1, 0, 1)       # Event status (1 = event, 0 = censored)
+)
+
+# Plot the data with horizontal lines
+ggplot(data, aes(x = time, y = patient)) +
+  geom_segment(aes(x = 0, xend = time, y = patient, yend = patient), color = mycols[2], size = 1.5) +  #
+  geom_point(aes(shape = factor(status)), size = 3) +  
+  geom_vline(xintercept = 24, linetype = "dashed") +
+  scale_shape_manual(values = c(1, 16),               
+                     labels = c("Censored", "Event")) +
+  scale_y_discrete(limits = rev) +
+  labs(x = "Time (months)", y = "Patient", shape = "Status") + 
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+. . .
+
+::: incremental
+- For patient 1: $(y_1 = t_1 = 23, \delta_1 = 1)$
+- For patient 2: $(y_2 = c_2 = 24, \delta_2 = 0)$
+- For patient 4: $(y_4 = c_4 = 7, \delta_4 = 0)$, a patient lost to follow-up
+:::
+
+:::{.notes}
+
+- for P1 we get $(y_1= t_1, \space \delta_1 = 1)$ since we observe event (death) as ca. 23 months, before the end of the follow-up at 24 months. 
+- for P2 we get $(y_2= c_2, \space \delta_2 = 0)$ since the patient is still alive at the end of the study at 24 months, meaning that the patient has survived at least 24 months (censored)
+- for P4, we get $(y_4= c_4, \space \delta_4 = 0)$, another censored data point. The study is not over yet, the patient has not died but is **lost to follow-up**, e.g. due to withdrawing from the study
+
+:::
+
+
+## Independent Censoring {.smaller}
+
+To analyze survival data correctly, we assume **independent censoring**:
+- the reason for censoring is unrelated to the risk of the event
+- censored individuals are assumed to have the same event risk as those still under observation
+  
+. . .  
+
+<br>
+
+**Example**
+
+- ✅ Patients leave a cancer study for unrelated reasons, e.g. moving away
+- ❌ Patients drop out because they are very sick
+
+## Left and interval censoring {.smaller}
+
+```{r}
+#| label: fig-left-interval
+#| fig-cap: "Example of left and interval censoring in an age study. Left-censored patients were diagnosed before the study, and interval-censored patients were diagnosed between visits."
+
+# Create a data frame for 8 patients
+# Left-censored patients were diagnosed before the study, and interval-censored patients were diagnosed between visits
+data <- data.frame(
+  patient_id = 1:8,
+  start_age = c(NA, 30, 40, 35, NA, 25, 45, 50),   # Start of observation or known age for interval censoring (NA for left-censored)
+  end_age = c(25, 35, 45, 50, 20, 40, 55, 60),     # Age of diagnosis or end of observation
+  type = c("Left Censored", "Fully Observed", "Fully Observed", "Fully Observed", 
+                     "Left Censored", "Interval Censored", "Interval Censored", "Fully Observed")
+)
+
+# Plot the data
+ggplot(data, aes(x = end_age, y = factor(patient_id), color = type)) +
+  # Add points for observed ages (diagnosis age or censoring)
+  geom_point(size = 4) +
+
+  # For interval-censored patients, add a horizontal line to show the interval
+  geom_segment(data = subset(data, type == "Interval Censored"), aes(x = start_age, xend = end_age, y = factor(patient_id), yend = factor(patient_id)),
+               color = mycols[2], linetype = "dashed") +
+  
+  # For left-censored patients, add an arrow showing the uncertainty before diagnosis
+  geom_segment(data = subset(data, type == "Left Censored"), aes(x = 0, xend = end_age, y = factor(patient_id), yend = factor(patient_id)),
+               color = mycols[1], linetype = "dotted", arrow = arrow(length = unit(0.2, "cm"))) +
+  
+  # Customize the plot labels and appearance
+  labs(x = "Age", y = "Patient ID") +
+  scale_color_manual(values = c("Left Censored" = mycols[1], "Fully Observed" = "black", "Interval Censored" = mycols[2])) +
+  theme_minimal() + 
+  theme(legend.position = "top", legend.title = element_blank())
+
+```
+
+In this lecture, we focus on **right-censored** data.
+
+## Kaplan-Meier estimator {.smaller}
+
+The **survival function** is
+
+$$S(t) = P(T > t)$$
+
+the probability of surviving past time $t$.
+
+. . .
+
+The **Kaplan-Meier (KM) estimator** is
+$$\hat{S}(t) = \prod_{t_j \le t} \left( 1 - \frac{d_j}{n_j} \right)$$ {#eq-KM}
+
+where: 
+
+- $d_j$: number of events at time $t_j$
+- $n_j$: number at risk just before time $t_j$
+
+. . .
+
+The Kaplan-Meier estimator is also called the **product-limit estimator**.
+
+
+## Kaplan-Meier estimator {.smaller}
+
+*Tooth filling example: complete follow-up*
+
+Suppose 10 patients receive a tooth filling, and we record the time until failure.
+
+::::{.columns}
+
+:::{.column width="40%"}
+
+```{r}
+#| label: tooth-filling
+data_tooth <- data.frame(
+  patientID = 1:10,
+  time = c(10, 8, 11,  5, 4,  3,  7,  6, 12,  8), 
+  status = 1
+)
+
+data_tooth |> gt() |> tab_options(table.font.size = px(16), data_row.padding = px(2))
+```
+
+:::
+
+::: {.column width="10%"}
+:::{.fragment}
+
+<br><br><br><br><br>
+$\Longrightarrow$
+
+sort
+
+:::
+:::
+
+::: {.column width="40%"}
+:::{.fragment}
+
+```{r}
+#| label: tooth-filling-sorted
+data_tooth |> arrange(time) |> gt() |> tab_options(table.font.size = px(16), data_row.padding = px(2))
+```
+
+:::
+:::
+
+Goal:
+
+- estimate the probability that a filling remains intact over time
+- first assume **complete follow-up**, i.e. no censoring
+
+::::
+
+
+## Kaplan-Meier estimator {.smaller}
+
+*Tooth filling example: building the Kaplan-Meier table*
+
+From the sorted data, we identify the event times and for each time compute:
+
+:::: {.columns}
+
+::: {.column width="48%"}
+
+- the number at risk, $n_j$
+- the number of events, $d_j$
+- the conditional survival, $1-\frac{d_j}{n_j}$
+- $$S(t) = \prod_{t_j \le t} \left( 1 - \frac{d_j}{n_j} \right)$$
+
+```{r}
+#| label: tbltooth1
+#| echo: false
+#| results: asis
+#| tbl-align: "left"
+#| tbl-cap: "Sorted data"
+data_tooth |>
+  arrange(time, patientID) |>
+  gt() |>
+  cols_label(
+    patientID = "Patient",
+    time = "Time",
+    status = "Status"
+  ) |>
+  tab_options(
+    table.font.size = px(15),
+    data_row.padding = px(2),
+    table.margin.left = px(0)
+  )
+```
+:::
+
+::: {.column width="48%"}
+
+<div style="font-size: 70%; line-height: 1.1;">
+
+:::{.r-stack}
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|
+| 3  | 10 | 1 | $1-\frac{1}{10} = 0.9$ | $0.9$ |
+| 4  |    |   |   |   |
+| 5  |    |   |   |   |
+| 6  |    |   |   |   |
+| 7  |    |   |   |   |
+| 8  |    |   |   |   |
+| 10 |    |   |   |   |
+| 11 |    |   |   |   |
+| 12 |    |   |   |   |
+
+:::
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|
+| 3  | 10 | 1 | $0.9$ | $0.9$ |
+| 4  | 9  | 1 | $1-\frac{1}{9} = 0.888$ | $0.9 \times 0.888$ |
+| 5  |    |   |   |   |
+| 6  |    |   |   |   |
+| 7  |    |   |   |   |
+| 8  |    |   |   |   |
+| 10 |    |   |   |   |
+| 11 |    |   |   |   |
+| 12 |    |   |   |   |
+:::
+
+::: {.fragment .current-visible}
+
+
+| Time | At risk $n_j$ | Events $d_j$ | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|
+| 3  | 10 | 1 | $0.9$ | $0.9$ |
+| 4  | 9  | 1 | $0.888$ | $0.8$ |
+| 5  | 8  | 1 | $1-\frac{1}{8 = 0.875}$ | $0.8 \times 0.875$ |
+| 6  |    |   |   |   |
+| 7  |    |   |   |   |
+| 8  |    |   |   |   |
+| 10 |    |   |   |   |
+| 11 |    |   |   |   |
+| 12 |    |   |   |   |
+:::
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|
+| 3  | 10 | 1 | $0.9$   | $0.9$ |
+| 4  | 9  | 1 | $0.888$ | $0.8$ |
+| 5  | 8  | 1 | $0.875$ | $0.7$ |
+| 6  | 7  | 1 | $0.857$ | $0.6$ |
+| 7  | 6  | 1 | $0.833$ | $0.5$ |
+| 8  | 5  | 2 | $0.6$   | $0.3$ |
+| 10 | 3  | 1 | $0.667$ | $0.2$ |
+| 11 | 2  | 1 | $0.5$   | $0.1$ |
+| 12 | 1  | 1 | $0$     | $0$ |
+
+:::
+
+:::
+
+</div>
+
+:::
+
+::::
+
+
+::: {.notes}
+- At 3 months: 10 patients are at risk, and 1 failure occurs, so the survival probability for this period is 0.9. 
+- For 4 months: 9 patients are at risk (since one patient failed at 3 months), and the survival probability is now cumulative (0.9 from the first interval multiplied by 0.888 from this interval).
+- At time 8 months: two failures occur and the survival probability drops more sharply.
+- At time 12 months: the survival probability reaches 0, indicating that all patients experienced the event (tooth filling failure) by the end of the study.
+:::
+
+
+## Kaplan-Meier estimator {.smaller}
+
+```{r}
+#| label: fig-tooth-filling-1
+#| fig-height: 6
+#| fig-cap: Kaplan-Meier curve for tooth filling data with complete follow-up.
+fit.surv <- survfit(Surv(time, status) ~ 1, data = data_tooth)
+plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probability of Survival", las = 1)
+```
+
+## Kaplan-Meier estimator {.smaller}
+
+*Tooth filling example: what changes with censoring?*
+
+Now suppose two patients are censored.
+
+- censored patients remain in the **risk set** until censoring
+- they do **not** count as events
+- censoring affects future risk sets, but does not change survival at the censoring time
+
+```{r}
+#| label: tbltooth2
+#| echo: false
+#| results: asis
+#| tbl-align: "left"
+#| tbl-cap: "Sorted data with censoring"
+data_tooth_cens <- data.frame(
+  patientID = 1:10,
+  time = c(10, 8, 11, 5, 4, 3, 7, 6, 12, 8),
+  status = c(0, 1, 1, 0, 1, 1, 1, 1, 1, 1)
+)
+
+data_tooth_cens |>
+  arrange(time, patientID) |>
+  gt() |>
+  cols_label(
+    patientID = "Patient",
+    time = "Time",
+    status = "Status"
+  ) |>
+  tab_options(
+    table.font.size = px(15),
+    data_row.padding = px(2),
+    table.margin.left = px(0)
+  )
+```
+
+## Kaplan-Meier estimator {.smaller}
+
+*Tooth filling example: what changes with censoring?*
+
+Now suppose two patients are censored.
+
+:::: {.columns}
+
+::: {.column width="48%"}
+
+```{r}
+#| label: tbltooth2b
+#| echo: false
+#| results: asis
+#| tbl-align: "left"
+#| tbl-cap: "Sorted data with censoring"
+data_tooth_cens |>
+  arrange(time, patientID) |>
+  gt() |>
+  cols_label(
+    patientID = "Patient",
+    time = "Time",
+    status = "Status"
+  ) |>
+  tab_options(
+    table.font.size = px(15),
+    data_row.padding = px(2),
+    table.margin.left = px(0)
+  )
+```
+
+:::
+
+::: {.column width="48%"}
+
+<div style="font-size: 70%; line-height: 1.1;">
+
+:::{.r-stack}
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Censored | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|---:|
+| 3  | 10 | 1 | 0 | $1-\frac{1}{10} = 0.9$ | $0.9$ |
+| 4  |    |   |   |   |   |
+| 5  |    |   |   |   |   |
+| 6  |    |   |   |   |   |
+| 7  |    |   |   |   |   |
+| 8  |    |   |   |   |   |
+| 10 |    |   |   |   |   |
+| 11 |    |   |   |   |   |
+| 12 |    |   |   |   |   |
+
+:::
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Censored | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|---:|
+| 3  | 10 | 1 | 0 | $0.9$ | $0.9$ |
+| 4  | 9  | 1 | 0 | $1-\frac{1}{9} = 0.888$ | $0.9 \times 0.888$ |
+| 5  |    |   |   |   |   |
+| 6  |    |   |   |   |   |
+| 7  |    |   |   |   |   |
+| 8  |    |   |   |   |   |
+| 10 |    |   |   |   |   |
+| 11 |    |   |   |   |   |
+| 12 |    |   |   |   |   |
+:::
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Censored | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|---:|
+| 3  | 10 | 1 | 0 | $0.9$ | $0.9$ |
+| 4  | 9  | 1 | 0 | $0.888$ | $0.8$ |
+| 5  | 8  | 0 | 1 |  | $0.8$ |
+| 6  |    |   |   |   |   |
+| 7  |    |   |   |   |   |
+| 8  |    |   |   |   |   |
+| 10 |    |   |   |   |   |
+| 11 |    |   |   |   |   |
+| 12 |    |   |   |   |   |
+:::
+
+::: {.fragment .current-visible}
+
+| Time | At risk $n_j$ | Events $d_j$ | Censored | Conditional survival | Cumulative survival |
+|---|---:|---:|---:|---:|---:|
+| 3  | 10 | 1 | 0 | $0.9$   | $0.9$ |
+| 4  | 9  | 1 | 0 | $0.888$ | $0.8$ |
+| 5  | 8  | 0 | 1 |  | $0.8$ |
+| 6  | 7  | 1 | 0 | $0.857$ | $0.686$ |
+| 7  | 6  | 1 | 0 | $0.833$ | $0.571$ |
+| 8  | 5  | 2 | 0 | $0.6$   | $0.343$ |
+| 10 | 3  | 0 | 1 |  | $0.343$ |
+| 11 | 2  | 1 | 0 | $0.5$   | $0.171$ |
+| 12 | 1  | 1 | 0 | $0$     | $0$ |
+
+:::
+
+:::
+
+</div>
+
+:::
+
+::::
+
+
+## Kaplan-Meier estimator {.smaller}
+
+The Kaplan-Meier curve shows the cumulative survival probabilities. 
+
+```{r}
+#| label: fig-tooth-filling-2
+#| fig-height: 6
+#| fig.cap: Kaplan-Meier survival curve for tooth filling data. The curve shows the estimated probability of survival (filling intact) over time.
+
+data_tooth[1, "status"] <- 0
+data_tooth[4, "status"] <- 0
+fit.surv <- survfit(Surv(time, status) ~ 1, data = data_tooth)
+plot(fit.surv, mark.time=TRUE, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probabiliy of Survival", las = 1)
+
+```
+
+```{r KM2groups}
+# Load required libraries
+library(survival)
+library(survminer)
+
+# Simulate survival data for two groups
+set.seed(123)
+
+# Group 1: Worse prognosis (shorter survival times)
+group1 <- data.frame(
+  time = rexp(50, rate = 0.2),   # higher event rate → shorter survival
+  status = rep(1, 50),
+  group = "High Event Rate"
+)
+
+# Group 2: Better prognosis (longer survival times)
+group2 <- data.frame(
+  time = rexp(50, rate = 0.05),  # lower event rate → longer survival
+  status = rep(1, 50),
+  group = "Low Event Rate"
+)
+
+# Combine the data
+data_km <- rbind(group1, group2)
+
+# Fit KM survival curves
+fit2groups <- survfit(Surv(time, status) ~ group, data = data_km)
+
+# Plot the curves
+pl2groups <- ggsurvplot(fit2groups,
+           data = data_km,
+           xlab = "Time",
+           ylab = "Survival Probability",
+           risk.table = FALSE,
+           palette = mycols[1:2],
+           font.main = c(20, "bold"),
+           font.x = c(18),
+           font.y = c(18),
+           font.tickslab = c(18),
+           font.legend = c(18),
+           font.risk.table = c(22),
+           legend.title = "Group",
+           legend.labs = c("High Event Rate", "Low Event Rate"))
+```
+
+
+## Kaplan-Meier estimator {.smaller}
+
+*Reading a survival probability from the curve*
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+At a specific time point, we can estimate the survival probability by reading the value of the curve.
+
+Example: what is the probability that a tooth filling lasts at least **10 months**?
+
+:::
+
+::: {.column width="50%"}
+
+:::{.r-stack}
+
+:::{.fragment}
+
+```{r}
+#| label: KM-01
+#| fig-width: 5
+#| fig.cap: Kaplan-Meier survival curve for tooth filling data.
+
+plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probabiliy of Survival", las = 1)
+#abline(v = 10, h = 0.343, col = "red", lty = 2)
+
+```
+
+:::
+
+:::{.fragment}
+
+```{r}
+#| label: KM-02
+#| fig-width: 5
+#| fig.cap: Kaplan-Meier survival curve for tooth filling data.
+
+plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probabiliy of Survival", las = 1)
+abline(v = 10, h = 0.343, col = "red", lty = 2)
+
+```
+
+:::
+:::
+
+:::
+
+::::
+
+```{r}
+#| label: figtooth-filling-20-part
+##| fig.cap: Kaplan-Meier survival curves for a new extended study of tooth filling data, including 20 participants (10 men and 10 women).
+##| fig-height: 7
+
+# Create data frame for survival data
+data_tooth_ext <- data.frame(
+  time = c(3, 5, 6, 7, 9, 10, 12, 15, 18, 20, 
+           4, 6, 7, 9, 11, 13, 14, 16, 18, 22),
+  status = c(1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 
+               1, 1, 0, 1, 1, 1, 1, 0, 1, 1),
+  gender = c(rep("M", 10), rep("F", 10))
+)
+
+# Create a survival object and
+surv_object <- Surv(time = data_tooth_ext$time, event = data_tooth_ext$status)
+
+# Fit Kaplan-Meier curves for gender
+fitg <- survfit(surv_object ~ gender, data = data_tooth_ext)
+
+# Plot Kaplan-Meier survival curves
+plgender <- ggsurvplot(fitg, 
+           data = data_tooth_ext,
+           pval = FALSE,             # Show p-value for difference in survival
+           conf.int = FALSE,         # Add confidence interval
+           risk.table = FALSE,       # Show risk table at the bottom
+           ggtheme = theme_minimal(), # Use a minimal theme
+           xlab = "Time (Months)",
+           ylab = "Survival Probability", 
+           palette = mycols[1:2], 
+           font.main = c(20, "bold"),
+           font.x = c(18),
+           font.y = c(18),
+           font.tickslab = c(18),
+           font.legend = c(18),
+           font.risk.table = c(22),
+           legend.title = "Gender",
+           legend.labs=c("Female", "Male"))
+```
+
+
+## Comparison of survival {.smaller}
+
+<br>
+
+When comparing survival between groups, we often start by plotting **Kaplan-Meier curves**.
+
+- These curves show how the **survival probability** changes over time in each group.
+- If the curves are close together, the groups may have similar survival experiences.
+- If the curves are clearly separated, this suggests a difference in survival.
+- If the curves cross, the difference may change over time and interpretation becomes more difficult.
+
+```{r KMcompare}
+#| fig-width: 20
+#| fig-height: 5
+#| fig-align: "center"
+arrange_ggsurvplots(list(plgender, pl2groups), ncol=2, nrow=1, plot=TRUE)
+```
+
+## Comparisons of hazards {.smaller}
+
+
+To compare groups more formally, we often focus on the **hazard**.
+
+- The **hazard** is the instantaneous event rate at time $t$ among individuals still at risk.
+- Instead of comparing survival probabilities directly, we compare how quickly events occur in the groups over follow-up.
+
+. . .
+
+<br>
+
+A common assumption is the **proportional hazards assumption**:
+
+$$
+\frac{h_1(t)}{h_0(t)} = \text{constant}
+$$
+
+where $h_1(t)$ and $h_0(t)$ are the hazards in the two groups at time $t$.
+
+If this assumption is reasonable, the groups differ by a constant **hazard ratio** over time.
+
+## Mantel-Cox (log-rank test) {.smaller}
+
+The **log-rank test** compares survival between two or more groups.
+
+- Null hypothesis: no difference in survival between groups
+- At each event time, compare the **observed** and **expected** number of events
+- Combine these differences over all event times
+- Test statistic follows a **chi-square distribution**
+
+## Mantel-Cox (log-rank test) {.smaller}
+
+:::: {.columns}
+
+::: {.column width="55%"}
+
+At a given event time:
+
+|            | Died | Survived | Total at risk |
+|------------|-----:|---------:|--------------:|
+| Group A    | $d_{jA}$ | $r_{jA}$ | $n_{jA}$ |
+| Group B    | $d_{jB}$ | $r_{jB}$ | $n_{jB}$ |
+| Total      | $d_j$    | $r_j$    | $n_j$    |
+
+:::
+
+::: {.column width="45%"}
+
+:::{.fragment}
+Observed number of events at time $t_j$:
+
+$$
+O_{jA} = d_{jA}, \qquad O_{jB} = d_{jB}
+$$
+:::
+
+:::{.fragment}
+Expected number of events at time $t_j$:
+
+$$
+E_{jA} = \frac{n_{jA} d_j}{n_j}, \qquad
+E_{jB} = \frac{n_{jB} d_j}{n_j}
+$$
+:::
+
+:::{.fragment}
+Large differences between **observed** and **expected** numbers of events give evidence against the null hypothesis. 
+:::
+
+:::
+::::
+
+## Mantel-Cox (log-rank test) {.smaller}
+
+The Mantel-Cox (log-rank) statistic combines these observed-minus-expected differences over all event times:
+
+$$
+\chi^2_{MC} = \sum_{j} \left( \frac{(O_{jA} - E_{jA})^2}{E_{jA}} + \frac{(O_{jB} - E_{jB})^2}{E_{jB}} \right)
+$$
+
+. . .
+
+For two groups, the statistic is approximately $\chi^2$ distributed with 1 degree of freedom.
+
+# Regression with survival data
+
+
+## Cox proportional hazards model {.smaller}
+
+*Studying the relationship between survival time and predictors*
+
+The **Cox proportional hazards model** is used to study how predictor variables affect the hazard of an event.
+
+- allows adjustment for several covariates at the same time
+- estimates **hazard ratios**
+- does not require specifying the baseline hazard function
+
+. . .
+
+The model is
+
+$$
+h(t|\boldsymbol{x}) = h_0(t)\exp(\boldsymbol{\beta}^T\boldsymbol{x})
+$$
+
+where: 
+
+- $h(t|\boldsymbol{x})$: hazard at time $t$ for a subject with covariates $\boldsymbol{x}$
+- $h_0(t)$: baseline hazard
+- $\boldsymbol{\beta}^T\boldsymbol{x} = \beta_1x_1 + \beta_2x_2 + \cdots + \beta_px_p$: effect of covariates
+
+## Cox proportional hazards model {.smaller}
+
+*Brain cancer example*
+
+The `BrainCancer` data set from the `ISLR2` package contains survival times for patients with primary brain tumors.
+
+Variables included in the study are:
+
+- `sex`: male or female
+- `diagnosis`: meningioma, LG glioma, HG glioma, or other
+- `loc`: tumor location, infratentorial or supratentorial
+- `gtv`: gross tumor volume $cm^3$
+- `ki`: Karnofsky index
+- `stereo`: stereotactic radiosurgery (SRS) or fractionated stereotactic (SRT) radiotherapy
+
+## Cox proportional hazards model {.smaller}
+
+```{r}
+#| echo: true
+# Cox model with multiple predictors
+fit.cox_multi <- coxph(Surv(time, status) ~ sex + diagnosis + ki, data = BrainCancer)
+summary(fit.cox_multi)
+```
+
+
+
+## Cox proportional hazards model {.smaller}
+
+*Interpreting coefficients*
+
+Based on the fitted Cox model:
+
+- HR for a male patient is about $e^{0.11} = 1.11$
+- This suggests a slightly higher hazard for men than women, but the p-value is large
+- A one-unit increase in Karnofsky index gives HR $e^{-0.06} = 0.94$
+- Higher Karnofsky index is associated with **lower hazard**
+- For a 10-unit increase in Karnofsky index:
+  $$
+  e^{-0.06 \times 10} = 0.54
+  $$
+
+## Cox proportional hazards model {.smaller}
+
+*Forest plot*
+
+Hazard ratios and their 95% confidence intervals can be visualized in a forest plot.
+
+```{r}
+#| label: forest-plot
+
+# make forest plot with ggforest()
+ggforest(fit.cox_multi, data = data_brain)
+```
+
+## Cox proportional hazards model {.smaller}
+
+*Model output*
+
+<br>
+
+Cox regression output includes several useful tests.
+
+. . . 
+
+<br>
+
+**Likelihood Ratio Test (LRT)**
+
+- Compares the log-likelihood of:
+  - A null model (no covariates)
+  - A full model (with covariates)
+- Tests whether the covariates improves model fit
+
+. . .
+
+<br>
+
+**Wald test**
+
+- Individual Wald tests assess whether each coefficient is significantly different from 0
+- A global Wald test assesses whether all coefficients are 0 simultaneously
+
+. . .
+
+<br>
+
+**Score test**
+
+- Based on **expected vs. observed** events
+- In simple group-comparison settings, it corresponds to the log-rank test
+
+## Cox proportional hazards model {.smaller}
+
+*Concordance*
+
+The **concordance index** measures how well the model predicts the order of events.
+
+- **C-index = 0.5** → No better than random guessing
+- **C-index = 1** → Perfect prediction of event order
+
+. . .
+
+**Example:**
+
+- Concordance = **0.782**
+- The model correctly orders event times in 78.2% of comparable pairs
+
+## Cox proportional hazards model {.smaller}
+
+*Time-dependent covariates*
+
+So far, predictors have been fixed over time.
+
+But some predictors may **change during follow-up**, for example:
+
+- blood pressure
+- treatment status
+- disease severity
+
+. . .
+
+The Cox model can be extended to time-dependent covariates:
+
+$$
+h(t|\boldsymbol{x}(t)) = h_0(t)\exp(\boldsymbol{\beta}^T\boldsymbol{x}(t))
+$$
+
+In practice, one individual may contribute several rows, one for each interval where the covariates are constant.
+
+## Multiple events: competing risks {.smaller}
+
+A **competing risk** is an event that prevents the event of interest from occurring.
+
+<br>
+
+**Examples:**
+
+- In a study of heart disease death, death from cancer is a competing risk
+- In a study of relapse, death from other causes is a competing risk
+
+. . .
+
+**Why it matters:**
+
+- standard Cox models typically focus on one event type at a time
+- ignoring competing risks can overestimate the cumulative probability of the event of interest
+
+. . .
+
+Useful tools:
+
+- **Cumulative incidence function (CIF)**  
+  estimates the probability of a specific event by time $t$, accounting for competing risks
+
+- **Gray’s test**  
+  tests whether CIFs differ between groups
+
+- **Fine and Gray model**  
+  models the effect of covariates on the **subdistribution hazard**, and is used when interest lies in prediction or comparison of cumulative incidence
+
+
+## 💻 Lab {.smaller}
+
+
+In the lab there are examples of: 
+
+- constructing Kaplan-Meier curves
+- comparing survival curves with the log-rank test
+- fitting Cox proportional hazards models
+- interpreting model output
+- handling time-dependent covariates
+- dealing with competing risks
+
+
+
