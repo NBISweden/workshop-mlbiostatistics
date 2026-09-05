@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Describing outcomes with probability models – Probability</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./04-repeat-the-sampling.html" rel="next">
+<link href="./02-describing-uncertain-obs.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03-describing-outcomes-with-pr-models.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Describing outcomes with probability models</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Probability</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Probability</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-why-do-we-care-about-pr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why do we care about probability?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-describing-uncertain-obs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Describing an uncertain observation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-describing-outcomes-with-pr-models.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Describing outcomes with probability models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-repeat-the-sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Repeating the sampling</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-describing-precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Describing precision</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exercises</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prob_02discrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Appendix: discrete random variables</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prob_03contrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Appendix: Continuous random variables</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#probability-models-and-probability-distributions" id="toc-probability-models-and-probability-distributions" class="nav-link active" data-scroll-target="#probability-models-and-probability-distributions"><span class="header-section-number">3.1</span> Probability models and probability distributions</a></li>
+  <li><a href="#a-normal-model-for-individual-heights" id="toc-a-normal-model-for-individual-heights" class="nav-link" data-scroll-target="#a-normal-model-for-individual-heights"><span class="header-section-number">3.2</span> A normal model for individual heights</a></li>
+  <li><a href="#continuous-outcomes-probability-is-area" id="toc-continuous-outcomes-probability-is-area" class="nav-link" data-scroll-target="#continuous-outcomes-probability-is-area"><span class="header-section-number">3.3</span> Continuous outcomes: probability is area</a></li>
+  <li><a href="#standardisation-how-far-from-the-mean" id="toc-standardisation-how-far-from-the-mean" class="nav-link" data-scroll-target="#standardisation-how-far-from-the-mean"><span class="header-section-number">3.4</span> Standardisation: how far from the mean?</a></li>
+  <li><a href="#percentiles-finding-a-cutoff" id="toc-percentiles-finding-a-cutoff" class="nav-link" data-scroll-target="#percentiles-finding-a-cutoff"><span class="header-section-number">3.5</span> Percentiles: finding a cutoff</a></li>
+  <li><a href="#discrete-outcomes-counting-students" id="toc-discrete-outcomes-counting-students" class="nav-link" data-scroll-target="#discrete-outcomes-counting-students"><span class="header-section-number">3.6</span> Discrete outcomes: counting students</a></li>
+  <li><a href="#from-one-student-to-a-count" id="toc-from-one-student-to-a-count" class="nav-link" data-scroll-target="#from-one-student-to-a-count"><span class="header-section-number">3.7</span> From one student to a count</a></li>
+  <li><a href="#probability-mass-function-the-probability-of-each-count" id="toc-probability-mass-function-the-probability-of-each-count" class="nav-link" data-scroll-target="#probability-mass-function-the-probability-of-each-count"><span class="header-section-number">3.8</span> Probability mass function: the probability of each count</a>
+  <ul class="collapse">
+  <li><a href="#cumulative-distribution-function-adding-probabilities" id="toc-cumulative-distribution-function-adding-probabilities" class="nav-link" data-scroll-target="#cumulative-distribution-function-adding-probabilities"><span class="header-section-number">3.8.1</span> Cumulative distribution function: adding probabilities</a></li>
+  </ul></li>
+  <li><a href="#continuous-vs.-discrete" id="toc-continuous-vs.-discrete" class="nav-link" data-scroll-target="#continuous-vs.-discrete"><span class="header-section-number">3.9</span> Continuous vs.&nbsp;discrete</a></li>
+  <li><a href="#other-common-distributions-in-life-sciences" id="toc-other-common-distributions-in-life-sciences" class="nav-link" data-scroll-target="#other-common-distributions-in-life-sciences"><span class="header-section-number">3.10</span> Other common distributions in life sciences</a></li>
+  <li><a href="#simulation-generating-outcomes-from-a-probability-model" id="toc-simulation-generating-outcomes-from-a-probability-model" class="nav-link" data-scroll-target="#simulation-generating-outcomes-from-a-probability-model"><span class="header-section-number">3.11</span> Simulation: generating outcomes from a probability model</a></li>
+  <li><a href="#approximating-probabilities-by-simulation" id="toc-approximating-probabilities-by-simulation" class="nav-link" data-scroll-target="#approximating-probabilities-by-simulation"><span class="header-section-number">3.12</span> Approximating probabilities by simulation</a></li>
+  <li><a href="#key-message" id="toc-key-message" class="nav-link" data-scroll-target="#key-message"><span class="header-section-number">3.13</span> Key message</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Describing outcomes with probability models</span></h1>
+<p class="subtitle lead">Statistical Methods for Life Sciences</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In the previous section’s BMI exercise, knowing that 50% of adults have a BMI above 25 was not enough to calculate the probability that a randomly selected adult has a BMI above 30.</p>
+<p>To calculate this probability, we need more information about how BMI values are distributed above 25. A probability model is one way to describe this distribution.</p>
+<section id="probability-models-and-probability-distributions" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="probability-models-and-probability-distributions"><span class="header-section-number">3.1</span> Probability models and probability distributions</h2>
+<p>A <strong>probability model</strong> is a mathematical description of a random process. It specifies possible outcomes, their probabilities and the assumptions about how observations arise.</p>
+<p>A <strong>random variable</strong> <span class="math inline">\(X\)</span> assigns a numerical value to each outcome. Its <strong>probability distribution</strong> describes how probability is distributed across those values.</p>
+<p>A continuous distribution is described by a <strong>probability density function</strong>, <span class="math inline">\(f(x)\)</span>.</p>
+<p>While discrete distribution is described by a <strong>probability mass function</strong>, p(x).</p>
+</section>
+<section id="a-normal-model-for-individual-heights" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="a-normal-model-for-individual-heights"><span class="header-section-number">3.2</span> A normal model for individual heights</h2>
+<p>For instance, our model might assume that we independently select students from a population where heights are normally distributed with mean 170 cm and SD 7 cm. Let’s see how to calculate the probability that a student is taller than 180cm.</p>
+<p>Given our model, the probability distribution of the height (X) of one randomly selected student is:</p>
+<p><span class="math display">\[
+X \sim N(\mu,\sigma^2),
+\qquad \mu=170,\quad \sigma=7.
+\]</span> where <strong>mean</strong> <span class="math inline">\(\mu\)</span> and <strong>variance</strong> <span class="math inline">\(\sigma^2\)</span> are distribution parameters.</p>
+<ul>
+<li><strong>Expected value:</strong> <span class="math inline">\(E[X]=\mu\)</span>, the long-run average.</li>
+<li><strong>Variance:</strong> <span class="math inline">\(\operatorname{Var}(X)=E[(X-\mu)^2]\)</span>, the expected squared distance from the mean.</li>
+<li><strong>Standard deviation (SD):</strong> <span class="math inline">\(\sigma=\sqrt{\operatorname{Var}(X)}\)</span> the square root of variance, expressed in the original units</li>
+</ul>
+<p>So here:</p>
+<p><span class="math display">\[
+E[X]=170\text{ cm},
+\]</span></p>
+<p><span class="math display">\[
+\operatorname{Var}(X)
+=E[(X-\mu)^2]
+=\sigma^2
+=7^2
+=49\text{ cm}^2,
+\]</span></p>
+<p><span class="math display">\[
+\operatorname{SD}(X)
+=\sqrt{\operatorname{Var}(X)}
+=7\text{ cm}.
+\]</span></p>
+<p>And the <strong>probability density function</strong>, <span class="math inline">\(f(x)\)</span> describing distribution has a form:</p>
+<p><span class="math display">\[
+f(x)=
+\frac{1}{\sigma\sqrt{2\pi}}
+\exp\left[-\frac{(x-\mu)^2}{2\sigma^2}\right].
+\]</span></p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-height-normal" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-height-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-describing-outcomes-with-pr-models_files/figure-html/fig-height-normal-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-height-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: Probability density function of the height of a student.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For a continuous distribution, the density function <span class="math inline">\(f(x)\)</span> gives the <strong>height of the density curve</strong> at a particular value <span class="math inline">\(x\)</span>. A higher density means that values around <span class="math inline">\(x\)</span> are relatively more common than values around points with lower density.</p>
+<p>Note that normality is a modelling assumption, not a universal property of biological measurements.</p>
+</section>
+<section id="continuous-outcomes-probability-is-area" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="continuous-outcomes-probability-is-area"><span class="header-section-number">3.3</span> Continuous outcomes: probability is area</h2>
+<p>The density itself is not a probability. For continuous variables, probabilities are represented by <strong>areas under the density curve</strong>.</p>
+<p>The probability that <span class="math inline">\(X\)</span> falls between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> is the area under the density curve between these values:</p>
+<p><span class="math display">\[
+P(a &lt; X \leq b)=\int_a^b f(x)\,dx.
+\]</span></p>
+<p>The integral adds up the density across the interval.</p>
+<p>The total area under the density curve is 1:</p>
+<p><span class="math display">\[
+\int_{-\infty}^{\infty} f(x)\,dx = 1.
+\]</span></p>
+<p>For example, for our height model, the probability density function (PDF) is:</p>
+<p><span class="math display">\[
+f(x)=
+\frac{1}{7\sqrt{2\pi}}
+\exp\left[-\frac{(x-170)^2}{98}\right].
+\]</span></p>
+<p>The probability <span class="math inline">\(P(X&gt;180)\)</span> is the area under the normal density curve to the right of 180, shown below:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-height-tail" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-height-tail-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-describing-outcomes-with-pr-models_files/figure-html/fig-height-tail-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-height-tail-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.2: Probability density function of the height of a student. The shaded area represents the probability of height above 180 cm.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In theory, we calculate this area by integration:</p>
+<p><span class="math display">\[
+P(X&gt;180)=\int_{180}^{\infty}f(x)\,dx.
+\]</span></p>
+<p>The <strong>cumulative distribution function (CDF)</strong>, <span class="math inline">\(F(x)\)</span>, gives the accumulated area to the left of a cutoff:</p>
+<p><span class="math display">\[
+F(x)=P(X\leq x)=\int_{-\infty}^{x}f(t)\,dt.
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">145</span>, <span class="dv">195</span>, <span class="at">length.out =</span> <span class="dv">500</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  x,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pnorm</span>(x, <span class="at">mean =</span> <span class="dv">170</span>, <span class="at">sd =</span> <span class="dv">7</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"l"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Height (cm)"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Cumulative probability"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">""</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-height-cdf" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-height-cdf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-describing-outcomes-with-pr-models_files/figure-html/fig-height-cdf-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-height-cdf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.3: Cumulative distribution function for the height of one randomly selected student.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Since total area under the density curve is 1, the probability a student being above 180 cm tall is the complement of the probability at or below 180 cm:</p>
+<p><span class="math display">\[
+P(X&gt;180)=1-F(180).
+\]</span></p>
+<p>The normal CDF cannot be calculated using a simple closed-form expression. Historically, probabilities were obtained from tabulated values of the <strong>standard normal distribution</strong> - a normal distribution with mean 0 and SD 1. Today, we can calculate them numerically.</p>
+<p>E.g., in R <code>pnorm()</code> evaluates the normal CDF directly, and for our model with mean 170 cm and SD 7 cm:</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(<span class="dv">180</span>, <span class="at">mean =</span> <span class="dv">170</span>, <span class="at">sd =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9234363</code></pre>
+</div>
+</div>
+<p>This gives <span class="math inline">\(F(180)\approx0.9234\)</span>. Therefore:</p>
+<p><span class="math display">\[
+P(X&gt;180)=1-F(180)\approx1-0.9234=0.0766.
+\]</span> So, under this model, about <strong>7.7% of students</strong> are taller than 180 cm.</p>
+<p>In R, we can also obtain the upper-tail probability directly by setting <code>lower.tail = FALSE</code> and arrive at the same results:</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(<span class="dv">180</span>, <span class="at">mean =</span> <span class="dv">170</span>, <span class="at">sd =</span> <span class="dv">7</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.07656373</code></pre>
+</div>
+</div>
+</section>
+<section id="standardisation-how-far-from-the-mean" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="standardisation-how-far-from-the-mean"><span class="header-section-number">3.4</span> Standardisation: how far from the mean?</h2>
+<p>A <strong>z-score</strong> expresses distance from the mean in SD units:</p>
+<p><span class="math display">\[
+Z=\frac{X-\mu}{\sigma}.
+\]</span></p>
+<ul>
+<li>Subtracting the mean centres the distribution at zero.</li>
+<li>Dividing by the SD rescales it to have a standard deviation of one.</li>
+</ul>
+<p>For a normally distributed variable, standardisation gives a a new variable <span class="math inline">\(Z\)</span>:</p>
+<p><span class="math display">\[
+Z \sim N(0,1),
+\]</span></p>
+<p>that follows the <strong>standard normal distribution</strong>.</p>
+<p>Given our height example, we can locate where a measurement e.g.&nbsp;180 cm lies relative to the mean:</p>
+<p><span class="math display">\[
+z=\frac{180-170}{7}\approx1.43.
+\]</span></p>
+<p>This height is about <strong>1.43 SD above the mean</strong>.</p>
+<p>Standardisation changes the scale, but not the corresponding probability. Being above 180 cm is equivalent to having a z-score above <span class="math inline">\(10/7 \approx 1.43\)</span>.</p>
+<p>Writing <span class="math inline">\(\Phi\)</span> for the standard normal cumulative distribution function:</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(X&gt;180)
+&amp;=P\left(Z&gt;\frac{180-170}{7}\right)\\
+&amp;=1-\Phi\left(\frac{10}{7}\right)\\
+&amp;\approx0.0766.
+\end{aligned}
+\]</span></p>
+<p>We get the same probability in R using the standard normal distribution, which is the default for <code>pnorm()</code>:</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> (<span class="dv">180</span> <span class="sc">-</span> <span class="dv">170</span>) <span class="sc">/</span> <span class="dv">7</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(z, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.07656373</code></pre>
+</div>
+</div>
+</section>
+<section id="percentiles-finding-a-cutoff" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="percentiles-finding-a-cutoff"><span class="header-section-number">3.5</span> Percentiles: finding a cutoff</h2>
+<p>So far, we have started with a height and calculated a probability. Now we reverse the question:</p>
+<p><strong>Below which height do 95% of students fall?</strong></p>
+<p>The <strong>95th percentile</strong>, <span class="math inline">\(x_{0.95}\)</span>, satisfies:</p>
+<p><span class="math display">\[
+P(X\leq x_{0.95})=0.95.
+\]</span></p>
+<p>We first find this cutoff on the standard normal scale.</p>
+<p>The symbol <span class="math inline">\(\Phi\)</span> denotes the <strong>standard normal cumulative distribution function</strong>:</p>
+<p><span class="math display">\[
+\Phi(z)=P(Z\leq z).
+\]</span></p>
+<p>It gives the probability below a specified z-score. Its inverse, <span class="math inline">\(\Phi^{-1}\)</span>, goes in the opposite direction: it gives the z-score for a specified cumulative probability.</p>
+<p>For a probability of 0.95:</p>
+<p><span class="math display">\[
+z_{0.95}=\Phi^{-1}(0.95)\approx1.645.
+\]</span></p>
+<p>This value comes from the standard normal distribution: approximately 95% of its area lies below 1.645. We obtain it using software or a standard normal table.</p>
+<p>In R:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|code-fold: show</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.644854</code></pre>
+</div>
+</div>
+<p>To convert this z-score back to centimeters, we multiply by the SD and add the mean:</p>
+<p><span class="math display">\[
+\begin{aligned}
+x_{0.95}
+&amp;=\mu+\sigma z_{0.95}\\
+&amp;\approx170+7\times1.645\\
+&amp;\approx181.5\text{ cm}.
+\end{aligned}
+\]</span></p>
+<p>We can also obtain the height cutoff directly in R:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="fl">0.95</span>, <span class="at">mean =</span> <span class="dv">170</span>, <span class="at">sd =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 181.514</code></pre>
+</div>
+</div>
+<p>Under our model, 95% of students are at or below approximately 181.5 cm, and 5% are above it.</p>
+<p>A percentile converts a probability into a cutoff. In R:</p>
+<ul>
+<li><code>pnorm()</code> goes from a value to a cumulative probability;</li>
+<li><code>qnorm()</code> goes from a cumulative probability to a value.</li>
+</ul>
+</section>
+<section id="discrete-outcomes-counting-students" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="discrete-outcomes-counting-students"><span class="header-section-number">3.6</span> Discrete outcomes: counting students</h2>
+<p>Not all outcomes are continuous. In life sciences, we may instead be interested in counts, such as the number of bacterial colonies on a plate or the number of sequencing reads assigned to a gene. The same probability concepts apply, but discrete outcomes are described using probabilities at specific values rather than areas under a continuous curve.</p>
+<p>Let’s imagine we are interested in how many students in a sample are taller than 180 cm. We sample 20 PhD students from a course at UU and record how many of them are taller than 180 cm.</p>
+<p>Let <span class="math inline">\(K\)</span> denote this count. Its possible values are:</p>
+<p><span class="math display">\[
+K\in\{0,1,2,\ldots,20\}.
+\]</span></p>
+<p>Unlike height, this is a <strong>discrete random variable</strong>: it can take only specific, whole-number values, from 0 to 20.</p>
+</section>
+<section id="from-one-student-to-a-count" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="from-one-student-to-a-count"><span class="header-section-number">3.7</span> From one student to a count</h2>
+<p>For one student, the outcome “taller than 180 cm or not” can be coded as 1 or 0, respectively.</p>
+<p>This follows a <strong>Bernoulli distribution</strong>, which describes a single random outcome with two possible values:</p>
+<ul>
+<li><span class="math inline">\(1\)</span>: success</li>
+<li><span class="math inline">\(0\)</span>: failure</li>
+</ul>
+<p>If the probability of success is <span class="math inline">\(p\)</span>, then the probability of failure is <span class="math inline">\(1-p\)</span>:</p>
+<p><span class="math display">\[
+P(Y=y)=
+\begin{cases}
+p, &amp; y=1,\\
+1-p, &amp; y=0.
+\end{cases}
+\]</span></p>
+<p>The expected value and variance are:</p>
+<p><span class="math display">\[
+E[Y]=p,
+\qquad
+\operatorname{Var}(Y)=p(1-p).
+\]</span></p>
+<p>In our example, for one randomly selected student:</p>
+<ul>
+<li><span class="math inline">\(Y=1\)</span> if the student is taller than 180 cm,</li>
+<li><span class="math inline">\(Y=0\)</span> otherwise.</li>
+</ul>
+<p>Since <span class="math inline">\(X\)</span> denotes the student’s height, under our height model:</p>
+<p><span class="math display">\[
+p=P(X&gt;180)\approx0.0766.
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+Y \sim \operatorname{Bernoulli}(0.0766).
+\]</span></p>
+<p>So the Bernoulli distribution describes whether <strong>one student</strong> is taller than 180 cm or not.</p>
+<p>A <strong>binomial distribution</strong> describes the number of successes in <span class="math inline">\(n\)</span> independent Bernoulli trials, where each trial has the same probability of success, <span class="math inline">\(p\)</span>.</p>
+<p>If <span class="math inline">\(Y_i\)</span> denotes the Bernoulli outcome for student <span class="math inline">\(i\)</span>, then the total number of successes is:</p>
+<p><span class="math display">\[
+K=\sum_{i=1}^{n}Y_i.
+\]</span></p>
+<p>The binomial distribution is written as:</p>
+<p><span class="math display">\[
+K\sim\operatorname{Bin}(n,p).
+\]</span></p>
+<p>The expected value and variance are:</p>
+<p><span class="math display">\[
+E[K]=np,
+\]</span></p>
+<p><span class="math display">\[
+\operatorname{Var}(K)=np(1-p).
+\]</span></p>
+<p>In our example, we sample 20 students and define a success as being taller than 180 cm. Since</p>
+<p><span class="math display">\[
+p=P(X&gt;180)\approx0.0766,
+\]</span></p>
+<p>the number of students taller than 180 cm follows:</p>
+<p><span class="math display">\[
+K\sim\operatorname{Bin}(20,0.0766).
+\]</span></p>
+<p>The expected count is therefore:</p>
+<p><span class="math display">\[
+E[K]=20\times0.0766\approx1.53.
+\]</span></p>
+<p>This means that across many repeated samples of 20 students, the average number taller than 180 cm would be about <strong>1.5 students</strong>. Each individual observed count, however, must be a whole number.</p>
+</section>
+<section id="probability-mass-function-the-probability-of-each-count" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="probability-mass-function-the-probability-of-each-count"><span class="header-section-number">3.8</span> Probability mass function: the probability of each count</h2>
+<p>For a discrete random variable, the <strong>probability mass function (PMF)</strong> gives the probability of each possible value:</p>
+<p><span class="math display">\[
+p_K(k)=P(K=k).
+\]</span></p>
+<p>Unlike a continuous density, where probability is represented by an area, the value of a PMF is itself a probability.</p>
+<p>For a binomial random variable,</p>
+<p><span class="math display">\[
+K\sim\operatorname{Bin}(n,p),
+\]</span></p>
+<p>the probability mass function is:</p>
+<p><span class="math display">\[
+P(K=k)=
+\binom{n}{k}
+p^k(1-p)^{n-k},
+\qquad k=0,1,\ldots,n.
+\]</span></p>
+<p>Here, <span class="math inline">\(\binom{n}{k}\)</span> counts the number of ways in which exactly <span class="math inline">\(k\)</span> successes can occur among <span class="math inline">\(n\)</span> trials.</p>
+<p>In our example,</p>
+<p><span class="math display">\[
+K\sim\operatorname{Bin}(20,0.0766),
+\]</span></p>
+<p>where <span class="math inline">\(K\)</span> is the number of students taller than 180 cm among 20 independently selected students.</p>
+<p>The PMF therefore gives the probability of observing each possible count, from 0 to 20 students.</p>
+<p>We can calculate and plot these probabilities in R using <code>dbinom()</code>:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-height-count" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-height-count-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-describing-outcomes-with-pr-models_files/figure-html/fig-height-count-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-height-count-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.4: Probability of each possible number of students taller than 180 cm among 20 selected students.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The height of each bar is the probability of observing that particular count. For example, the bar at <span class="math inline">\(k=2\)</span> represents:</p>
+<p><span class="math display">\[
+P(K=2).
+\]</span></p>
+<p>The probabilities across all possible counts sum to 1:</p>
+<p><span class="math display">\[
+\sum_{k=0}^{20} P(K=k)=1.
+\]</span> As an example, let’s calculate the probability that exactly five students out of 20 are taller than 180cm. To do that, we evaluate the PMF at <span class="math inline">\(k=5\)</span>:</p>
+<p><span class="math display">\[
+P(K=5)=\binom{20}{5}p^5(1-p)^{15}.
+\]</span></p>
+<p>Or in R:</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbinom</span>(<span class="dv">5</span>, <span class="at">size =</span> <span class="dv">20</span>, <span class="at">prob =</span> p_tall)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.01234989</code></pre>
+</div>
+</div>
+<p><strong>Note</strong> that for a continuous variable, a PDF gives a density and probabilities are obtained from areas. For a discrete variable, a PMF gives probabilities directly at individual values.</p>
+<section id="cumulative-distribution-function-adding-probabilities" class="level3" data-number="3.8.1">
+<h3 data-number="3.8.1" class="anchored" data-anchor-id="cumulative-distribution-function-adding-probabilities"><span class="header-section-number">3.8.1</span> Cumulative distribution function: adding probabilities</h3>
+<p>The <strong>cumulative distribution function</strong> (CDF) gives the probability of a value at or below a cutoff (same meaning as for continuous distribution).</p>
+<p>For our count variable (K):</p>
+<p><span class="math display">\[
+F_K(k)=P(K\leq k)=\sum_{j=0}^{k}P(K=j).
+\]</span></p>
+<p>For example, the probability of four or fewer students being taller than 180 cm is:</p>
+<p><span class="math display">\[
+F_K(4)=P(K=0)+P(K=1)+\cdots+P(K=4).
+\]</span></p>
+<p>For continuous variables, we integrate the density. For discrete variables, we add the probability masses.</p>
+<p>In R, <code>pbinom()</code> evaluates the binomial CDF:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(<span class="dv">4</span>, <span class="at">size =</span> <span class="dv">20</span>, <span class="at">prob =</span> p_tall)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9846016</code></pre>
+</div>
+</div>
+<p>What is the probability that five or more students are of 20 will be taller than 180cm?</p>
+<p>As before, we can use the complement rule and this time write:</p>
+<p><span class="math display">\[
+P(K\geq5)=1-P(K\leq4)=1-F_K(4).
+\]</span></p>
+<p>In R:</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">-</span> <span class="fu">pbinom</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">4</span>, <span class="at">size =</span> <span class="dv">20</span>, <span class="at">prob =</span> p_tall,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.tail =</span> <span class="cn">TRUE</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.01539839</code></pre>
+</div>
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#or </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pbinom</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">4</span>, <span class="at">size =</span> <span class="dv">20</span>, <span class="at">prob =</span> p_tall,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.tail =</span> <span class="cn">FALSE</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.01539839</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="continuous-vs.-discrete" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="continuous-vs.-discrete"><span class="header-section-number">3.9</span> Continuous vs.&nbsp;discrete</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Continuous example: height</th>
+<th>Discrete example: count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Random variable</td>
+<td><span class="math inline">\(X\)</span>: one student’s height</td>
+<td><span class="math inline">\(K\)</span>: number taller than 180 cm among 20 students</td>
+</tr>
+<tr class="even">
+<td>Model</td>
+<td>Normal</td>
+<td>Binomial</td>
+</tr>
+<tr class="odd">
+<td>Distribution function</td>
+<td>PDF: <span class="math inline">\(f(x)\)</span> gives density</td>
+<td>PMF: <span class="math inline">\(p_K(k)=P(K=k)\)</span> gives probability</td>
+</tr>
+<tr class="even">
+<td>Probability calculation</td>
+<td>Integrate density over an interval</td>
+<td>Sum probabilities of individual values</td>
+</tr>
+<tr class="odd">
+<td>CDF</td>
+<td><span class="math inline">\(F_X(x)=P(X\leq x)\)</span></td>
+<td><span class="math inline">\(F_K(k)=P(K\leq k)\)</span></td>
+</tr>
+<tr class="even">
+<td>R: density or mass</td>
+<td><code>dnorm()</code> gives density</td>
+<td><code>dbinom()</code> gives probability</td>
+</tr>
+<tr class="odd">
+<td>R: cumulative probability</td>
+<td><code>pnorm()</code></td>
+<td><code>pbinom()</code></td>
+</tr>
+<tr class="even">
+<td>Upper tail</td>
+<td><span class="math inline">\(P(X&gt;180)=1-F_X(180)\)</span></td>
+<td><span class="math inline">\(P(K\geq5)=1-F_K(4)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The CDF has the same meaning in both cases: probability at or below a cutoff. The difference is how we accumulate probability: integration for a continuous density, summation for discrete masses.</strong></p>
+</section>
+<section id="other-common-distributions-in-life-sciences" class="level2" data-number="3.10">
+<h2 data-number="3.10" class="anchored" data-anchor-id="other-common-distributions-in-life-sciences"><span class="header-section-number">3.10</span> Other common distributions in life sciences</h2>
+<p>Beyond normal and binomial distributions, several other models are useful:</p>
+<ul>
+<li><p><strong>Poisson:</strong> counts within a fixed time, area or volume, such as colony counts under suitable conditions. The mean and variance are equal.</p></li>
+<li><p><strong>Negative binomial:</strong> counts with more variability than Poisson allows. Commonly used for RNA-seq counts across biological replicates.</p></li>
+<li><p><strong>Log-normal:</strong> positive measurements whose logarithms are normally distributed, such as some biological concentrations.</p></li>
+<li><p><strong>Exponential:</strong> waiting times between events occurring independently at a constant rate.</p></li>
+<li><p><strong>Hypergeometric:</strong> counts when sampling without replacement from a finite set, such as overlap between a selected gene list and a pathway.</p></li>
+</ul>
+<p>The <strong>t</strong>, <strong>chi-squared</strong> and <strong>F</strong> distributions also appear in statistical inference, often as distributions of test statistics.</p>
+</section>
+<section id="simulation-generating-outcomes-from-a-probability-model" class="level2" data-number="3.11">
+<h2 data-number="3.11" class="anchored" data-anchor-id="simulation-generating-outcomes-from-a-probability-model"><span class="header-section-number">3.11</span> Simulation: generating outcomes from a probability model</h2>
+<p>Once we have specified a probability model, we can use it to <strong>simulate possible outcomes</strong>.</p>
+<p>For example, under our height model:</p>
+<p><span class="math display">\[
+X \sim N(170, 7^2),
+\]</span></p>
+<p>we can simulate the height of one randomly selected student:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">170</span>, <span class="at">sd =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 173.6441</code></pre>
+</div>
+</div>
+<p>Each simulation gives one possible outcome under the model.</p>
+<p>We can also simulate many students:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="at">mean =</span> <span class="dv">170</span>, <span class="at">sd =</span> <span class="dv">7</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 162.4422 170.9747 169.4068 165.3335 152.3874 164.8540</code></pre>
+</div>
+</div>
+<p>The individual simulated values vary, but with many simulations their distribution resembles the probability distribution specified by the model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(x, <span class="at">n =</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03-describing-outcomes-with-pr-models_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="approximating-probabilities-by-simulation" class="level2" data-number="3.12">
+<h2 data-number="3.12" class="anchored" data-anchor-id="approximating-probabilities-by-simulation"><span class="header-section-number">3.12</span> Approximating probabilities by simulation</h2>
+<p>Simulation can also be used to approximate probabilities.</p>
+<p>For example, we previously calculated:</p>
+<p><span class="math display">\[ P(X&gt;180) \approx 0.077. \]</span></p>
+<p>Using simulated heights, we can estimate the same probability by calculating the proportion that exceed 180 cm:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x <span class="sc">&gt;</span> <span class="dv">180</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.083</code></pre>
+</div>
+</div>
+<p>With a large number of simulations, this value should be close to the probability calculated from the normal distribution.</p>
+<p><strong>The law of large numbers</strong> states that if the same experiment is performed many times the average of the result will be close to the expected value.</p>
+</section>
+<section id="key-message" class="level2" data-number="3.13">
+<h2 data-number="3.13" class="anchored" data-anchor-id="key-message"><span class="header-section-number">3.13</span> Key message</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Key message
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A probability model lets us move from describing possible outcomes to calculating how likely they are, under stated assumptions.</p>
+<p>For continuous measurements, probabilities are areas under a density curve; for discrete counts, they are sums of probability masses.</p>
+<p>In both cases, the CDF gives the probability at or below a cutoff, while a percentile answers the reverse question: which cutoff corresponds to a given probability?</p>
+<p>Simulation generates possible outcomes under an assumed probability model.</p>
+<p>By repeating the simulation many times, we can explore the variation and probabilities implied by that model.</p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./02-describing-uncertain-obs.html" class="pagination-link" aria-label="Describing an uncertain observation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Describing an uncertain observation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./04-repeat-the-sampling.html" class="pagination-link" aria-label="Repeating the sampling">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Repeating the sampling</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

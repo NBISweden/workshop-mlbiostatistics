@@ -1,0 +1,306 @@
+---
+title: "Quiz questions"
+subtitle: "Statistical Methods for Life Sciences"
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-fold: false
+---
+
+## Quiz {.unnumbered}
+
+::: {#exr-quiz-1}
+
+## Question 1: Probability
+
+Suppose 40% of individuals in a population have a measurement above 25:
+
+$$
+P(X>25)=0.40.
+$$
+
+Which statements are correct? **Select all that apply.**
+
+a) $P(X\leq25)=0.60$.
+
+b) $P(X>30)$ must be smaller than or equal to 0.40.
+
+c) $P(X>30)=0.40$.
+
+d) We need more information about the distribution of $X$ to calculate
+$P(X>30)$ exactly.
+
+:::
+
+::: {.callout-tip title="Answer" collapse="true"}
+
+**Correct answers: a), b) and d).**
+
+a) By the complement rule,
+
+$$
+P(X\leq25)=1-P(X>25)=1-0.40=0.60.
+$$
+
+b) Since
+
+$$
+\{X>30\}\subseteq\{X>25\},
+$$
+
+we know that
+
+$$
+P(X>30)\leq P(X>25)=0.40.
+$$
+
+c) is not necessarily true. Knowing $P(X>25)$ does not tell us how
+values above 25 are distributed.
+
+d) is correct: a probability model or other information about the
+distribution is needed to calculate $P(X>30)$ exactly.
+
+:::
+
+::: {#exr-quiz-2}
+
+## Question 2: A normal probability model
+
+Suppose
+
+$$
+X\sim N(25,4^2).
+$$
+
+Which statements are correct? **Select all that apply.**
+
+a) The population mean is 25 and the population SD is 4.
+
+b) A value of 29 is 1 standard deviation above the population mean.
+
+c) `pnorm(29, mean = 25, sd = 4)` gives the probability that
+$X$ is exactly equal to 29.
+
+d) `qnorm(0.95, mean = 25, sd = 4)` gives the 95th percentile
+of this distribution.
+
+:::
+
+::: {.callout-tip title="Answer" collapse="true"}
+
+**Correct answers: a), b) and d).**
+
+a) From
+
+$$
+X\sim N(25,4^2),
+$$
+
+we have
+
+$$
+\mu=25,\qquad \sigma=4.
+$$
+
+b) 
+
+We can calculate the **z-score**, which tells us how many standard deviations a value is above or below the mean:
+
+$$
+z=\frac{x-\mu}{\sigma}.
+$$
+
+For $x=29$:
+
+$$
+z=\frac{29-25}{4}=\frac{4}{4}=1.
+$$
+
+So, a value of 29 has a **z-score of 1**, meaning that it is **1 standard deviation above the population mean**.
+
+
+c) is false. `pnorm()` evaluates the cumulative probability
+
+$$
+P(X\leq29),
+$$
+
+not the probability of exactly 29. For a continuous random variable,
+the probability of any single exact value is zero.
+
+d) is correct. `qnorm()` reverses the CDF: it finds the value below
+which a specified proportion of the distribution lies.
+
+:::
+
+
+::: {#exr-quiz-3}
+
+# Question 3: Discrete outcomes
+
+Suppose each individual in a population has probability $p=0.15$ of carrying
+a particular genetic variant. We independently sample 30 individuals and
+let $K$ be the number who carry the variant.
+
+Which statements are correct? **Select all that apply.**
+
+a) $K\sim\operatorname{Bin}(30,0.15)$.
+
+b) The expected number of individuals carrying the variant is 4.5.
+
+c) `dbinom(4, size = 30, prob = 0.15)` calculates
+$P(K\leq4)$.
+
+d) `pbinom(3, size = 30, prob = 0.15, lower.tail = FALSE)`
+calculates $P(K\geq4)$.
+
+:::
+
+::: {.callout-tip title="Answer" collapse="true"}
+
+**Correct answers: a), b) and d).**
+
+a) Each of the 30 individuals either carries the variant or does not,
+with the same probability $p=0.15$. Assuming the individuals are sampled
+independently,
+
+$$
+K\sim\operatorname{Bin}(30,0.15).
+$$
+
+b) For a binomial random variable,
+
+$$
+E[K]=np=30\times0.15=4.5.
+$$
+
+The expected value does not have to be a possible observed count.
+
+c) is false. `dbinom()` gives the probability of one particular count:
+
+$$
+P(K=4).
+$$
+
+d) is correct. With `lower.tail = FALSE`,
+
+$$
+P(K>3)=P(K\geq4).
+$$
+
+:::
+
+
+::: {#exr-quiz-4}
+
+## Question 4: Sampling distributions and precision
+
+Which statements are correct? **Select all that apply.**
+
+a) A sampling distribution describes how a statistic varies across
+repeated samples.
+
+b) Increasing the number of independent observations generally decreases
+the standard error of the sample mean.
+
+c) The standard error describes the variability among individual
+observations in the population.
+
+d) When the population SD $\sigma$ is unknown and is estimated using
+the sample SD $s$, a standardised sample mean is compared with a
+t-distribution under the corresponding normal population model.
+
+:::
+
+::: {.callout-tip title="Answer" collapse="true"}
+
+**Correct answers: a), b) and d).**
+
+a) The distribution of a statistic across repeated samples is its
+**sampling distribution**.
+
+b) For independent observations,
+
+$$
+\operatorname{SE}(\bar X)
+=
+\frac{\sigma}{\sqrt n},
+$$
+
+so increasing $n$ decreases the standard error.
+
+c) is false. The **standard deviation** describes variability among
+individual observations. The **standard error** describes sampling
+variability of an estimate such as the sample mean.
+
+d) is correct. When $\sigma$ is unknown, we use
+
+$$
+T=
+\frac{\bar X-\mu}
+{s/\sqrt n},
+$$
+
+which follows a t-distribution with $n-1$ degrees of freedom under the
+normal population model.
+
+:::
+
+::: {#exr-quiz-5}
+
+## Question 5: Extending probability calculations
+
+Suppose an experiment considers a background set of 1,000 genes:
+
+- 100 genes belong to a particular biological pathway.
+- 900 genes do not belong to the pathway.
+- 50 genes are selected from the 1,000 genes.
+
+Let $K$ be the number of pathway genes among the 50 selected genes.
+
+Because genes are sampled **without replacement from a finite set**,
+$K$ follows a **hypergeometric distribution**.
+
+Which statements are correct? **Select all that apply.**
+
+a) The expected number of pathway genes among 50 randomly selected genes is 5.
+
+b) `dhyper(10, m = 100, n = 900, k = 50)` gives the probability of
+observing exactly 10 pathway genes.
+
+c) `phyper(10, m = 100, n = 900, k = 50)` gives the probability of
+observing 10 or more pathway genes.
+
+d) `phyper(9, m = 100, n = 900, k = 50, lower.tail = FALSE)` gives the
+probability of observing 10 or more pathway genes.
+
+:::
+
+::: {.callout-tip title="Answer" collapse="true"}
+
+**Correct answers: a), b) and d).**
+
+a) The expected number is
+
+$$
+E[K]
+=
+50\times\frac{100}{1000}
+=
+5.
+$$
+
+b) `dhyper()` gives the probability of one particular count:
+
+$$
+P(K=10).
+$$
+
+```{r}
+dhyper(
+  10,
+  m = 100,
+  n = 900,
+  k = 50
+)

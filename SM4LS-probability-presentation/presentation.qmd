@@ -1,0 +1,2298 @@
+---
+title: "Probability"
+subtitle: "Understanding variation in experiments"
+author: Olga Dethlefsen
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default, styles.scss]
+    view-distance: 10
+    chalkboard: 
+      buttons: true
+    footer: "Statistical Methods for Life Sciences"  
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Introduction
+
+## Outline
+
+<br>
+
+In this session, we will see why probability matters, and more specifically:
+
+::: incremental
+
+- how it helps us describe uncertainty in data
+- understand why studies give different results
+- and lets us gain foundations for statistical inference
+::: 
+
+## Do studies give different results?
+*Example*
+
+<br>
+
+Let's imagine & discuss:
+
+::: {.example-box}
+*Two research groups independently sample individuals from a group of PhD students taking "Statistical Methods for Life Science" course, and measure their heights. They ended up with sample means of 172 and 175 cm respectively.*
+:::
+
+<br>
+Could this difference arise simply because they sampled different individuals?
+
+::: {.notes}
+- What information would help you answer?
+- Would a difference of 3 cm be surprising if individual heights varied very little? What if they varied a lot?
+- Would your answer change if each group studied 5 individuals rather than 100?
+- If we repeated this study many times, would we always get the same sample mean?
+- What exactly is the population we want to learn about?
+- How were the students selected? Could selection systematically favour taller or shorter people?
+- Were heights measured in the same way in both groups?
+- How could we describe which sample means are common and which are unusual?
+:::
+
+
+
+
+## Do studies give different results?
+*Key terms*
+
+<br>
+
+- Population, sample, sample size
+- Biological variability, variance, standard deviation (SD)
+- Sampling variability, statistic
+- Random variable, event, sampling distribution
+- Standard error (SE) and precision
+- Selection bias, measurement error
+- Probability model and assumptions
+
+. . .
+
+Let’s explore how these concepts connect and how probability helps us understand variation in our results.
+
+
+## Do studies give different results?
+*Key message I*
+
+<br>
+
+::: {.key-message-box}
+
+::: incremental
+
+- Different samples from the same population can give different results. 
+
+- Probability models help us describe how much sampling variation to expect and which results would be unusual under our assumptions.
+
+:::
+
+:::
+
+# Describing an uncertain observation
+
+## Population, sample and random variable
+*Definitions*
+
+<br>
+
+Suppose we want to study the heights of PhD students at Uppsala University (UU).
+
+::: incremental
+
+- The **population** is all PhD students at the university.
+- A **sample** is the group we select and measure.
+- The **sample size**, **n**, is the number selected.
+- A **random variable** describes a numerical outcome that we do not know before making a random selection or carrying out an experiment.
+- The **sample space** is the set of all possible outcomes or values the random variable can take. In our example, the random variable can take any value between 0 cm and infinity: $S \in [0, \infty)$
+- An **event** is a condition we are interested in, e.g. a selected student being taller than 180 cm: X > 180.
+
+:::
+
+## Population, sample and random variable
+*Example*
+
+<br>
+
+::: {.example-box}
+
+*We randomly select 10 students from our a course at UU and record their height. The first person’s height is 165 cm.*
+
+:::
+
+Let's identify: 
+
+- The sample size.
+- The sample space for one height measurement.
+- The random variable.
+- Its observed value.
+- An example event involving height.
+
+. . .
+
+
+
+The variation comes from who happens to be selected, i.e. not from their height changing when we select them.
+
+
+## Probability
+*Axioms of probability*
+
+. . .
+
+::: {.text-box-1}
+Probabilities lie between 0 and 1, i.e. are never negative.
+
+$$0 \leq P(E) \leq 1 \text{ for any event } E \subseteq S$$
+where the $S$ is the sample space, a set of all possible outcomes.
+
+:::
+
+. . .
+
+::: {.text-box-2}
+
+Something must happen: the probability of all possible outcomes together is 1.
+
+$$P(S) = 1$$
+:::
+
+
+. . .
+
+::: {.text-box-1}
+
+If two events cannot happen at the same time (mutually exclusive), the probability of either happening is the sum of their probabilities:
+
+$$P(E \cup F) = P(E) + P(F) \text{ if $E$ and $F$ are disjoint events}$$
+:::
+
+
+## Probability
+*Common rules*
+<br>
+
+. . .
+
+
+::: {.text-box-1}
+The **complement** of being taller than 180 cm (E) is being 180 cm or shorter (E'):
+
+$$ P(E')=1-P(E)$$
+$$ P(X\leq180)=1-P(X>180)$$
+:::
+
+. . .
+
+::: {.text-box-2}
+An event cannot be more likely than an event that contains it (**probability of a subset**). If $E \subseteq F$, then $$P(F) \geq P(E)$$
+
+$$P(X>190)≤P(X>180)$$
+:::
+
+. . .
+
+::: {.text-box-1}
+
+The probability that at least one of two events occurs is the sum of their probabilities, minus the probability that both occur (**addition rule**). Let $E, F \subseteq S$ be any two events, then 
+$$P(E \cup F) = P(E) + P(F) - P(E \cap F)$$
+:::
+
+
+## Conditional probability
+<br>
+
+::: {.example-box}
+
+Does knowing that a student uses an Android phone changes the probability they are taller than 180 cm?
+
+Let's image a hypothetical population of 100 students, in which:
+
+- 8 are taller than 180 cm.
+- 40 use Android phones; 5 of these are taller than 180 cm.
+
+$$
+P(X>180)=\frac{8}{100}=0.08
+$$
+
+$$
+P(X>180\mid\text{Android})=\frac{5}{40}=0.125
+$$
+:::
+
+
+. . .
+
+**Conditional probability restricts attention to a specified group.** Here, knowing that the student uses Android phone increases the probability of a student being above 180 cm tall from 8% to 12.5%.
+
+. . .
+
+In general:
+
+$$
+P(A\mid B)=\frac{P(A\cap B)}{P(B)},\qquad P(B)>0.
+$$
+
+::: {.notes}
+**Conditional probability** restricts attention to a specified group, e.g. Android users. Here, knowing that the student uses Android phone increases the probability of a student being above 180 cm tall from 8% to 12.5%. This is, however, not an evidence that phone choice causes differences in height (i.e., it is an association; no causation is implied).
+:::
+
+
+## Independence between observations
+
+<br>
+
+Observations are **independent** if knowing the value of one does not change the probability distribution of the other. For independent events $A$ and $B$:
+
+$$
+P(B \mid A) = P(B),
+$$
+or equivalently,
+
+$$
+P(A \cap B) = P(A)P(B).
+$$
+
+. . .
+
+::: {.example-box}
+Suppose two students are sampled independently. If 20% of the population is taller than 180 cm, knowing that the first student is taller than 180 cm does not change the probability that the second student is taller than 180 cm.
+
+$$
+P(B\mid A)=P(B)=0.20.
+$$
+
+The probability that both exceed 180 cm is therefore:
+
+$$P(A\cap B)=P(A)P(B)=0.20\times0.20=0.04$$
+:::
+
+
+## Key message II {.center}
+
+<br>
+
+::: {.key-message-box}
+
+::: incremental
+
+- Different samples can produce different results. 
+
+- Probability gives us a language for describing these uncertain outcomes and calculating how likely they are. 
+
+- To use it correctly, we must specify the population, how we sample, what we measure, and the events of interest.
+
+:::
+
+:::
+
+## Example
+<br>
+
+::: {.example-box}
+
+Suppose 20% of PhD students at UU are taller than 180 cm. For a student randomly selected from this population:
+
+- A) What is the probability that their height is 180 cm or less?
+- B) What is the probability that their height is more than 190 cm?
+
+:::
+
+<details>
+<summary>Answer: A </summary>
+
+::: {.answer}
+
+A) By the **complement rule**:
+
+$$
+P(X \leq 180)=1-P(X>180)=1-0.20=0.80.
+$$
+
+
+:::
+</details>
+
+<details>
+<summary>Answer: B </summary>
+
+::: {.answer}
+
+B) We cannot calculate $P(X>190)$ exactly from this information.
+
+Because ${X>190}\subseteq{X>180}$, we know only that:
+
+$$
+0 \leq P(X>190) \leq 0.20.
+$$
+
+We need more information about how height values are distributed above 180 cm. This motivates our next topic: probability distributions and models.
+:::
+</details>
+
+
+# Describing outcomes with probability models
+
+## Probability models and probability distributions
+*From uncertainty to a mathematical description*
+
+<br>
+
+. . .
+
+A **probability model** is a mathematical description of a random process.
+
+::: incremental
+- It specifies possible outcomes, 
+- their probabilities 
+- and the assumptions about how observations arise.
+
+:::
+
+. . .
+
+<br>
+A **random variable** $X$ assigns a numerical value to each outcome. Its **probability distribution** describes how probability is distributed across those values.
+
+. . . 
+
+<br>
+A continuous distribution is described by a **probability density function**, $f(x)$. 
+While discrete distribution is described by a **probability mass function**, p(x).
+
+::: {.notes}
+The same model also determines distributions for other quantities, such as the mean height of 10 students.
+:::
+
+## A normal model for individual heights 
+*Distribution*
+
+::: {.example-box}
+
+For instance, our model might assume that we independently select students from a population where heights are normally distributed with mean 170 cm and SD 7 cm. What is the probability that a student is taller than 180 cm?
+
+:::
+
+. . .
+
+Given the model, the probability distribution of the height (X) of one randomly selected student is:
+
+
+$$
+X \sim N(\mu,\sigma^2),
+\qquad \mu=170,\quad \sigma=7.
+$$
+where **mean** $\mu$ and **variance** $\sigma^2$ are distribution parameters. 
+
+. . .
+
+::: incremental
+- **Expected value:** the long-run average, $$E[X]=\mu = 170\text{ cm}$$
+- **Variance:** the expected squared distance from the mean
+$$
+\operatorname{Var}(X)
+=E[(X-\mu)^2]
+=\sigma^2
+=7^2
+=49\text{ cm}^2,
+$$
+- **Standard deviation (SD):**  the square root of variance, expressed in the original units
+$$
+\operatorname{SD}(X)
+=\sqrt{\operatorname{Var}(X)}
+=7\text{ cm}.
+$$
+:::
+
+
+## A normal model for individual heights
+*Probability density function (PDF)*
+<br>
+
+
+:::: {.columns}
+
+::: {.column width="45%"}
+Probability density function, $f(x)$ describing normal distribution has a form:
+
+$$f(x)= \frac{1}{\sigma\sqrt{2\pi}} \exp\left[-\frac{(x-\mu)^2}{2\sigma^2}\right]$$
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| label: fig-height-normal
+#| echo: false
+#| fig-cap: "Probability density function of the height of a student."
+#| fig-height: 8
+
+mu <- 170
+sigma <- 7
+cutoff <- 180
+
+
+curve(
+  dnorm(x, mean = mu, sd = sigma),
+  from = 140, to = 200,
+  xlab = "Height (cm)", ylab = "Density",
+  lwd = 5, 
+  cex.lab = 1.5, 
+  cex.axis = 1.5
+)
+
+abline(v = mu, lty = 2, lwd = 4)
+```
+
+
+:::
+
+::::
+
+. . .
+
+For a continuous distribution, the density function $f(x)$ gives the **height of the density curve** at a particular value $x$.  A higher density means that values around $x$ are relatively more common than values around points with lower density.
+
+## A normal model for individual heights
+*Probability is area under density curve*
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+The probability that $X$ falls between $a$ and $b$ is the area under the density curve between these values:
+
+$$
+P(a < X \leq b)=\int_a^b f(x)\,dx.
+$$
+The total area under the density curve is 1:
+
+$$
+\int_{-\infty}^{\infty} f(x)\,dx = 1.
+$$
+
+In theory, we calculate this area by integration:
+
+$$
+P(X>180)=\int_{180}^{\infty}f(x)\,dx.
+$$
+
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="45%"}
+
+
+
+```{r}
+#| label: fig-pr-area
+#| echo: false
+#| fig-cap: "Probability density function of the height of a student. The shaded area represents the probability of height a) between 160 and 170 and  b) above 180 cm."
+#| fig-height: 10
+
+par(mfrow=c(2,1))
+mu <- 172
+sigma <- 7
+a <- 160
+b <- 170
+
+par(mar=c(5,5,4,2) + 0.1)
+
+curve(
+  dnorm(x, mean = mu, sd = sigma),
+  from = 140, to = 200,
+  xlab = "Height (cm)", ylab = "Density",
+  lwd = 5, 
+  cex.lab = 2, 
+  cex.axis = 2, 
+  main = "a)"
+)
+
+xx <- seq(a,b, length.out = 300)
+
+polygon(
+  c(a, xx, b),
+  c(0, dnorm(xx, mean = mu, sd = sigma), 0),
+  col = "#8FC4CF", border = NA
+)
+
+abline(v = a, lty = 2)
+abline(v = b, lty = 2)
+
+
+
+mu <- 170
+sigma <- 7
+cutoff <- 180
+
+par(mar=c(5,5,4,2) + 0.1)
+
+curve(
+  dnorm(x, mean = mu, sd = sigma),
+  from = 140, to = 200,
+  xlab = "Height (cm)", ylab = "Density",
+  lwd = 5, 
+  cex.lab = 2, 
+  cex.axis = 2, 
+  main = "b)"
+)
+
+xx <- seq(cutoff, 200, length.out = 300)
+
+polygon(
+  c(cutoff, xx, 200),
+  c(0, dnorm(xx, mean = mu, sd = sigma), 0),
+  col = "#8FC4CF", border = NA
+)
+
+curve(
+  dnorm(x, mean = mu, sd = sigma),
+  add = TRUE, lwd = 2
+)
+
+abline(v = cutoff, lty = 2)
+```
+:::
+
+
+::::
+
+::: {.footer}
+:::
+
+## A normal model for individual heights
+*Cumulative distribution function (CDF)*
+<br>
+
+:::: {.columns}
+
+::: {.column width="55%"}
+Cumulative distribution function, $F(x)$, gives the accumulated area to the left of a cutoff:
+
+$$
+F(x)=P(X\leq x)=\int_{-\infty}^{x}f(t)\,dt.
+$$
+<br>
+Since total area under the density curve is 1, the probability a student being above 180 cm tall is the complement of the probability at or below 180 cm:
+
+$$
+P(X>180)=1-F(180).
+$$
+
+<br>
+The normal CDF cannot be calculated using a simple closed-form expression. In the past, probabilities were obtained from tabulated values of the **standard normal distribution** (mean = 0, SD = 1). Today, we can calculate them numerically.
+:::
+
+
+::: {.column width = "5%"}
+:::
+
+::: {.column width="35%"}
+
+```{r}
+#| label: fig-height-cdf
+#| fig-cap: "Cumulative distribution function for the height of one randomly selected student."
+#| fig-height: 9
+
+x <- seq(145, 195, length.out = 500)
+
+par(mar=c(5,5,4,2) + 0.1)
+plot(
+  x,
+  pnorm(x, mean = 170, sd = 7),
+  type = "l",
+  xlab = "Height (cm)",
+  ylab = "Cumulative probability",
+  main = "",
+  lwd = 5, 
+  cex.lab = 2, 
+  cex.axis = 2
+)
+
+```
+:::
+
+::::
+
+## A normal model for individual heights
+*In R*
+<br>
+
+
+In R `pnorm()` evaluates the normal CDF directly
+
+. . .
+
+```{r}
+#| echo: true
+
+1 - pnorm(180, mean = 170, sd = 7)
+```
+
+So, under this model, about **7.7% of students** exceed 180 cm.
+
+. . .
+ 
+Alternatively: 
+
+```{r}
+#| echo: true
+
+pnorm(180, mean = 170, sd = 7, lower.tail = FALSE)
+```
+
+## A normal model for individual heights
+*Standardisation: how far from the mean?*
+<br>
+
+. . .
+
+A **z-score** expresses distance from the mean in SD units: $Z=\frac{X-\mu}{\sigma}$
+
+- Subtracting the mean centres the distribution at zero.
+- Dividing by the SD rescales it to have a standard deviation of one.
+
+. . . 
+
+For a normally distributed variable, standardisation gives a a new variable $Z$:
+$Z \sim N(0,1)$
+
+. . .
+
+::: {.example-box}
+
+Given our height example, we can locate where a measurement e.g. 180 cm is relative to the mean:
+
+$$
+z=\frac{180-170}{7}\approx1.43.
+$$
+
+This height is about **1.43 SD above the mean**.
+
+Standardisation changes the scale, but not the corresponding probability. Being above 180 cm is equivalent to having a z-score above $10/7 \approx 1.43$.
+
+:::
+
+. . .
+
+
+```{r}
+#| echo: true
+
+z <- (180 - 170) / 7
+pnorm(z, mean = 0, sd = 1, lower.tail = FALSE)
+```
+
+
+## Discrete outcomes
+*Counting students*
+
+<br>
+
+
+- Not all outcomes are continuous. 
+- We may instead be interested in counts, e.g. number of bacterial colonies on a plate or the number of sequencing reads assigned to a gene. 
+- Good news: the same probability concepts apply, but discrete outcomes are described using probabilities at specific values rather than areas under a continuous curve.
+
+. . .
+
+<br>
+
+::: {.example-box}
+Let's imagine we are interested in how many students in a sample are taller than 180 cm. We sample 20 PhD students from a course at UU and record how many of them are taller than 180 cm.
+
+Let $K$ denote this count. Its possible values are:
+
+$$
+K\in\{0,1,2,\ldots,20\}.
+$$
+
+Unlike height, this is a **discrete random variable**: it can take only specific, whole-number values, from 0 to 20.
+
+:::
+
+
+## Discrete outcomes {.smaller}
+*Bernoulli distribution*
+
+For one student, the outcome “taller than 180 cm or not” can be as:
+
+- $1$: success, denoted as $p$
+- $0$: failure, denoted as $1-p$
+
+This follows a **Bernoulli distribution**, which describes a single random outcome with two possible values:
+
+$$
+P(Y=y)=
+\begin{cases}
+p, & y=1,\\
+1-p, & y=0.
+\end{cases}
+$$
+
+The expected value and variance are:
+
+$$
+E[Y]=p,
+\qquad
+\operatorname{Var}(Y)=p(1-p).
+$$
+<br>
+
+::: {.example-box}
+
+In our example, for one randomly selected student:
+
+- $Y=1$ if the student is taller than 180 cm,
+- $Y=0$ otherwise.
+
+$$
+p=P(X>180)\approx0.076.
+$$
+$$
+Y \sim \operatorname{Bernoulli}(0.0766).
+$$
+<br>
+
+So the Bernoulli distribution describes whether **one student** is taller than 180 cm or not.
+:::
+
+## Discrete outcomes {.smaller}
+*Binomial distribution*
+
+A **binomial distribution** describes the number of successes in $n$ independent Bernoulli trials, where each trial has the same probability of success, $p$.
+
+If $Y_i$ denotes the Bernoulli outcome for student $i$, then the total number of successes is:
+
+$$
+K=\sum_{i=1}^{n}Y_i.
+$$
+
+The binomial distribution is written as:
+
+$$
+K\sim\operatorname{Bin}(n,p).
+$$
+
+The expected value and variance are:
+
+$$
+E[K]=np,
+\qquad
+\operatorname{Var}(K)=np(1-p).
+$$
+
+. . . 
+
+<br>
+
+::: {.example-box}
+
+In our example, we sample 20 students and define a success as being taller than 180 cm. Since
+
+$$
+p=P(X>180)\approx0.0766,
+$$
+
+the number of students taller than 180 cm follows:
+
+$$
+K\sim\operatorname{Bin}(20,0.0766).
+$$
+
+The expected count is therefore:
+
+$$
+E[K]=20\times0.0766\approx1.53.
+$$
+
+This means that across many repeated samples of 20 students, the average number taller than 180 cm would be about **1.5 students**. Each individual observed count, however, must be a whole number.
+:::
+
+## Discrete outcomes {.smaller}
+*Binomial distribution: PMF*
+
+For a discrete random variable, the **probability mass function (PMF)** gives the probability of each possible value:
+
+$$
+p_K(k)=P(K=k).
+$$
+and for a binomial random variable $K\sim\operatorname{Bin}(n,p)$ it is:
+
+$$
+P(K=k)=
+\binom{n}{k}
+p^k(1-p)^{n-k},
+\qquad k=0,1,\ldots,n.
+$$
+
+where $\binom{n}{k}$ counts the number of ways in which exactly $k$ successes can occur among $n$ trials.
+
+## Discrete outcomes {.smaller}
+*Binomial distribution PMF example*
+<br>
+
+:::: {.columns}
+
+::: {.column width="55%"}
+
+::: {.example-box}
+
+In our example,
+
+$$
+K\sim\operatorname{Bin}(20,0.0766),
+$$
+
+where $K$ is the number of students taller than 180 cm among 20 independently selected students.
+
+The height of each bar is the probability of observing that particular count. For example, the bar at $k=2$ represents:
+
+$$
+P(K=2).
+$$
+
+The probabilities across all possible counts sum to 1:
+
+$$
+\sum_{k=0}^{20} P(K=k)=1.
+$$
+
+
+
+To calculate the probability that exactly five students out of 20 are taller than 180cm we evaluate the PMF at $k=5$:
+
+$$
+P(K=5)=\binom{20}{5}p^5(1-p)^{15}.
+$$
+
+
+:::
+
+Or in R:
+
+```{r}
+#| echo: true
+dbinom(5, size = 20, prob = 0.0765)
+```
+
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="35%"}
+
+```{r}
+#| label: fig-height-count
+#| echo: false
+#| fig-cap: "Probability of each possible number of students taller than 180 cm among 20 selected students."
+#| fig-height: 9
+
+p_tall <- pnorm(
+  180, mean = 170, sd = 7,
+  lower.tail = FALSE
+)
+
+k <- 0:20
+
+par(mar=c(5, 5, 2, 1))
+
+plot(
+  k,
+  dbinom(k, size = 20, prob = p_tall),
+  type = "h",
+  lwd = 8,
+  col = "#287C8E",
+  xlab = "Students taller than 180 cm (out of 20)",
+  ylab = "Probability",
+  cex.axis = 2, 
+  cex.lab = 2
+)
+
+```
+
+
+:::
+
+::::
+
+
+::: {.notes}
+
+The PMF gives the probability of observing each possible count, from 0 to 20 students.
+
+For a continuous variable, a PDF gives a density and probabilities are obtained from areas. For a discrete variable, a PMF gives probabilities directly at individual values.
+
+
+:::
+
+## Discrete outcomes {.smaller}
+*Binomial distribution: CDF*
+
+The **cumulative distribution function** it gives the probability of a value at or below a cutoff. It has the  same interpretation for continuous distribution.
+
+For our count variable (K):
+
+$$
+F_K(k)=P(K\leq k)=\sum_{j=0}^{k}P(K=j).
+$$
+
+. . . 
+
+<br>
+
+::: {.example-box}
+
+For example, the probability of four or fewer students being taller than 180 cm is:
+
+$$
+F_K(4)=P(K=0)+P(K=1)+\cdots+P(K=4).
+$$
+
+
+What is the probability that five or more students are of 20 will be taller than 180cm? 
+
+Using the complement rule:
+
+$$
+P(K\geq5)=1-P(K\leq4)=1-F_K(4).
+$$
+:::
+
+<br>
+
+In R:
+
+```{r}
+#| echo: true
+
+1 - pbinom(
+  4, size = 20, prob = p_tall,
+  lower.tail = TRUE
+)
+
+```
+
+
+
+::: {.notes}
+For continuous variables, we integrate the density. For discrete variables, we add the probability masses.
+:::
+
+
+## Continuous vs. discrete {.smaller .center}
+<br>
+
+| Concept | Continuous example: height | Discrete example: count |
+|---|---|---|
+| Random variable | $X$: one student's height | $K$: number taller than 180 cm among 20 students |
+| Model | Normal | Binomial |
+| Distribution function | PDF: $f(x)$ gives density | PMF: $p_K(k)=P(K=k)$ gives probability |
+| Probability calculation | Integrate density over an interval | Sum probabilities of individual values |
+| CDF | $F_X(x)=P(X\leq x)$ | $F_K(k)=P(K\leq k)$ |
+| R: density or mass | `dnorm()` gives density | `dbinom()` gives probability |
+| R: cumulative probability | `pnorm()` | `pbinom()` |
+| Upper tail | $P(X>180)=1-F_X(180)$ | $P(K\geq5)=1-F_K(4)$ |
+
+. . . 
+
+<br>
+
+The CDF has the same meaning in both cases: probability at or
+below a cutoff. The difference is how we accumulate probability:
+integration for a continuous density, summation for discrete masses.
+
+## Other common distributions {.smaller}
+<br>
+
+- **Poisson:** counts within a fixed time, area or volume,
+  such as colony counts under suitable conditions.
+  The mean and variance are equal.
+
+- **Negative binomial:** counts with more variability than
+  Poisson allows. Commonly used for RNA-seq counts across
+  biological replicates.
+
+- **Hypergeometric:** counts when sampling without replacement
+  from a finite set, such as overlap between a selected gene
+  list and a pathway.
+
+```{r}
+#| fig-height: 2
+
+par(mfrow = c(1, 3),
+    mar = c(2.5, 4, 2, 1))
+
+# Poisson
+x <- 0:12
+plot(
+  x, dpois(x, lambda = 4),
+  type = "h",
+  lwd = 5,
+  xlab = "",
+  ylab = "Probability",
+  main = "Poisson", 
+  col = "#8FC4CF"
+  
+)
+
+# Negative binomial
+plot(
+  x, dnbinom(x, mu = 4, size = 2),
+  type = "h",
+  lwd = 5,
+  xlab = "",
+  ylab = "Probability",
+  main = "Negative binomial", 
+  col = "#8FC4CF"
+)
+
+# Hypergeometric
+x_h <- 0:8
+plot(
+  x_h,
+  dhyper(x_h, m = 10, n = 20, k = 8),
+  type = "h",
+  lwd = 5,
+  xlab = "Count",
+  ylab = "Probability",
+  main = "Hypergeometric", 
+  col = "#8FC4CF"
+)
+
+```
+
+- **Log-normal:** positive measurements whose logarithms
+  are normally distributed, such as some biological concentrations.
+
+- **Exponential:** waiting times between events occurring
+  independently at a constant rate.
+
+```{r}
+#| fig-height: 2
+
+par(mfrow = c(1, 3),
+    mar = c(2.5, 4, 2, 1))
+
+    x <- seq(0.01, 8, length.out = 500)
+
+plot(
+  x,
+  dlnorm(x, meanlog = 0, sdlog = 0.7),
+  type = "l",
+  lwd = 3,
+  xlab = "Value",
+  ylab = "Density",
+  main = "Log-normal distribution",
+  cex.lab = 1.4,
+  cex.axis = 1.2,
+    col = "#8FC4CF"
+)
+
+x <- seq(0, 8, length.out = 500)
+
+plot(
+  x,
+  dexp(x, rate = 0.7),
+  type = "l",
+  lwd = 3,
+  xlab = "Waiting time",
+  ylab = "Density",
+  main = "Exponential distribution",
+  cex.lab = 1.4,
+  cex.axis = 1.2, 
+  col = "#8FC4CF"
+)
+```
+
+
+
+## Other common distributions {.smaller}
+<br>
+
+Some distributions appear especially often as **reference distributions
+for statistics used in statistical inference**.
+
+. . .
+
+
+- **t-distribution:** symmetric and similar to the normal distribution,
+  but with heavier tails. It arises when a mean is standardised using
+  an **estimated** standard deviation.
+
+- **Chi-squared distribution:** positive and right-skewed. It arises from
+  squared quantities and is used in inference about **variability** and
+  **categorical data**.
+
+- **F-distribution:** positive and right-skewed. It arises from ratios of
+  measures of variability and is used, for example, in **ANOVA** and
+  comparisons of statistical models.
+
+```{r}
+#| echo: false
+#| fig-height: 3.2
+
+par(
+  mfrow = c(1, 3),
+  mar = c(4, 4, 3, 1)
+)
+
+# t-distribution and normal
+x <- seq(-4, 4, length.out = 500)
+
+plot(
+  x, dt(x, df = 4),
+  type = "l",
+  lwd = 3,
+  xlab = "Value",
+  ylab = "Density",
+  main = "t-distribution",
+  cex.lab = 1.2,
+  cex.axis = 1.1, 
+  col = "#8FC4CF",
+  ylim = c(0, 0.42)
+)
+
+lines(
+  x, dnorm(x),
+  lwd = 3,
+  lty = 2
+)
+
+legend(
+  "topright",
+  legend = c("t, df = 4", "Normal"),
+  lwd = 1,
+  lty = c(1, 2),
+  bty = "n",
+  cex = 0.8
+)
+
+
+# Chi-squared distribution
+x <- seq(0, 15, length.out = 500)
+
+plot(
+  x, dchisq(x, df = 4),
+  type = "l",
+  lwd = 3,
+  xlab = "Value",
+  ylab = "Density",
+  main = "Chi-squared",
+  cex.lab = 1.2,
+  cex.axis = 1.1, 
+  col = "#8FC4CF"
+)
+
+
+# F-distribution
+x <- seq(0, 5, length.out = 500)
+
+plot(
+  x, df(x, df1 = 5, df2 = 20),
+  type = "l",
+  lwd = 3,
+  xlab = "Value",
+  ylab = "Density",
+  main = "F-distribution",
+  cex.lab = 1.2,
+  cex.axis = 1.1, 
+  col = "#8FC4CF"
+)
+
+```
+
+
+
+## Simulation
+*Generating outcomes from a probability model*
+
+. . .
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="50%"}
+Given a probability model, we can use it to **simulate possible outcomes**.
+
+For example, under our height model:
+
+$$
+X \sim N(170, 7^2),
+$$
+
+we can simulate the height of one randomly selected students or of many students.
+
+<br>
+
+The individual simulated values vary, but with many simulations their distribution resembles the probability distribution specified by the model. 
+
+
+
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+# one randomly selected student
+rnorm(1, mean = 170, sd = 7)
+
+```
+
+<br>
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+# 1000 randomly selected students
+x <- rnorm(1000, mean = 170, sd = 7)
+head(x)
+```
+
+<br>
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+par(mar=c(5,5,2,1))
+hist(x, n = 100, col = "#8FC4CF", 
+main = "", 
+cex.lab = 2, 
+cex.axis = 2)
+```
+
+
+:::
+
+::::
+
+. . .
+
+
+## Simulation
+*approximating probabilities by simulation*
+
+<br>
+
+Simulation can also be used to approximate probabilities.
+
+For example, we previously calculated:
+
+$$ P(X>180) \approx 0.077. $$
+
+Using simulated heights, we can estimate the same probability by
+calculating the proportion that exceed 180 cm:
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+mean(x > 180)
+
+```
+
+. . .
+
+<br>
+
+**The law of large numbers** states that if the same experiment is performed many times the average of the result will be close to the expected value.
+
+
+::: {.notes}
+With a large number of simulations, this value should be close to
+the probability calculated from the normal distribution.
+:::
+
+
+## Key message III {.center}
+
+::: {.key-message-box}
+
+A probability model lets us move from describing possible
+outcomes to calculating how likely they are, under stated assumptions.
+
+
+:::
+
+# Repeating the sampling
+
+## From individual observations to study results
+<br>
+
+::: incremental
+- So far, we have used probability models to describe the height of one randomly selected student.
+- In a study, we usually observe several individuals and calculate a summary, such as the sample mean.
+:::
+
+
+. . .
+
+::: {.text-box-1}
+
+Parameter vs. statistics
+
+- A **parameter** describes a population. For example, the population
+mean height is denoted by $\mu$.
+-  A **statistic** is calculated from a sample. For example, the sample mean is
+
+
+
+$$
+\bar{X}=\frac{1}{n}\sum_{i=1}^{n}X_i.
+$$
+
+:::
+
+. . .
+
+- Before collecting the data, $\bar{X}$ is a random variable because its value depends on which individuals are selected.
+- After collecting the data, we obtain one observed value, denoted by $\bar{x}$.
+
+<br>
+
+. . .
+
+## Imagine repeating the study
+
+::: {.example-box}
+
+Consider our hypothetical population of student heights, with
+$\mu=170\text{ cm}$ and 
+$\sigma=7\text{ cm}$
+
+Imagine repeating the following study many times:
+
+1. Randomly select five students.
+2. Measure their heights.
+3. Calculate their mean height.
+4. Record the mean and select a new sample.
+
+*Are we going to obtain same sample mean for every repeat?*
+
+:::
+
+. . .
+
+::: incremental
+
+- Each sample is likely to contain different students, so the sample means will not all be identical.
+- Provided that the observations are sampled independently from the same population, the expected value of the sample mean is the population mean:$E[\bar{X}]=\mu=170\text{ cm}.$ 
+- The distribution of the sample means across repeated studies is called the **sampling distribution of the sample mean**.
+
+::: 
+
+## Sampling distribution of the sample mean
+*Simulating repeated studies*
+
+<br>
+
+We can explore the sampling distribution by simulating many independent studies from our normal population model.
+
+. . . 
+
+**Before looking at the results, predict:**
+
+- Will sample means vary as much as individual heights?
+- What will happen if each study includes 100 students rather than five?
+
+. . .
+
+
+```{r}
+#| label: fig-sampling-means
+#| echo: false
+#| fig-height: 4
+
+set.seed(2026)
+
+mu <- 170
+sigma <- 7
+
+individuals <- rnorm(
+  10000,
+  mean = mu,
+  sd = sigma
+)
+
+means5 <- replicate(
+  10000,
+  mean(rnorm(5, mean = mu, sd = sigma))
+)
+
+means100 <- replicate(
+  10000,
+  mean(rnorm(100, mean = mu, sd = sigma))
+)
+
+par(mfrow=c(1,3))
+hist(individuals, xlim = c(140, 200), 
+  col = "#8FC4CF", 
+  border = "white",
+  main = "Individual heights", 
+  xlab = "Height (cm)")
+
+hist(means5, xlim = c(140, 200),
+  col = "#8FC4CF", 
+  border = "white",
+  main = "Sample means: n = 5", 
+  xlab = "Mean height (cm)")
+
+
+hist(means100, xlim = c(140, 200), 
+  col = "#8FC4CF", 
+  border = "#8FC4CF",
+  main = "Sample means: n = 100", 
+  xlab = "Mean height (cm)")
+
+```
+
+::: {.notes}
+All three distributions are centred near the population mean of 170 cm.
+Note: 
+- Individual heights show substantial variation.
+- Means based on five students vary less than individual heights.
+- Means based on 100 students vary much less.
+:::
+
+::: {.footer}
+:::
+
+## Sampling distribution of the sample mean
+*Simulating repeated studies*
+<br> <br> 
+
+
+::: incremental
+- **Sample means**  vary less than individual observations.
+- Means based on larger samples vary less than means based on smaller samples.
+- Other statistics, such as a sample proportion or a difference between two means, also have sampling distributions.
+:::
+
+## CLT: The central limit theorem
+*Why do the sample means look normal?*
+
+<br>
+
+::: {#thm-clt}
+
+## CLT
+The sum of $n$ independent and equally distributed random variables is normally distributed, if $n$ is large enough.
+:::
+
+. . .
+
+::: incremental
+- In our example individual heights follow a normal distribution. The mean of independent observations was also normally distributed.
+- CLT extends this result beyond normal populations: distribution of the sample mean across repeated samples becomes approximately normal.
+:::
+
+. . . 
+
+```{r}
+#| label: fig-crp
+#| fig-cap: "Example of non-normal distribution of CRP biomarker measurements."
+#| fig-height: 4
+
+
+# Illustrative CRP concentrations (mg/L)
+# individual measurements are strongly right-skewed
+
+set.seed(2026)
+
+median_crp <- 1.5
+meanlog <- log(median_crp)
+sdlog <- 0.9
+
+# Simulate individual CRP measurements
+crp <- rlnorm(
+  10000,
+  meanlog = meanlog,
+  sdlog = sdlog
+)
+
+par(mar = c(5, 5, 2, 2) + 0.1)
+
+hist(
+  crp,
+  breaks = 50,
+  xlim = c(0, 15),
+  main = "",
+  xlab = "CRP concentration (mg/L)",
+  ylab = "Frequency",
+  col = "#8FC4CF",
+  border = "white",
+  cex.lab = 1,
+  cex.axis = 1
+)
+```
+
+::: {.footer}
+:::
+
+## CLT: The central limit theorem {.center}
+<br>
+
+```{r}
+
+library(plotly)
+
+set.seed(2026)
+
+median_crp <- 1.5
+meanlog <- log(median_crp)
+sdlog <- 0.9
+
+# Population mean and SD
+mu <- exp(meanlog + sdlog^2 / 2)
+
+sigma <- sqrt(
+  (exp(sdlog^2) - 1) *
+    exp(2 * meanlog + sdlog^2)
+)
+
+# Sample sizes shown in the slider
+sample_sizes <- c(1, 2, 5, 10, 20, 30, 50, 100, 1000)
+
+# Number of repeated studies for each sample size
+B <- 5000
+
+# Simulate sampling distributions
+sim_data <- do.call(
+  rbind,
+  lapply(sample_sizes, function(n) {
+
+    sample_means <- replicate(
+      B,
+      mean(rlnorm(
+        n,
+        meanlog = meanlog,
+        sdlog = sdlog
+      ))
+    )
+
+    data.frame(
+      mean = sample_means,
+      n = factor(
+        n,
+        levels = sample_sizes
+      )
+    )
+  })
+)
+
+# Keep a common x-axis so narrowing is visually obvious
+x_max <- quantile(
+  sim_data$mean[sim_data$n == 1],
+  0.995
+)
+
+
+plot_ly(
+  sim_data,
+  x = ~mean,
+  frame = ~n,
+  type = "histogram",
+  height = 500,
+
+  xbins = list(
+    start = 0,
+    end = x_max,
+    size = x_max / 40
+  ),
+
+  marker = list(
+    color = "#8FC4CF",
+    line = list(
+      color = "white",
+      width = 1
+    )
+  )
+) |>
+  layout(
+    margin = list(
+      l = 70,
+      r = 20,
+      t = 10,
+      b = 65
+    ),
+
+    xaxis = list(
+      title = "Sample mean biomarker concentration",
+      range = c(0, x_max)
+    ),
+
+    yaxis = list(
+      title = "Frequency"
+    ),
+
+    showlegend = FALSE,
+
+    font = list(
+      size = 14
+    )
+  ) |>
+  animation_opts(
+    frame = 1200,
+    transition = 200,
+    redraw = TRUE
+  ) |>
+  animation_slider(
+    currentvalue = list(
+      prefix = "Sample size: n = "
+    )
+  ) |>
+  config(
+    displayModeBar = FALSE
+  )
+```
+
+## Bootstrapping {.smaller}
+*Resampling the observed data*
+
+<br>
+
+
+:::: {.columns}
+
+::: {.column width="45%"}
+- In practice, we usually have only one observed sample.
+- For example, if we measure 20 students, we have one sample containing
+20 observations, i.e. not 20 independent samples.
+
+
+::: {.text-box-1}
+
+We can use **bootstrapping, resampling with replacement** to approximate how the sample mean might vary across repeated studies.
+
+:::
+
+<br>
+Imagine writing the 20 observed heights on cards:
+
+1. Draw one card at random, record its value and return it.
+2. Repeat until 20 values have been drawn.
+3. Calculate their mean.
+4. Repeat the procedure many times.
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| label: fig-bootstrap-means
+#| echo: false
+#| fig-cap: "Bootstrap distribution of the mean based on one illustrative sample of 20 students."
+#| fig-height: 9
+
+set.seed(2027)
+
+heights <- rnorm(20, mean = 170, sd = 7)
+
+bootstrap_means <- replicate(
+  10000,
+  mean(
+    sample(
+      heights,
+      size = length(heights),
+      replace = TRUE
+    )
+  )
+)
+
+hist(
+  bootstrap_means,
+  breaks = 30,
+  main = "Bootstrap distribution of the mean",
+  xlab = "Mean height (cm)",
+  ylab = "Frequency",
+  col = "#8FC4CF",
+  border = "white"
+)
+
+abline(
+  v = mean(heights),
+  lty = 2,
+  lwd = 2
+)
+```
+
+:::
+
+::::
+
+. . .
+
+The bootstrap means are centred near the **observed sample mean**, not necessarily the true population mean.
+
+::: {.notes}
+
+Bootstrapping does not create new biological information. Its
+results still depend on whether the original sample adequately
+represents the population.
+
+This simple bootstrap also assumes independent observations. It
+cannot correct selection bias or compensate for a poorly designed
+study.
+:::
+
+
+## Key message IV {.center}
+
+<br>
+
+::: {.key-message-box}
+
+::: incremental
+
+- A statistic, such as a sample mean, varies from sample to sample.
+
+- The distribution of its possible values across repeated samples is called its **sampling distribution**.
+
+- Sample means vary less than individual observations, and means based on larger samples vary less.
+
+- Repeated simulation or resampling can be used to construct an **empirical distribution** of a statistic and study its variability and, when appropriate, estimate probabilities.
+
+
+:::
+
+:::
+
+# Describing precision
+
+## How variable is a sample mean?
+*SD vs. SE*
+
+<br>
+
+- In the previous section, we saw that sample means vary across
+repeated samples.
+- The **standard error (SE)** quantifies this sampling variation.
+- **Standard deviation (SD):** describes variation among individual
+  observations.
+
+
+. . .
+
+<br>
+
+::: {.text-box-1}
+A smaller SE means that repeated samples tend to produce more
+similar estimates. We therefore say that the estimate is
+**more precise**.
+:::
+
+. . .
+
+<br>
+
+SD and SE answer different questions. SD or SE?
+
+- How different are individuals from one another? [(SD)]{.fragment}
+- How much would our estimate vary if we repeated the study? [(SE)]{.fragment}
+
+
+## Standard error of the sample mean {.smaller}
+<br>
+
+For $n$ independent observations from a population with standard
+deviation $\sigma$, the standard error of the sample mean is
+
+$$
+\operatorname{SE}(\bar{X})
+=
+\frac{\sigma}{\sqrt{n}}.
+$$
+
+SE depends on:
+
+- the variability among individuals, represented by $\sigma$;
+- the number of independent observations, represented by $n$.
+
+
+
+
+Greater variation among individuals produces a larger SE.
+A larger sample size produces a smaller SE.
+
+::: {.example-box}
+
+For our height model, the population SD is 7 cm:
+
+$$
+\begin{aligned}
+n=5:
+&\quad
+\operatorname{SE}(\bar{X})
+=
+\frac{7}{\sqrt{5}}
+\approx 3.13\text{ cm},\\[4pt]
+n=100:
+&\quad
+\operatorname{SE}(\bar{X})
+=
+\frac{7}{\sqrt{100}}
+=
+0.70\text{ cm}.
+\end{aligned}
+$$
+
+This explains the sampling distributions from the previous
+section: means based on 100 students were much more tightly
+concentrated around 170 cm than means based on five students.
+
+Increasing the sample size improves the **precision of the mean**.
+It does not reduce the biological variation among individual
+students.
+
+:::
+
+## Estimating SEM
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+In practice, $\sigma$, the **population standard deviation** is usually unknown. 
+We estimate it from the observed sample using the **sample standard deviation**, $s$:
+
+$$
+s
+=
+\sqrt{
+\frac{1}{n-1}
+\sum_{i=1}^{n}
+(x_i-\bar{x})^2
+}.
+$$
+
+
+We can therefore estimate the standard error of the sample mean by
+
+$$
+\widehat{\operatorname{SE}}(\bar{X})
+=
+\frac{s}{\sqrt{n}}.
+$$
+
+
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+For example, we measure the heights of 20 students:
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+set.seed(2027)
+
+heights <- rnorm(
+  20,
+  mean = 170,
+  sd = 7
+)
+
+# calculate sample SD
+s <- sd(heights)
+s
+
+# estimate the SE of the sample mean
+n <- length(heights)
+SE <- s / sqrt(n)
+SE
+```
+
+:::
+
+::::
+
+. . .
+
+This estimated SE describes how much the sample mean would be expected to vary across repeated samples of 20 independent students.
+
+. . .
+
+We can also estimate the **SE as the standard deviation of the bootstrap means**.
+
+## From the normal to the t-distribution {.smaller}
+*What changes when $\sigma$ is unknown?*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+If the population SD, $\sigma$, is known, standardising the sample mean gives
+
+$$
+Z=
+\frac{\bar X-\mu}
+{\sigma/\sqrt n}
+\sim N(0,1).
+$$
+
+If $\sigma$ is unknown, which is the usual real-data situation, we replace it with the sample SD, $s$:
+
+$$
+T=
+\frac{\bar X-\mu}
+{s/\sqrt n}.
+$$
+
+Now the denominator is itself estimated from the sample, which introduces extra uncertainty.
+
+Therefore, under a normal population model,
+
+$$
+T \sim t_{n-1}.
+$$
+
+The **t-distribution** is similar to the standard normal distribution but has heavier tails. As the sample size increases, it approaches $N(0,1)$.
+
+::: {.text-box-1}
+
+Because $s$ is estimated from the sample, there is **extra uncertainty**.
+
+The **t-distribution** accounts for this uncertainty:
+
+- it looks similar to the normal distribution;
+- it has heavier tails;
+- with larger samples, it approaches the standard normal distribution.
+
+:::
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| echo: false
+#| fig-height: 10
+
+x <- seq(-4, 4, length.out = 500)
+
+par(mar = c(5, 5, 2, 2) + 0.1)
+
+plot(
+  x,
+  dnorm(x),
+  type = "l",
+  lwd = 4,
+  xlab = "Standardised value",
+  ylab = "Density",
+  ylim = c(0, 0.42),
+  cex.lab = 1.5,
+  cex.axis = 1.3
+)
+
+lines(
+  x,
+  dt(x, df = 4),
+  lwd = 4,
+  lty = 2, 
+  col = "red"
+)
+
+lines(
+  x,
+  dt(x, df = 20),
+  lwd = 4,
+  lty = 3, 
+  col = "blue"
+)
+
+legend(
+  "topright",
+  legend = c("Normal", "t, df = 4", "t, df = 20"),
+  lwd = 4,
+  lty = c(1, 2, 3),
+  bty = "n",
+  cex = 1.3
+)
+
+```
+:::
+
+::::
+
+::: {.footer}
+:::
+
+
+## Using SE to assess an observed result {.smaller}
+*How unusual is an observed sample mean*
+<br>
+
+
+Previously, we used a probability distribution to ask whether an
+individual height was unusual. Now we ask: is an observed **sample mean** unusual relative to its expected sampling variability?
+
+. . . 
+
+Assume that student heights follow our normal population model: $X\sim N(170,7^2)$
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Previously:**
+
+For one randomly selected student,
+
+$$
+X \sim N(170,7^2).
+$$
+<br>
+
+If we observe a height of 172 cm, its distance from the population mean,
+measured in standard deviation units, is
+
+$$
+z
+=
+\frac{x-\mu}{\sigma}
+=
+\frac{172-170}{7}
+\approx
+0.29.
+$$
+
+Thus, a height of 172 cm is approximately 0.29 SD above the population mean.
+
+$$
+P(X\geq172)
+=
+1-\Phi\left(
+\frac{172-170}{7}
+\right)
+\approx
+0.388.
+$$
+
+<br>
+
+The probability that a randomly selected student is taller than 172 cm is approximately 38.8% (not unsual).
+
+:::
+
+::: {.column width="45%"}
+
+
+:::
+::::
+
+
+
+## Using SE to assess an observed result {.smaller}
+*How unusual is an observed sample mean*
+<br>
+
+
+Previously, we used a probability distribution to ask whether an
+individual height was unusual. Now we ask: is an observed **sample mean** unusual relative to its expected sampling variability?
+
+Assume that student heights follow our normal population model: $X\sim N(170,7^2)$
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Previously:**
+
+For one randomly selected student,
+
+$$
+X \sim N(170,7^2).
+$$
+<br>
+
+If we observe a height of 172 cm, its distance from the population mean,
+measured in standard deviation units, is
+
+$$
+z
+=
+\frac{x-\mu}{\sigma}
+=
+\frac{172-170}{7}
+\approx
+0.29.
+$$
+
+Thus, a height of 172 cm is approximately 0.29 SD above the population mean.
+
+$$
+P(X\geq172)
+=
+1-\Phi\left(
+\frac{172-170}{7}
+\right)
+\approx
+0.388.
+$$
+
+<br>
+
+The probability that a randomly selected student is taller than 172 cm is approximately 38.8% (not unsual).
+
+:::
+
+::: {.column width="45%"}
+
+**Now:**
+
+For a sample of 100 independent students, the sample mean follows
+
+$$
+\bar{X}
+\sim
+N\left(170,\frac{7^2}{100}\right).
+$$
+
+If we observe a sample mean of 172 cm, its distance from the assumed population mean, measured in standard error units, is
+
+$$
+z
+=
+\frac{\bar{x}-\mu_0}
+{\sigma/\sqrt{n}}
+=
+\frac{172-170}{0.70}
+\approx 2.86.
+$$
+
+Thus, the observed sample mean is approximately 2.86 SE above the
+assumed population mean.
+
+$$
+P(\bar{X}\geq172)
+=
+1-\Phi\left(
+\frac{172-170}{0.70}
+\right)
+\approx 0.0021.
+
+$$
+
+<br>
+
+**Under the same model, the probability that the sample mean exceeds 172 cm is only 0.21%, so such a sample mean would be very unusual.**
+
+:::
+::::
+
+## Returing to our opening question {.smaller}
+*Sample means of 172 and 175*
+
+<br>
+
+::: {.example-box}
+*Two research groups independently sample individuals from a group of PhD students taking "Statistical Methods for Life Science" course, and measure their heights. They ended up with sample means of 172 and 175 cm respectively.*
+
+Could this difference arise simply because they sampled different individuals?
+:::
+
+. . .
+
+
+Their observed difference between the groups was therefore
+
+$$
+\bar{x}_2-\bar{x}_1
+=
+175-172
+=
+3\text{ cm}.
+$$
+
+We know that **different random samples can produce different
+sample means, even when they come from the same population**. So observing a difference of 3 cm does not necessarily mean that the two underlying populations have different mean heights.
+
+. . .
+
+<br>
+
+The important question is: **Is a difference of 3 cm larger than we would expect from sampling variation alone?**
+
+. . .
+
+To answer this, we would consider the statistic
+
+$$
+\bar{X}_2-\bar{X}_1
+$$
+
+and its **sampling distribution**: the distribution of differences we
+would obtain if we repeatedly sampled two groups under the same
+conditions.
+
+. . .
+
+How much these differences vary depends on, among other things:
+
+::: incremental
+- the variation among individuals;
+- the number of independent individuals in each group;
+- the sampling design and model assumptions.
+:::
+
+. . .
+
+We can then compare our **observed difference** with the variation
+expected under a specified model.
+
+This takes us from *probability* to **statistical inference**.
+
+::: {.footer}
+:::
+
+## Key message V {.center}
+
+<br>
+
+::: {.key-message-box}
+
+::: incremental
+
+- Different samples produce different results.
+
+- The sampling distribution describes how a statistic varies across repeated samples, and the standard error quantifies this variation.
+
+- Larger independent samples generally give more precise estimates and smaller standard errors.
+
+- Statistical inference uses the observed data and a probability model to assess what the data tell us about the population.
+
+:::
+
+
+
+

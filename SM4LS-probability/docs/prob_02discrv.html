@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Appendix: discrete random variables – Probability</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./prob_03contrv.html" rel="next">
+<link href="./06-exercises.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-5ccb035bea26c1e21f80f44cf7c27909.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prob_02discrv.html">Appendix: discrete random variables</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Probability</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Probability</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-why-do-we-care-about-pr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why do we care about probability?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-describing-uncertain-obs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Describing an uncertain observation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-describing-outcomes-with-pr-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Describing outcomes with probability models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-repeat-the-sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Repeating the sampling</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-describing-precision.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Describing precision</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exercises</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prob_02discrv.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Appendix: discrete random variables</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prob_03contrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Appendix: Continuous random variables</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#expected-value-and-variance" id="toc-expected-value-and-variance" class="nav-link active" data-scroll-target="#expected-value-and-variance">Expected value and variance</a>
+  <ul class="collapse">
+  <li><a href="#linear-transformations-and-combinations" id="toc-linear-transformations-and-combinations" class="nav-link" data-scroll-target="#linear-transformations-and-combinations">Linear transformations and combinations</a></li>
+  </ul></li>
+  <li><a href="#simulate-distributions" id="toc-simulate-distributions" class="nav-link" data-scroll-target="#simulate-distributions">Simulate distributions</a></li>
+  <li><a href="#parametric-discrete-distributions" id="toc-parametric-discrete-distributions" class="nav-link" data-scroll-target="#parametric-discrete-distributions">Parametric discrete distributions</a>
+  <ul class="collapse">
+  <li><a href="#uniform" id="toc-uniform" class="nav-link" data-scroll-target="#uniform">Uniform</a></li>
+  <li><a href="#bernoulli" id="toc-bernoulli" class="nav-link" data-scroll-target="#bernoulli">Bernoulli</a></li>
+  <li><a href="#binomial" id="toc-binomial" class="nav-link" data-scroll-target="#binomial">Binomial</a></li>
+  <li><a href="#poisson" id="toc-poisson" class="nav-link" data-scroll-target="#poisson">Poisson</a></li>
+  <li><a href="#negative-binomial" id="toc-negative-binomial" class="nav-link" data-scroll-target="#negative-binomial">Negative binomial</a></li>
+  <li><a href="#geometric" id="toc-geometric" class="nav-link" data-scroll-target="#geometric">Geometric</a></li>
+  <li><a href="#hypergeometric-distribution" id="toc-hypergeometric-distribution" class="nav-link" data-scroll-target="#hypergeometric-distribution">Hypergeometric distribution</a></li>
+  <li><a href="#summary-of-discrete-distributions" id="toc-summary-of-discrete-distributions" class="nav-link" data-scroll-target="#summary-of-discrete-distributions">Summary of discrete distributions</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Appendix: discrete random variables</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A categorical random variable has nominal or ordinal outcomes such as {red, blue, green} or {tiny, small, average, large, huge}.</p>
+<p>A discrete random variable usually represents a count and has a countable number of possible values, such as {1, 2, 3, 4, 5, 6}; {0, 2, 4, 6, 8} or all integers.</p>
+<p>A discrete or categorical random variable can be described by its <strong>probability mass function (PMF)</strong>.</p>
+<p>The probability that the random variable <span class="math inline">\(X\)</span> takes the value <span class="math inline">\(x\)</span> is denoted <span class="math inline">\(P(X=x) = p(x)\)</span>. Note that:</p>
+<ol type="1">
+<li><span class="math inline">\(0 \leq p(x) \leq 1\)</span>, a probability is always between 0 and 1.</li>
+<li><span class="math inline">\(\sum_x p(x) = 1\)</span>, the probabilities over all possible outcomes sum to 1.</li>
+</ol>
+<div id="exm-rolldice" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1 (The number of dots on a die)</strong></span> When rolling a die there are six possible outcomes: 1, 2, 3, 4, 5 and 6, each of which has the same probability, if the die is fair. The outcome of one die roll can be described by a random variable <span class="math inline">\(X\)</span>. The probability of a particular outcome <span class="math inline">\(x\)</span> is denoted <span class="math inline">\(P(X=x)\)</span> or <span class="math inline">\(p(x)\)</span>.</p>
+<p>The probability mass function of a fair six-sided die can be summarized in a table;</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="st">`</span><span class="at">p(x)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">6</span>), <span class="dv">3</span>)) <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %&gt;% kable_styling()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-pmfdice" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pmfdice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Probability mass function of a fair six-sided dice.
+</figcaption>
+<div aria-describedby="tbl-pmfdice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="amyflwvufh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#amyflwvufh table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#amyflwvufh thead, #amyflwvufh tbody, #amyflwvufh tfoot, #amyflwvufh tr, #amyflwvufh td, #amyflwvufh th {
+  border-style: none;
+}
+
+#amyflwvufh p {
+  margin: 0;
+  padding: 0;
+}
+
+#amyflwvufh .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#amyflwvufh .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#amyflwvufh .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#amyflwvufh .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#amyflwvufh .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#amyflwvufh .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#amyflwvufh .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#amyflwvufh .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#amyflwvufh .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#amyflwvufh .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#amyflwvufh .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#amyflwvufh .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#amyflwvufh .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#amyflwvufh .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#amyflwvufh .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amyflwvufh .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#amyflwvufh .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#amyflwvufh .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#amyflwvufh .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amyflwvufh .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#amyflwvufh .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amyflwvufh .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#amyflwvufh .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amyflwvufh .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#amyflwvufh .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amyflwvufh .gt_left {
+  text-align: left;
+}
+
+#amyflwvufh .gt_center {
+  text-align: center;
+}
+
+#amyflwvufh .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#amyflwvufh .gt_font_normal {
+  font-weight: normal;
+}
+
+#amyflwvufh .gt_font_bold {
+  font-weight: bold;
+}
+
+#amyflwvufh .gt_font_italic {
+  font-style: italic;
+}
+
+#amyflwvufh .gt_super {
+  font-size: 65%;
+}
+
+#amyflwvufh .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#amyflwvufh .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#amyflwvufh .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#amyflwvufh .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#amyflwvufh .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#amyflwvufh .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#amyflwvufh .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#amyflwvufh .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#amyflwvufh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table cell caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="x" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">x</th>
+<th id="p(x)" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p(x)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="x">1</td>
+<td class="gt_row gt_right" headers="p(x)">0.17</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="x">2</td>
+<td class="gt_row gt_right" headers="p(x)">0.17</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="x">3</td>
+<td class="gt_row gt_right" headers="p(x)">0.17</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="x">4</td>
+<td class="gt_row gt_right" headers="p(x)">0.17</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="x">5</td>
+<td class="gt_row gt_right" headers="p(x)">0.17</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="x">6</td>
+<td class="gt_row gt_right" headers="p(x)">0.17</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>or in a bar plot;</p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">x=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">p=</span><span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>p)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">25</span>)) <span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"p(x)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-dicepmf" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dicepmf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="prob_02discrv_files/figure-html/fig-dicepmf-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:45.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dicepmf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Probability mass function of a fair six-sided dice.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="exm-nuclsite" class="theorem example">
+<p><span class="theorem-title"><strong>Example 2 (Nucleotide at a given site)</strong></span> The nucleotide at a given genomic site can be one of the four nucleotides: {A, C, T, G}. Unlike the sides on a die, the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, <span class="math inline">\(X\)</span>. The probability mass function can be summarized in a table or a bar plot.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">A=</span><span class="fl">0.4</span>, <span class="at">C=</span><span class="fl">0.2</span>, <span class="at">T=</span><span class="fl">0.1</span>, <span class="at">G=</span><span class="fl">0.3</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">x=</span><span class="fu">names</span>(p), <span class="st">"p(x)"</span><span class="ot">=</span>p) <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#kable(matrix(c(names(p), p), ncol=4, byrow=TRUE, dimnames=list(c('x','p(x)'), c()))) %&gt;% kable_styling()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-nucl" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Probability mass function of a nucleotide site.
+</figcaption>
+<div aria-describedby="tbl-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="cwqxgrrfgj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cwqxgrrfgj table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#cwqxgrrfgj thead, #cwqxgrrfgj tbody, #cwqxgrrfgj tfoot, #cwqxgrrfgj tr, #cwqxgrrfgj td, #cwqxgrrfgj th {
+  border-style: none;
+}
+
+#cwqxgrrfgj p {
+  margin: 0;
+  padding: 0;
+}
+
+#cwqxgrrfgj .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#cwqxgrrfgj .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cwqxgrrfgj .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cwqxgrrfgj .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cwqxgrrfgj .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cwqxgrrfgj .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cwqxgrrfgj .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cwqxgrrfgj .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cwqxgrrfgj .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#cwqxgrrfgj .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#cwqxgrrfgj .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cwqxgrrfgj .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cwqxgrrfgj .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cwqxgrrfgj .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cwqxgrrfgj .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cwqxgrrfgj .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#cwqxgrrfgj .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#cwqxgrrfgj .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#cwqxgrrfgj .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cwqxgrrfgj .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#cwqxgrrfgj .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cwqxgrrfgj .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cwqxgrrfgj .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cwqxgrrfgj .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cwqxgrrfgj .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cwqxgrrfgj .gt_left {
+  text-align: left;
+}
+
+#cwqxgrrfgj .gt_center {
+  text-align: center;
+}
+
+#cwqxgrrfgj .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cwqxgrrfgj .gt_font_normal {
+  font-weight: normal;
+}
+
+#cwqxgrrfgj .gt_font_bold {
+  font-weight: bold;
+}
+
+#cwqxgrrfgj .gt_font_italic {
+  font-style: italic;
+}
+
+#cwqxgrrfgj .gt_super {
+  font-size: 65%;
+}
+
+#cwqxgrrfgj .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#cwqxgrrfgj .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#cwqxgrrfgj .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#cwqxgrrfgj .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#cwqxgrrfgj .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#cwqxgrrfgj .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#cwqxgrrfgj .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#cwqxgrrfgj .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#cwqxgrrfgj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table cell caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="x" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">x</th>
+<th id="p(x)" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p(x)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="x">A</td>
+<td class="gt_row gt_right" headers="p(x)">0.4</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="x">C</td>
+<td class="gt_row gt_right" headers="p(x)">0.2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="x">T</td>
+<td class="gt_row gt_right" headers="p(x)">0.1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="x">G</td>
+<td class="gt_row gt_right" headers="p(x)">0.3</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(p) <span class="sc">%&gt;%</span> <span class="fu">rownames_to_column</span>(<span class="st">"x"</span>) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>p)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-nucl" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="prob_02discrv_files/figure-html/fig-nucl-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:45.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Probability mass function of a nucleotide site.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<!-- ::: {#exm-smoke} -->
+<!-- # The smoking status of a random mother -->
+<!-- The random variable has two possible outcomes; non-smoker (0) and smoker (1). The probability of a random mother being a smoker is 0.39. -->
+<!-- ```{r pmfsmoker} -->
+<!-- kable(matrix(c("0","0.61","1","0.39"),ncol=2, dimnames=list(c('x','p(x)'), c('non-smoker','smoker')))) %>% kable_styling(full_width = FALSE) -->
+<!-- ``` -->
+<!-- ::: -->
+<div id="exm-bacteria" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3 (CFU)</strong></span> The number of bacterial colony-forming units (CFU) on a plate is a random variable that can be described by a PMF such as the one shown in <a href="#fig-CFU" class="quarto-xref">Figure&nbsp;<span>3</span></a>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x<span class="ot">=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">50</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">x=</span>x, <span class="at">fx=</span><span class="fu">dpois</span>(x, <span class="at">lambda=</span><span class="dv">25</span>)), <span class="fu">aes</span>(x,fx)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"p(x)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-CFU" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-CFU-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="prob_02discrv_files/figure-html/fig-CFU-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-CFU-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Probability mass distribution of the number of bacterial colonies on an agar plate.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>The probability mass function can be used to compute the probability of an event. For example:</p>
+<ul>
+<li><p>Getting an even number when rolling a fair six-sided die: sum up the probability for 2, 4, and 6: <span class="math display">\[p(even)=p(2)+p(4)+p(6)=0.5.\]</span></p></li>
+<li><p>Getting fewer than 15 CFUs on an agar plate: sum up the probabilities: <span class="math display">\[P(X &lt; 15) = \sum_{k=0}^{14} p(k) = 0.01.\]</span></p></li>
+</ul>
+<p>The <strong>cumulative distribution function (CDF)</strong> is defined for discrete numeric random variables as <span class="math display">\[F(x) = P(X&lt;=x).\]</span></p>
+<p>In words, <span class="math inline">\(F(x)\)</span> is the probability that the random variable <span class="math inline">\(X\)</span> takes a value less than or equal to <span class="math inline">\(x\)</span>. For the CFU example, the probability of getting fewer than 15 CFUs on an agar plate can be written as <span class="math inline">\(F(14) = P(X&lt;=14) = P(X&lt;15)\)</span>.</p>
+<section id="expected-value-and-variance" class="level2">
+<h2 class="anchored" data-anchor-id="expected-value-and-variance">Expected value and variance</h2>
+<p>Two common properties of a probability distribution, such as a probability mass function, are the <strong>expected value</strong> and the <strong>variance</strong>.</p>
+<!-- For a numeric discrete random variable, the **expected value** of the random variable can be computed, when the probability mass function is know.  -->
+<p>The <strong>expected value</strong> is the average outcome of a random variable over many trials and is denoted <span class="math inline">\(E[X]\)</span> or <span class="math inline">\(\mu\)</span> and can be computed by summing up all possible outcome values weighted by their probability:</p>
+<p><span class="math display">\[E[X] = \mu = \sum_{x \in S} x p(x),\]</span> where <span class="math inline">\(S\)</span> is the set of all possible outcomes.</p>
+<p>For a <strong>uniform distribution</strong>, where every outcome has the same probability, the expected value can be computed as the sum of all outcome values divided by the total number of outcome values.</p>
+<p>For a finite population in which every object is equally likely to be selected, the expected value can also be computed as the population mean, i.e., by summing over outcome values for all objects in the population;</p>
+<p><span class="math display">\[E[X] = \mu = \frac{1}{N}\sum_{i=1}^N x_i,\]</span> where <span class="math inline">\(N\)</span> is the number of objects in the population.</p>
+<p>The <strong>variance</strong> is a measure of spread defined as the expected value of the squared difference between the random variable and its expected value: <span class="math display">\[var(X) = \sigma^2 = E[(X-E[X])^2] = \sum_{x \in S} (x-\mu)^2 p(x).\]</span></p>
+<p>The variance can also be computed by summing over the outcome value for every object in the population: <span class="math display">\[var(X) = \sigma^2 = \frac{1}{N}\sum_{i=1}^N (x_i-\mu)^2,\]</span> where <span class="math inline">\(N\)</span> is the number of objects in the population.</p>
+<p>The <strong>standard deviation</strong> is the square root of the <strong>variance</strong>. The standard deviation of a random variable is usually denoted <span class="math inline">\(\sigma\)</span>. The standard deviation is always positive and on the same scale as the outcome values.</p>
+<section id="linear-transformations-and-combinations" class="level3">
+<h3 class="anchored" data-anchor-id="linear-transformations-and-combinations">Linear transformations and combinations</h3>
+<p>The expected value and variance of combined or transformed random variables can often be computed using the following rules:</p>
+<p><span class="math display">\[E(aX) = a E(X)\]</span></p>
+<p><span class="math display">\[E(X + Y) = E(X) + E(Y)\]</span></p>
+<p><span class="math display">\[E[aX + bY] = aE[X] + bE[Y],\]</span> where <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are constants.</p>
+<p><span class="math display">\[var(aX) = a^2 var(X)\]</span></p>
+<p>For independent random variables <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>:</p>
+<p><span class="math display">\[var(aX + bY) = a^2var(X) + b^2var(Y).\]</span></p>
+</section>
+</section>
+<section id="simulate-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="simulate-distributions">Simulate distributions</h2>
+<p>Once a random variable’s probability distribution is known, probabilities, such as <span class="math inline">\(P(X=x), P(X&lt;x)\)</span> and <span class="math inline">\(P(X \geq x)\)</span>, and properties, such as expected value and variance, of the random variable can be computed. If the distribution is not known, simulation can be used to approximate these values.</p>
+<div id="exm-cointoss" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4 (Simulate coin toss)</strong></span> In a single coin toss, the probability of heads is 0.5. In 20 coin tosses, what is the probability of at least 15 heads?</p>
+<!-- Biological example. Randomize patients into control and treatment group, 50 % In a bacterial sample, every single bacteria can either be antibiotic resistant or not. In a sample 50% of the bacteria are antibiotic resistant, grow them on an agar plat and pick 20 colonies  -->
+<p>The outcome of a single coin toss is a random variable, <span class="math inline">\(X\)</span>, with two possible outcomes <span class="math inline">\(\{H, T\}\)</span>. We know that <span class="math inline">\(P(X=H) = 0.5\)</span>. The random variable of interest is the number of heads in 20 coin tosses, <span class="math inline">\(Y\)</span>. The probability that we need to compute is <span class="math inline">\(P(Y \geq 15)\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-coinurn" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-coinurn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/coinurn.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:20.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coinurn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: A coin toss. Urn model with one black ball (heads) and one white ball (tails).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>A single coin toss can be modelled by an urn with two balls. When a ball is drawn randomly from the urn, the probability to get the black ball (heads) is <span class="math inline">\(P(X=H) = 0.5\)</span>.</p>
+<p>In R we can simulate random draws from an urn model using the function <code>sample</code>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">260602</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="do">## A single coin toss</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "T"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Another coin toss</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "T"</code></pre>
+</div>
+</div>
+<p>Every time you run <code>sample</code>, a new coin toss is simulated.</p>
+<p>If we want to simulate tossing 20 coins (or one coin 20 times), we can use the same urn model, provided that the ball is replaced after each draw.</p>
+<p>The argument <code>size</code> tells the function how many balls we want to draw from the urn. To draw 20 balls from the urn, set <code>size=20</code>. Remember to replace the ball after each draw.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 20 independent coin tosses</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>(coins <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">20</span>, <span class="at">replace=</span><span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "T" "T" "T" "T" "H" "H" "T" "T" "H" "T" "T" "H" "T" "T" "H" "T" "T" "T" "H"
+[20] "T"</code></pre>
+</div>
+</div>
+<p>How many heads did we get in the 20 random draws?</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## How many heads?</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(coins <span class="sc">==</span> <span class="st">"H"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
+</div>
+</div>
+<p>We can repeat this experiment (tossing 20 coins and counting the number of heads) several times to estimate the distribution of number of heads in 20 coin tosses.</p>
+<p>To do the same thing several times, we use the function <code>replicate</code>.</p>
+<p>To simulate tossing 20 coins and counting the number of heads 10000 times, do the following:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Nheads <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  coins <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">20</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(coins <span class="sc">==</span> <span class="st">"H"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Plot the distribution of the number of heads in a histogram.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(Nheads, <span class="at">breaks=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>)<span class="sc">-</span><span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="prob_02discrv_files/figure-html/histNheads-1.png" class="img-fluid figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now, let’s get back to the question: when tossing 20 coins, what is the probability of at least 15 heads?</p>
+<p><span class="math inline">\(P(Y \geq 15)\)</span></p>
+<p>Count how many times out of our 10000 experiments, the number of heads is 15 or greater.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(Nheads <span class="sc">&gt;=</span> <span class="dv">15</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 201</code></pre>
+</div>
+</div>
+<p>From this, we conclude that</p>
+<p><span class="math inline">\(P(Y \geq 15) =\)</span> 201/10000 = 0.0201</p>
+<p>Note that this is an approximation of the probability. The more times we repeat the experiment, the better our approximation will be. In fact, the number of heads in a series of independent coin tosses follows a binomial distribution, which is a discrete parametric distribution. We will get back to this later in the chapter.</p>
+</div>
+<p>Resampling can also be used to compute other properties of a random variable, such as its expected value.</p>
+<p>The <strong>law of large numbers</strong> states that if the same experiment is performed many times, the average result will be close to the expected value.</p>
+<p>The coin flip is a common example in statistics, but many situations with two outcomes can be modeled using similar models. If we consider the outcome of interest success (like heads in the coin example) and the alternative outcome failure, we can model, for example:</p>
+<ul>
+<li>Drug effect: A patient can respond to drug treatment (success) or not (failure)</li>
+<li>Side effect: After a treatment a patient might experience a side effect (success) or not (failure)</li>
+<li>Treatment or placebo: Randomly assign a study participant to the treatment or placebo group</li>
+<li>Antibiotic resistance: A bacterium is either resistant to an antibiotic or not</li>
+</ul>
+<p>The probability of success and failure can be equal, like in the coin example, but they do not have to be. If the probability of a patient responding to a treatment is <span class="math inline">\(p=0.80\)</span>, then the probability of the patient not responding is <span class="math inline">\(1-p=0.20\)</span>. This can be modeled using an urn model with 4 black balls (cured) and 1 white ball (not cured).</p>
+</section>
+<section id="parametric-discrete-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="parametric-discrete-distributions">Parametric discrete distributions</h2>
+<p>A discrete parametric distribution is a probability distribution described by a set of parameters. In many situations, data can be assumed to follow a parametric distribution.</p>
+<section id="uniform" class="level3">
+<h3 class="anchored" data-anchor-id="uniform">Uniform</h3>
+<p>In a uniform distribution, every possible outcome has the same probability. With <span class="math inline">\(n\)</span> different outcomes, the probability for each outcome is <span class="math inline">\(1/n\)</span>.</p>
+</section>
+<section id="bernoulli" class="level3">
+<h3 class="anchored" data-anchor-id="bernoulli">Bernoulli</h3>
+<p>A Bernoulli trial is a random experiment with two outcomes: success and failure. The probability of success, <span class="math inline">\(P(success) = p\)</span>, is constant. The probability of failure is <span class="math inline">\(P(failure) = 1-p\)</span>.</p>
+<p>When coding, it is convenient to code success as 1 and failure as 0.</p>
+<p>The outcome of a Bernoulli trial is a discrete random variable, <span class="math inline">\(X\)</span>.</p>
+<p><span class="math display">\[P(X=x) = p(x) = \left\{
+\begin{array}{ll}
+p &amp; \mathrm{if}\,x=1\, \mathrm{success}\\
+1-p &amp; \mathrm{if}\,x=0\, \mathrm{failure}
+\end{array}
+\right.\]</span></p>
+<p>Using the definitions of expected value and variance it can be shown that:</p>
+<p><span class="math display">\[E[X] = p\]</span> <span class="math display">\[var(X) = p(1-p)\]</span></p>
+<p>A Bernoulli trial can be simulated, as seen in previous section, using the function <code>sample</code>.</p>
+</section>
+<section id="binomial" class="level3">
+<h3 class="anchored" data-anchor-id="binomial">Binomial</h3>
+<p>A Bernoulli trial describes a single success/failure experiment. A binomial random variable counts the number of successes in <span class="math inline">\(n\)</span> such trials.</p>
+<p>The number of successes in a series of Bernouilli trials is a random variable, <span class="math inline">\(X\)</span>, that follows the <strong>binomial distribution</strong>, if:</p>
+<ul>
+<li>The number of trials, <span class="math inline">\(n\)</span>, is fixed.</li>
+<li>Each trial is independent.</li>
+<li>The probability of success, <span class="math inline">\(p\)</span>, is the same for each trial.</li>
+</ul>
+<p><span class="math inline">\(X = \sum_{i=1}^n Z_i,\)</span></p>
+<p>where all <span class="math inline">\(Z_i\)</span> describe the outcome of independent and identical Bernoulli trials with probability <span class="math inline">\(p\)</span> for <em>success</em> (<span class="math inline">\(P(Z_i=1) = p\)</span>).</p>
+<p>The probability mass function of <span class="math inline">\(X\)</span> is called the binomial distribution. In short, we use the notation:</p>
+<p><span class="math display">\[X \sim Bin(n, p)\]</span></p>
+<p>The probability mass function is</p>
+<p><span class="math display">\[P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}\]</span> It can be shown that</p>
+<p><span class="math display">\[E[X] = np\]</span> <span class="math display">\[var(X) = np(1-p)\]</span></p>
+<p>A binomial random variable is the number of successes when sampling <span class="math inline">\(n\)</span> objects <em>with</em> replacement from an urn with objects of two types, of which the interesting type (success) has probability <span class="math inline">\(p\)</span>.</p>
+<p>The probability mass function, <span class="math inline">\(P(X=k)\)</span> can be computed using the R function <code>dbinom</code> and the cumulative distribution function <span class="math inline">\(P(X \leq k)\)</span> can be computed using <code>pbinom</code>.</p>
+<p>Examples of binomial random variables;</p>
+<ul>
+<li>The number of patients responding to a treatment out of <span class="math inline">\(n\)</span> patients in a study, if the probability of a patient responding to treatment is <span class="math inline">\(p\)</span>.</li>
+<li>The number of patients experiencing a side effect out of <span class="math inline">\(n\)</span> patients in a study, if the probability of a side effect is <span class="math inline">\(p\)</span>.</li>
+<li>the number of mutations in a gene of length <span class="math inline">\(n\)</span>, if the mutations are independent and identically distributed and the probability of a mutation at every single position is <span class="math inline">\(p\)</span>.</li>
+</ul>
+</section>
+<section id="poisson" class="level3">
+<h3 class="anchored" data-anchor-id="poisson">Poisson</h3>
+<p>The Poisson distribution is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space, given that these events occur with a known constant mean rate and independently of the time since the last event. It is commonly used for rare events.</p>
+<p>A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period can be modelled using the Poisson distribution.</p>
+<p>The probability mass function has a single parameter, <span class="math inline">\(\lambda\)</span>, the constant mean rate, and can be described as:</p>
+<p><span class="math display">\[P(X=k) = \frac{\lambda^k}{k!}e^{-\lambda}.\]</span></p>
+<p>The parameter <span class="math inline">\(\lambda\)</span> is both the expected value and the variance of the distribution:</p>
+<p>In the case where the Poisson distribution is used to approximate the binomial distribution, the expected value <span class="math inline">\(\lambda = n \pi\)</span>, where <span class="math inline">\(n\)</span> is the number of objects sampled from the population and <span class="math inline">\(\pi\)</span> is the probability of a single object being of the interesting type.</p>
+<p>The variance is equal to the expected value:</p>
+<p><span class="math display">\[var(X) = E[X] = \lambda = n \pi\]</span></p>
+<p>The Poisson distribution can approximate the binomial distribution if <span class="math inline">\(n\)</span> is large (<span class="math inline">\(n&gt;20\)</span>) and <span class="math inline">\(\pi\)</span> is small (<span class="math inline">\(\pi&lt;0.05\)</span> and <span class="math inline">\(n\pi &lt; 10\)</span>).</p>
+<p>Examples of Poisson random variables;</p>
+<ul>
+<li>A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period is a Poisson random variable.</li>
+<li>Number of reads aligned to a gene region</li>
+</ul>
+</section>
+<section id="negative-binomial" class="level3">
+<h3 class="anchored" data-anchor-id="negative-binomial">Negative binomial</h3>
+<p>A negative binomial distribution describes the number of failures that occur before a specified number of successes, <span class="math inline">\(r\)</span>, has occurred in a sequence of independent and identically distributed Bernoulli trials. <span class="math inline">\(r\)</span> is also called the dispersion parameter.</p>
+<p>In R: <code>dnbinom, pnbinom, qnbinom</code></p>
+</section>
+<section id="geometric" class="level3">
+<h3 class="anchored" data-anchor-id="geometric">Geometric</h3>
+<p>The geometric distribution is a special case of the negative binomial distribution in which <span class="math inline">\(r=1\)</span>.</p>
+<p>In R: <code>dgeom, pgeom, qgeom</code></p>
+</section>
+<section id="hypergeometric-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="hypergeometric-distribution">Hypergeometric distribution</h3>
+<p>The hypergeometric distribution occurs when sampling <span class="math inline">\(n\)</span> objects <em>without</em> replacement from an urn with <span class="math inline">\(N\)</span> objects of two types, of which there are <span class="math inline">\(K\)</span> objects of the interesting type. The probability of selecting an object of the interesting type is <span class="math inline">\(p = K/N\)</span>.</p>
+<p>The probability mass function</p>
+<p><span class="math display">\[P(X=k) = \frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}}\]</span> can be computed in R using <code>dhyper</code> and the cumulative distribution function <span class="math inline">\(P(X \leq k)\)</span> can be computed using <code>phyper</code>.</p>
+<p>Examples of hypergeometric random variables:</p>
+<ul>
+<li>In a student group of 25 individuals, 10 are R beginners. If 5 individuals are randomly chosen to belong to group A, the number of R beginners in group A is a hypergeometric random variable.</li>
+<li>A drug company is producing 1000 pills per day, 5% have an amount of active substance below an acceptable threshold. In a random sample of 10 pills, how many contain too little active substance? The number of pills with too little active substance is a hypergeometric random variable.</li>
+<li>You investigate the differential expression of 10000 genes, 150 of these genes belong to the super interesting pathway XXX. You run a black-box algorithm that reports 80 differentially expressed (DE) genes. If the black-box algorithm chooses DE genes at random, the number of DE genes that belong to pathway XXX is a hypergeometric random variable.</li>
+</ul>
+</section>
+<section id="summary-of-discrete-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-discrete-distributions">Summary of discrete distributions</h3>
+<ul>
+<li><strong>Bernoulli</strong>: one success/failure trial</li>
+<li><strong>Binomial</strong>: number of successes in <span class="math inline">\(n\)</span> independent Bernoulli trials</li>
+<li><strong>Poisson</strong>: number of events in a fixed interval</li>
+<li><strong>Hypergeometric</strong>: number of successes in sampling without replacement</li>
+<li><strong>Geometric</strong>: number of failures before the first success</li>
+<li><strong>Negative binomial</strong>: number of failures before the <span class="math inline">\(r\)</span>-th success</li>
+<li><strong>Uniform</strong>: all outcomes equally likely</li>
+</ul>
+<p>The binomial, hypergeometric, negative binomial and Poisson distributions have similarities. For large N (large population), the hypergeometric and binomial distributions are very similar. The Poisson distribution has equal mean and variance, whereas the binomial has a variance smaller than the mean, and the negative binomial has a variance greater than the mean.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>N<span class="ot">=</span><span class="dv">100</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>n<span class="ot">=</span><span class="dv">20</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>n</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">data.frame</span>(<span class="at">prob=</span>probs) <span class="sc">|&gt;</span> <span class="fu">group_by</span>(prob) <span class="sc">|&gt;</span> <span class="fu">reframe</span>(<span class="fu">data.frame</span>(<span class="at">x=</span>x) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">px=</span><span class="fu">dbinom</span>(x, n, prob)), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">distribution=</span><span class="st">"Binomial"</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">prob=</span>probs) <span class="sc">|&gt;</span> <span class="fu">group_by</span>(prob) <span class="sc">|&gt;</span> <span class="fu">reframe</span>(<span class="fu">data.frame</span>(<span class="at">x=</span>x) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">px=</span><span class="fu">dpois</span>(x, n<span class="sc">*</span>prob)), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">distribution=</span><span class="st">"Poisson"</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">prob=</span>probs) <span class="sc">|&gt;</span> <span class="fu">group_by</span>(prob) <span class="sc">|&gt;</span> <span class="fu">reframe</span>(<span class="fu">data.frame</span>(<span class="at">x=</span>x) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">px=</span><span class="fu">dnbinom</span>(x, n<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>prob), <span class="dv">1</span><span class="sc">-</span>prob)), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">distribution=</span><span class="st">"Negative binomial"</span>),</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">prob=</span>probs) <span class="sc">|&gt;</span> <span class="fu">group_by</span>(prob) <span class="sc">|&gt;</span> <span class="fu">reframe</span>(<span class="fu">data.frame</span>(<span class="at">x=</span>x) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">px=</span><span class="fu">dhyper</span>(x, <span class="fu">round</span>(N<span class="sc">*</span>prob), <span class="fu">round</span>(N<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>prob)), n)), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">distribution=</span><span class="st">"Hypergeometric"</span>))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>df<span class="sc">|&gt;</span><span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>px, <span class="at">color=</span>distribution, <span class="at">shape=</span><span class="fu">factor</span>(prob))) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">5</span>) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">theme_bw</span>() <span class="sc">+</span> <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"p(x)"</span>) <span class="sc">+</span> <span class="fu">scale_shape_discrete</span>(<span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-distr" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-distr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="prob_02discrv_files/figure-html/fig-distr-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-distr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Probability mass functions for the binomial distribution (n=20, p=0.1, 0.3 or 0.5), hypergeometric distribution (N=100, n=20, p=0.1, 0.3 or 0.5), negative binomial distribution (n=20, r=n*p, p=0.1, 0.3 or 0.5) and Poisson distribution (n=20, p=0.1, 0.3 or 0.5).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In R, probability mass functions, <span class="math inline">\(P(X=x)\)</span>, for the binomial, hypergeometric, negative binomial and Poisson distributions can be computed using the functions <code>dbinom</code>, <code>dhyper</code>, <code>dnbinom</code> and <code>dpois</code>, respectively.</p>
+<p>Cumulative distribution functions, <span class="math inline">\(P(X \leq x)\)</span> can be computed using <code>pbinom</code>, <code>phyper</code>, <code>pnbinom</code> and <code>ppois</code>.</p>
+<p>Also, functions for computing an <span class="math inline">\(x\)</span> such that <span class="math inline">\(P(X \leq x) = q\)</span>, where <span class="math inline">\(q\)</span> is a probability of interest, are available using <code>qbinom</code>, <code>qhyper</code>, <code>qnbinom</code> and <code>qpois</code>.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./06-exercises.html" class="pagination-link" aria-label="Exercises">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exercises</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./prob_03contrv.html" class="pagination-link" aria-label="Appendix: Continuous random variables">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Appendix: Continuous random variables</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
