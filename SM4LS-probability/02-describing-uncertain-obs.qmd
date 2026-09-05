@@ -1,0 +1,201 @@
+---
+title: "Describing an uncertain observation"
+subtitle: "Statistical Methods for Life Sciences"
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+set.seed(2026)
+mu <- 172
+sigma <- 7
+```
+
+## Population, sample and random variable
+
+Suppose we want to study the heights of PhD students at a particular university.
+
+- The **population** is all PhD students at that university.
+- A **sample** is the group we select and measure, e.g. PhD students enrolled in a specific course.
+- The **sample size**, **n**, is the number selected.
+
+A **random variable** describes a numerical outcome that we do not know before making a random selection or carrying out an experiment.
+
+- For example, let X be the height of a randomly selected student. 
+- Depending on whom we select, we might observe 168, 175 or 182 cm.
+- Before selection, we use X to represent the uncertain height.
+- After measurement, we have an **observed value**, such as x = 175 cm.
+
+The variation comes from who happens to be selected — not from their height changing when we select them.
+
+The **sample space** is the set of all possible outcomes or values the random variable can take. In our example, the random variable can take any value between 0 cm and infinity: $S \in [0, \infty)$
+
+An **event** is a condition we are interested in, e.g. a selected student being taller than 180 cm: X > 180.
+
+## Probability: axioms and common rules
+
+**Axioms of probability**
+
+Probabilities lie between 0 and 1 
+
+$$0 \leq P(E) \leq 1 \text{ for any event } E \subseteq S$$
+where the $S$ is the **sample space** , a set of all possible outcomes.
+
+Something must happen: the probability that an outcome in the sample space occurs is 1.
+
+$$P(S) = 1$$
+For mutually exclusive events, the probability that either occurs equals the sum of their individual probabilities.
+
+$$P(E \cup F) = P(E) + P(F) \text{ if $E$ and $F$ are disjoint events}$$
+
+**Common rules**
+
+The **complement** of being taller than 180 cm (E) is being 180 cm or shorter (E'):
+
+$$ P(E')=1-P(E)$$
+$$ P(X\leq180)=1-P(X>180)$$
+The probability of **impossible event** is zero $$P(\emptyset)=0$$
+
+
+An event cannot be more likely than an event that contains it (**probability of a subset**). If $E \subseteq F$, then $$P(F) \geq P(E)$$
+
+
+The probability that at least one of two events occurs is the sum of their probabilities, minus the probability that both occur (**addition rule**). Let $E, F \subseteq S$ be any two events, then 
+$$P(E \cup F) = P(E) + P(F) - P(E \cap F)$$
+
+## Conditional probability
+
+Does knowing that a student uses an Android phone changes the probability they are taller than 180 cm?
+
+Let's image a hypothetical population of 100 students, in which:
+
+- 8 are taller than 180 cm.
+- 40 use Android phones; 5 of these are taller than 180 cm.
+
+$$
+P(X>180)=\frac{8}{100}=0.08
+$$
+
+$$
+P(X>180\mid\text{Android})=\frac{5}{40}=0.125
+$$
+
+The vertical bar means **“given that”**.
+
+**Conditional probability** restricts attention to a specified group, e.g. Android users. Here, knowing that the student uses Android phone increases the probability of a student being above 180 cm tall from 8% to 12.5%. This is, however, not an evidence that phone choice causes differences in height (i.e., it is an association; no causation is implied).
+
+
+In general:
+
+$$
+P(A\mid B)=\frac{P(A\cap B)}{P(B)},\qquad P(B)>0.
+$$
+
+where, A ∩ B means that both conditions are satisfied.
+
+
+## Independence between observations
+
+Observations are **independent** if knowing the value of one does not change the probability distribution of the other.
+
+For independent events $A$ and $B$:
+
+$$
+P(B \mid A) = P(B),
+$$
+or equivalently,
+
+$$
+P(A \cap B) = P(A)P(B).
+$$
+
+Suppose two students are sampled independently. If 20% of the population is taller than 180 cm, knowing that the first student is taller than 180 cm does not change the probability that the second student is taller than 180 cm.
+
+$$
+P(B\mid A)=P(B)=0.20.
+$$
+
+Here, A and B refer to the first and second student, respectively, being taller than 180 cm.
+
+The probability that both exceed 180 cm is therefore:
+
+$$P(A\cap B)=P(A)P(B)=0.20\times0.20=0.04$$
+
+::: {.callout-important}
+## Key message
+
+Different samples can produce different results. Probability gives us a language for describing these uncertain outcomes and calculating how likely they are. 
+
+To use it correctly, we must specify the population, how we sample, what we measure, and the events of interest.
+:::
+
+## Exercises {.unnumbered}
+::: {#exr-terms-1}
+
+## What is random?
+
+We randomly select 10 adults from a defined population and record their BMI. The first person's BMI is 24.5.
+
+Let's model as BMI as a continuous, positive measurement.
+
+Identify:
+
+- The sample size.
+- The sample space for one BMI measurement.
+- The random variable.
+- Its observed value.
+- An example event involving BMI.
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
+
+- **Sample size:** $n = 10$.
+- **Sample space:** $S = [0, \infty)$ under our positive, continuous model.
+- **Random variable:** $X =$ the BMI of the first randomly selected adult.
+- **Observed value:** $x = 24.5$.
+- **Example event:** the first adult's BMI exceeds 25,
+  $E = \{X > 25\}$.
+
+:::
+
+::: {#exr-terms-2}
+
+## What can we calculate — and what is missing?
+
+Suppose 50% of adults in our hypothetical population have a BMI above 25.
+
+For an adult randomly selected from this population:
+
+- What is the probability that their BMI is 25 or less?
+- Can we calculate the probability that their BMI exceeds 30 from this information alone?
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
+
+By the **complement rule**:
+
+$$
+P(X\leq25)=1-P(X>25)=1-0.50=0.50.
+$$
+
+We cannot calculate $P(X>30)$ exactly from this information.
+
+Because $\{X>30\}\subseteq\{X>25\}$, we know only that:
+
+$$
+0\leq P(X>30)\leq0.50.
+$$
+
+We need more information about how BMI values are distributed above 25. This motivates our next topic:
+**probability distributions and models**.
+
+:::
+
+
