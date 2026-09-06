@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; Describing precision – Statistical Methods for Life Sciences</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../SM4LS-probability/06-exercises.html" rel="next">
+<link href="../SM4LS-probability/04-repeat-the-sampling.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bc91950905f66a0b7e618f69bf449bf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../SM4LS-probability/index.html">Introduction</a></li><li class="breadcrumb-item"><a href="../SM4LS-probability/05-describing-precision.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Describing precision</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Statistical Methods for Life Sciences</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-probability/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/01-why-do-we-care-about-pr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why do we care about probability?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/02-describing-uncertain-obs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Describing an uncertain observation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/03-describing-outcomes-with-pr-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Describing outcomes with probability models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/04-repeat-the-sampling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Repeating the sampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/05-describing-precision.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Describing precision</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/06-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exercises</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/prob_02discrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Appendix: discrete random variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-probability/prob_03contrv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Appendix: cotinuous random variables</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-inference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Statistical Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_01hypothesis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Introduction to hypothesis tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_02hypresamp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Hypothesis testing using resampling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_03hypparm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Parametric tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_04rank.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Rank-based tests</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_05multiple.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Multiple testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_06interval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Point and interval estimates</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_07anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Analysis of variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-inference/infe_exr_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Exercises: Statistical inference</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-lm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linear regression</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Introduction to linear models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-reg-cls.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Linear models: regression and classification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-coeff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Common cases</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-intro-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (introduction to linear models)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-diagn-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (model diagnostics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-lasso-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (regularization)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-lm/lm-coeff-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises (regression coefficients)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-glm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Generalized Linear Models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-glm/glm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Generalized linear models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-mixedmodels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mixed models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/mixmod_lm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Simple linear regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/mixmod_lmm.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Mixed models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/mixmod_math.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Mixed models (mathematical details)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-mixedmodels/mixmod_exr_solutions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Exercises: Mixed Effects Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-survival/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Survival Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-survival/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-survival/regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Regression with survival response</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-survival/lab.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Exercises: Survival analysis</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-pca/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Principal Component Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-pca/PCA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Background</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-pca/exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Exercises: Principal component analysis</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../SM4LS-clustering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Clustering</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-clustering/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Clustering: art of finding groups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../SM4LS-clustering/exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Exercises</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#how-variable-is-a-sample-mean" id="toc-how-variable-is-a-sample-mean" class="nav-link active" data-scroll-target="#how-variable-is-a-sample-mean"><span class="header-section-number">5.1</span> How variable is a sample mean?</a></li>
+  <li><a href="#standard-error-of-the-sample-mean" id="toc-standard-error-of-the-sample-mean" class="nav-link" data-scroll-target="#standard-error-of-the-sample-mean"><span class="header-section-number">5.2</span> Standard error of the sample mean</a></li>
+  <li><a href="#how-does-sample-size-affect-precision" id="toc-how-does-sample-size-affect-precision" class="nav-link" data-scroll-target="#how-does-sample-size-affect-precision"><span class="header-section-number">5.3</span> How does sample size affect precision?</a></li>
+  <li><a href="#estimating-the-standard-error-from-data" id="toc-estimating-the-standard-error-from-data" class="nav-link" data-scroll-target="#estimating-the-standard-error-from-data"><span class="header-section-number">5.4</span> Estimating the standard error from data</a>
+  <ul class="collapse">
+  <li><a href="#estimating-se-using-the-bootstrap" id="toc-estimating-se-using-the-bootstrap" class="nav-link" data-scroll-target="#estimating-se-using-the-bootstrap"><span class="header-section-number">5.4.1</span> Estimating SE using the bootstrap</a></li>
+  </ul></li>
+  <li><a href="#from-the-normal-to-the-t-distribution" id="toc-from-the-normal-to-the-t-distribution" class="nav-link" data-scroll-target="#from-the-normal-to-the-t-distribution"><span class="header-section-number">5.5</span> From the normal to the t-distribution</a></li>
+  <li><a href="#more-measurements-or-more-individuals" id="toc-more-measurements-or-more-individuals" class="nav-link" data-scroll-target="#more-measurements-or-more-individuals"><span class="header-section-number">5.6</span> More measurements or more individuals?</a></li>
+  <li><a href="#using-se-to-assess-an-observed-result" id="toc-using-se-to-assess-an-observed-result" class="nav-link" data-scroll-target="#using-se-to-assess-an-observed-result"><span class="header-section-number">5.7</span> Using SE to assess an observed result</a></li>
+  <li><a href="#an-individual-value-is-not-a-sample-mean" id="toc-an-individual-value-is-not-a-sample-mean" class="nav-link" data-scroll-target="#an-individual-value-is-not-a-sample-mean"><span class="header-section-number">5.8</span> An individual value is not a sample mean</a></li>
+  <li><a href="#return-to-the-two-research-groups" id="toc-return-to-the-two-research-groups" class="nav-link" data-scroll-target="#return-to-the-two-research-groups"><span class="header-section-number">5.9</span> Return to the two research groups</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../SM4LS-probability/index.html">Introduction</a></li><li class="breadcrumb-item"><a href="../SM4LS-probability/05-describing-precision.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Describing precision</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Describing precision</span></h1>
+<p class="subtitle lead">Statistical Methods for Life Sciences</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="how-variable-is-a-sample-mean" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="how-variable-is-a-sample-mean"><span class="header-section-number">5.1</span> How variable is a sample mean?</h2>
+<p>In the previous section, we saw that sample means vary across repeated samples.</p>
+<p>The <strong>standard error (SE)</strong> quantifies this sampling variation.</p>
+<p>It is important to distinguish between the standard deviation and the standard error:</p>
+<ul>
+<li><strong>Standard deviation (SD):</strong> describes variation among individual observations.</li>
+<li><strong>Standard error (SE):</strong> describes variation among estimates calculated from repeated samples of the same size.</li>
+</ul>
+<p>For the sample mean, the SE is the standard deviation of its sampling distribution.</p>
+<p>A smaller SE means that repeated samples tend to produce more similar estimates. We therefore say that the estimate is <strong>more precise</strong>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+SD and SE answer different questions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>SD:</strong> How different are individuals from one another?</p>
+<p><strong>SE:</strong> How much would our estimate vary if we repeated the study?</p>
+</div>
+</div>
+</section>
+<section id="standard-error-of-the-sample-mean" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="standard-error-of-the-sample-mean"><span class="header-section-number">5.2</span> Standard error of the sample mean</h2>
+<p>For <span class="math inline">\(n\)</span> independent observations from a population with standard deviation <span class="math inline">\(\sigma\)</span>, the standard error of the sample mean is</p>
+<p><span class="math display">\[
+\operatorname{SE}(\bar{X})
+=
+\frac{\sigma}{\sqrt{n}}.
+\]</span></p>
+<p>The formula shows that the sampling variability of the mean depends on:</p>
+<ul>
+<li>the variability among individuals, represented by <span class="math inline">\(\sigma\)</span>;</li>
+<li>the number of independent observations, represented by <span class="math inline">\(n\)</span>.</li>
+</ul>
+<p>Greater variation among individuals produces a larger SE. A larger sample size produces a smaller SE.</p>
+<p>For our height model, the population SD is 7 cm:</p>
+<p><span class="math display">\[
+\begin{aligned}
+n=5:
+&amp;\quad
+\operatorname{SE}(\bar{X})
+=
+\frac{7}{\sqrt{5}}
+\approx 3.13\text{ cm},\\[4pt]
+n=100:
+&amp;\quad
+\operatorname{SE}(\bar{X})
+=
+\frac{7}{\sqrt{100}}
+=
+0.70\text{ cm}.
+\end{aligned}
+\]</span></p>
+<p>This explains the sampling distributions from the previous section: means based on 100 students were much more tightly concentrated around 170 cm than means based on five students.</p>
+<p>Increasing the sample size improves the <strong>precision of the mean</strong>. It does not reduce the biological variation among individual students.</p>
+</section>
+<section id="how-does-sample-size-affect-precision" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="how-does-sample-size-affect-precision"><span class="header-section-number">5.3</span> How does sample size affect precision?</h2>
+<p>Because</p>
+<p><span class="math display">\[
+\operatorname{SE}(\bar{X})=\frac{\sigma}{\sqrt{n}},
+\]</span></p>
+<p>the SE decreases with the square root of the sample size.</p>
+<p>This means that doubling the sample size does not halve the SE.</p>
+<p>To halve the SE, we must multiply the sample size by four:</p>
+<p><span class="math display">\[
+\frac{\sigma}{\sqrt{4n}}
+=
+\frac{1}{2}\frac{\sigma}{\sqrt{n}}.
+\]</span></p>
+<p>Increasing the sample size therefore improves precision, but with diminishing returns.</p>
+</section>
+<section id="estimating-the-standard-error-from-data" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="estimating-the-standard-error-from-data"><span class="header-section-number">5.4</span> Estimating the standard error from data</h2>
+<p>The formula</p>
+<p><span class="math display">\[
+\operatorname{SE}(\bar{X})
+=
+\frac{\sigma}{\sqrt{n}}
+\]</span></p>
+<p>uses the <strong>population standard deviation</strong>, <span class="math inline">\(\sigma\)</span>.</p>
+<p>In practice, <span class="math inline">\(\sigma\)</span> is usually unknown. We estimate it from the observed sample using the <strong>sample standard deviation</strong>, <span class="math inline">\(s\)</span>:</p>
+<p><span class="math display">\[
+s
+=
+\sqrt{
+\frac{1}{n-1}
+\sum_{i=1}^{n}
+(x_i-\bar{x})^2
+}.
+\]</span></p>
+<p>The sample SD describes the variation among the observed individuals and provides an estimate of the population SD, <span class="math inline">\(\sigma\)</span>.</p>
+<p>We can therefore estimate the standard error of the sample mean by</p>
+<p><span class="math display">\[
+\widehat{\operatorname{SE}}(\bar{X})
+=
+\frac{s}{\sqrt{n}}.
+\]</span> . . .</p>
+<p><br></p>
+<p>For example, suppose we measure the heights of 20 students:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2027</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>heights <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">20</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="dv">170</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd =</span> <span class="dv">7</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate sample SD</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">sd</span>(heights)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>s</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 7.635459</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate the SE of the sample mean</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(heights)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>SE <span class="ot">&lt;-</span> s <span class="sc">/</span> <span class="fu">sqrt</span>(n)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>SE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.70734</code></pre>
+</div>
+</div>
+<p>This estimated SE describes how much the sample mean would be expected to vary across repeated samples of 20 independent students.</p>
+<section id="estimating-se-using-the-bootstrap" class="level3 optional" data-number="5.4.1">
+<h3 class="optional anchored" data-number="5.4.1" data-anchor-id="estimating-se-using-the-bootstrap"><span class="header-section-number">5.4.1</span> Estimating SE using the bootstrap</h3>
+<p>If we generated bootstrap means in the previous section, we can also estimate the SE by calculating their standard deviation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bootstrap_means <span class="ot">&lt;-</span> <span class="fu">replicate</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10000</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      heights,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="fu">length</span>(heights),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">replace =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(bootstrap_means)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.671085</code></pre>
+</div>
+</div>
+<p>The formula-based and bootstrap estimates both describe the estimated sampling variability of the mean. Their values will usually be similar, although not necessarily identical.</p>
+</section>
+</section>
+<section id="from-the-normal-to-the-t-distribution" class="level2 smaller" data-number="5.5">
+<h2 class="smaller anchored" data-number="5.5" data-anchor-id="from-the-normal-to-the-t-distribution"><span class="header-section-number">5.5</span> From the normal to the t-distribution</h2>
+<p>If the population SD, <span class="math inline">\(\sigma\)</span>, is known, standardising the sample mean gives</p>
+<p><span class="math display">\[
+Z=
+\frac{\bar X-\mu}
+{\sigma/\sqrt n}
+\sim N(0,1).
+\]</span></p>
+<p>If <span class="math inline">\(\sigma\)</span> is unknown, which is the usual real-data situation, we replace it with the sample SD, <span class="math inline">\(s\)</span>:</p>
+<p><span class="math display">\[
+T=
+\frac{\bar X-\mu}
+{s/\sqrt n}.
+\]</span></p>
+<p>Now the denominator is itself estimated from the sample, which introduces extra uncertainty.</p>
+<p>Therefore, under a normal population model,</p>
+<p><span class="math display">\[
+T \sim t_{n-1}.
+\]</span></p>
+<p>The <strong>t-distribution</strong> is similar to the standard normal distribution but has heavier tails. As the sample size increases, it approaches <span class="math inline">\(N(0,1)\)</span>.</p>
+<p>Because <span class="math inline">\(s\)</span> is estimated from the sample, there is <strong>extra uncertainty</strong>.</p>
+<p>The <strong>t-distribution</strong> accounts for this uncertainty:</p>
+<ul>
+<li>it looks similar to the normal distribution;</li>
+<li>it has heavier tails;</li>
+<li>with larger samples, it approaches the standard normal distribution.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-describing-precision_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="more-measurements-or-more-individuals" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="more-measurements-or-more-individuals"><span class="header-section-number">5.6</span> More measurements or more individuals?</h2>
+<p>Suppose that we want to estimate the mean height in the population.</p>
+<p>We could collect 100 measurements in two different ways:</p>
+<ul>
+<li>measure five students 20 times each;</li>
+<li>measure 100 different students once each.</li>
+</ul>
+<p><strong>Would these designs give equally precise estimates of the population mean?</strong></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Solution">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;Although both designs produce 100 measurements, they do not contain the same amount of independent information about variation between students.</p>
+<p>In</p>
+<p><span class="math display">\[
+\widehat{\operatorname{SE}}(\bar{X})
+=
+\frac{s}{\sqrt{n}},
+\]</span></p>
+<p><span class="math inline">\(n\)</span> is the number of <strong>independent students</strong>, not simply the total number of measurements.</p>
+<p>If the between-student SD is approximately 7 cm:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Five students:}
+&amp;\quad
+\operatorname{SE}(\bar{X})
+\approx
+\frac{7}{\sqrt{5}}
+=
+3.13\text{ cm},\\[4pt]
+\text{One hundred students:}
+&amp;\quad
+\operatorname{SE}(\bar{X})
+\approx
+\frac{7}{\sqrt{100}}
+=
+0.70\text{ cm}.
+\end{aligned}
+\]</span></p>
+<p>Repeated measurements can reduce measurement error and give a more precise measurement of each student.</p>
+<p>However, repeatedly measuring the same five students does not give us 100 independent students. Those five students could still happen to be unusually tall or unusually short.</p>
+<p>Therefore, measuring 100 different students generally gives a more precise estimate of the <strong>population mean</strong>, assuming that each height is measured reasonably accurately.</p>
+<p>In biological studies, this is why technical replicates cannot replace independent biological replicates.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="using-se-to-assess-an-observed-result" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="using-se-to-assess-an-observed-result"><span class="header-section-number">5.7</span> Using SE to assess an observed result</h2>
+<p>Previously, we used a probability distribution to ask whether an individual height was unusual.</p>
+<p>We can now ask a different question:</p>
+<blockquote class="blockquote">
+<p>Is an observed <strong>sample mean</strong> unusual relative to its expected sampling variability?</p>
+</blockquote>
+<p>Assume that student heights follow our normal population model:</p>
+<p><span class="math display">\[
+X\sim N(170,7^2).
+\]</span></p>
+<p>For a sample of 100 independent students, the sample mean follows</p>
+<p><span class="math display">\[
+\bar{X}
+\sim
+N\left(170,\frac{7^2}{100}\right).
+\]</span></p>
+<p>The sampling distribution therefore has:</p>
+<p><span class="math display">\[
+E[\bar{X}]=170
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\operatorname{SE}(\bar{X})
+=
+\frac{7}{\sqrt{100}}
+=
+0.70\text{ cm}.
+\]</span></p>
+<p>Suppose that we observe a sample mean of 172 cm.</p>
+<p>Its distance from the assumed population mean, measured in standard error units, is</p>
+<p><span class="math display">\[
+z
+=
+\frac{\bar{x}-\mu_0}
+{\sigma/\sqrt{n}}
+=
+\frac{172-170}{0.70}
+\approx 2.86.
+\]</span></p>
+<p>Thus, the observed sample mean is approximately 2.86 SE above the assumed population mean.</p>
+<p>Under the assumed model,</p>
+<p><span class="math display">\[
+P(\bar{X}\geq172)
+=
+1-\Phi\left(
+\frac{172-170}{0.70}
+\right)
+\approx 0.0021.
+\]</span></p>
+<p>In R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">172</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="dv">170</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd =</span> <span class="dv">7</span> <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">100</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.tail =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.002137367</code></pre>
+</div>
+</div>
+<p>If the population mean is 170 cm and the model assumptions hold, the probability of obtaining a sample mean of 172 cm or higher from 100 independent students is approximately 0.2%.</p>
+<p>Such a sample mean would therefore be unusual under the assumed model.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is the probability of obtaining a result at least this large <strong>under the assumed model</strong>.</p>
+<p>It is not the probability that the model or the assumed population mean is correct.</p>
+</div>
+</div>
+</section>
+<section id="an-individual-value-is-not-a-sample-mean" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="an-individual-value-is-not-a-sample-mean"><span class="header-section-number">5.8</span> An individual value is not a sample mean</h2>
+<p>An individual height of 172 cm is not unusual under the same population model.</p>
+<p>For an individual student, we use the individual SD of 7 cm:</p>
+<p><span class="math display">\[
+P(X\geq172)
+=
+1-\Phi\left(
+\frac{172-170}{7}
+\right)
+\approx0.3875.
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">172</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="dv">170</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd =</span> <span class="dv">7</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower.tail =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3875485</code></pre>
+</div>
+</div>
+<p>Approximately 38.8% of individual students are expected to be at least 172 cm tall under this model.</p>
+<p>The cutoff of 172 cm is the same in both calculations, but the relevant distributions are different:</p>
+<ul>
+<li>Individual heights have an SD of 7 cm.</li>
+<li>Means of 100 heights have an SE of 0.70 cm.</li>
+</ul>
+<p>A value can therefore be common for an individual observation but unusual for a sample mean.</p>
+</section>
+<section id="return-to-the-two-research-groups" class="level2" data-number="5.9">
+<h2 data-number="5.9" class="anchored" data-anchor-id="return-to-the-two-research-groups"><span class="header-section-number">5.9</span> Return to the two research groups</h2>
+<p>In our opening example, two research groups obtained mean heights of 172 cm and 175 cm.</p>
+<p>Their observed difference was therefore</p>
+<p><span class="math display">\[
+\bar{x}_2-\bar{x}_1
+=
+175-172
+=
+3\text{ cm}.
+\]</span></p>
+<p>We now know that <strong>different random samples can produce different sample means, even when they come from the same population</strong>.</p>
+<p>So an observed difference of 3 cm may simply reflect <strong>sampling variation</strong>.</p>
+<p>The important question is:</p>
+<blockquote class="blockquote">
+<p><strong>Is a difference of 3 cm larger than we would expect from sampling variation alone?</strong></p>
+</blockquote>
+<p>To answer this, we would consider the statistic</p>
+<p><span class="math display">\[
+\bar{X}_2-\bar{X}_1
+\]</span></p>
+<p>and its <strong>sampling distribution</strong>: the distribution of differences we would obtain if we repeatedly drew two independent samples from the same population under the same conditions.</p>
+<p>How much these differences vary depends on, among other things:</p>
+<ul>
+<li>the variation among individuals;</li>
+<li>the number of independent individuals in each sample;</li>
+<li>the sampling design and model assumptions.</li>
+</ul>
+<p>We can then compare our <strong>observed difference</strong> with the variation expected under a specified model.</p>
+<p>This is us from <strong>probability</strong> to <strong>statistical inference</strong>.</p>
+<p>In the next session, we will use <strong>confidence intervals and hypothesis tests</strong> to quantify uncertainty and assess evidence about population parameters.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key message
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Different samples produce different results.</p>
+<p>The sampling distribution describes how a statistic varies across repeated samples, and the standard error quantifies this variation.</p>
+<p>Larger independent samples generally give more precise estimates and smaller standard errors.</p>
+<p>Statistical inference uses the observed data and a probability model to assess what the data tell us about the population.</p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../SM4LS-probability/04-repeat-the-sampling.html" class="pagination-link" aria-label="Repeating the sampling">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Repeating the sampling</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../SM4LS-probability/06-exercises.html" class="pagination-link" aria-label="Exercises">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exercises</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
