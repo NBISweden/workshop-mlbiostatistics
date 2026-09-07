@@ -3,7 +3,7 @@ editor: source
 title: "Statistical inference, part II"
 subtitle: "Rank-based tests, multiple testing, interval estimates and ANOVA"
 author: "Eva Freyhult"
-date: "2026-09-08"
+date: "2026-09-09"
 date-format: long
 institute: NBIS, SciLifeLab
 embed-resources: true
@@ -26,8 +26,8 @@ library(ggforce)
 library(gt)
 knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5, echo = FALSE, cache=TRUE, error=FALSE, warnings=FALSE, dpi=600)
 options(digits=4)
-cols <- c("black", "#045C64", "#F47D20", "#491F53", "#A7C947")
 ```
+
 # Rank-based tests
 
 Rank-based tests are useful alternatives when the assumptions of parametric tests are doubtful. They are often used when the data are skewed, contain outliers, are measured on an ordinal scale, or when the sample size is small and normality is uncertain.
@@ -80,12 +80,12 @@ wilcox.test(after, before, paired=TRUE)
 
 ## Choosing test
 
-| Study design | Parametric test | Rank-based alternative | Resampling option |
-|---|---|---|---|
-| One sample | One-sample t-test | Wilcoxon signed-rank test | Bootstrap test or simulation under $H_0$ |
-| Two independent groups | Two-sample t-test | Mann–Whitney / Wilcoxon rank-sum test | Permutation test |
-| Paired samples | Paired t-test | Wilcoxon signed-rank test | Permute within pairs / flip signs of pair differences |
-| More than two independent groups | One-way ANOVA | Kruskal–Wallis test | Permutation test |
+| Study design | Parametric test | Rank-based alternative |
+|---|---|---|
+| One sample | One-sample t-test | Wilcoxon signed-rank test |
+| Two independent groups | Two-sample t-test | Mann–Whitney / Wilcoxon rank-sum test |
+| Paired samples | Paired t-test | Wilcoxon signed-rank test |
+| More than two independent groups | One-way ANOVA | Kruskal–Wallis test |
 
 The choice of test depends on the study design and whether the assumptions of the parametric test are reasonable.
 
@@ -105,60 +105,32 @@ tibble(
   cols_align(align = "center", columns = everything())
 ```
 
-::::{.columns}
-:::{.column width="50%"}
-
 Remember that the probability of type I and II errors are denoted $\alpha$ and $\beta$, respectively;
 
-$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = \\ P(\textrm{Reject }H_0|H_0 \textrm{ is true})$$
-$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = \\ P(\textrm{Accept }H_0|H_0 \textrm{ is false})$$
+$$\alpha = P(\textrm{type I error}) = P(\textrm{false alarm}) = P(\textrm{Reject }H_0 \mid H_0 \text{ is true})$$
+$$\beta = P(\textrm{type II error}) = P(\textrm{miss}) = P(\textrm{Fail to reject }H_0 \mid H_1 \text{ is true})$$
 
 and the statistical power
 
-$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 | H_0\textrm{ is false}).$$
-:::
-:::{.column width="50%"}
-
-```{r alphabeta}
-#| fig-width: 5
-x<-seq(-3,6,0.01)
-d <- 2.5
-q=qnorm(0.975)
-df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
-ggplot(df, aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5)  + geom_area(data=df %>% filter(x<q, h=="H1"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=d+1, y=dnorm(1,0,1), label="H1", color="orange") + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + annotate("label", x=1.2, y=0.08, label="beta", parse=TRUE, color="orange") + geom_vline(xintercept=q)
-```
-:::
-::::
+$$\textrm{power} = 1 - \beta = P(\textrm{Reject }H_0 \mid H_1\textrm{ is true}).$$
 
 ## Multiple testing
 
-:::: {.columns}
-::: {.column width="50%"}
+If a single test is performed, we know that
 
-### Perform one test:
-  
-  - P(One type I error) = $\alpha$
-  - P(No type I error) = $1 - \alpha$
-  
+- P(One type I error) = $\alpha$
+- P(No type I error) = $1 - \alpha$
 
-### Perform $m$ independent tests:
-  
-  - P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
-  - P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
-  
-:::
+If $m$ independent tests are performed, the risk of at least one false alarm increases;
 
-::: {.column width="50%"}
+- P(No type I errors in $m$ tests) = $(1 - \alpha)^m$
+- P(At least one type I error in $m$ tests) = $1 - (1 - \alpha)^m$
 
-```{r multiple, echo=FALSE, out.width="100%", fig.align="center", fig.width=4, fig.height=4}
+```{r multiple, echo=FALSE, out.width="50%", fig.align="center", fig.width=4, fig.height=4}
 a=0.05
 k <- 1:100
 ggplot(data.frame(k=k, p = 1-(1-a)^k), aes(x=k, y=p)) + geom_line() + xlab("Number of tests") + ylab("P(At least one type I error)") + theme_bw() + annotate("label", x=75, y=0.2, label="alpha == 0.05", parse=TRUE)
 ```
-
-:::
-
-::::
 
 ## Multiple testing correction
 
@@ -188,30 +160,26 @@ tibble(
 The false discovery rate is the expected proportion of false positives among 'hits', i.e. $\frac{FP}{TP+FP}$.
 
 The Benjamini-Hochberg procedure controls the FDR level, $\gamma$, under the assumption of independence (and also under certain forms of positive dependence) when performing $m$ tests, as follows:
-  
+
 1. Sort the p-values $p_1 \leq p_2 \leq \dots \leq p_m$.
 2. Find the maximum $j$ such that $p_j \leq \gamma \frac{j}{m}$.
 3. Declare significance for all tests $1, 2, \dots, j$.
 
-## 'Adjusted' p-values
-  
-Sometimes an adjusted significance threshold is not reported, but instead 'adjusted' p-values are reported.
-  
-- Using Bonferroni's method the 'adjusted' p-values are:
-  
-  $\tilde p_i = \min(m p_i, 1)$.
+## Adjusted p-values
 
-A feature's adjusted p-value represents the smallest FWER at which the null hypothesis will be rejected, i.e. the feature will be deemed significant.
+Sometimes an adjusted significance threshold is not reported, but instead adjusted p-values are reported.
+
+- Using Bonferroni's method the adjusted p-values are:
   
-- Benjamini-Hochberg's 'adjusted' p-values are called $q$-values:
+  $\tilde p_i = \min(m p_i, 1)$
+
+- Benjamini-Hochberg adjusted p-values are often referred to as q-values:
   
   $q_i = \min(\frac{m}{i} p_i, 1)$
-  
-  A feature's $q$-value can be interpreted as the lowest FDR at which the corresponding null hypothesis will be rejected, i.e. the feature will be deemed significant.
 
 In practice, adjusted p-values are usually computed using software such as the R function `p.adjust`.
 
-## Example, 10000 independent tests (e.g. genes) {-}
+## Example, 10000 independent tests (e.g. genes)
 
 ```{r padjust, results="asis"}
 p <- sort(c(1.7e-8, 5.8e-8, 3.4e-7, 9.1e-7, 1.0e-6, 2.4e-6, 3.6e-5, 2.3e-5, 2.3e-4, 2.2e-4, 8.9e-3,7.3e-4, 0.0045, 0.0032, 0.0087, 0.012, 0.014, 0.045, 0.08, 0.23))
@@ -238,9 +206,6 @@ An estimator is **unbiased** if its expected value equals the population paramet
 #| message: false
 #| warning: false
 #| echo: false
-#| out-width: "70%"
-
-set.seed(1234)
 bias <- c(Biased=1.5, Unbiased=0)
 precision= c(Precise=0.5, Unprecise=2)
 df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutate(m=bias[B], s=precision[P]) |> group_by(B, P) |> reframe(x=rnorm(10, mean=m, sd=s), y=rnorm(10, mean=m, sd=s)) 
@@ -248,24 +213,17 @@ df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutat
 ggplot() + geom_point(data=df, aes(x=x, y=y, color=B, shape=P)) + facet_grid(B~P) + geom_circle(data=data.frame(x0=0, y0=0,r=1:6), aes(x0=x0,y0=y0,r=r)) + theme_classic() + theme(panel.grid=element_blank(), axis.ticks  = element_blank(), axis.text=element_blank(), legend.position = "none") + xlab("") + ylab("")
 ```
 
-:::{.notes}
-The expected value of an **unbiased** point estimate is the the population parameter that it estimates. This means that if you would repeat the sampling many times and compute the point estimate of interest, e.g. sample mean, the average of the sample means would be the population mean.
-:::
-
 ## Interval estimates
 
-- To show the uncertainty an **interval estimate** for a population parameter can be computed based on sample data.
+A point estimate gives a single best guess of the population parameter, whereas an interval estimate gives a range of plausible values and reflects the uncertainty due to sampling.
 
-- An interval estimate is an interval of possible values that with high probability contains the true population parameter.
-
-- The width of the interval estimate can be determined from the sampling distribution.
-
+To show this uncertainty, an **interval estimate** for a population parameter can be computed instead of reporting only a point estimate.
 
 ## Confidence interval
 
-A confidence interval is a type of interval estimate associated with a confidence level. 
+A confidence interval is a type of interval estimate associated with a confidence level.
 
-> An interval that with probability $1 - \alpha$ cover the population parameter $\theta$ is called a confidence interval for $\theta$ with confidence level $1 - \alpha$.
+> A confidence interval for $\theta$ with confidence level $1 - \alpha$ is a method for constructing intervals such that, in repeated sampling, a proportion $1-\alpha$ of the intervals will contain the true population parameter $\theta$.
 
 ## Sampling distribution of mean
 
@@ -290,7 +248,6 @@ $$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
   annotate("segment",x=1.96,xend=1.96, y=0.17,yend=0.19, size=1) + annotate("label", x=0, y=0.18, label="95%") + geom_vline(xintercept=-1.96, linetype=3) + geom_vline(xintercept=1.96, linetype=3))
 ```
 
-
 ## Sampling distribution of mean
 
 $$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
@@ -300,7 +257,6 @@ set.seed(1111)
 samples <- data.frame(x=rnorm(40), y=-Inf) |> mutate(col=x>1.96|x<(-1.96))
 pl + geom_point(data=samples[1,,drop=FALSE], aes(x=x, y=y, color=col), shape="|", stroke=10) + theme(legend.position = "none") + scale_color_manual(values=c("black", "red"))
 ```
-
 
 ## Sampling distribution of mean
 
@@ -331,7 +287,7 @@ pl2 <- ggplot(data.frame(x=0), aes(x=x, y=0)) +
 pl2 + geom_point(size = 10) + geom_text(label="m", color="white")
 ```
 
-Use what is known about the sampleing distribution and compute a confidence interval around $m$.
+Use what is known about the sampling distribution and compute a confidence interval around $m$.
 
 ```{r}
 #| out-width: "30%"
@@ -340,7 +296,6 @@ Use what is known about the sampleing distribution and compute a confidence inte
 pl
 ```
 
-
 ```{r samplemCI}
 #| fig-height: 1
 #| fig-width: 7
@@ -348,8 +303,6 @@ pl2 + annotate("segment",x=-5,xend=5, y=0, yend=0, size=2) +
   annotate("segment",x=-5,xend=-5, y=-0.5,yend=0.5, size=2) +
   annotate("segment",x=5,xend=5, y=-0.5,yend=0.5, size=2) + geom_point(size = 10) + geom_text(label="m", color="white") 
 ```
-
-
 
 ## Confidence interval of mean
 
@@ -366,10 +319,10 @@ $$P\left(-z_{\alpha/2} < Z <z_{\alpha/2}\right) = 1-\alpha$$
 ```{r ZCI95, out.width="100%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
 x<-seq(-3,3,0.01)
 df <- data.frame(x=x, f=dnorm(x, 0, 1))
-pl <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("z") + ylab("f(z)") + scale_x_continuous(breaks=c(-1.5,0,1.5), labels=c("-z","0","z")) +
+plz <- ggplot(df, aes(x=x, y=f)) + geom_line() + theme_bw() + xlab("z") + ylab("f(z)") + scale_x_continuous(breaks=c(-1.5,0,1.5), labels=c("-z","0","z")) +
      theme(panel.grid.minor = element_blank(),
               panel.grid.major.x = element_line(color = c("grey92", NA, "grey92", NA, "grey92")))
-pl  + geom_area(data=df %>% filter(x>(-1.5) & x<1.5)) + annotate("label",label=TeX("$P(-z_{\\alpha/2} \\leq Z \\leq z_{\\alpha/2}) = 1 - \\alpha$"), x=0, y=0.11, hjust=0.5)
+plz  + geom_area(data=df %>% filter(x>(-1.5) & x<1.5)) + annotate("label",label=TeX("$P(-z_{\\alpha/2} \\leq Z \\leq z_{\\alpha/2}) = 1 - \\alpha$"), x=0, y=0.11, hjust=0.5)
 ```
 :::
 ::::
@@ -381,14 +334,14 @@ $$P\left(-z_{\alpha/2} < Z <z_{\alpha/2}\right) = 1-\alpha$$
 :::{.columns}
 :::{.column width="50%"}
 ```{r ZCI95a, out.width="100%", fig.show="hold", fig.width=5, fig.height=3.5, fig.align="center", warning=FALSE}
-pl <- pl + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("$P(Z \\leq -z)=\\alpha/2$"), x=-1.6, y=0.07, hjust=1, size=3) + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("$P(Z \\geq z) = \\alpha/2$"), x=1.6, y=0.07, hjust=0, size=3)
-plot(pl)
+plz <- plz + geom_area(data=df %>% filter(x<(-1.5))) + annotate("label",label=TeX("$P(Z \\leq -z)=\\alpha/2$"), x=-1.6, y=0.07, hjust=1, size=3) + geom_area(data=df %>% filter(x>1.5)) + annotate("label",label=TeX("$P(Z \\geq z) = \\alpha/2$"), x=1.6, y=0.07, hjust=0, size=3)
+plot(plz)
 ```
 :::
 :::{.column width="50%"}
 $z_{\alpha/2}$ is the value such that $P(Z \geq z_{\alpha/2}) = \frac{\alpha}{2} \iff P(Z \leq z_{\alpha/2}) = 1 - \frac{\alpha}{2}$.
 
-For a 95% confidence, $\alpha = 0.05$ and $z_{\alpha/2} = 1.96$. For 90% or 99% confidence $z_{0.05} = 1.64$ and $z_{0.005}=2.58$. 
+For a 95% confidence interval, $\alpha = 0.05$, and $z_{\alpha/2} = 1.96$. For 90% or 99% confidence $z_{0.05} = 1.64$ and $z_{0.005}=2.58$. 
 :::
 ::::
 
@@ -417,83 +370,43 @@ $$P(\bar X-z_{\alpha/2}SEM<\mu<\bar X+z_{\alpha/2}SEM) = 1-\alpha$$
 
 Replace with an observed sample mean, $\bar x$.
 
-
 $$P(\bar x_{obs}-z_{\alpha/2}SEM<\mu<\bar x_{obs}+z_{\alpha/2}SEM) = 1-\alpha$$
-
-
-:::{.notes}
-On board show what this means, i.e. an observed samples mean and the CI around it
-:::
 
 ## Confidence interval of mean
 
 If $\sigma$ is known
-
-$$Z = \frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{\sigma}{\sqrt{n}}} \sim N(0, 1)$$
-
-The confidence interval with confidence level $1-\alpha$;
 
 $$[\bar x_{obs} - z_{\alpha/2}SEM, \bar x_{obs} + z_{\alpha/2}SEM]$$
 
 or 
 
 $$\mu = \bar x_{obs} \pm z_{\alpha/2}SEM$$
+
 where $SEM = \frac{\sigma}{\sqrt{n}}$.
 
 ## Confidence interval of mean
 
-The mean of a sample of $n$ independent and identically normal distributed observations $X_i$ is normally distributed;
+If $\sigma$ is unknown and the observations are approximately normally distributed, use the t distribution instead.
 
-$$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
-  
-If $\sigma$ is unknown  and $n$ is small?
+$$T = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}} \sim t(n-1)$$
 
-. . .
+It follows that the confidence interval is
 
-
-Use the statistic $t=\frac{\bar X - \mu}{SEM} = \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}} \sim t(n-1)$, t-distributed with $n-1$ degrees of freedom.
-
-. . .
-
-::::{.columns}
-:::{.column width="50%"}
-It follows that 
-
-$$
-\begin{aligned}
-P\left(-t < \frac{\bar X - \mu}{\frac{s}{\sqrt{n}}} < t\right) = 1 - \alpha \iff \\
-P\left(\bar X - t \frac{s}{\sqrt{n}} < \mu < \bar X + t \frac{}{\sqrt{n}}\right) = 1 - \alpha
-\end{aligned}
-$$
-:::
-
-:::{.column width="50%" .fragment .fade-in}
-
-The confidence interval;
-
-$$[\bar x_{obs} - t \frac{s}{\sqrt{n}}, \bar x_{obs} + t \frac{s}{\sqrt{n}}]$$
+$$[\bar x_{obs} - t\frac{s}{\sqrt{n}}, \bar x_{obs} + t\frac{s}{\sqrt{n}}]$$
 
 or 
 
-$$\mu = \bar x_{obs} \pm t \frac{s}{\sqrt{n}}$$
-:::
-::::
-
+$$\mu = \bar x_{obs} \pm t\frac{s}{\sqrt{n}}$$
 
 ## Confidence interval of mean
 
-The confidence interval with confidence level $1-\alpha$ is thus;
-
-$$\mu = \bar x_{obs} \pm t \frac{s}{\sqrt{n}}$$
-  
-For a 95% confidence interval and $n=5$, $t=$ `r qt(.975, df=4)`.
+For a 95% confidence interval and $n=5$, the critical value is `r qt(.975, df=4)`.
 
 The $t$ values for different values of $\alpha$ and degrees of freedom are tabulated and can be computed in R using the function `qt`.
 
 ```{r, echo=TRUE}
 n=5
 alpha = 0.05
-## t value
 qt(1-alpha/2, df=n-1)
 ```
 
@@ -501,8 +414,6 @@ qt(1-alpha/2, df=n-1)
 
 You study the BMI of male diabetic patients. In a sample of size 6 you observe; $27, 25, 31, 29, 30, 22$. Assume that the BMI is normally distributed and calculate a 95% confidence interval for the mean BMI in male diabetic patients.
 
-
-:::{.}
 The sample mean is $\bar x = 27.3$ and the sample standard deviation is $s = 3.39$. The degrees of freedom is $n-1 = 5$ and the $t$ value for a 95% confidence interval is `r qt(0.975, df=5)`.
 
 The confidence interval is $\bar x \pm t \frac{s}{\sqrt{n}} = 27.3 \pm 2.57 \frac{3.39}{\sqrt{6}} = 27.3 \pm 3.5$.
@@ -515,11 +426,6 @@ x <- c(27, 25, 31, 29, 30, 22)
 (SEM <- s/sqrt(6))
 (CI <- m + c(-1,1)*q*SEM)
 ```
-
-:::
-
-
-
 
 ## Bootstrap interval
 
@@ -542,7 +448,7 @@ ciboot <- quantile(mboot, c(0.025, 0.975))
 ggplot(data.frame(mboot=mboot), aes(x=mboot)) + geom_histogram(aes(fill=mboot>ciboot[1] & mboot<ciboot[2]), color="white", binwidth=0.5) + theme_bw() + theme(legend.position="none") + geom_line(data=data.frame(x=ciboot, y=25), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=25, label="95%") + scale_fill_manual(values=c("black", "red")) + xlab("Bootstrap mean")
 ```
 
-## Analysis of variance (ANOVA)
+# Analysis of variance (ANOVA)
 
 With one numeric response variable of interest and one categorical variable with $k$ groups, we can use **one-way ANOVA** to test if the group means are equal.
 
@@ -555,10 +461,13 @@ $$H_1: \text{not all group means are equal}$$
 
 $$F = \frac{\text{variation between groups}}{\text{variation within groups}}$$
 
-```{r figanova}
+```{r fig-anova}
 #| fig-width: 7
-#| fig-height: 4
-#| fig-align: "center"
+#| fig-height: 3
+#| fig-cap: "ANOVA compares the separation between group means to the variation within groups."
+#| fig-subcap:
+#|   - "Large within-group variation compared to between-group variation."
+#|   - "Small within-group variation compared to between-group variation."
 x <- seq(0, 10, length.out = 500)
 df1 <- bind_rows(
   data.frame(x = x, y = dnorm(x, mean = 3.8, sd = 0.9), group = "A"),
@@ -568,13 +477,15 @@ df2 <- bind_rows(
   data.frame(x = x, y = dnorm(x, mean = 2.5, sd = 0.6), group = "A"),
   data.frame(x = x, y = dnorm(x, mean = 5.0, sd = 0.6), group = "B"),
   data.frame(x = x, y = dnorm(x, mean = 7.5, sd = 0.6), group = "C"))
-df <- bind_rows(df1 |> mutate(type="Large within-group variaton"), df2 |> mutate(type="Small within-group variation"))
 
-df |> ggplot(aes(x = x, y = y, color = group)) +
+df1 |> ggplot(aes(x = x, y = y, color = group)) +
   geom_line(linewidth = 1.2) +
   theme_bw() +
-  labs(x = "Response", y = "Density", color = "Group") +
-  facet_wrap(~type, ncol=1) + scale_color_manual(values=cols[c(2,3,5)])
+  labs(x = "Response", y = "Density", color = "Group")
+df2 |> ggplot(aes(x = x, y = y, color = group)) +
+  geom_line(linewidth = 1.2) +
+  theme_bw() +
+  labs(x = "Response", y = "Density", color = "Group")
 ```
 
 ## Sum of squares
@@ -650,3 +561,4 @@ kruskal.test(response ~ group, data = df)
 - Confidence intervals quantify the uncertainty of an estimate.
 - ANOVA compares more than two group means.
 - Kruskal–Wallis is a rank-based alternative to one-way ANOVA.
+```
