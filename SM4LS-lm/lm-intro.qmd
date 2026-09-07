@@ -71,7 +71,6 @@ data_diabetes %>%
 
 ```
 
-
 ## Statistical vs. deterministic relationship
 
 Relationships in probability and statistics can generally be one of three things: deterministic, random, or statistical:
@@ -79,7 +78,6 @@ Relationships in probability and statistics can generally be one of three things
 - a **deterministic** relationship involves **an exact relationship** between two variables, for instance Fahrenheit and Celsius degrees is defined by an equation $Fahrenheit=\frac{9}{5}\cdot Celcius+32$
 - there is **no relationship** between variables in the **random relationship**, for instance number of succulents Olga buys and time of the year as Olga keeps buying succulents whenever she feels like it throughout the entire year
 - **a statistical relationship** is a **mixture of deterministic and random relationship**, e.g. the savings that Olga has left in the bank account depend on Olga's monthly salary income (deterministic part) and the money spent on buying succulents (random part)
-
 
 ```{r}
 #| label: fig-relationship
@@ -115,7 +113,8 @@ plot(x, y_random, pch=19, xlab="x", ylab="y", main="d) Random", cex.main=0.8, la
 
 - In an linear model we model (explain) the relationship between a single continuous variable $Y$ and one or more variables $X$. The $X$ variables can be numerical, categorical or a mixture of both.
 - One very general form for the model would be: 
-$$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ where $f$ is some unknown function and $\epsilon$ is the error in this representation.
+$$Y = f(X_1, X_2, \dots X_p) + \epsilon$$ 
+where $f$ is some unknown function and $\epsilon$ is the error in this representation.
 
 - For instance a **simple linear regression** through the origin is a simple linear model of the form $$Y_i = \beta \cdot x + \epsilon$$ often used to express a relationship of **one numerical variable to another**, e.g. the calories burnt and the kilometers cycled.
 - Linear models can become quite advanced by including **many variables**, e.g. the calories burnt could be a function of the kilometers cycled, road incline and status of a bike, or the **transformation of the variables**, e.g. a function of kilometers cycled squared
@@ -196,7 +195,6 @@ grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
 
 ```
 
-
 - $Y_i = \alpha + \beta x_i + \gamma y_i + \epsilon_i$
 - $Y_i = \alpha + \beta x_i^2 \epsilon$
 - $Y_i = \alpha + \beta x_i^2 + \gamma x_i^3 + \epsilon$
@@ -205,7 +203,6 @@ grid.arrange(p.simple, p.group, p.adv1, p.adv2, ncol = 2)
 vs. an example of a non-linear model where parameter $\beta$ appears in the exponent of $x_i$
 
 - $Y_i = \alpha + x_i^\beta +  \epsilon$
-
 
 ## Terminology
 There are many terms and notations used interchangeably:
@@ -227,7 +224,6 @@ There are many terms and notations used interchangeably:
 ## Simple linear regression
 - It is used to check the association between **the numerical outcome and one numerical explanatory variable**
 - In practice, we are finding the best-fitting straight line to describe the relationship between the outcome and exposure
-
 
 :::{#exm-simple-lm}
 ## Weight and plasma volume
@@ -413,6 +409,47 @@ In R we can use `lm()`, the built-in function, to fit a linear regression model 
 lm(plasma ~ weight)
 ```
 
+
+## The linear model describes an expected value
+
+Another way to think about a linear regression model is that it describes the **expected value of the outcome** for a given value of the predictor.
+
+For simple linear regression,
+
+$$
+E(Y\mid X=x)=\alpha+\beta x.
+$$
+
+This means that for individuals with the same value $X=x$, their observed outcomes $Y$ do not all have to lie exactly on the regression line. Instead, the line describes their expected, or average, outcome.
+
+An individual observation can therefore be written as
+
+$$
+Y_i = E(Y_i\mid X_i=x_i) + \epsilon_i
+$$
+
+or, for the linear model,
+
+$$
+Y_i = \alpha+\beta x_i+\epsilon_i.
+$$
+
+The error term $\epsilon_i$ represents how much an individual observation differs from its expected value.
+
+When we fit the model from a sample, we estimate this expected value by
+
+$$
+\hat{Y}_i=\hat{\alpha}+\hat{\beta}x_i,
+$$
+
+and the difference between the observed and fitted value is the **residual**:
+
+$$
+e_i=Y_i-\hat{Y}_i.
+$$
+
+Thus, the regression line describes how the **expected outcome changes with the predictor**, while individual observations vary around that expectation.
+
 ## Intercept and Slope
 - Linear regression gives us estimates of model coefficient $Y_i = \alpha + \beta x_i + \epsilon_i$
 - $\alpha$ is known as the **intercept**
@@ -472,6 +509,50 @@ text(15, 0.4, expression(alpha), cex=1.2, col="blue")
 text(33, 0.5, paste("= ", round(alpha,3), sep=""), cex=1.2, col="blue")
 
 ```
+
+
+## From simple regression to more general linear models
+
+So far, we have considered **simple linear regression**, where a continuous outcome $Y$ is described using one numerical predictor $X$:
+
+$$
+Y_i = \beta_0 + \beta_1 x_i + \epsilon_i.
+$$
+
+The same framework can be extended to include **more than one predictor**. For example, with two predictors:
+
+$$
+Y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \epsilon_i.
+$$
+
+More generally, a linear model with $p$ predictors can be written as:
+
+$$
+Y_i =
+\beta_0 +
+\beta_1 x_{1i} +
+\beta_2 x_{2i} +
+\dots +
+\beta_p x_{pi} +
+\epsilon_i.
+$$
+
+Each coefficient describes the contribution of one predictor to the expected outcome, **while keeping the other predictors in the model constant**.
+
+For example, if body weight is modelled using height and age,
+
+$$E(\text{weight}\mid\text{height},\text{age})=
+\beta_0 +
+\beta_1\text{height} +
+\beta_2\text{age},
+$$
+
+then $\beta_1$ describes the expected difference in weight associated with a one-unit difference in height **for individuals of the same age**.
+
+Predictors in a linear model do not have to be numerical. They can also be **categorical**, such as treatment group, sex, genotype or experimental condition. This allows the same linear-model framework to describe both relationships between continuous variables and differences between groups.
+
+We will look at how numerical and categorical predictors, and combinations of several predictors, are used in practice in the next session.
+
 
 ## Hypothesis testing
 
@@ -785,7 +866,7 @@ for (i in 1:length(weight)){
 $$RSS = \displaystyle \sum_{i=1}^{n}(y_i - \{\hat{\beta_0} + \hat{\beta}_1x_{1i} + \dots + \hat{\beta}_px_{pi}\}) = \sum_{i=1}^{n}(y_i - \hat{y_i})^2$$
 - that corresponds to the squared distances between the observed values $y_i, \dots,y_n$ to fitted values $\hat{y_1}, \dots \hat{y_n}$, i.e. distances to the red fitted line
 
-```{r, echo=F, fig.align="center", fig.width=5, fig.height=4}
+```{r}
 #| echo: false
 #| fig-width: 6
 #| fig-height: 5
@@ -1000,36 +1081,127 @@ plot(model)
 
 **Examples of assumptions not being met**
 
-```{r}
-#| fig-cap: Example of data with a typical seasonal variation (up and down) coupled wtih a linear trend. The blue line gives the linear regression fit to the data, which clearly is not adequate. In comparison, if we used a non-parametric fit, we will get the red line as the fitted relationship. The residual plot retains pattern, given by orange line, indicating that the linear model is not appropriate in this case
-#| fig-align: center
-#| fig-cap-location: margin
-#| echo: false
+The following simulated examples show some typical patterns that may appear
+in diagnostic plots when linear model assumptions are violated.
 
-knitr::include_graphics("figures/linear-models/lm-assumptions-01.png", dpi = 100)
+```{r}
+#| label: fig-lm-assumptions-violated
+#| fig-cap: "Examples of diagnostic patterns suggesting violations of linear model assumptions: A) non-linearity, B) non-constant variance, C) non-normal residuals, and D) dependence between observations."
+#| fig-width: 9
+#| fig-height: 8
+#| echo: false
+#| warning: false
+#| message: false
+
+set.seed(123)
+
+par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+
+# A) Non-linearity
+
+n <- 100
+x <- runif(n, -3, 3)
+
+# True relationship contains a quadratic component
+y <- 2 + 1.2 * x + 1.0 * x^2 + rnorm(n, 0, 1)
+
+model <- lm(y ~ x)
+
+plot(
+  fitted(model),
+  residuals(model),
+  pch = 19,
+  xlab = "Fitted values",
+  ylab = "Residuals",
+  main = "A) Non-linearity"
+)
+
+abline(h = 0, lty = 2)
+lines(lowess(fitted(model), residuals(model)), lwd = 2)
+
+
+# B) Non-constant variance
+
+x <- runif(n, 0, 10)
+
+# Residual variation increases with x
+y <- 2 + 0.8 * x +
+  rnorm(n, mean = 0, sd = 0.3 + 0.35 * x)
+
+model <- lm(y ~ x)
+
+plot(
+  fitted(model),
+  residuals(model),
+  pch = 19,
+  xlab = "Fitted values",
+  ylab = "Residuals",
+  main = "B) Non-constant variance"
+)
+
+abline(h = 0, lty = 2)
+lines(lowess(fitted(model), residuals(model)), lwd = 2)
+
+# C) Non-normal residuals
+
+x <- runif(n, 0, 10)
+
+# Heavy-tailed errors
+y <- 2 + 0.8 * x + rt(n, df = 2)
+
+model <- lm(y ~ x)
+
+qqnorm(
+  residuals(model),
+  pch = 19,
+  main = "C) Non-normal residuals"
+)
+
+qqline(residuals(model), lwd = 2)
+
+
+# D) Non-independent errors
+
+x <- seq_len(n)
+
+# Consecutive errors are correlated
+eps <- as.numeric(arima.sim(
+  model = list(ar = 0.85),
+  n = n
+))
+
+y <- 2 + 0.05 * x + eps
+
+model <- lm(y ~ x)
+
+plot(
+  seq_len(n),
+  residuals(model),
+  type = "b",
+  pch = 19,
+  xlab = "Observation order",
+  ylab = "Residuals",
+  main = "D) Non-independent errors"
+)
+
+abline(h = 0, lty = 2)
 
 ```
 
-```{r}
-#| fig-cap: Example of non-constant variance
-#| fig-align: center
-#| fig-cap-location: margin
-#| echo: false
-knitr::include_graphics("figures/linear-models/lm-assumptions-02.png", dpi = 80)
 
-```
+Typical warning signs include:
 
-```{r}
-#| fig-cap: Example of residulas deviating from QQ plot, i.e. not following normal distribution. The residuals can deviate in both upper and lower tail. On the left tails are lighter meaning that they have smaller values that what would be expected, on the right there are heavier tails with values larger than expected
-#| fig-align: center
-#| fig-cap-location: margin
-#| echo: false
-knitr::include_graphics("figures/linear-models/lm-assumptions-03.png", dpi = 100)
+- **Non-linearity:** a systematic curved pattern remains in the residuals.
+- **Non-constant variance:** the spread of residuals changes with the fitted values, often forming a funnel shape.
+- **Non-normality:** residuals deviate systematically from the straight line in the normal Q--Q plot.
+- **Non-independence:** neighbouring observations tend to have similar residuals, producing runs or other structure when residuals are plotted in observation order.
 
-```
+The exact appearance will vary between data sets. Diagnostic plots should therefore
+be interpreted as tools for identifying **systematic patterns**, rather than as
+formal pass/fail tests.
 
 
-### Influential observations
+## Influential observations
 - Sometimes individual observations can exert a great deal of influence on the fitted model.
 - One routine way of checking for this is to fit the model $n$ times, missing out each observation in turn.
 - If we removed i-th observation and compared the fitted value from the full model, say $\hat{y_j}$ to those obtained by removing this point, denoted $\hat{y_{j(i)}}$ then
@@ -1055,10 +1227,5 @@ par(mfrow=c(2,2))
 plot(model_flr)
 
 ```
-
-
-
-
-
 
 
