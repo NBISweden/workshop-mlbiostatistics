@@ -614,6 +614,85 @@ print(summary(model))
 - here the observed t-statistics is large and therefore yields a small *P*-value, meaning that **there is sufficient evidence to reject null hypothesis in favor of the alternative** and conclude that there is a significant association between weight and plasma volume
 
 
+## Overall model test: the F-test
+
+The `summary()` output also reports an **F-statistic** and its corresponding
+*P*-value. The F-test evaluates the **linear model as a whole**.
+
+For a linear model with several predictors,
+
+$$
+Y_i = \beta_0 + \beta_1x_{1i} + \cdots + \beta_{p-1}x_{(p-1)i} + \epsilon_i,
+$$
+
+the overall null hypothesis is
+
+$$
+H_0:\beta_1=\beta_2=\cdots=\beta_{p-1}=0.
+$$
+
+In other words, under the null hypothesis none of the predictors contributes
+to explaining variation in the response, and the model reduces to an
+intercept-only model.
+
+The **F-statistic** compares the variation explained by the regression model
+with the variation left unexplained by the model:
+
+$$
+F =
+\frac{\text{explained variation per degree of freedom}}
+     {\text{unexplained variation per degree of freedom}}.
+$$
+
+Under the null hypothesis, the F-statistic follows an **F-distribution** with
+
+$$
+(p-1,\; n-p)
+$$
+
+degrees of freedom, where $n$ is the number of observations and $p$ is the
+number of estimated model parameters, including the intercept.
+
+For our plasma-volume example,
+
+```{r}
+weight <- c(58, 70, 74, 63.5, 62.0, 70.5, 71.0, 66.0)
+plasma <- c(2.75, 2.86, 3.37, 2.76, 2.62, 3.49, 3.05, 3.12)
+
+model <- lm(plasma ~ weight)
+summary(model)
+```
+
+
+Here we have $n=8$ observations and $p=2$ model parameters, the intercept
+$\alpha$ and slope $\beta$. Therefore,
+
+$$ F \sim F_{1,6} $$
+
+under the null hypothesis.
+
+The P-value is the probability, under $H_0$, of observing an F-statistic at
+least as large as the one obtained:
+
+$$ P(F_{1,6} \geq 8.16) \approx 0.029. $$
+
+Thus, there is sufficient evidence to reject the null hypothesis and conclude
+that the model containing weight explains more variation in plasma volume
+than an intercept-only model.
+
+In simple linear regression, with only one predictor, the overall F-test
+tests exactly the same hypothesis as the t-test for the slope:
+
+$$ H_0:\beta=0. $$
+
+In this case,
+
+$$ F=t^2, $$
+
+so the two tests give the same P-value. With several predictors, the F-test
+is useful because it tests whether the predictors are jointly associated
+with the response.
+
 ## Vector-matrix notations
 
 While in simple linear regression it is feasible to arrive at the parameters estimates using calculus in more realistic settings of **multiple regression**, with more than one explanatory variable in the model, it is **more efficient to use vectors and matrices to define the regression model**.

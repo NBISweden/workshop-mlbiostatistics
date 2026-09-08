@@ -1,0 +1,687 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Generalized linear models
+
+## Why do we need GLM?
+
+In linear regression, we described the **expected value of the outcome** for given values of the predictors.
+
+For example, in simple linear regression,
+
+$$
+E(Y\mid X=x)=\beta_0+\beta_1x.
+$$
+
+More generally,
+
+$$
+E(Y_i\mid \mathbf{x}_i)
+=
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+$$
+
+This works well for many continuous outcomes, but it is not appropriate for all types of data. For example, probabilities must lie between 0 and 1, while expected counts must be non-negative.
+
+**Generalized linear models (GLMs)** extend the same framework to such outcomes.
+
+We still construct a **linear predictor**
+
+$$
+\eta_i
+=
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+$$
+
+However, instead of assuming that the expected outcome itself is equal to the linear predictor, we connect them through a **link function** $g(\cdot)$:
+
+$$
+g\left(E(Y_i\mid\mathbf{x}_i)\right)=\eta_i.
+$$
+
+Equivalently, if we denote the expected outcome by
+
+$$
+\mu_i=E(Y_i\mid\mathbf{x}_i),
+$$
+
+then
+
+$$
+g(\mu_i)=\eta_i.
+$$
+
+A GLM therefore specifies:
+
+1. a probability distribution for the response $Y_i$, and
+2. a link function connecting its expected value to the linear predictor.
+
+Different choices give different models:
+
+| Outcome    | Model               | Distribution | Link function |
+| ---------- | ------------------- | ------------ | ------------- |
+| Continuous | Linear regression   | Normal       | Identity      |
+| Binary     | Logistic regression | Binomial     | Logit         |
+| Counts     | Poisson regression  | Poisson      | Log           |
+
+The ordinary linear model is a special case. With the **identity link**,
+
+$$
+g(\mu_i)=\mu_i,
+$$
+
+so that
+
+$$
+E(Y_i\mid\mathbf{x}_i)
+=
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+$$
+
+For other types of outcomes, the link function allows us to retain the same linear predictor while modelling the expected outcome on an appropriate scale.
+
+
+
+
+```{r}
+#| message: false
+#| include: false
+#| echo: false
+
+library(tidyverse)
+library(magrittr)
+library(faraway)
+library(ggplot2)  
+library(gridExtra)
+library(kableExtra)
+library(ggiraphExtra)
+
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- 
+  theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") 
+        
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+
+```
+
+So briefly, 
+
+- GLMs extend linear model framework to outcome variables that do not follow normal distribution.
+- They are most frequently used to model binary, categorical or count data.
+
+
+For instance, consider a binary outcome, such as obesity status, coded as 0 (No) and 1 (Yes).
+
+- If we fit an ordinary linear model to a binary outcome, the fitted values can fall below 0 or above 1 and therefore cannot always be interpreted as probabilities.
+- In addition, the assumptions of the normal linear model are not appropriate for a binary response.
+
+```{r}
+#| label: fig-log-example
+#| message: false
+#| warning: false
+#| fig-cap: "Example of fitting linear model to binary data, to model obesity status coded as 1 (Yes) and 0 (No) with waist variable. Linear model does not fit the data well in this case The titted values are not constrained to lie between 0 and 1 and therefore cannot always be interpreted as probabilities."
+#| fig-height: 4
+#| fig-width: 5
+
+data_diabetes %>%
+  mutate(obese = as.numeric(obese) - 1) %>%
+  ggplot(aes(y=obese, x=waist)) +
+  geom_jitter(width=0, height = 0) +
+  geom_smooth(method="lm", se=FALSE, color=col.blue.dark) + 
+  my.ggtheme
+
+```
+
+
+## Logistic regression
+
+Let's look again at the binary `obesity` status data and try to fit logistic regression model using `waist` as explanatory variable instead of fitting inappropriate here simple linear model.
+
+
+```{r}
+#| label: fig-obesity
+#| fig-cap: "Obesity status data: jittered plot (left) waist measurements and their obesity status for the 130 study participants."
+#| fig-cap-location: margin
+
+p1 <- data_diabetes %>%
+  mutate(obese = as.numeric(obese) - 1) %>%
+  ggplot(aes(y=obese, x=waist)) +
+  geom_jitter(width=0, height = 0.05, alpha = 0.7) +
+  my.ggtheme
+
+# p2 <- data_diabetes %>%
+#   ggplot(aes(x = obese, y = waist, fill = obese)) + 
+#   geom_boxplot() + 
+#   scale_fill_brewer(palette = "Set2") + 
+#   my.ggtheme
+
+p1
+```
+
+
+Let's look again at the binary **`obesity`** status data. We will model obesity status (the probability of being obese) using **`waist`** as an explanatory variable, this time using logistic rather than simple linear regression.
+
+For a binary response, let
+
+$$
+Y_i =
+\begin{cases}
+1 & \text{if the individual is obese},\\
+0 & \text{otherwise}.
+\end{cases}
+$$
+
+We denote the probability that individual $i$ is obese, given their waist measurement $x_i$, by
+
+$$
+p_i = P(Y_i = 1 \mid X_i = x_i).
+$$
+
+Since $Y_i$ is coded as 0 or 1, its expected value is equal to this probability:
+
+$$
+E(Y_i \mid X_i = x_i) = p_i.
+$$
+
+For a binary observation,
+
+$$
+Y_i \sim \operatorname{Bernoulli}(p_i),
+$$
+
+which is equivalent to a binomial distribution with one trial.
+
+In **logistic regression**, we use the **logit link** to relate the probability $p_i$ to the linear predictor, thus rewriting linear model to:
+
+$$
+\log\left(\frac{p_i}{1-p_i}\right)
+=
+\beta_0+\beta_1x_i.
+$$
+
+
+
+The quantity
+
+$$
+\frac{p_i}{1-p_i}
+$$
+
+is called the **odds**, and its logarithm is the **log-odds** or **logit**.
+
+Equivalently, we can express the probability as
+
+$$
+p_i
+=
+\frac{\exp(\beta_0+\beta_1x_i)}
+{1+\exp(\beta_0+\beta_1x_i)}.
+$$
+
+This transformation ensures that the fitted probabilities always lie between 0 and 1.
+
+And here the **link function** $log(\frac{p_i}{1-p_i})$ provides the link between the binomial distribution of $Y_i$ (probabiilty of suffering from obesity) and the linear predictor (waist) 
+
+<br>
+
+In R we can use `glm()` function to fit GLM models:
+```{r}
+#| code-fold: false
+#| collapse: true
+#| message: false
+#| warning: false
+#| fig-cap: "Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status."
+
+# re-code obese status from Yes/No to 1/0
+data_diabetes <- 
+  data_diabetes %>%
+  mutate(obese = as.numeric(obese) - 1)
+
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+
+# print model summary
+print(summary(logmodel_1))
+
+# plot
+ggPredict(logmodel_1) + 
+  my.ggtheme
+# to get predictions use predict() functions
+# if no new observations is specified predictions are returned for the values of exploratory variables used
+# we specify response to return prediction on the probability scale
+obese_predicted <- predict(logmodel_1, type="response")
+print(head(obese_predicted))
+
+```
+
+- The regression equation for the fitted model is:
+$$log(\frac{\hat{p_i}}{1-\hat{p_i}})=-17.357  +  17.174\cdot x_i$$
+- We see from the output that $\hat{\beta_0} = -17.357$ and $\hat{\beta_1} = 17.174$.
+
+The coefficient estimates are obtained using **maximum likelihood estimation**. The idea is to find the values of the model coefficients that make the observed data most likely under the model. This is done using **numerical optimization**, where the algorithm searches over possible coefficient values until it finds the combination that gives the highest likelihood.
+
+### Hypothesis testing
+
+As in linear regression, we can test whether an explanatory variable is
+associated with the outcome by testing whether its regression coefficient is
+zero.
+
+For a coefficient $\beta_j$, we test
+
+$$
+H_0:\beta_j=0
+$$
+
+against
+
+$$
+H_a:\beta_j\neq0.
+$$
+
+In logistic regression, individual coefficients are commonly tested using a
+**Wald test**. The Wald statistic is the estimated coefficient divided by its
+estimated standard error:
+
+$$
+W =
+\frac{\hat{\beta}_j - 0}
+{e.s.e.(\hat{\beta}_j)}.
+$$
+
+Under the null hypothesis, for sufficiently large samples, the Wald statistic
+approximately follows the standard normal distribution:
+
+$$
+W \sim N(0,1).
+$$
+
+This is analogous to the t-test for a coefficient in linear regression. In
+the output from `summary(glm(...))`, this statistic is reported as the
+**z value**.
+
+In our example, we want to test whether `waist` is associated with the
+probability of being obese:
+
+$$
+H_0:\beta_1=0.
+$$
+
+From the fitted model,
+
+$$
+\hat{\beta}_1 = 17.174
+$$
+
+with estimated standard error
+
+$$
+e.s.e.(\hat{\beta}_1)=2.974.
+$$
+Therefore,
+
+$$
+W =
+\frac{17.174}{2.974}
+\approx 5.77.
+$$
+
+We can calculate the corresponding two-sided *P*-value from the standard normal distribution:
+
+```{r}
+#| code-fold: false
+#| collapse: true
+
+2 * pnorm(abs(5.77), lower.tail = FALSE)
+```
+
+The resulting P-value is very small, providing sufficient evidence to reject the null hypothesis and conclude that waist is associated with the probability of being obese.
+
+
+### Deviance
+
+Another way to test whether an explanatory variable contributes to a GLM is
+to compare two **nested models**:
+
+- a **reduced model**, without the explanatory variable of interest;
+- a **full model**, including that variable.
+
+For example, to test the contribution of `waist`, we compare
+
+$$
+\text{reduced model: } \operatorname{logit}(p_i)=\beta_0
+$$
+
+with
+
+$$
+\text{full model: } \operatorname{logit}(p_i)=\beta_0+\beta_1x_i.
+$$
+
+The comparison is based on the **deviance**, which measures lack of fit:
+smaller deviance indicates a better-fitting model.
+
+The likelihood-ratio test uses the difference in deviance between the two
+models:
+
+$$
+D_{\text{reduced}} - D_{\text{full}}.
+$$
+
+Under the null hypothesis that the additional term does not improve the model,
+this difference approximately follows a chi-squared distribution. The degrees
+of freedom correspond to the difference in the number of estimated parameters
+between the models.
+
+For our example, the intercept-only model has deviance
+
+$$
+D_{\text{reduced}} = 178.71,
+$$
+
+while the model including `waist` has deviance
+
+$$
+D_{\text{full}} = 102.79.
+$$
+
+The reduction in deviance is therefore
+
+$$
+178.71 - 102.79 = 75.92.
+$$
+
+
+Adding `waist` introduces one additional parameter. Under the null hypothesis,
+the deviance difference approximately follows a chi-squared distribution with
+1 degree of freedom:
+
+$$
+\Delta D \sim \chi^2_1.
+$$
+
+For our data, the observed deviance difference is
+
+$$
+\Delta D = 75.92.
+$$
+
+The corresponding *P*-value is very small, providing strong evidence that
+including `waist` improves the fit of the model.
+
+We can perform this comparison directly in R:
+
+```{r}
+#| code-fold: false
+#| collapse: true
+
+logmodel_0 <- glm(
+  obese ~ 1,
+  family = binomial(link = "logit"),
+  data = data_diabetes
+)
+
+anova(logmodel_0, logmodel_1, test = "Chisq")
+
+```
+
+
+### Odds ratios
+
+The coefficients in logistic regression describe changes in the **log-odds**
+of the outcome. Because log-odds are difficult to interpret directly, we often
+exponentiate the coefficients:
+
+$$
+OR = \exp(\hat{\beta}).
+$$
+
+The resulting quantity is an **odds ratio**.
+
+For a numerical predictor, the odds ratio describes the multiplicative change
+in the odds of the outcome associated with a one-unit increase in the predictor,
+with other variables in the model held constant.
+
+In our example, `waist` is measured in metres. Therefore, $\exp(\hat{\beta}_1)$
+would describe the change in odds associated with a 1 metre increase in waist
+circumference, which is not a useful unit for interpretation.
+
+Instead, we can consider an increase of 10 cm, corresponding to 0.1 metres:
+
+$$
+\exp(0.1\hat{\beta}_1)
+=
+\exp(0.1 \times 17.174)
+\approx 5.6.
+$$
+
+Thus, a 10 cm increase in waist circumference is associated with approximately
+**5.6 times higher odds of being obese**.
+
+In general:
+
+- an odds ratio of $1$ indicates no change in the odds of the outcome;
+- an odds ratio $>1$ indicates higher odds of the outcome as the predictor increases;
+- an odds ratio $<1$ indicates lower odds of the outcome as the predictor increases.
+
+The further an odds ratio is from 1, the larger the estimated association on
+the odds scale. However, the size of an odds ratio alone does **not** provide
+evidence that the relationship is causal.
+
+### Other covariates
+
+As in multiple linear regression, we can extend a logistic regression model by
+including additional explanatory variables. These can be numerical, binary or
+categorical.
+
+For example, we can investigate whether `gender` is associated with the
+probability of being obese after accounting for `waist`:
+
+```{r}
+#| message: false
+#| warning: false
+#| code-fold: false
+#| collapse: true
+#| fig-cap: "Fitted probability of obesity as a function of waist circumference, shown separately by gender."
+#| fig-cap-location: margin
+
+# fit logistic regression including waist and gender
+logmodel_2 <- glm(
+  obese ~ waist + gender,
+  family = binomial(link = "logit"),
+  data = data_diabetes
+)
+
+# print model summary
+print(summary(logmodel_2))
+
+# plot fitted probabilities
+ggPredict(logmodel_2) +
+  my.ggtheme +
+  scale_color_brewer(palette = "Set2")
+
+```
+
+The model can be written as
+
+$$\operatorname{logit}(p_i) = \beta_0 + \beta_1 \,\text{waist}_i + \beta_2 \,\text{gender}_i$$
+
+The interpretation follows the same principle as in multiple linear regression:
+each coefficient describes the association with the outcome while the other
+variables in the model are held constant.
+
+Thus, the coefficient for gender describes the association between gender and
+the probability of being obese for individuals with the same waist
+circumference.
+
+## Poisson regression
+
+GLMs can also be used for **count data**, for example:
+
+- number of hospital admissions due to respiratory disease;
+- number of mutations observed in a sample;
+- number of bird nests in a habitat.
+
+For count data, a common starting point is to assume that
+
+$$
+Y_i \sim \operatorname{Poisson}(\mu_i),
+$$
+
+where
+
+$$
+\mu_i = E(Y_i \mid \mathbf{x}_i)
+$$
+
+is the expected count for observation $i$.
+
+In **Poisson regression**, we use the **log link** to relate the expected count
+to the linear predictor:
+
+$$
+\log(\mu_i)
+=
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+$$
+
+Equivalently,
+
+$$
+\mu_i
+=
+\exp\left(
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}
+\right).
+$$
+
+The log link ensures that the fitted expected counts are always positive.
+
+Hypothesis testing and comparison of nested models follow the same general
+logic as for logistic regression. Individual coefficients can be tested using
+Wald tests, while models can be compared using differences in deviance.
+
+::: {#exm-poisson}
+
+### Number of cancer cases
+
+Suppose we wish to model $Y_i$, the number of cancer cases in geographical
+region $i$ in Glasgow.
+
+We have data from 271 small regions, together with information on:
+
+- `Y_all`: observed number of cases of all types of cancer in the region in 2013;
+- `E_all`: expected number of cancer cases based on the population size and
+  demographic structure of the region;
+- `pm10`: air pollution;
+- `smoke`: percentage of people who smoke;
+- `ethnic`: percentage of people who are non-white;
+- `log.price`: natural logarithm of average house price;
+- `easting` and `northing`: geographical coordinates.
+
+The regions differ in population size and demographic structure. We therefore
+do not want to compare the raw numbers of cancer cases directly.
+
+Instead, we include `E_all` as an **offset**. The model becomes
+
+$$
+\log(\mu_i)
+=
+\log(E_i)
++
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+$$
+
+Here, $\log(E_i)$ is included with its coefficient fixed at 1. It accounts for
+the number of cases that would already be expected in each region based on its
+population and demographic structure.
+
+Equivalently,
+
+$$
+\mu_i
+=
+E_i
+\exp\left(
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}
+\right).
+$$
+
+We can fit the model using `glm()` with the Poisson family:
+
+```{r}
+#| code-fold: false
+#| collapse: true
+
+# Read in and preview data
+cancer <- read.csv("data/lm/cancer.csv")
+
+head(cancer)
+
+# Fit Poisson regression
+epid1 <- glm(
+  Y_all ~ pm10 + smoke + ethnic + log.price +
+    easting + northing + offset(log(E_all)),
+  family = poisson,
+  data = cancer
+)
+
+print(summary(epid1))
+```
+
+### Rate ratios {-}
+
+As in logistic regression, coefficients in Poisson regression are often easier
+to interpret after exponentiation:
+
+$$
+RR = \exp(\hat{\beta}).
+$$
+
+The resulting quantity is a **rate ratio**.
+
+For a numerical predictor, the rate ratio describes the multiplicative change
+in the expected rate associated with a one-unit increase in the predictor,
+while the other variables in the model are held constant.
+
+For example, suppose we are interested in the association between air pollution
+and cancer incidence. The estimated coefficient for `pm10` is
+
+$$
+\hat{\beta}_{pm10} = 0.0500.
+$$
+
+Since this coefficient is positive, higher `pm10` values are associated with a
+higher expected cancer rate.
+
+Exponentiating the coefficient gives
+
+$$
+\exp(0.0500) \approx 1.05.
+$$
+
+Thus, a one-unit increase in `pm10` is associated with approximately a
+**1.05-fold**, or **5% higher**, expected cancer incidence rate, while the other
+variables in the model are held constant.
+
+
