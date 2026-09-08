@@ -255,7 +255,7 @@ $Z = \frac{\bar X - 188}{16/\sqrt{5}} \sim N(0,1)$
 
 Compute $z_{obs}$
 
-```{r}
+```{r echo=TRUE}
 x <- c(154, 140, 147, 162, 172)
 m <- mean(x)
 SE <- 16/sqrt(5)
@@ -265,7 +265,7 @@ zobs <- (m - 188)/SE
 Compute the p-value:
 $$p=P(\bar X \leq x_{obs}) = P(Z \leq zobs).$$
 
-```{r}
+```{r echo=TRUE}
 (p <- pnorm(zobs))
 ```
 
@@ -384,135 +384,6 @@ d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data prov
 :::
 :::
 
-
-## Rank-based tests
-
-::: {#exr-wilcox-ranksum}
-# Mann-Whitney / Wilcoxon rank-sum test
-
-The following pain scores were recorded for two independent treatment groups A and B. The scores are ordinal, where higher values indicate more pain.
-
-```{r, echo=TRUE}
-A <- c(2, 3, 1, 4, 2, 3, 2)
-B <- c(5, 4, 6, 3, 5, 4, 6)
-```
-
-a) Why might a rank-based test be more appropriate than a two-sample t-test here?  
-b) State the null and alternative hypotheses.  
-c) Perform an apropriate rank-based test.  
-d) What is your conclusion?
-
-:::{.callout-note collapse="true"}
-# Solution
-
-a) The response is ordinal, so a rank-based test is more appropriate than a t-test based on numerical means.
-
-b)
-
-$$H_0: \text{the two groups come from the same distribution}$$
-$$H_1: \text{the two groups differ in location}$$
-
-c) Perform the test in R:
-
-```{r, echo=TRUE}
-wilcox.test(A, B)
-```
-
-d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that the two treatment groups differ.
-:::
-:::
-
-::: {#exr-wilcox-paired}
-# Wilcoxon signed-rank test
-
-The following symptom scores were recorded in 8 patients before and after treatment:
-
-```{r, echo=TRUE}
-before <- c(8, 7, 6, 9, 8, 7, 9, 6)
-after  <- c(6, 5, 5, 7, 7, 6, 8, 5)
-```
-
-You want to investigate if the treatment had an effect.
-
-a) Is this a paired design?  
-b) What could be an appropriate test?  
-c) Perform the test in R!  
-d) What is your conclusion?
-
-:::{.callout-note collapse="true"}
-# Solution
-
-a) Each patient is measured twice, so the observations are paired.
-
-b) The sample size is small and the symptom score is ordinal/discrete, so a rank-based paired test is reasonable.
-
-c) Perform the Wilcoxon signed rank test in R:
-
-```{r, echo=TRUE}
-wilcox.test(after, before, paired=TRUE, alternative="less")
-```
-
-d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that symptom scores are lower after treatment.
-:::
-:::
-
-
-## Multiple testing 
-
-::: {#exr-mult1}
-# Many tests
-
-A study tests 100 independent null hypotheses using significance level $\alpha=0.05$.
-
-a) What is the probability of making at least one type I error if all 100 null hypotheses are true?  
-b) Compute the Bonferroni-adjusted significance threshold for controlling the family-wise error rate at 0.05.
-
-:::{.callout-note collapse="true"}
-# Solution
-
-a)
-
-$$P(\text{at least one type I error}) = 1-(1-\alpha)^{100} = 1-(0.95)^{100}$$
-
-```{r, echo=TRUE}
-1 - (1 - 0.05)^100
-```
-
-b)
-
-$$\frac{0.05}{100} = 0.0005$$
-:::
-:::
-
-::: {#exr-mult2}
-# Adjusted p-values
-
-Eight hypotheses were tested, giving the following p-values:
-
-```{r, echo=TRUE}
-p <- c(0.0003, 0.001, 0.004, 0.012, 0.021, 0.049, 0.11, 0.24)
-```
-
-a) Compute Bonferroni-adjusted p-values.  
-b) Compute Benjamini-Hochberg adjusted p-values.  
-c) Which hypotheses are significant at FWER 0.05 using Bonferroni?  
-d) Which hypotheses are significant at FDR 0.05 using Benjamini-Hochberg?
-
-:::{.callout-note collapse="true"}
-# Solution
-
-a) and b)
-
-```{r, echo=TRUE}
-p.adjust(p, method="bonferroni")
-p.adjust(p, method="BH")
-```
-
-c) Bonferroni significance can be assessed either using the adjusted p-values or the Bonferroni threshold $0.05/8$.
-
-d) Benjamini-Hochberg significance can be assessed using the BH-adjusted p-values and comparing them to 0.05.
-:::
-:::
 
 ## Point and interval estimates 
 
@@ -690,6 +561,135 @@ SE <- sqrt(p*(1-p)/n)
 c(p - z*SE, p + z*SE)
 ```
 
+:::
+:::
+
+## Rank-based tests
+
+::: {#exr-wilcox-ranksum}
+# Mann-Whitney / Wilcoxon rank-sum test
+
+The following pain scores were recorded for two independent treatment groups A and B. The scores are ordinal, where higher values indicate more pain.
+
+```{r, echo=TRUE}
+A <- c(2, 3, 1, 4, 2, 3, 2)
+B <- c(5, 4, 6, 3, 5, 4, 6)
+```
+
+a) Why might a rank-based test be more appropriate than a two-sample t-test here?  
+b) State the null and alternative hypotheses.  
+c) Perform an apropriate rank-based test.  
+d) What is your conclusion?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) The response is ordinal, so a rank-based test is more appropriate than a t-test based on numerical means.
+
+b)
+
+$$H_0: \text{the two groups come from the same distribution}$$
+$$H_1: \text{the two groups differ in location}$$
+
+c) Perform the test in R:
+
+```{r, echo=TRUE}
+wilcox.test(A, B)
+```
+
+d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that the two treatment groups differ.
+:::
+:::
+
+::: {#exr-wilcox-paired}
+# Wilcoxon signed-rank test
+
+The following symptom scores were recorded in 8 patients before and after treatment:
+
+```{r, echo=TRUE}
+before <- c(8, 7, 6, 9, 8, 7, 9, 6)
+after  <- c(6, 5, 5, 7, 7, 6, 8, 5)
+```
+
+You want to investigate if the treatment had an effect.
+
+a) Is this a paired design?  
+b) What could be an appropriate test?  
+c) Perform the test in R!  
+d) What is your conclusion?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Each patient is measured twice, so the observations are paired.
+
+b) The sample size is small and the symptom score is ordinal/discrete, so a rank-based paired test is reasonable.
+
+c) Perform the Wilcoxon signed rank test in R:
+
+```{r, echo=TRUE}
+wilcox.test(after, before, paired=TRUE, alternative="less")
+```
+
+d) If the p-value is below 0.05, we reject $H_0$ and conclude that the data provide evidence that symptom scores are lower after treatment.
+:::
+:::
+
+
+## Multiple testing 
+
+::: {#exr-mult1}
+# Many tests
+
+A study tests 100 independent null hypotheses using significance level $\alpha=0.05$.
+
+a) What is the probability of making at least one type I error if all 100 null hypotheses are true?  
+b) Compute the Bonferroni-adjusted significance threshold for controlling the family-wise error rate at 0.05.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a)
+
+$$P(\text{at least one type I error}) = 1-(1-\alpha)^{100} = 1-(0.95)^{100}$$
+
+```{r, echo=TRUE}
+1 - (1 - 0.05)^100
+```
+
+b)
+
+$$\frac{0.05}{100} = 0.0005$$
+:::
+:::
+
+::: {#exr-mult2}
+# Adjusted p-values
+
+Eight hypotheses were tested, giving the following p-values:
+
+```{r, echo=TRUE}
+p <- c(0.0003, 0.001, 0.004, 0.012, 0.021, 0.049, 0.11, 0.24)
+```
+
+a) Compute Bonferroni-adjusted p-values.  
+b) Compute Benjamini-Hochberg adjusted p-values.  
+c) Which hypotheses are significant at FWER 0.05 using Bonferroni?  
+d) Which hypotheses are significant at FDR 0.05 using Benjamini-Hochberg?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) and b)
+
+```{r, echo=TRUE}
+p.adjust(p, method="bonferroni")
+p.adjust(p, method="BH")
+```
+
+c) Bonferroni significance can be assessed either using the adjusted p-values or the Bonferroni threshold $0.05/8$.
+
+d) Benjamini-Hochberg significance can be assessed using the BH-adjusted p-values and comparing them to 0.05.
 :::
 :::
 
