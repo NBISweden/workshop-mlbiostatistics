@@ -1,0 +1,299 @@
+---
+editor_options: 
+  chunk_output_type: console
+knitr:
+  opts_chunk: 
+    message: false
+    warning: false
+    code-fold: false
+    include: true
+    collapse: true
+    eval: true
+---
+
+# Exercises: Survival analysis
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gtsummary)
+library(survival)
+library(survminer)
+library(cmprsk)
+library(fastDummies)
+library(aod)
+```
+
+## Kaplan-Meier curves and log-rank test
+
+::: {#exr-brain-km}
+# Brain cancer survival
+
+The dataset [`data_cancer_brain.rds`](data/data_cancer_brain.rds) contains survival data for patients with primary brain tumors.
+
+Load the data and inspect the variables. The variable `status` indicates whether the event was observed (`1`) or the observation was censored (`0`).
+
+```{r tbl-braindata}
+#| tbl-cap: "Summary of the brain data set."
+data_brain <- readRDS("data/data_cancer_brain.rds")
+tbl_summary(data_brain)
+```
+
+a) Plot a Kaplan-Meier curve for the full dataset.  
+b) Plot Kaplan-Meier curves stratified by sex.  
+c) Based on the plot, do men and women appear to have similar survival patterns?  
+d) Use a log-rank test to formally compare the survival curves.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Kaplan-Meier curve for all patients:
+
+```{r, echo=TRUE}
+fit.surv <- survfit(Surv(time, status) ~ 1, data = data_brain)
+plot(fit.surv, xlab = "Months", ylab = "Estimated Probability of Survival")
+
+##or plot using ggsurvplot
+ggsurvplot(fit.surv)
+```
+
+b) Kaplan-Meier curves by sex:
+
+```{r, echo=TRUE}
+fit.sex <- survfit(Surv(time, status) ~ sex, data = data_brain)
+ggsurvplot(fit.sex)
+```
+
+c) The curves can be compared visually. If they are clearly separated, this suggests possible differences in survival, although a formal statistical test is needed.
+
+d) Log-rank test:
+
+```{r, echo=TRUE}
+logrank_test <- survdiff(Surv(time, status) ~ sex, data = data_brain)
+logrank_test
+pchisq(logrank_test$chisq, df = length(logrank_test$n) - 1, lower.tail = FALSE)
+
+## The logrank p-value can be printed easily in the ggsurvplot
+ggsurvplot(fit.sex, pval=TRUE)
+```
+
+The log-rank test compares the survival experience in the two groups over the full follow-up period. A small p-value would suggest that survival differs between men and women.
+:::
+:::
+
+## Cox regression
+
+::: {#exr-brain-cox}
+# Cox proportional hazards model
+
+Continue with the brain cancer dataset.
+
+a) Fit a Cox proportional hazards model with `sex` as predictor.  
+b) Interpret the hazard ratio for sex.  
+c) Test the proportional hazards assumption.  
+d) Fit a Cox model with several predictors: `sex`, `diagnosis`, `loc`, `ki`, `gtv`, and `stereo`.  
+e) Which predictors appear to be important?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Cox model with sex only:
+
+```{r, echo=TRUE}
+fit.cox <- coxph(Surv(time, status) ~ sex, data = data_brain)
+summary(fit.cox)
+```
+
+b) The hazard ratio for sex is obtained as `exp(coef)`. It compares the hazard of the event between the sex groups. If the HR is above 1, the hazard is higher in the coded comparison group; if it is below 1, the hazard is lower.
+
+c) Test the proportional hazards assumption:
+
+```{r, echo=TRUE}
+ph_test <- cox.zph(fit.cox)
+print(ph_test)
+plot(ph_test)
+```
+
+If the p-value is small, this suggests evidence against the proportional hazards assumption.
+
+Here we can assume proportional hazards.
+
+d) Cox model with multiple predictors:
+
+```{r, echo=TRUE}
+fit.cox_multi <- coxph(Surv(time, status) ~ sex + diagnosis + loc + ki + gtv + stereo, data = data_brain)
+summary(fit.cox_multi)
+```
+
+e) The diagnosisHG glioma and ki seems important, based on their low p-values.
+:::
+:::
+
+## Adjusted survival curves from a Cox model
+
+::: {#exr-brain-survfit}
+# Predicted survival curves by diagnosis
+
+Continue with the Cox model from @exr-brain-cox.
+
+We now want to compare the predicted survival curves for the different diagnosis groups while keeping the other predictors fixed.
+
+Construct a small data frame with one row for each diagnosis category.
+
+Set `sex = "Female"`, `loc = "Supratentorial"`, `stereo = "SRT"`, and use the sample means of `ki` and `gtv`.  
+
+```{r, echo=TRUE}
+modeldata <- data.frame(
+  diagnosis = levels(data_brain$diagnosis),
+  sex = rep("Female", length(levels(data_brain$diagnosis))),
+  loc = rep("Supratentorial", length(levels(data_brain$diagnosis))),
+  ki = rep(mean(data_brain$ki), length(levels(data_brain$diagnosis))),
+  gtv = rep(mean(data_brain$gtv), length(levels(data_brain$diagnosis))),
+  stereo = rep("SRT", length(levels(data_brain$diagnosis)))
+)
+modeldata
+```
+
+a) Use `survfit()` and plot the predicted survival curves for the diagnosis groups using e.g. `ggsurvplot`.  
+b) Which diagnosis group appears to have the best predicted survival?
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Predicted survival curves:
+
+```{r, echo=TRUE}
+survplots <- survfit(fit.cox_multi, newdata = modeldata)
+ggsurvplot(
+  survplots,
+  data = modeldata,
+  legend.labs = modeldata$diagnosis,
+  legend.title = "Diagnosis",
+  xlab = "Months",
+  conf.int = FALSE
+)
+```
+
+b) The diagnosis group Meningioma with the highest curve has the best predicted survival under the chosen covariate values.
+:::
+:::
+
+## Time-varying covariates
+
+::: {#exr-opioid-timevarying}
+# Time-varying predictor in a Cox model
+
+The dataset [`data-opioid.rds`](data/data-opioid.rds) contains follow-up data where some predictors vary over time.
+
+```{r}
+data_opioid <- readRDS("data/data-opioid.rds")
+```
+
+a) Display the rows for `RANDID == 10` and inspect the variables `START`, `STOP`, `heroin`, `age_at_init`, `sex`, and `dep_lifetime`.  
+b) Which variables appear to be time-invariant, and which appear to vary over time?  
+c) Fit a Cox model for heroin initiation using `age_at_init`, `sex`, and `dep_lifetime`, accounting for repeated rows from the same individual.  
+d) Interpret the hazard ratio for `dep_lifetime`.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Inspect one individual:
+
+```{r, echo=TRUE}
+data_opioid %>% 
+  filter(RANDID == 10) %>%
+  select(RANDID, wave, START, STOP, heroin, age_at_init, sex, dep_lifetime)
+```
+
+b) Variables such as `age_at_init` and `sex` are time-invariant for an individual, whereas `dep_lifetime` can change over time. The variables `START` and `STOP` define the time interval for each row, and `heroin` is the event indicator.
+
+c) Cox model with time-varying covariate:
+
+```{r, echo=TRUE}
+cox.timevar <- coxph(
+  Surv(START, STOP, heroin) ~ age_at_init + sex + dep_lifetime,
+  cluster = RANDID,
+  data = data_opioid
+)
+summary(cox.timevar)
+```
+
+d) The hazard ratio for `dep_lifetime` compares the hazard of heroin initiation between those with and without lifetime opioid dependence, adjusting for the other predictors. If the HR is above 1, dependence is associated with higher hazard.
+:::
+:::
+
+## Competing risks
+
+::: {#exr-bmt-competing}
+# Competing risks in bone marrow transplant data
+
+The dataset `data-bmt.rds` contains follow-up data for leukemia patients after bone marrow transplantation. The event types are:
+
+- `0` = censored  
+- `1` = relapse  
+- `2` = transplant-related mortality
+
+```{r}
+data_bmt <- readRDS("data/data-bmt.rds")
+```
+
+a) Convert `dis` and `status` to factors with suitable labels.  
+b) Estimate the cumulative incidence functions (CIFs) for the competing events.  
+c) Plot the CIFs.  
+d) Estimate the CIFs separately for the disease groups (`ALL` and `AML`).  
+e) Use Gray’s test to compare CIFs between the groups.
+
+:::{.callout-note collapse="true"}
+# Solution
+
+a) Recode variables:
+
+```{r, echo=TRUE}
+data_bmt <- data_bmt %>%
+  mutate(
+    dis = factor(dis, levels = c(0, 1), labels = c("ALL", "AML")),
+    status = factor(status, levels = c(0, 1, 2),
+                    labels = c("Censored", "Mortality", "Relapse"))
+  )
+
+str(data_bmt)
+```
+
+b) Estimate CIFs for all event types:
+
+```{r, echo=TRUE}
+cif <- cuminc(ftime = data_bmt$ftime,
+              fstatus = data_bmt$status)
+cif
+```
+
+c) Plot CIFs:
+
+```{r, echo=TRUE}
+plot(cif, lty = 1, col = c("green", "red", "blue"),
+     xlab = "Time", ylab = "Cumulative Incidence",
+     main = "Cumulative Incidence Functions")
+```
+
+d) CIFs by disease group:
+
+```{r, echo=TRUE}
+cif_group <- cuminc(
+  ftime = data_bmt$ftime,
+  fstatus = data_bmt$status,
+  group = data_bmt$dis
+)
+```
+
+```{r, echo=TRUE}
+ggcompetingrisks(cif_group, multiple_panels = FALSE, legend = "right")
+```
+
+e) Gray’s test:
+
+```{r, echo=TRUE}
+cif_group$Tests
+```
+
+Gray’s test compares cumulative incidence functions between groups separately for each event type. Small p-values suggest evidence of differences between the disease groups for that event type.
+:::
+:::
