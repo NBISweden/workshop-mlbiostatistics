@@ -306,24 +306,25 @@ The subject-specific slope for subject 309 is the sum of:
 
 The `Orthodont` dataset from the `nlme` package contains orthodontic measurements on patients over time. The dataset includes measurements of the distance from the pituitary to the pterygomaxillary fissure (mm).
 
-Use this dataset to study how the distance changes with age, while accounting for individual differences in growth patterns. Also, take any relevant covariates into account.
-
 ```{r ortho, message=FALSE}
 library(nlme)
 data("Orthodont", package = "nlme")
 ```
 
-Start by looking at the data.
+Use this dataset to study how the distance changes with age, while accounting for individual differences in growth patterns. Also, take any relevant covariates into account.
+
+
+a. Start by looking at the data. What columns are available?
+
+:::{.callout-tip collapse="true"}
+## Solution
 
 ```{r}
 summary(Orthodont)
 head(Orthodont)
 ```
 
-Visualize the data.
-
-:::{.callout-tip collapse="true"}
-## Solution
+b. We can visualize the data useing `ggplot2`.
 
 ```{r fig-orthodont, results="hide"}
 Orthodont |> 
@@ -336,18 +337,30 @@ Orthodont |>
 ```
 :::
 
-What is the grouping structure in the data?
+b. Based on the plot and what you now know of the available variables, what grouping structure could be relevant to consider?
+
+:::{.callout-tip collapse="true"}
+## Solution
+
+The groups would be the individual subjects.
+
+:::
 
 What covariates could be relevant to include in the model?
 
-First, fit a linear model to the data, ignoring the grouping structure, but include any relevant covariates.
+:::{.callout-tip collapse="true"}
+## Solution
+
+The covariates could be `age` and `Sex`.
+
+:::
+
+c. Fit a linear model to the data, ignoring the grouping structure, but include any relevant covariates.
 
 Then, fit a mixed model taking the grouping structure into account. Use a random intercept for `Subject` to account for individual differences in growth patterns.
 
 :::{.callout-tip collapse="true"}
 ## Solution
-
-The groups would be the individual subjects, and the covariates could be `age` and `Sex`.
 
 ```{r}
 lmortho <- lm(distance ~ age + Sex, data=Orthodont)
@@ -358,7 +371,7 @@ VarCorr(mmortho)
 ```
 :::
 
-What is the estimated effect of age on distance in the linear model? How does it compare to the mixed model?
+d. What is the estimated effect of age on distance in the linear model? How does it compare to the mixed model?
 
 What is the estimated variability in distance due to differences between subjects? Does this suggest that the random intercept is needed in the model?
 
@@ -448,7 +461,7 @@ These exercises focus on more complex grouped structures with more than one grou
 
 ## Nested design
 
-:::{.exr mice}
+:::{#exr-mice}
 
 ## Mice in litters
   
@@ -621,7 +634,8 @@ Use `VarCorr(mfat)` to compare the variance components at the lab, technician-wi
 
 ## Model comparisons
 
-:::{.exr ortho2}
+:::{#exr-ortho2}
+
 ## Orthodont
 
 Let's get back to the `Orthodont` dataset in the `nlme` package, which contains measurements of 27 children's teeth growth over time.
@@ -748,4 +762,3 @@ According to this model, do the odds of wheezing increase or decrease with age? 
 
 The sign of the fixed effects tells us whether the odds of wheezing increase or decrease with age and with maternal smoking. The exponentiated fixed effects, `exp(fixef(mohio))`, give the corresponding odds ratios. Comparing this model with the ordinary logistic regression allows us to see how accounting for repeated observations within child affects the estimates and inference.
 :::
-```
