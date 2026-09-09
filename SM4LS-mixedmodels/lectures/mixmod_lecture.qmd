@@ -11,7 +11,7 @@ format:
     theme: [default]
 editor: source
 execute: 
-  cache: true
+  cache: false
 ---
 
 ```{r setup}
@@ -27,9 +27,9 @@ Grouped observations are very common in the life sciences:
 
 - **Repeated measures**: multiple measurements from the same subject
 - **Longitudinal studies**: repeated observations over time
+- **Experimental batches**: measurements from different labs, hospitals, plates, or regions
 - **Nested designs**: e.g. mice within cages within labs
 - **Crossed designs**: e.g. measurements involving both lab and technician
-- **Experimental batches**: measurements from different labs, hospitals, plates, or regions
 
 Ordinary linear regression assumes that observations are **independent**.
 When observations are grouped, this assumption is often violated.
@@ -73,7 +73,7 @@ The key assumption for grouped data is often **independence**.
 
 Is there an association between age and plasma concentration?
 
-```{r simgene}
+```{r figsimgene}
 simulate_gene_expression <- function(Nsubj = 4, n=10, Gslope = 2, slope=-4, Gint = 100, xm=30, xmsd=5, xsd=2, esd=2) {
   xmean <- rnorm(Nsubj, mean = xm, sd = xmsd)
   
@@ -101,6 +101,7 @@ Are the assumptions fulfilled?
 
 ```{r figgeneprot0}
 df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw()
+
 ```
 
 :::{.notes}
@@ -117,7 +118,7 @@ summary(m1)
 ## [Example: Age and plasma concentration]{style="font-size: 0.8em;"}
 
 
-```{r}
+```{r figageconc}
 df$pred <- predict(m1)
 df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + geom_line(aes(y=pred)) + theme_bw() + theme(legend.position = "none")
 ```
@@ -199,6 +200,9 @@ We believe that:
 - the intercept (baseline concentration) varies between groups
 
 ```{r figgeneprotgroup2}
+#| fig-height: 3
+#| fig-width: 5
+#| fig-align: "center"
 df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw() + theme(legend.position = "none")
 ```
 
@@ -274,7 +278,7 @@ ranef(mm)
 
 The fixed effects give the overall mean structure, and the random effects are deviations for each group.
 
-## Random slope 
+## Random slope
 
 ```{r}
 mm2 <- lmer(conc ~ age + (1 + age | group), data = df)
@@ -284,11 +288,12 @@ pl <- df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw() 
 pl + geom_line(aes(y=pred2)) + labs(title = "Predicted concentration by age and group")
 ```
 
-## Random slope
+## Random slope {.smaller}
 
 If you believe that the slope also varies between groups, include random slope for age in addition to random intercept.
 
-  $$y_{ij} = \beta_0 + \beta_1 x_{ij} + b_{0i} + b_{1i} x_{ij} + \varepsilon_{ij} = \beta_0 + b_{0i} + (\beta_1 + b_{1i}) x_{ij} + \varepsilon_{ij}$$
+  $$y_{ij} = \beta_0 + \beta_1 x_{ij} + b_{0i} + b_{1i} x_{ij} + \varepsilon_{ij} = \\
+  \beta_0 + b_{0i} + (\beta_1 + b_{1i}) x_{ij} + \varepsilon_{ij}$$
   
 - $y_{ij}$: outcome, dependent variable (concentration)
 - $\beta_0, \beta_1$: fixed effects (intercept and slope)
@@ -633,7 +638,7 @@ Use:
 - **ML** when comparing fixed-effects structures (`refit = TRUE`)
 - **REML** for the final model
 
-## Random effects comparison
+## Random effects comparison {.smaller}
 
 Sleep study data: random intercept
 
@@ -643,7 +648,7 @@ m1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepall)
 summary(m1)
 ```
 
-## Random effects comparison
+## Random effects comparison {.smaller}
 
 Sleep study data: random intercept and random slope for Days.
 
@@ -652,7 +657,7 @@ Sleep study data: random intercept and random slope for Days.
 m2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
 summary(m2)
 ```
-## Random effects eomparison
+## Random effects comparison {.smaller}
 
 Compare the two models using a likelihood ratio test.
 
@@ -660,7 +665,7 @@ Compare the two models using a likelihood ratio test.
 anova(m1, m2, refit = FALSE)
 ```
 
-## Fixed effects comparison
+## Fixed effects comparison {.smaller}
 
 We can also compare models with different fixed effects structures. For example, we can compare a model with a fixed effect of `Days` to a model with a fixed effect of `Days` and `Sex`.
 
