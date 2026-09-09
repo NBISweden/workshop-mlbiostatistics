@@ -10,400 +10,213 @@ format:
 
 ## Quiz {.unnumbered}
 
+::: {#exr-multiple-regression}
 
-::: {#exr-quiz-1}
+## Multiple regression
 
-## Question 1: Multiple regression coefficients
+Suppose researchers investigate final plant biomass as a function of:
 
-Suppose we fit the following multiple linear regression model for a
-numerical outcome $Y$:
+- nitrogen — soil nitrogen concentration (mg/kg), continuous
+- light — average light exposure (hours/day), continuous
+- genotype — WT, MutA, or MutB, categorical
 
-$$
-Y_i =
-\beta_0 +
-\beta_1 age_i +
-\beta_2 treatment_i +
-\beta_3 marker_i +
-\epsilon_i.
-$$
+A multiple linear regression model was fitted:
 
-`age` and `marker` are numerical variables. `treatment` has two levels,
-**Control** and **Treatment**, with **Control as the reference group**.
+```{r}
+set.seed(123)
 
-The fitted coefficients are:
+n <- 60
 
-| Term | Estimate | p-value |
-|---|---:|---:|
-| `(Intercept)` | 12.40 | < 0.001 |
-| `age` | 0.08 | 0.012 |
-| `treatmentTreatment` | -1.50 | 0.008 |
-| `marker` | 0.12 | 0.230 |
+plants <- data.frame(
+  nitrogen = round(runif(n, 20, 80), 1),
+  light = round(runif(n, 6, 14), 1),
+  genotype = factor(
+    rep(c("WT", "MutA", "MutB"), each = 20),
+    levels = c("WT", "MutA", "MutB")
+  )
+)
 
-Which statements are correct? **Select all that apply.**
+plants$biomass <- round(
+  3 +
+  0.10 * plants$nitrogen +
+  0.45 * plants$light +
+  
+  # genotype main effects
+  ifelse(plants$genotype == "MutA", 1.0,
+         ifelse(plants$genotype == "MutB", -1.0, 0)) +
+  
+  # interaction: MutA responds more strongly to nitrogen
+  ifelse(plants$genotype == "MutA",
+         0.08 * plants$nitrogen, 0) +
+  
+  rnorm(n, mean = 0, sd = 1.5),
+  1
+)
 
-a) Holding treatment and marker constant, a one-year increase in age is
-associated with an expected increase of 0.08 units in $Y$.
 
-b) For individuals with the same age and marker value, the expected
-outcome is 1.50 units lower in the Treatment group than in the Control
-group.
+fit1 <- lm(biomass ~ nitrogen + light + genotype, data = plants)
+summary(fit1)
 
-c) The p-value for `treatmentTreatment` provides evidence against
-$H_0:\beta_2=0$ at the 5% significance level.
+```
 
-d) The p-value of 0.230 for `marker` proves that the true coefficient for
-`marker` is exactly zero.
+Which statements are correct?
 
-e) The coefficient for `age` describes its association with the outcome
-after accounting for the other predictors in the model.
+:::
+
+a) The fitted model can be written as
+
+$$ \hat{Y}=0.920+0.126(\text{nitrogen})+0.501(\text{light}) +6.066I(\text{MutA})-1.126I(\text{MutB}). $$
+
+b) The coefficient for nitrogen means that, for every one-unit increase in nitrogen, expected biomass increases by about 0.126 units, holding light and genotype constant.
+
+c) The p-value for genotypeMutB tests the null hypothesis that the mean biomass of MutB plants is equal to the mean biomass of MutA plants.
+
+d) Since the p-value for genotypeMutB is 0.0199, there is evidence at the 5% significance level that MutB differs from WT in expected biomass, after accounting for nitrogen and light.
+
+e) The significant overall F-test shows that every individual predictor in the model is significantly associated with biomass.
+
+::: {.callout-tip title="Answer" collapse="true"}
+
+Correct: a, b, d.
+
+
+a) True.
+With WT as the reference category, the fitted model includes separate indicator variables for MutA and MutB. WT is represented when both indicators are 0.
+
+b) True.
+The nitrogen coefficient is interpreted conditionally: for a one-unit increase in nitrogen, expected biomass increases by about 0.126 units, assuming light exposure and genotype stay the same.
+
+c) False.
+The p-value for genotypeMutB tests
+
+$$ H_0:\beta_{\text{MutB}}=0, $$
+
+which corresponds to no difference between MutB and the reference group WT, after accounting for nitrogen and light. It does not directly compare MutB with MutA.
+
+d) True.
+Because \(p=0.0199<0.05\), we reject \(H_0:\beta_{\text{MutB}}=0\). There is evidence that MutB differs from WT in expected biomass after adjusting for nitrogen and light. Since the coefficient is negative, MutB has lower expected biomass than WT.
+
+e) False.
+The overall F-test evaluates whether the predictors are jointly useful:
+
+$$ H_0:\beta_{\text{nitrogen}} =\beta_{\text{light}} =\beta_{\text{MutA}} =\beta_{\text{MutB}}=0. $$
+
+A significant F-test tells us that at least one of these coefficients is non-zero. It does not imply that every individual predictor is significant.
+
+:::
+
+::: {#exr-poisson}
+
+Researchers are studying how antibiotic concentration and bacterial strain affect bacterial growth. For each sample, they record the number of bacterial colonies observed after incubation.
+
+The response variable colonies is therefore a count, and a Poisson GLM with a log link is fitted:
+
+glm(colonies ~ antibiotic + strain,
+    family = poisson(link = "log"),
+    data = bacteria)
+
+where:
+
+colonies = number of bacterial colonies, a count response
+antibiotic = antibiotic concentration, a continuous predictor
+strain = bacterial strain, a categorical predictor with levels WT and Mut
+
+WT is the reference level for strain.
+
+Study the session notes on Poisson regression to understand how modelling counts work. 
+Then, given the output, which statements are correct?
+
+
+```{r}
+set.seed(123)
+
+n <- 80
+
+bacteria <- data.frame(
+  antibiotic = round(runif(n, 0, 5), 2),
+  strain = factor(
+    sample(c("WT", "Mut"), n, replace = TRUE),
+    levels = c("WT", "Mut")
+  )
+)
+
+# Expected number of colonies
+lambda <- exp(
+  3.2 -
+  0.35 * bacteria$antibiotic +
+  0.42 * (bacteria$strain == "Mut")
+)
+
+# Generate colony counts
+bacteria$colonies <- rpois(n, lambda = lambda)
+
+head(bacteria)
+
+fit <- glm(
+  colonies ~ antibiotic + strain,
+  family = poisson(link = "log"),
+  data = bacteria
+)
+
+summary(fit)
+
+exp(coef(fit))
+```
+
+
+a) The fitted model can be written as
+
+
+$$\log(\hat{\mu}) =
+3.183 - 0.335(\text{antibiotic})
++ 0.416I(\text{Mut})$$
+
+where $\hat{\mu}$ is the expected number of colonies.
+
+b) A one-unit increase in antibiotic concentration is associated with a decrease of approximately 0.335 colonies in the expected colony count, holding strain constant.
+
+c) A one-unit increase in antibiotic concentration is associated with an expected colony count that is approximately 28.5% lower, holding strain constant.
+
+d) At the same antibiotic concentration, the expected colony count for the Mut strain is approximately 52% higher than for the WT strain.
+
+e) The p-value for strainMut tests the null hypothesis that there is no difference in expected colony counts between Mut and WT, after accounting for antibiotic concentration.
+
+
 
 :::
 
 ::: {.callout-tip title="Answer" collapse="true"}
 
-**Correct answers: a), b), c) and e).**
+Correct: a, c, d, e.
 
-a) is correct. In multiple regression, the coefficient for a numerical
-predictor describes the expected change in the outcome associated with a
-one-unit increase in that predictor, **with the other predictors held
-constant**. Here,
+a) True.
+With a Poisson GLM and a log link, the model is written for the log of the expected count. The categorical variable strain is represented using an indicator for Mut, with WT as the reference.
 
-$$
-\hat{\beta}_{age}=0.08.
-$$
+b) False.
+The coefficient \(-0.335\) is on the log scale, so it is not an additive decrease of 0.335 colonies. To interpret it on the original count scale, we exponentiate the coefficient.
 
-b) is correct. Since Control is the reference group,
+c) True.
 
-$$
-\hat{\beta}_{Treatment}=-1.50
-$$
+$$ e^{-0.335}\approx 0.715. $$
 
-is the estimated difference between the Treatment and Control groups,
-for individuals with the same age and marker value.
+So a one-unit increase in antibiotic concentration multiplies the expected colony count by about 0.715. This corresponds to
 
-c) is correct. Since
+$$ (0.715-1)\times100\%\approx -28.5\%. $$
 
-$$
-p=0.008 < 0.05,
-$$
+So the expected count is about 28.5% lower, holding strain constant.
 
-there is sufficient evidence to reject $H_0:\beta_2=0$ at the 5%
-significance level.
+d) True.
+For strainMut,
 
-d) is false. A non-significant p-value does not prove that the true
-coefficient is zero. It means that the data do not provide sufficient
-evidence to reject $H_0:\beta_3=0$ at the chosen significance level.
+$$ e^{0.416}\approx1.516. $$
 
-e) is correct. Coefficients in a multiple regression model are interpreted
-conditional on the other variables included in the model.
+So, at the same antibiotic concentration, the expected colony count for Mut is about 1.52 times that for WT, or approximately 52% higher.
 
-:::
+e) True.
+The test for strainMut evaluates
 
+$$ H_0:\beta_{\text{Mut}}=0. $$
 
-::: {#exr-quiz-2}
-
-## Question 2: Interactions
-
-Suppose we model BMI using height, gender and their interaction:
-
-$$
-BMI_i =
-\beta_0 +
-\beta_1 I_{female,i} +
-\beta_2 height_i +
-\beta_3 I_{female,i}height_i +
-\epsilon_i,
-$$
-
-where men are the reference group. The fitted coefficients are
-
-$$
-\hat{\beta}_0=31.22,\qquad
-\hat{\beta}_1=14.22,\qquad
-\hat{\beta}_2=-1.98,\qquad
-\hat{\beta}_3=-6.56.
-$$
-
-The p-value for the interaction term is 0.20.
-
-Which statements are correct? **Select all that apply.**
-
-a) The estimated slope relating height to BMI in men is $-1.98$.
-
-b) The estimated slope relating height to BMI in women is
-
-$$
--1.98-6.56=-8.54.
-$$
-
-c) At the 5% significance level, there is sufficient evidence that the
-relationship between height and BMI differs between men and women.
-
-d) The fitted regression lines can have different estimated slopes even
-when the interaction term is not statistically significant.
-
-e) The coefficient $\hat{\beta}_1=14.22$ is the average difference in BMI
-between women and men across all possible heights.
-
-:::
-
-::: {.callout-tip title="Answer" collapse="true"}
-
-**Correct answers: a), b) and d).**
-
-a) is correct. For men, $I_{female}=0$, so the model reduces to
-
-$$
-BMI_i = \beta_0+\beta_2 height_i+\epsilon_i.
-$$
-
-The estimated slope is therefore
-
-$$
-\hat{\beta}_2=-1.98.
-$$
-
-b) is correct. For women, $I_{female}=1$, so the slope is
-
-$$
-\hat{\beta}_2+\hat{\beta}_3
-=
--1.98-6.56
-=
--8.54.
-$$
-
-c) is false. The interaction tests
-
-$$
-H_0:\beta_3=0,
-$$
-
-which corresponds to no difference in slopes between the two groups.
-Since
-
-$$
-p=0.20 > 0.05,
-$$
-
-there is not sufficient evidence to reject this null hypothesis.
-
-d) is correct. The estimated interaction coefficient is non-zero, so the
-fitted slopes are different. However, the p-value indicates that the data
-do not provide sufficient evidence that the true difference in slopes is
-different from zero.
-
-e) is false. With an interaction in the model, $\beta_1$ represents the
-difference between women and men when `height = 0`. It is not an average
-difference across all heights.
-
-:::
-
-
-::: {#exr-quiz-3}
-
-## Question 3: Logistic regression
-
-Suppose we investigate whether patients achieve a **virological response**
-after antiviral treatment.
-
-The outcome is coded as
-
-- `response = 1` if the patient achieves virological response;
-- `response = 0` otherwise.
-
-We fit a logistic regression using baseline viral load, measured in
-$\log_{10}$ copies/mL:
-
-$$
-\log\left(\frac{p_i}{1-p_i}\right)
-=
-\beta_0+\beta_1 viralLoad_i.
-$$
-
-For the fitted model,
-
-$$
-\hat{\beta}_1=-0.85,
-\qquad
-e.s.e.(\hat{\beta}_1)=0.30,
-$$
-
-with a p-value of 0.005.
-
-Which statements are correct? **Select all that apply.**
-
-a) To test whether baseline viral load is associated with virological
-response, we can test
-
-$$
-H_0:\beta_1=0.
-$$
-
-b) The Wald statistic for baseline viral load is approximately
-
-$$
-\frac{-0.85}{0.30}=-2.83.
-$$
-
-c) The coefficient $-0.85$ means that the probability of virological
-response decreases by 0.85 for each one-unit increase in baseline
-viral load.
-
-d) The estimated odds ratio associated with a one-unit increase in
-baseline viral load is
-
-$$
-\exp(-0.85)\approx0.43.
-$$
-
-e) Since the p-value is 0.005, there is evidence that baseline viral load
-is associated with the probability of virological response.
-
-:::
-
-::: {.callout-tip title="Answer" collapse="true"}
-
-**Correct answers: a), b), d) and e).**
-
-a) is correct. To test whether baseline viral load is associated with the
-outcome, we can test
-
-$$
-H_0:\beta_1=0.
-$$
-
-b) is correct. In logistic regression, the Wald statistic is calculated as
-
-$$
-W=
-\frac{\hat{\beta}_1}{e.s.e.(\hat{\beta}_1)}
-=
-\frac{-0.85}{0.30}
-\approx-2.83.
-$$
-
-c) is false. A logistic regression coefficient describes a change in the
-**log-odds** of the outcome, not a direct change in probability.
-
-d) is correct. Exponentiating the coefficient gives the odds ratio:
-
-$$
-OR=
-\exp(-0.85)
-\approx0.43.
-$$
-
-Thus, a one-unit increase in baseline viral load is associated with
-odds of virological response that are approximately 0.43 times as high,
-or about 57% lower.
-
-e) is correct. Since
-
-$$
-p=0.005<0.05,
-$$
-
-there is sufficient evidence to reject $H_0:\beta_1=0$ at the 5%
-significance level and conclude that baseline viral load is associated
-with the probability of virological response.
-
-:::
-
-::: {#exr-quiz-4}
-
-## Question 4: Poisson regression
-
-Suppose we study the number of **new mutations** observed in bacterial
-cultures after exposure to different concentrations of a chemical.
-
-We fit a Poisson regression model:
-
-$$
-\log(\mu_i)
-=
-\beta_0+\beta_1 concentration_i,
-$$
-
-where $\mu_i$ is the expected number of mutations in culture $i$.
-
-For the fitted model,
-
-$$
-\hat{\beta}_1=0.18
-$$
-
-with a p-value of 0.012.
-
-Which statements are correct? **Select all that apply.**
-
-a) The model assumes that the logarithm of the expected mutation count
-changes linearly with chemical concentration.
-
-b) The estimated rate ratio associated with a one-unit increase in
-concentration is
-
-$$
-\exp(0.18)\approx1.20.
-$$
-
-c) A one-unit increase in concentration is associated with approximately
-20% more expected mutations.
-
-d) The coefficient $0.18$ means that the expected number of mutations
-increases by exactly 0.18 mutations for every one-unit increase in
-concentration.
-
-e) Since the p-value is 0.012, there is evidence that chemical
-concentration is associated with the expected mutation count.
-
-:::
-
-::: {.callout-tip title="Answer" collapse="true"}
-
-**Correct answers: a), b), c) and e).**
-
-a) is correct. Poisson regression commonly uses the **log link**:
-
-$$
-\log(\mu_i)
-=
-\beta_0+\beta_1 concentration_i.
-$$
-
-Thus, the linear model applies to the logarithm of the expected count.
-
-b) is correct. Exponentiating the coefficient gives the multiplicative
-change in the expected count:
-
-$$
-RR=
-\exp(\hat{\beta}_1)
-=
-\exp(0.18)
-\approx1.20.
-$$
-
-c) is correct. A rate ratio of approximately 1.20 corresponds to
-
-$$
-(1.20-1)\times100\%=20\%
-$$
-
-higher expected mutation count for a one-unit increase in concentration.
-
-d) is false. The coefficient is on the **log scale**. It does not
-represent an additive increase of 0.18 mutations. After exponentiation,
-the effect is interpreted multiplicatively.
-
-e) is correct. Since
-
-$$
-p=0.012<0.05,
-$$
-
-there is sufficient evidence to reject $H_0:\beta_1=0$ at the 5%
-significance level and conclude that concentration is associated with
-the expected mutation count.
+Because WT is the reference level, this corresponds to testing whether Mut and WT have the same expected colony count after accounting for antibiotic concentration. The very small p-value provides strong evidence against this null hypothesis.
 
 :::
