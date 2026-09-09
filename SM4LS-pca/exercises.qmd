@@ -1,218 +1,623 @@
 ---
-title: "Exercises: Principal component analysis"
-author: "Mun-Gwan Hong"
-date: "2022-09-15"
+editor_options:
+  chunk_output_type: console
 ---
 
-```{r, setup, echo=FALSE, include=FALSE}
+# Exercises: Principal component analysis {.unnumbered}
+
+You have found an older gene-expression dataset generated using microarray technology. It contains measurements from 22,215 probes in 189 samples from seven tissues: kidney, hippocampus, cerebellum, colon, liver, endometrium and placenta.
+
+The [data file](data/tissuesGeneExpression.rda) can be loaded directly in R. It is also available [from the original workshop repository](https://github.com/NBISweden/workshop-mlbiostatistics/raw/refs/heads/master/SM4LS-clustering/data/tissuesGeneExpression.rda).
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
 library(ggplot2)
-options(digits=2)
+options(digits = 3)
 ```
 
-
-#### Exercise 1
-
-Let's start principal component analysis (PCA) with Edgar Anderson's iris data,
-which is already available as `iris` in R.
-
-a) Examine the contents and data types of the data set *iris*.
-   R functions `str`, `summary` and `pairs` can be useful for this.
-
-```{r, fig.dim=c(8, 8)}
-str(iris)
-summary(iris)
-pairs(iris)
-```
-
-b) As Setosa is somewhat different from the other two species, we will limit our analysis to these two. 
-   Leave the data of Versicolor and Virginica only, and examine the contents of the data.
+Load the file and inspect the expression matrix and sample annotation.
 
 ```{r}
-vv <- iris[iris$Species %in% c("versicolor", "virginica"), ]
-pairs(vv)
+#| code-fold: false
+
+data_file <- file.path("data", "tissuesGeneExpression.rda")
+load(data_file)
+
+# Expression matrix: probes x samples
+dim(e)
+e[1:4, 1:5]
+
+# Sample information
+str(tab)
 ```
 
-c) The first 4 columns contains 4 different measures and the last column has species.
-   Split the data into a numeric matrix `m` and a character vector `species`. 
-   
-```{r}
-m <- as.matrix(vv[, 1:4])
-species <- vv[, 5]
-```
-
-d) Transform each variable to have the same mean 0 and the same standard deviation using `scale`.
-
-```{r}
-csm <- scale(m)
-```
-
-e) Compute eigenvectors and eigenvalues of the variance-covariance matrix of the transformed (or scaled) `m` using `cov` and `eigen`.
+`e` contains probes in rows and samples in columns, while `tab` contains the sample information. Match the rows of `tab` to the columns of `e` before running PCA.
 
 ```{r}
-s <- cov(csm)
-e <- eigen(s)
-print(e)
+#| code-fold: false
+
+stopifnot(
+  ncol(e) == nrow(tab),
+  !anyDuplicated(colnames(e)),
+  !anyDuplicated(tab$filename),
+  setequal(colnames(e), tab$filename)
+)
+
+tab <- tab[match(colnames(e), tab$filename), , drop = FALSE]
+stopifnot(identical(colnames(e), tab$filename))
 ```
 
-f) Compute the scores of the first principal component (PC). 
-   Matrix dot product in R is `%*%` as `A %*% B` for $\mathbf{A} \mathbf{B}$.
+The file contains four expression profiles that exactly repeat earlier columns. Keeping both copies would give those liver samples twice the weight in the PCA, so we keep the first copy of each profile.
 
 ```{r}
-pc1 <- csm %*% e$vectors[, 1]
-head(pc1)
+#| code-fold: false
+
+repeated_profile <- duplicated(e, MARGIN = 2)
+
+repeated_samples <- tab[
+  repeated_profile,
+  c("filename", "ExperimentID", "Tissue", "SubType"),
+  drop = FALSE
+]
+rownames(repeated_samples) <- NULL
+repeated_samples
+
+e <- e[, !repeated_profile, drop = FALSE]
+tab <- tab[!repeated_profile, , drop = FALSE]
+
+dim(e)
 ```
 
-g) Compute the proportion of variance explained by each PC and find the rotation matrix or loading matrix.
+## Exercise 1: PCA of all samples
+
+`prcomp()` expects observations in rows and variables in columns.
+
+1. Transpose `e` so that samples are rows and probes are columns. Call the new matrix `x`.
+2. How many observations and variables does `x` contain after removing the repeated profiles?
+3. What is the maximum number of principal components that can have non-zero variance after centring? Explain why.
+4. Run PCA with centring but without scaling.
+5. Calculate the proportion of variance explained by each component. How much do PC1, PC2 and the two together explain?
+6. Draw a scree plot for the first 20 components.
+7. Plot PC1 against PC2 without using the tissue labels. What groups or unusual samples can you see?
+8. Colour the same points by `Tissue`. How does this change your reading of the plot?
+
+::: {.callout-tip title="Tip"}
+
+Use `t(e)` to put samples in rows and `dim()` to check the result. Run the PCA with `prcomp(x, center = TRUE, scale. = FALSE)`. The score matrix is stored in `pca$x`, while the component standard deviations are in `pca$sdev`. Square `pca$sdev` and divide by the sum of the squared values to obtain the proportion of variance explained. For plotting, combine `as.data.frame(pca$x)` with `tab` using `cbind()`.
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
 
 ```{r}
-e$values / sum(e$values)
-e$vectors   # rotation matrix
-e$vectors %*% diag(sqrt(e$values))  # loading matrix
+#| code-fold: false
+
+x <- t(e)
+dim(x)
 ```
 
-h) Using `prcomp`, perform PCA.
-   Don't forget to add `scale. = TRUE` in the arguments of the function. 
-   The default is `scale. = FALSE` though the help of the function states scaling is recommended.
+There are 185 observations and 22,215 variables. Centring makes the rows of `x` linearly dependent, so its rank cannot exceed $n-1$. The maximum is therefore
+
+$$
+\min(p,n-1) = \min(22215,184) = 184.
+$$
 
 ```{r}
-pca <- prcomp(m, scale. = TRUE)
+#| code-fold: false
+
+pca <- prcomp(x, center = TRUE, scale. = FALSE)
+
+pve <- pca$sdev^2 / sum(pca$sdev^2)
+
+round(100 * c(
+  PC1 = pve[1],
+  PC2 = pve[2],
+  PC1_PC2 = sum(pve[1:2])
+), 1)
+
+pc_axis <- function(pc, variance) {
+  sprintf("PC%d (%.1f%%)", pc, 100 * variance[pc])
+}
 ```
 
-i) Compare the scores from our manual computation using eigenvector and from `prcomp`.
+The probes are measured on the same log-expression scale, so this PCA leaves them unscaled. Probes with greater variance therefore have more influence on the components.
 
 ```{r}
-all.equal(pca$x[, 1], pc1[, 1])
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 4
+
+scree <- data.frame(
+  PC = seq_along(pve),
+  variance = 100 * pve
+)
+
+first_pcs <- seq_len(min(20, nrow(scree)))
+
+ggplot(scree[first_pcs, , drop = FALSE], aes(x = PC, y = variance)) +
+  geom_col() +
+  scale_x_continuous(breaks = first_pcs) +
+  labs(
+    x = "Principal component",
+    y = "Variance explained (%)"
+  ) +
+  theme_bw()
 ```
 
-j) Compute the proportion of explained variance using the output from `prcomp`.
-   Compare the results with that of g).
+The rows of `pca$x` and `tab` are in the same order because the metadata were aligned above.
 
 ```{r}
-pca$sdev^2 / sum(pca$sdev^2)
+#| code-fold: false
+
+scores <- cbind(as.data.frame(pca$x), tab)
 ```
 
-k) Find the rotation matrix or loading matrix from the output of `prcomp` and compare it with that of g).
+First plot the scores without adding sample information.
 
 ```{r}
-pca$rotation   # rotation matrix
-pca$rotation %*% diag(pca$sdev)    # loadings
+#| code-fold: false
+#| fig-width: 6
+#| fig-height: 5
+
+ggplot(scores, aes(x = PC1, y = PC2)) +
+  geom_point(size = 2, alpha = 0.8) +
+  labs(
+    x = pc_axis(1, pve),
+    y = pc_axis(2, pve)
+  ) +
+  theme_bw()
 ```
 
-l) Draw a PCA score plot for PC1 and PC2.
-   Add colors by `species`.
-   What does the plot show?
+Without labels, the points form several compact groups: one at high PC2, a broad group at negative PC1 and another at positive PC1. A few samples lie between or apart from these groups, but this plot alone does not tell us what they represent.
+
+Then colour the same points by tissue.
 
 ```{r}
-plot(pca$x[, 1:2], pch = 16, col = species)
-```
-```{r, results='asis', echo=FALSE}
-cat("\nTwo species were separated by the first PC.\n\n")
+#| code-fold: false
+#| fig-width: 7
+#| fig-height: 5
+
+ggplot(scores, aes(x = PC1, y = PC2, color = Tissue)) +
+  geom_point(size = 2, alpha = 0.85) +
+  labs(
+    x = pc_axis(1, pve),
+    y = pc_axis(2, pve)
+  ) +
+  theme_bw()
 ```
 
-m) Draw a PCA score plot for PC2 and PC3.
+Tissue labels were not used to calculate the principal components. The groups that appear after adding the labels show that tissue is associated with a large part of the expression variation. This is an association, not evidence that tissue alone caused the separation.
+
+:::
+
+## Exercise 2: Looking beyond PC1 and PC2
+
+PC1 and PC2 describe the two largest directions of total variation, but later components can still contain clear patterns.
+
+1. For the full dataset, plot PC2 against PC3 and PC3 against PC4. Colour the points by tissue.
+2. Which tissue groups become easier to distinguish in these views?
+3. Why might a component with modest overall variance still be useful?
+4. Select the kidney, colon and liver samples and fit a new PCA from the expression matrix.
+5. How many samples remain?
+6. Plot PC1 against PC2 and PC3 against PC4 for the new PCA.
+7. What happens to the kidney samples along PC4?
+
+::: {.callout-tip title="Tip"}
+
+The full-data scores are already in `scores`, so PC2, PC3 and PC4 can be used directly in `ggplot()`. Select samples with `tab$Tissue %in% c("kidney", "colon", "liver")`. Apply that logical vector to both `e` and `tab`, keep matrix dimensions with `drop = FALSE`, transpose the selected expression matrix and run a new `prcomp()`. The new scores are in `pca3$x`.
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
 
 ```{r}
-plot(pca$x[, 2:3], pch = 16, col = species)
-```
+#| code-fold: false
+#| fig-width: 7
+#| fig-height: 5
 
-n) Draw a scree plot.
+ggplot(scores, aes(x = PC2, y = PC3, color = Tissue)) +
+  geom_point(size = 2, alpha = 0.85) +
+  labs(
+    x = pc_axis(2, pve),
+    y = pc_axis(3, pve)
+  ) +
+  theme_bw()
+```
 
 ```{r}
-plot(pca)
+#| code-fold: false
+#| fig-width: 7
+#| fig-height: 5
+
+ggplot(scores, aes(x = PC3, y = PC4, color = Tissue)) +
+  geom_point(size = 2, alpha = 0.85) +
+  labs(
+    x = pc_axis(3, pve),
+    y = pc_axis(4, pve)
+  ) +
+  theme_bw()
 ```
 
-o) Draw a bi-plot.
-   Can you tell 
-   1) which variables are the most important for PC1?
-   2) which variables are highly correlated?
+In the PC2--PC3 plot, colon and liver occupy distinct regions. The PC3--PC4 plot separates hippocampus from cerebellum more clearly along PC4. A component can describe a strong pattern in a small group of samples without accounting for much of the variance across the full dataset.
+
+Fit a new PCA after selecting kidney, colon and liver samples. Removing the other tissues changes the centre and covariance structure, so the principal directions also change.
 
 ```{r}
-biplot(pca)
+#| code-fold: false
+
+keep3 <- tab$Tissue %in% c("kidney", "colon", "liver")
+
+x3 <- t(e[, keep3, drop = FALSE])
+tab3 <- tab[keep3, , drop = FALSE]
+
+pca3 <- prcomp(x3, center = TRUE, scale. = FALSE)
+pve3 <- pca3$sdev^2 / sum(pca3$sdev^2)
+
+scores3 <- cbind(as.data.frame(pca3$x), tab3)
+
+dim(x3)
 ```
-```{r, results='asis', echo=FALSE}
-cat("\n1) `Sepal.Length`, `Petal.Length` and `Petal.Width` are the most important variables",
-    "for PC1, as their loadings are far from zero.\n")
-cat("2) They are strongly correlated as they are next to each other in loading plot.\n\n")
-```
-
-You may find the loadings displayed in the `biplot` are in different scale from those you computed. 
-It is primarily due to the scaling by function `biplot`. 
-Please refer to https://stats.stackexchange.com/questions/276645/arrows-of-underlying-variables-in-pca-biplot-in-r for the question. 
-
-
-&nbsp;
-
-#### Exercise 2
-
-NCI60 data set consists of gene expression values for 6830 genes for 64 cell lines.
-Using this data set, repeat the analysis using `prcomp` of Exercise 1.
-You can download the data using the command below.
-
-```
-m <- t(as.matrix(read.table(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"),
-  sep = ",", row.names = 1, header = TRUE
-)))
-```
-
-```{r nci_data_loading, echo=FALSE, cache=TRUE}
-m <- t(as.matrix(read.table(
-  url("https://web.stanford.edu/~hastie/ElemStatLearn/datasets/nci.data.csv"),
-  sep = ",", row.names = 1, header = TRUE
-)))
-```
-
-a) Examine the contents and data types of the data set `nci`.
-   Check the dimension of the data first. 
-   This is much larger than `iris`.
 
 ```{r}
-str(m)
-summary(m[, 1:10])
-```
+#| code-fold: false
+#| fig-width: 7
+#| fig-height: 5
 
-b) Using `prcomp`, perform PCA.
+ggplot(scores3, aes(x = PC1, y = PC2, color = Tissue)) +
+  geom_point(size = 2.3, alpha = 0.85) +
+  labs(
+    x = pc_axis(1, pve3),
+    y = pc_axis(2, pve3)
+  ) +
+  theme_bw()
+```
 
 ```{r}
-pca <- prcomp(m, scale. = TRUE)
+#| code-fold: false
+#| fig-width: 7
+#| fig-height: 5
+
+ggplot(scores3, aes(x = PC3, y = PC4, color = Tissue)) +
+  geom_point(size = 2.3, alpha = 0.85) +
+  labs(
+    x = pc_axis(3, pve3),
+    y = pc_axis(4, pve3)
+  ) +
+  theme_bw()
 ```
 
-c) Compute the proportion of variance explained by each PC.
+The kidney samples form several groups along PC4. This pattern is difficult to see in the full analysis. Once the broad differences among all seven tissues are removed, variation within the remaining tissues accounts for more of the total variation.
+
+:::
+
+## Exercise 3: Biology, experiment, or both?
+
+A pattern in a PCA plot may be related to biology, study design, or both. Use the sample metadata to examine the visible groups.
+
+1. In the three-tissue PCA, plot PC3 against PC4 using colour for `ExperimentID` and shape for `Tissue`.
+2. Examine `table(Tissue, ExperimentID)`. Are tissue and experiment independently balanced?
+3. Does an association with `ExperimentID` prove that a component is a batch effect? What information would you need before making that claim?
+4. Look at the kidney samples again, this time using colour for `SubType` and shape for `ExperimentID`. Does the separation on PC4 follow experiment or subtype more closely?
+5. Fit a separate PCA using only hippocampus and cerebellum samples.
+6. Plot PC1 against PC2 using shape for `Tissue` and colour for `ExperimentID`.
+7. Do the brain samples follow tissue or experiment more closely? Can those effects be separated with this study design?
+
+::: {.callout-tip title="Tip"}
+
+Use `with(tab3, table(Tissue, ExperimentID))` to inspect the study design. In `ggplot()`, map one metadata column to `color` and another to `shape`. Subset kidney rows with `scores3$Tissue == "kidney"`. For the brain analysis, select the two tissues from `e` and `tab`, transpose the expression matrix and run a separate `prcomp()`. Match `pca_brain$x` to `tab_brain` with `cbind()` before plotting.
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
 
 ```{r}
-pca$sdev^2 / sum(pca$sdev^2)
-```
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 6
 
-d) Find the rotation matrix.
-   Show the first 5 columns and rows only.
+ggplot(
+  scores3,
+  aes(x = PC3, y = PC4, color = ExperimentID, shape = Tissue)
+) +
+  geom_point(size = 2.5, alpha = 0.9) +
+  labs(
+    x = pc_axis(3, pve3),
+    y = pc_axis(4, pve3)
+  ) +
+  theme_bw()
+```
 
 ```{r}
-pca$rotation[1:5, 1:5]
+#| code-fold: false
+
+with(tab3, table(Tissue, ExperimentID))
 ```
 
-e) Draw a PCA score plot for PC1 and PC2.
+Colon samples come from one experiment, while kidney and liver samples are spread across several experiments. Tissue and experiment are not independently balanced. An apparent tissue pattern may contain study-specific variation, and an `ExperimentID` pattern is not by itself proof of a batch effect. To make that claim, we would need information about sample collection, laboratory and processing dates, platform, normalisation and any technical replicates.
+
+Compare experiment and subtype within the kidney samples.
 
 ```{r}
-plot(pca$x[, 1:2])
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 6
+
+kidney3 <- scores3$Tissue == "kidney"
+
+ggplot(
+  scores3[kidney3, , drop = FALSE],
+  aes(x = PC3, y = PC4, color = SubType, shape = ExperimentID)
+) +
+  geom_point(size = 2.8, alpha = 0.9) +
+  labs(
+    x = pc_axis(3, pve3),
+    y = pc_axis(4, pve3)
+  ) +
+  theme_bw()
 ```
 
-f) Draw a PCA score plot for PC2 and PC3.
+Most normal kidney profiles lie lower on PC4. The GSE781 cancer samples and the GSE6344 tumour samples lie higher, so the separation follows subtype more closely than experiment. The variables are still partly confounded, and the plot does not establish a cause.
+
+For the brain comparison:
 
 ```{r}
-plot(pca$x[, 2:3])
-```
+#| code-fold: false
 
-g) Draw a scree plot.
+keep_brain <- tab$Tissue %in% c("hippocampus", "cerebellum")
+
+x_brain <- t(e[, keep_brain, drop = FALSE])
+tab_brain <- tab[keep_brain, , drop = FALSE]
+
+pca_brain <- prcomp(x_brain, center = TRUE, scale. = FALSE)
+pve_brain <- pca_brain$sdev^2 / sum(pca_brain$sdev^2)
+
+scores_brain <- cbind(as.data.frame(pca_brain$x), tab_brain)
+
+with(tab_brain, table(Tissue, ExperimentID))
+```
 
 ```{r}
-plot(pca)
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 6
+
+ggplot(
+  scores_brain,
+  aes(x = PC1, y = PC2, color = ExperimentID, shape = Tissue)
+) +
+  geom_point(size = 3, alpha = 0.9) +
+  labs(
+    x = pc_axis(1, pve_brain),
+    y = pc_axis(2, pve_brain)
+  ) +
+  theme_bw()
 ```
 
-h) Draw a bi-plot.
-   Note it can take long time. 
+The visible brain groups follow `ExperimentID` more closely, especially along PC2. However, 30 of the 31 hippocampus samples come from GSE1297, while none of the cerebellum samples do. The study design does not let us separate tissue from experiment cleanly.
+
+:::
+
+## Exercise 4: Which probes contribute to a component?
+
+A biplot with 22,215 probes would be unreadable. Instead, use the rotation coefficients to find the probes that contribute most strongly to a selected component.
+
+1. Find the 15 probes with the largest absolute coefficients for PC1 of the full PCA.
+2. Why should the ranking use the absolute coefficient rather than only positive coefficients?
+3. Plot the expression of the highest-ranking PC1 probe across tissues.
+4. Repeat the calculation for PC4 of the three-tissue PCA.
+5. For the highest-ranking PC4 probe, plot expression in kidney samples by `SubType` and colour the points by `ExperimentID`.
+6. What does a large absolute rotation coefficient tell you? Does it identify a causal probe?
+7. Would the PCA result change if every score and coefficient for one component changed sign?
+
+::: {.callout-tip title="Tip"}
+
+The probe coefficients are in `pca$rotation`; for example, `pca$rotation[, 1]` contains the PC1 coefficients. Use `abs()`, `order(..., decreasing = TRUE)` and integer indexing to find the largest values. A probe's expression values can be extracted with `e[probe_name, ]`. For the kidney plot, use the matching column of `x3` and map `SubType` to one axis and `ExperimentID` to colour.
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
+
+Define a helper function that returns the largest absolute coefficients.
 
 ```{r}
-biplot(pca)
+#| code-fold: false
+
+top_coefficients <- function(pca_object, pc = 1, n = 15) {
+  z <- pca_object$rotation[, pc]
+  n <- min(n, length(z))
+  idx <- order(abs(z), decreasing = TRUE)[seq_len(n)]
+
+  data.frame(
+    probe = names(z)[idx],
+    coefficient = unname(z[idx]),
+    abs_coefficient = unname(abs(z[idx]))
+  )
+}
+
+top_pc1 <- top_coefficients(pca, pc = 1)
+top_pc1
 ```
 
+Large positive and negative coefficients both contribute strongly to a component, so the ranking uses their absolute values.
 
+```{r}
+#| code-fold: false
+#| fig-width: 7
+#| fig-height: 5
+
+top_probe_pc1 <- top_pc1$probe[1]
+
+probe_pc1 <- data.frame(
+  expression = as.numeric(e[top_probe_pc1, ]),
+  Tissue = tab$Tissue
+)
+
+ggplot(probe_pc1, aes(x = Tissue, y = expression)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  coord_flip() +
+  labs(title = top_probe_pc1) +
+  theme_bw()
+```
+
+Repeat the calculation for PC4 of the three-tissue PCA.
+
+```{r}
+#| code-fold: false
+
+top_pc4_3 <- top_coefficients(pca3, pc = 4)
+top_pc4_3
+```
+
+```{r}
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 5
+
+top_probe_pc4 <- top_pc4_3$probe[1]
+kidney <- tab3$Tissue == "kidney"
+
+probe_pc4_kidney <- data.frame(
+  expression = as.numeric(x3[kidney, top_probe_pc4]),
+  SubType = tab3$SubType[kidney],
+  ExperimentID = tab3$ExperimentID[kidney]
+)
+
+ggplot(probe_pc4_kidney, aes(x = SubType, y = expression)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(
+    aes(color = ExperimentID),
+    width = 0.15,
+    height = 0,
+    alpha = 0.7
+  ) +
+  coord_flip() +
+  labs(title = top_probe_pc4) +
+  theme_bw()
+```
+
+The probe is expressed more strongly in the normal kidney profiles and more weakly in the GSE781 cancer group and the GSE6344 tumour groups. This agrees with the PC4 pattern, but the probe was selected from the same PCA and does not provide independent evidence.
+
+A large absolute rotation coefficient means that a probe contributes strongly to the direction of that component. It does not show that the probe caused the pattern. The sign of a PCA axis is arbitrary: reversing both its scores and coefficients gives the same solution.
+
+:::
+
+## Exercise 5: A simple biplot
+
+A biplot shows samples and variables together. It quickly becomes unreadable with 22,215 probes, so this exercise uses four probes with contrasting loadings.
+
+1. From `pca$rotation`, find the probes with the most positive and most negative loadings on PC1 and PC2.
+2. Combine the four probe names and inspect their PC1 and PC2 loadings.
+3. Extract these probes from `x` and run a new PCA using only these columns. Centre and scale the columns.
+4. Draw the result with base R `biplot()`.
+5. Which arrows point in similar or opposite directions?
+6. Calculate the correlation matrix for the four probes and draw a scatterplot matrix.
+7. Do the correlations agree with the angles in the biplot?
+
+::: {.callout-tip title="Tip"}
+
+The loading matrix is `pca$rotation`. Use `which.max()` and `which.min()` on its PC1 and PC2 columns, then use the selected names to subset `x`. Run `prcomp(..., center = TRUE, scale. = TRUE)` on the four-column matrix. Base R `biplot()` draws the samples and probe arrows. Use `cor()` for the exact correlations and `pairs()` to inspect them graphically.
+
+:::
+
+::: {.callout-tip title="Solution" collapse="true"}
+
+Select one probe from each end of PC1 and PC2 in the full PCA.
+
+```{r}
+#| code-fold: false
+
+loading12 <- pca$rotation[, c("PC1", "PC2"), drop = FALSE]
+
+selected_probes <- unique(c(
+  rownames(loading12)[which.max(loading12[, "PC1"])],
+  rownames(loading12)[which.min(loading12[, "PC1"])],
+  rownames(loading12)[which.max(loading12[, "PC2"])],
+  rownames(loading12)[which.min(loading12[, "PC2"])]
+))
+
+selected_loadings <- data.frame(
+  probe = selected_probes,
+  loading12[selected_probes, , drop = FALSE],
+  row.names = NULL
+)
+selected_loadings
+```
+
+These probes were chosen because their loadings point towards different ends of the first two component axes. The selection is meant to make the biplot readable; it is not a list of the most biologically important probes.
+
+Fit a small PCA using only the four selected probes. Scaling is useful here because the purpose is to compare their correlations.
+
+```{r}
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 6
+
+x_selected <- x[, selected_probes, drop = FALSE]
+
+pca_selected <- prcomp(
+  x_selected,
+  center = TRUE,
+  scale. = TRUE
+)
+
+round(100 * summary(pca_selected)$importance[2, 1:2], 1)
+
+biplot(
+  pca_selected,
+  scale = 0,
+  xlabs = rep(".", nrow(x_selected)),
+  col = c("grey55", "firebrick"),
+  cex = c(0.7, 0.9),
+  main = "Four-probe biplot"
+)
+```
+
+The grey dots are samples and the red arrows are probes. Arrows pointing in the same direction suggest positive correlation, arrows at about 90 degrees suggest little linear correlation, and arrows pointing in opposite directions suggest negative correlation. A 45-degree angle corresponds roughly to a correlation of $\cos(45^\circ) = 0.71$ when the two displayed components represent both probes well.
+
+The first two components explain most of the variance in these four standardised probes, so the arrow angles give a useful summary. The correlation matrix gives the exact pairwise values.
+
+```{r}
+#| code-fold: false
+
+round(cor(x_selected), 2)
+```
+
+Use a scatterplot matrix to see the same relationships in the original expression values. The upper panels report Pearson correlations; the lower panels show the observations and a smooth trend.
+
+```{r}
+#| code-fold: false
+#| fig-width: 8
+#| fig-height: 7
+
+panel_cor <- function(x, y) {
+  old_par <- par("usr")
+  on.exit(par(usr = old_par))
+  par(usr = c(0, 1, 0, 1))
+  text(0.5, 0.5, sprintf("r = %.2f", cor(x, y)), cex = 1.3)
+}
+
+panel_points <- function(x, y) {
+  points(
+    x, y,
+    pch = 16,
+    cex = 0.45,
+    col = adjustcolor("black", alpha.f = 0.35)
+  )
+  lines(lowess(x, y), col = "steelblue", lwd = 1.5)
+}
+
+pairs(
+  x_selected,
+  upper.panel = panel_cor,
+  lower.panel = panel_points,
+  main = "Correlations among the four probes"
+)
+```
+
+The two nearly opposite arrow pairs match strong negative correlations: `203485_at` with `201596_x_at` ($r=-0.91$), and `203400_s_at` with `201650_at` ($r=-0.73$). The acute angle between `203485_at` and `203400_s_at` matches their moderate positive correlation ($r=0.49$). The matrix is the exact result; the biplot angle is a visual approximation based on two components.
+
+:::
