@@ -1,5 +1,10 @@
 ---
 title: "Survival Analysis"
+author: "Eva Freyhult"
+date: "2026-09-10"
+date-format: long
+institute: NBIS, SciLifeLab
+embed-resources: true
 format: 
   revealjs:
     slide-number: true
@@ -7,8 +12,6 @@ format:
     theme: [default]
     mermaid: 
       theme: forest
-    chalkboard: 
-      buttons: true
   html:
     code-fold: false
 editor_options: 
@@ -34,7 +37,7 @@ library(scales)
 library(ggthemes)
 ```
 
-## Survival analysis 🏕️ {.smaller} 
+## Survival analysis {.smaller} 
 
 ```{r}
 #| include: false
@@ -81,14 +84,12 @@ Let's imagine:
 - the outcome of interest is **time until death**
 - for each patient, we record the **time until death or censoring**
 
-. . .
+## Survival and censoring times {.smaller}
 
 For each patient, we suppose there is: 
 
 - a true **survival time** $T$
-  - representing the time at which the event of interest occurs (here death)
 - a **censoring time** $C$
-  - representing the time at which the patient is lost to follow-up or the study ends.
 
 :::{.notes}
 - a true **survival time** $T$
@@ -165,6 +166,7 @@ ggplot(data, aes(x = time, y = patient)) +
 ## Independent Censoring {.smaller}
 
 To analyze survival data correctly, we assume **independent censoring**:
+
 - the reason for censoring is unrelated to the risk of the event
 - censored individuals are assumed to have the same event risk as those still under observation
   
@@ -227,7 +229,7 @@ the probability of surviving past time $t$.
 . . .
 
 The **Kaplan-Meier (KM) estimator** is
-$$\hat{S}(t) = \prod_{t_j \le t} \left( 1 - \frac{d_j}{n_j} \right)$$ {#eq-KM}
+$$\hat{S}(t) = \prod_{t_j \le t} \left( 1 - \frac{d_j}{n_j} \right)$$ 
 
 where: 
 
@@ -239,9 +241,9 @@ where:
 The Kaplan-Meier estimator is also called the **product-limit estimator**.
 
 
-## Kaplan-Meier estimator {.smaller}
+## Tooth filling example {.smaller}
 
-*Tooth filling example: complete follow-up*
+*Complete follow-up*
 
 Suppose 10 patients receive a tooth filling, and we record the time until failure.
 
@@ -292,11 +294,13 @@ Goal:
 ::::
 
 
-## Kaplan-Meier estimator {.smaller}
+## Tooth filling example {.smaller}
 
-*Tooth filling example: building the Kaplan-Meier table*
+*Building the Kaplan-Meier table*
 
+:::{.notes}
 From the sorted data, we identify the event times and for each time compute:
+:::
 
 :::: {.columns}
 
@@ -305,7 +309,7 @@ From the sorted data, we identify the event times and for each time compute:
 - the number at risk, $n_j$
 - the number of events, $d_j$
 - the conditional survival, $1-\frac{d_j}{n_j}$
-- $$S(t) = \prod_{t_j \le t} \left( 1 - \frac{d_j}{n_j} \right)$$
+- $S(t) = \prod_{t_j \le t} \left( 1 - \frac{d_j}{n_j} \right)$
 
 ```{r}
 #| label: tbltooth1
@@ -373,7 +377,7 @@ data_tooth |>
 |---|---:|---:|---:|---:|
 | 3  | 10 | 1 | $0.9$ | $0.9$ |
 | 4  | 9  | 1 | $0.888$ | $0.8$ |
-| 5  | 8  | 1 | $1-\frac{1}{8 = 0.875}$ | $0.8 \times 0.875$ |
+| 5  | 8  | 1 | $1-\frac{1}{8} = 0.875$ | $0.8 \times 0.875$ |
 | 6  |    |   |   |   |
 | 7  |    |   |   |   |
 | 8  |    |   |   |   |
@@ -415,7 +419,9 @@ data_tooth |>
 :::
 
 
-## Kaplan-Meier estimator {.smaller}
+## Kaplan-Meier curve {.smaller}
+
+The Kaplan-Meier curve shows the cumulative survival probabilities. 
 
 ```{r}
 #| label: fig-tooth-filling-1
@@ -425,9 +431,9 @@ fit.surv <- survfit(Surv(time, status) ~ 1, data = data_tooth)
 plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probability of Survival", las = 1)
 ```
 
-## Kaplan-Meier estimator {.smaller}
+## Tooth filling example {.smaller}
 
-*Tooth filling example: what changes with censoring?*
+*What changes with censoring?*
 
 Now suppose two patients are censored.
 
@@ -462,9 +468,9 @@ data_tooth_cens |>
   )
 ```
 
-## Kaplan-Meier estimator {.smaller}
+## Tooth filling example {.smaller}
 
-*Tooth filling example: what changes with censoring?*
+*What changes with censoring?*
 
 Now suppose two patients are censored.
 
@@ -572,7 +578,7 @@ data_tooth_cens |>
 ::::
 
 
-## Kaplan-Meier estimator {.smaller}
+## Kaplan-Meier curve {.smaller}
 
 The Kaplan-Meier curve shows the cumulative survival probabilities. 
 
@@ -638,18 +644,11 @@ pl2groups <- ggsurvplot(fit2groups,
 
 *Reading a survival probability from the curve*
 
-
-:::: {.columns}
-
-::: {.column width="50%"}
-
+:::{.notes}
 At a specific time point, we can estimate the survival probability by reading the value of the curve.
-
-Example: what is the probability that a tooth filling lasts at least **10 months**?
-
 :::
 
-::: {.column width="50%"}
+Example: what is the probability that a tooth filling lasts at least **10 months**?
 
 :::{.r-stack}
 
@@ -657,8 +656,7 @@ Example: what is the probability that a tooth filling lasts at least **10 months
 
 ```{r}
 #| label: KM-01
-#| fig-width: 5
-#| fig.cap: Kaplan-Meier survival curve for tooth filling data.
+#| fig-width: 7
 
 plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probabiliy of Survival", las = 1)
 #abline(v = 10, h = 0.343, col = "red", lty = 2)
@@ -671,8 +669,7 @@ plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probabiliy of
 
 ```{r}
 #| label: KM-02
-#| fig-width: 5
-#| fig.cap: Kaplan-Meier survival curve for tooth filling data.
+#| fig-width: 7
 
 plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estimated Probabiliy of Survival", las = 1)
 abline(v = 10, h = 0.343, col = "red", lty = 2)
@@ -682,9 +679,6 @@ abline(v = 10, h = 0.343, col = "red", lty = 2)
 :::
 :::
 
-:::
-
-::::
 
 ```{r}
 #| label: figtooth-filling-20-part
@@ -745,28 +739,6 @@ When comparing survival between groups, we often start by plotting **Kaplan-Meie
 arrange_ggsurvplots(list(plgender, pl2groups), ncol=2, nrow=1, plot=TRUE)
 ```
 
-## Comparisons of hazards {.smaller}
-
-
-To compare groups more formally, we often focus on the **hazard**.
-
-- The **hazard** is the instantaneous event rate at time $t$ among individuals still at risk.
-- Instead of comparing survival probabilities directly, we compare how quickly events occur in the groups over follow-up.
-
-. . .
-
-<br>
-
-A common assumption is the **proportional hazards assumption**:
-
-$$
-\frac{h_1(t)}{h_0(t)} = \text{constant}
-$$
-
-where $h_1(t)$ and $h_0(t)$ are the hazards in the two groups at time $t$.
-
-If this assumption is reasonable, the groups differ by a constant **hazard ratio** over time.
-
 ## Mantel-Cox (log-rank test) {.smaller}
 
 The **log-rank test** compares survival between two or more groups.
@@ -820,30 +792,49 @@ Large differences between **observed** and **expected** numbers of events give e
 
 ## Mantel-Cox (log-rank test) {.smaller}
 
-The Mantel-Cox (log-rank) statistic combines these observed-minus-expected differences over all event times:
+The Mantel-Cox (log-rank) statistic combines the observed-minus-expected differences over all event times:
 
 $$
 \chi^2_{MC} = \sum_{j} \left( \frac{(O_{jA} - E_{jA})^2}{E_{jA}} + \frac{(O_{jB} - E_{jB})^2}{E_{jB}} \right)
 $$
 
-. . .
 
 For two groups, the statistic is approximately $\chi^2$ distributed with 1 degree of freedom.
 
-# Regression with survival data
+## Comparisons of hazards {.smaller}
+
+
+To compare groups, we often focus on the **hazard**.
+
+- The **hazard** is the instantaneous event rate at time $t$ among individuals still at risk.
+- Instead of comparing survival probabilities directly, we compare how quickly events occur in the groups over follow-up.
+
+. . .
+
+<br>
+
+A common assumption is the **proportional hazards assumption**:
+
+$$
+\frac{h_1(t)}{h_0(t)} = \text{constant}
+$$
+
+where $h_1(t)$ and $h_0(t)$ are the hazards in the two groups at time $t$.
+
+If this assumption is reasonable, the groups differ by a constant **hazard ratio** over time.
 
 
 ## Cox proportional hazards model {.smaller}
 
-*Studying the relationship between survival time and predictors*
+*Regression with survival data*
 
-The **Cox proportional hazards model** is used to study how predictor variables affect the hazard of an event.
+The **Cox proportional hazards model** is used to study the relationship between survival time and predictors. Regression is used to model the hazard based on a set of predictor variables.
 
 - allows adjustment for several covariates at the same time
 - estimates **hazard ratios**
 - does not require specifying the baseline hazard function
 
-. . .
+## Cox proportional hazards model {.smaller}
 
 The model is
 
@@ -889,7 +880,7 @@ summary(fit.cox_multi)
 
 Based on the fitted Cox model:
 
-- HR for a male patient is about $e^{0.11} = 1.11$
+- The hazard ratio (HR) for a male patient is about $e^{0.11} = 1.11$
 - This suggests a slightly higher hazard for men than women, but the p-value is large
 - A one-unit increase in Karnofsky index gives HR $e^{-0.06} = 0.94$
 - Higher Karnofsky index is associated with **lower hazard**
@@ -915,38 +906,23 @@ ggforest(fit.cox_multi, data = data_brain)
 
 *Model output*
 
-<br>
-
 Cox regression output includes several useful tests.
 
-. . . 
+* **Likelihood Ratio Test (LRT)**
+  - Compares the log-likelihood of:
+    - A null model (no covariates)
+    - A full model (with covariates)
+  - Tests whether the covariates improves model fit
 
-<br>
+* **Wald test**
 
-**Likelihood Ratio Test (LRT)**
+  - Individual Wald tests assess whether each coefficient is significantly different from 0
+  - A global Wald test assesses whether all coefficients are 0 simultaneously
 
-- Compares the log-likelihood of:
-  - A null model (no covariates)
-  - A full model (with covariates)
-- Tests whether the covariates improves model fit
+* **Score test**
 
-. . .
-
-<br>
-
-**Wald test**
-
-- Individual Wald tests assess whether each coefficient is significantly different from 0
-- A global Wald test assesses whether all coefficients are 0 simultaneously
-
-. . .
-
-<br>
-
-**Score test**
-
-- Based on **expected vs. observed** events
-- In simple group-comparison settings, it corresponds to the log-rank test
+  - Based on **expected vs. observed** events
+  - In simple group-comparison settings, it corresponds to the log-rank test
 
 ## Cox proportional hazards model {.smaller}
 
@@ -956,8 +932,6 @@ The **concordance index** measures how well the model predicts the order of even
 
 - **C-index = 0.5** → No better than random guessing
 - **C-index = 1** → Perfect prediction of event order
-
-. . .
 
 **Example:**
 
@@ -986,25 +960,21 @@ $$
 
 In practice, one individual may contribute several rows, one for each interval where the covariates are constant.
 
-## Multiple events: competing risks {.smaller}
+## Competing risks {.smaller}
 
 A **competing risk** is an event that prevents the event of interest from occurring.
 
-<br>
-
+:::{.notes}
 **Examples:**
 
 - In a study of heart disease death, death from cancer is a competing risk
 - In a study of relapse, death from other causes is a competing risk
-
-. . .
+:::
 
 **Why it matters:**
 
 - standard Cox models typically focus on one event type at a time
 - ignoring competing risks can overestimate the cumulative probability of the event of interest
-
-. . .
 
 Useful tools:
 
@@ -1018,7 +988,7 @@ Useful tools:
   models the effect of covariates on the **subdistribution hazard**, and is used when interest lies in prediction or comparison of cumulative incidence
 
 
-## 💻 Lab {.smaller}
+## Lab {.smaller}
 
 
 In the lab there are examples of: 
