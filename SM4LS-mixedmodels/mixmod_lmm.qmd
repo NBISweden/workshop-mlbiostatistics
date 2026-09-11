@@ -337,7 +337,7 @@ We are going to repeat this later, but the type of design is not something that 
 
 Nested designs occur when one level of grouping is entirely contained within another level, without any overlap between groups at the same level. In the context of mixed models, this translates to data where, for instance, patients are grouped within clinics, and clinics are grouped within regions. Each patient belongs to one and only one clinic, and each clinic belongs to one and only one region. The key characteristic of nested designs is that the groups at one level do not intersect or overlap with groups at another level.
 
-```{mermaid}
+```{mermaid, echo=FALSE, out.width="100%"}
 graph TD
     A[Region 1] 
     A --> B[Clinic 1]
@@ -422,10 +422,11 @@ Let's see one example:
 #| fig-cap: "Scatter plot of Age vs. Protein expression for nested design"
 #| code-fold: true
 #| 
-simulate_grouped_trend_nested <- function(region_count = 3, clinics_per_region = 5, measurements_per_clinic = 10,
-                                                         global_slope = -10, global_intercept = 30, 
-                                                         region_effects = c(), region_slopes = c(),
-                                                         clinic_effects = list(), clinic_slopes = list()) {
+simulate_grouped_trend_nested <- function(region_count = 3, clinics_per_region = 5,
+  measurements_per_clinic = 10,
+  global_slope = -10, global_intercept = 30,
+  region_effects = c(), region_slopes = c(),
+  clinic_effects = list(), clinic_slopes = list()) {
   set.seed(123) # Setting a seed for reproducibility
   
   # Initialize an empty data frame to store the simulated data
@@ -466,20 +467,15 @@ simulate_grouped_trend_nested <- function(region_count = 3, clinics_per_region =
   return(data)
 }
 
-
-
-
 set.seed(10)
 data_int_nested<-simulate_grouped_trend_nested(region_count = 4,
-                                                             clinics_per_region = 3,
-                                                             measurements_per_clinic = 20,
-                                                             global_slope = 0,global_intercept = 100,
-                                                             region_effects = rnorm(4,mean = 0,sd = 20),
-                                                             region_slopes=rnorm(4,mean = 0.1,sd = 2),
-       clinic_effects = lapply(1:4,function(i){rnorm(3,mean = 0,sd = 10)}),
-      clinic_slopes = lapply(1:4,function(i){rnorm(3,mean = 0.1,sd = 1)}))
-
-
+  clinics_per_region = 3,
+  measurements_per_clinic = 20,
+  global_slope = 0,global_intercept = 100,
+  region_effects = rnorm(4,mean = 0,sd = 20),
+  region_slopes=rnorm(4,mean = 0.1,sd = 2),
+  clinic_effects = lapply(1:4,function(i){rnorm(3,mean = 0,sd = 10)}),
+  clinic_slopes = lapply(1:4,function(i){rnorm(3,mean = 0.1,sd = 1)}))
 
 plot(data_int_nested$x,data_int_nested$y,col=data_int_nested$region,pch=data_int_nested$clinic,xlab = "Age",ylab = "Protein expression")
 legend("top", legend = paste("Region", unique(data_int_nested$region)),
@@ -487,10 +483,7 @@ legend("top", legend = paste("Region", unique(data_int_nested$region)),
 
 legend("topleft", legend = paste("Clinic", unique(data_int_nested$clinic)),
        pch = unique(data_int_nested$clinic), col = "black", cex = 0.8, title = "Clinics", inset = c(0.05, 0))
-
-
 ```
-
 
 In this example, we simulated a number of samples from a few clinics from different regions. From the beginning the experimental design was nested in a way that, a single sample was from a single clinic and a single clinic was from one and only one region. Looking at @fig-scatter-plot-grouped-lmm-nested, we can already see that there is a very big baseline difference between regions. Within each region, there is also some baseline differences between clinics but it is less dominant than the region differences. Furthermore, the effect of Age on Protein expression seems to be different slightly across different regions (some have positive effect, some negative and some close to zero) and to a lesser extend within each region but across clinics. Given this informal interpretation of the data we go forward and do the modeling considering both the intercept and slope as random effects.
 
@@ -521,7 +514,7 @@ The last experimental design I want to mention is the full crossed design, which
 
 
 
-```{mermaid}
+```{mermaid, echo=FALSE, out.width="100%"}
 graph TD
 
     A[Clinic 1]
@@ -590,9 +583,9 @@ One hypothetical study (probably very rare!) is a study designed to explore the 
 #| fig-cap: "Scatter plot of Age vs. Protein expression for crossed design"
 #| code-fold: true
 simulate_grouped_trend_crossed <- function(clinic_count = 3, doctor_count = 5, measurements_per_combination = 10,
-                                           global_slope = -10, global_intercept = 30,
-                                           clinic_effects = c(), clinic_slopes = c(),
-                                           doctor_effects = c(), doctor_slopes = c()) {
+  global_slope = -10, global_intercept = 30,
+  clinic_effects = c(), clinic_slopes = c(),
+  doctor_effects = c(), doctor_slopes = c()) {
   set.seed(123) # Setting a seed for reproducibility
 
   # Initialize an empty data frame to store the simulated data
@@ -632,14 +625,13 @@ simulate_grouped_trend_crossed <- function(clinic_count = 3, doctor_count = 5, m
   return(data)
 }
 
-data_int_crossed<-simulate_grouped_trend_crossed(clinic_count = 4,
-                                                             doctor_count = 3,
-                                                             measurements_per_combination = 20,
-                                                             global_slope = 1,global_intercept = 100,
-                                                             clinic_effects =c(1,20,40,60),
-                                                             clinic_slopes=c(1,1.5,0.9,1.1),
-       doctor_effects = c(1.3,1.2,2),
-      doctor_slopes = c(-3,1,2))
+data_int_crossed<-simulate_grouped_trend_crossed(clinic_count = 4, doctor_count = 3, 
+  measurements_per_combination = 20,
+  global_slope = 1,global_intercept = 100,
+  clinic_effects =c(1,20,40,60),
+  clinic_slopes=c(1,1.5,0.9,1.1),
+  doctor_effects = c(1.3,1.2,2),
+  doctor_slopes = c(-3,1,2))
 
   plot(data_int_crossed$x,data_int_crossed$y,col=data_int_crossed$clinic,pch=data_int_crossed$doctor,xlab = "Age",ylab = "Protein expression")
 
@@ -750,7 +742,7 @@ In this example, we have three treatments each given by three different doctors.
 
 ```{r}
 #| code-fold: true
-model_lmm_treatment <- lmer(recoveryTime~treatment+(1|doctor),data_int_treatment)
+model_lmm_treatment <- lmer(recoveryTime ~ treatment + (1|doctor), data_int_treatment)
 print(model_lmm_treatment)
 ```
 
@@ -827,7 +819,7 @@ We have to specifically clarify for `lmer` which effects we want to be random. I
 ```{r}
 #| code-fold: true
 
-model_lmm_treatment_rnd <-  lmer(recoveryTime~treatment+(1+treatment|doctor),data_int_treatment)
+model_lmm_treatment_rnd <-  lmer(recoveryTime ~ treatment + (1+treatment|doctor), data_int_treatment)
 print(model_lmm_treatment_rnd)
 ```
 
@@ -858,9 +850,7 @@ lines(doctor_effects$doctor, doctor_effects$intercept, col="blue", lty=2)
 lines(doctor_effects$doctor, doctor_effects$treatmentB_effect, col="red", lty=2)
 lines(doctor_effects$doctor, doctor_effects$treatmentC_effect, col="green", lty=2)
 
-
 legend("right", legend=c("Baseline (A)", "Treatment B", "Treatment C"), col=c("blue", "red", "green"), pch=19, lty=2)
-
 ```
 
 So despite that there is no slope for continuous variable in a traditional sense, we can still model the variations in the deviations from the baseline. This model structure is particularly useful for highlighting the overall effectiveness of each treatment while controlling for variability in outcomes attributed to individual doctor differences.
@@ -876,7 +866,7 @@ In this example, our aim is to explore how the effectiveness of various treatmen
 #| fig-cap: "Scatter plot of treatment vs recovery time vs dosage"
 #| code-fold: true
 
-simulatePatientData <- function(numDoctors = 30, numPatients = 10,doctor_dosage,doctor_var, seed = 12345) {
+simulatePatientData <- function(numDoctors = 30, numPatients = 10, doctor_dosage, doctor_var, seed = 12345) {
   set.seed(seed)
 
   # Parameters
@@ -932,7 +922,7 @@ What we believe is that there is dose-response relationship that is not uniform 
 ```{r}
 #| code-fold: true
 
-model_lmm_treatment_dosse <-  lmer(recoveryTime~treatment*dosage+(1|doctor),data_int_interaction)
+model_lmm_treatment_dosse <-  lmer(recoveryTime ~ treatment*dosage + (1|doctor), data_int_interaction)
 print(model_lmm_treatment_dosse)
 
 ```
@@ -946,7 +936,7 @@ Similar to the previous case, we start assuming a random intercept in the model.
 #| code-fold: true
 
 
- plot(data_int_interaction$dosage,data_int_interaction$recoveryTime,col=as.factor(data_int_interaction$treatment),pch=as.numeric(as.factor(data_int_interaction$doctor)),
+ plot(data_int_interaction$dosage,data_int_interaction$recoveryTime, col=as.factor(data_int_interaction$treatment),pch=as.numeric(as.factor(data_int_interaction$doctor)),
       xlab="Dosage",ylab="Recovery time")
 
 
@@ -1019,11 +1009,11 @@ for(dr in unique(data_int_interaction$doctor))
   abline(coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,1],
        coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,4],lty=dr,col=1)
 
-abline(coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,1]+coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,2],
-       coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,4]+coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,5],lty=dr,col=2)
+abline(coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,1] + coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,2],
+       coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,4] + coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,5],lty=dr,col=2)
 
-abline(coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,1]+coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,3],
-       coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,4]+coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,6],lty=dr,col=3)
+abline(coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,1] + coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,3],
+       coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,4] + coef(model_lmm_treatment_doss_trt_rnd)[[1]][dr,6],lty=dr,col=3)
 
 }
 
@@ -1053,15 +1043,13 @@ for(dr in unique(data_int_interaction$doctor))
   abline(coef(model_lmm_treatment_int_rnd)[[1]][dr,1],
        coef(model_lmm_treatment_int_rnd)[[1]][dr,4],lty=dr,col=1)
 
-abline(coef(model_lmm_treatment_int_rnd)[[1]][dr,1]+coef(model_lmm_treatment_int_rnd)[[1]][dr,2],
-       coef(model_lmm_treatment_int_rnd)[[1]][dr,4]+coef(model_lmm_treatment_int_rnd)[[1]][dr,5],lty=dr,col=2)
+abline(coef(model_lmm_treatment_int_rnd)[[1]][dr,1] + coef(model_lmm_treatment_int_rnd)[[1]][dr,2],
+       coef(model_lmm_treatment_int_rnd)[[1]][dr,4] + coef(model_lmm_treatment_int_rnd)[[1]][dr,5],lty=dr,col=2)
 
-abline(coef(model_lmm_treatment_int_rnd)[[1]][dr,1]+coef(model_lmm_treatment_int_rnd)[[1]][dr,3],
-       coef(model_lmm_treatment_int_rnd)[[1]][dr,4]+coef(model_lmm_treatment_int_rnd)[[1]][dr,6],lty=dr,col=3)
+abline(coef(model_lmm_treatment_int_rnd)[[1]][dr,1] + coef(model_lmm_treatment_int_rnd)[[1]][dr,3],
+       coef(model_lmm_treatment_int_rnd)[[1]][dr,4] + coef(model_lmm_treatment_int_rnd)[[1]][dr,6],lty=dr,col=3)
 
 }
-
-
 ```
 
 This final model tells that that the three main sources of variation in our data is `treatmentC`, `(Intercept)` and `treatmentC:dosage`. The fit also looks much better than before. This result translates to a scenario in which there is a variability between doctors in how they treat patients, there is a significant variability between then in the way they administrate the treatment C and also how they administrate dosage for treatment C.
@@ -1087,10 +1075,10 @@ So let's start with the random part of the model that included the interaction.
 ```{r,warning=FALSE,message=FALSE}
 #| code-fold: true
 #| 
-m1 <- lmer(recoveryTime~treatment*dosage+(1|doctor),data_int_interaction, REML = TRUE)
-m2 <- lmer(recoveryTime~treatment*dosage+(1+treatment|doctor),data_int_interaction, REML = TRUE)
-m3 <- lmer(recoveryTime~treatment*dosage+(1+treatment+dosage|doctor),data_int_interaction, REML = TRUE)
-m4 <- lmer(recoveryTime~treatment*dosage+(1+treatment*dosage|doctor),data_int_interaction, REML = TRUE)
+m1 <- lmer(recoveryTime ~ treatment*dosage + (1|doctor), data_int_interaction, REML = TRUE)
+m2 <- lmer(recoveryTime ~ treatment*dosage + (1+treatment|doctor), data_int_interaction, REML = TRUE)
+m3 <- lmer(recoveryTime ~ treatment*dosage + (1+treatment+dosage|doctor), data_int_interaction, REML = TRUE)
+m4 <- lmer(recoveryTime ~ treatment*dosage + (1+treatment*dosage|doctor), data_int_interaction, REML = TRUE)
 print(anova(m1,m2,m3,m4,refit=FALSE))
 ```
 
@@ -1150,10 +1138,10 @@ Give we now know that our interaction model was the best one, we can now proceed
 ```{r,warning=FALSE,message=FALSE}
 #| code-fold: true
 #| 
-m1 <- lmer(recoveryTime~1+(1+treatment*dosage|doctor),data_int_interaction, REML = FALSE)
-m2 <- lmer(recoveryTime~treatment+(1+treatment*dosage|doctor),data_int_interaction, REML = FALSE)
-m3 <- lmer(recoveryTime~treatment+dosage+(1+treatment*dosage|doctor),data_int_interaction, REML = FALSE)
-m4 <- lmer(recoveryTime~treatment*dosage+(1+treatment*dosage|doctor),data_int_interaction, REML = FALSE)
+m1 <- lmer(recoveryTime ~ 1 + (1+treatment*dosage|doctor), data_int_interaction, REML = FALSE)
+m2 <- lmer(recoveryTime ~ treatment+(1+treatment*dosage|doctor), data_int_interaction, REML = FALSE)
+m3 <- lmer(recoveryTime ~ treatment+dosage + (1+treatment*dosage|doctor), data_int_interaction, REML = FALSE)
+m4 <- lmer(recoveryTime ~ treatment*dosage + (1+treatment*dosage|doctor), data_int_interaction, REML = FALSE)
 print(anova(m1,m2,m3,m4,refit=TRUE))
 ```
 
@@ -1338,7 +1326,7 @@ For speeding up the process we are going to use only 10 simulations. In reality 
 ```{r}
 #| code-fold: true
 
-simple_model <- lmer(recoveryTime~treatment*dosage+(1+treatment*dosage|doctor),data_int_interaction)
+simple_model <- lmer(recoveryTime ~ treatment*dosage + (1+treatment*dosage|doctor),data_int_interaction)
 
 simulated_data<-simulate(object = simple_model,nsim = 10,seed = 10)
 
