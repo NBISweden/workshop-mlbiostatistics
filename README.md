@@ -1,3 +1,3 @@
-## Introduction to biostastistics and machine learning
+## README
 
-*National course open for PhD students, postdocs, researchers and other employees in need of biostatistical skills within all Swedish universities.  The course is geared towards life scientists wanting to be able to understand and use basic statistical methods. It would also suit those already applying biostatistical methods but have never got a chance to reflect on and truly grasp the basic statistical concepts, such as the commonly misinterpreted p-value!*
+Repository with teaching materials for [Statistical Methods for Life Sciences](https://training.scilifelab.se/courses/statistical-methods-for-life-sciences) and [Machine Learning for Life Science](https://training.scilifelab.se/courses/machine-learning-for-life-sciences) courses.
