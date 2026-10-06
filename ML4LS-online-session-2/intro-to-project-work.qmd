@@ -1,0 +1,465 @@
+---
+title: "Machine Learning for Life Sciences, 3hp"
+subtitle: "Online session 2"
+author: "Olga Dethlefsen, PhD <br> Payam Emami, PhD"
+format: 
+  revealjs:
+    slide-number: true
+    view-distance: 10
+    theme: [default, styles.scss]
+    chalkboard: 
+      buttons: true
+    footer: "Machine Learning for Life Sciences (ML4LS)"
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(ggbeeswarm)
+library(gridExtra)
+library(scales)
+library(ggthemes)
+library(faraway)
+library(GGally)
+library(glmnet)
+library(latex2exp)
+library(splitTools)
+library(ggeffects)
+library(pROC)
+library(patchwork)
+
+```
+
+
+## Session plan
+<br>
+
+. . .
+
+
+1. Introduction to project work / demo
+2. Group discussion / team work
+
+
+## Data science lifecycle
+*From research question to biological insight*
+
+```{dot}
+digraph workflow {
+
+  graph [rankdir=LR]
+  node [shape=box, style="rounded,filled", fillcolor="#DCEEFF"]
+
+  define [label="Define problem"]
+  collect [label="Collect data"]
+  clean [label="Clean & preprocess data"]
+  explore [label="Explore data"]
+
+  transform [label="Feature transformation\n& engineering"]
+
+  inference [label="Inferential statistics"]
+  supervised [label="Supervised learning \n(prediction)"]
+  unsupervised [label="Unsupervised learning \n(structure discovery)"]
+
+  evaluate [label="Evaluate & interpret"]
+  communicate [label="Communicate results"]
+
+  define -> collect -> clean -> explore -> transform
+
+  transform -> inference
+  transform -> supervised
+  transform -> unsupervised
+
+  inference -> evaluate
+  supervised -> evaluate
+  unsupervised -> evaluate
+
+  evaluate -> communicate
+}
+```
+
+## Data science lifecycle
+*More realistic case*
+
+```{dot}
+digraph workflow {
+
+  graph [rankdir=LR]
+  node [shape=box, style="rounded,filled", fillcolor="#DCEEFF"]
+
+  define [label="Define problem"]
+  collect [label="Collect data"]
+  clean [label="Clean & preprocess data"]
+  explore [label="Explore data"]
+
+  transform [label="Feature transformation\n& engineering"]
+
+  inference [label="Inferential statistics"]
+  supervised [label="Supervised learning \n(prediction)"]
+  unsupervised [label="Unsupervised learning \n(structure discovery)"]
+
+  evaluate [label="Evaluate & interpret"]
+  communicate [label="Communicate results"]
+
+  define -> collect -> clean -> explore -> transform
+
+  transform -> inference
+  transform -> supervised
+  transform -> unsupervised
+
+  inference -> evaluate
+  supervised -> evaluate
+  unsupervised -> evaluate
+
+  evaluate -> communicate
+
+  collect -> define
+  clean -> collect
+  clean -> define
+  explore -> clean
+  transform -> clean
+  inference -> define
+  inference -> collect
+  inference -> clean
+  inference -> explore
+  supervised -> collect
+  supervised -> define
+  unsupervised -> collect
+  unsupervised -> explore
+  evaluate -> define
+  evaluate -> collect
+  evaluate -> explore
+  communicate -> define
+
+}
+```
+
+## Data science lifecycle
+*Let's focus on bigger picture today*
+
+```{dot}
+digraph workflow {
+
+  graph [rankdir=LR]
+  node [shape=box, style="rounded,filled", fillcolor="#DCEEFF"]
+
+  define [label="Define problem"]
+  collect [label="Collect data"]
+  clean [label="Clean & preprocess data"]
+  explore [label="Explore data"]
+
+  transform [label="Feature transformation\n& engineering"]
+
+  inference [label="Inferential statistics"]
+  supervised [label="Supervised learning \n(prediction)"]
+  unsupervised [label="Unsupervised learning \n(structure discovery)"]
+
+  evaluate [label="Evaluate & interpret"]
+  communicate [label="Communicate results"]
+
+  define -> collect -> clean -> explore -> transform
+
+  transform -> inference
+  transform -> supervised
+  transform -> unsupervised
+
+  inference -> evaluate
+  supervised -> evaluate
+  unsupervised -> evaluate
+
+  evaluate -> communicate
+}
+```
+
+## Example data
+*Diabetes data*
+
+<br>
+
+::::: columns
+::: {.column width="50%"}
+-   403 participants were interviewed in a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia
+-   [Diabetes data](https://rdrr.io/cran/faraway/man/diabetes.html) is available as part of `faraway` R package
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| include: true
+
+# Diabetes data from faraway() package
+df <- diabetes
+
+c1 <- colnames(df)
+c2 <- c("Subject ID", "Total Cholesterol [mg/dL]", "Stabilize Glucose [mg/dL]", 
+        "High Density Lipoprotein [mg/dL]", "Cholesterol / HDL Ratio", "Glycosolated Hemoglobin [%]", 
+        "County: Buckingham or Louisa", "age [years]", "gender", 
+        "height [in]", "weight [lb]", "frame: small, medium or large", 
+        "First Systolic Blood Pressure", "First Diastolic Blood Pressure", 
+        "Second Systolic Blood Pressure", "Second Diastolic Blood Pressure", 
+        "waist [in]", "hip [in]", 
+        "Postprandial Time [min] when labs were drawn")
+
+tbl <- data.frame(Abbreviation = c1, Description = c2)
+
+kbl_font_size <- 14
+
+tbl %>% 
+  kbl(align = "c") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_styling(font_size = kbl_font_size)
+
+```
+:::
+:::::
+
+## Example data
+*Diabetes data*
+
+<br>
+
+:::::: columns
+::: {.column width="45%"}
+-  We can calculate BMI as $$BMI = 703 \times \frac{\text{weight [lb]}}{\text{height [in]}^2} $$ 
+-  And create a new binary variable `BMI>30` indicating if BMI is over 30 (1) or no (0)
+-  First few observations are shown on the right.
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="50%"}
+```{r}
+
+# add obesity variables
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(`BMI>30`= cut(BMI, breaks = c(0, 29.9, 100), labels = c(0, 1))) %>% 
+  relocate(BMI, .after = id) %>%
+  relocate(`BMI>30`, .after = BMI) 
+  
+# preview data
+glimpse(head(data_diabetes))
+```
+:::
+::::::
+
+## Example data
+
+*Diabetes data + 1000 genes*
+
+<br>
+
+In addition, we simulated expression levels for 1,000 genes, with a subset of known obesity-associated genes simulated as up-regulated.
+
+```{r}
+#| fig-align: center
+
+# Load clinical data
+data_obesity_genes <- read_csv("data/data-obesity.csv") |>
+  mutate(`BMI>30` = ifelse(obese == "No", 0, 1)) |>
+  mutate(`BMI>30`= factor(`BMI>30`)) |>
+  dplyr::select(-obese) |>
+  dplyr::relocate(`BMI>30`, .after = "BMI")
+
+# Load gene expression data
+data_exprs <- read_csv("data/data-obesity-genes.csv")
+
+# Join data
+data <- data_obesity_genes %>%
+  left_join(data_exprs, by = "id") #%>% 
+  #mutate(obese = factor(obese, levels = c("No", "Yes")))
+
+# show distribution of random 3 genes by obesity
+data %>%
+  select("BMI>30", 31:33) %>% 
+  na.omit() %>%
+  pivot_longer(-`BMI>30`, names_to = "gene", values_to = "expression") %>% 
+  mutate(gene = factor(gene)) %>% 
+  ggplot(aes(x = expression, fill = `BMI>30`)) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 30) + 
+  facet_wrap(~gene, scales = "free") +
+  theme_minimal() + 
+  scale_fill_tableau(name = "BMI>30",  palette = "Classic Blue-Red 6") + 
+  theme(legend.position = "top")
+  
+```
+
+
+## Example project
+
+*Building a model to predict whether BMI is ≥ 30.*
+
+## Other project ideas
+<br>
+
+- **Supervised learning**
+  - Predict an outcome from a set of input features
+  - Evaluate how well the model generalizes to new data
+  - Build an interactive app that allows users to enter or select new data and explore predictions
+
+. . .
+
+::: incremental
+- **Examples**
+  - Predict disease status or treatment response
+  - Predict a continuous outcome, such as BMI or a biomarker level
+  - Compare predictions, feature importance, or model performance
+:::
+
+## Other project ideas
+<br>
+
+- **Unsupervised clustering**
+  - Identify groups or patterns in your data
+  - Characterize and interpret the resulting clusters
+  - Build an interactive app that allows collaborators to explore the clusters, samples, features, or metadata
+
+. . .
+
+::: incremental
+- **Examples**
+  - Patient subgroups based on clinical or molecular profiles
+  - Cell/sample clusters based on omics measurements
+  - Project new data onto existing clusters, where applicable
+:::
+
+
+## Choose your stack
+
+<br>
+
+`Python` → `scikit-learn` → `Streamlit`
+
+- Data handling: pandas
+- Machine learning: scikit-learn
+- Interactive app: Streamlit
+
+<br>
+
+`R` → `tidymodels / other modelling packages` → `Shiny`
+
+- Data handling: tidyverse
+- Machine learning: tidymodels, glmnet, etc.
+- Interactive app: Shiny
+
+. . .
+
+*These are recommended options, not requirements. If your team already uses another suitable framework, you are welcome to use it.*
+
+
+## Project requirements 
+<br>
+
+- Work in teams on a **life science ML project**
+- Start from a clear **biological or research question**
+- Use a **supervised or unsupervised** learning approach
+- Clearly define the **samples, features, and outcome or structure of interest**
+- Use a dataset that is:
+  - large and complex enough for a meaningful ML analysis
+  - computationally manageable on a standard laptop
+  - suitable for analysis steps that take **minutes rather than hours**
+- Evaluate and interpret the results appropriately
+- Create a simple **interactive application** for predictions or exploration of results
+
+<br>
+
+## Project reproducibility
+<br>
+
+
+1. **Code & workflow** — scripts/notebooks and the complete preprocessing and analysis pipeline
+2. **Documentation** — `README.md` explaining what the project does and how to run it
+3. **Environment** — record software and package versions
+4. **Licence** — define how the work may be reused
+5. **Citation** — e.g. `CITATION.cff` explaining how to cite the project
+6. **Versioning** — Git + tagged releases preserve specific versions
+7. **Archiving** — e.g. Zenodo creates a persistent archive and DOI
+
+
+## Final deliverables
+<br>
+
+Each team submits
+
+1. **Link to the interactive application**
+   - e.g. Streamlit, Shiny, or another suitable framework
+
+2. **Link to the GitHub repository**
+   - complete analysis code and workflow
+   - `README.md` with instructions
+   - software/package versions
+   - licence and citation information
+   - final tagged release / archived version
+
+   
+## Team work
+<br>
+
+Use this session to get your project started as a team.
+
+- Get to know each other
+- Make sure everyone has a shared understanding of the **project goal**
+- Discuss and make an initial agreement on:
+  - research question / project goal
+  - dataset
+  - supervised or unsupervised approach
+  - programming language / tools
+  - how you will communicate and work together
+  - initial division of tasks
+
+## Before you leave {.smaller}
+<br>
+
+Write down initial project plan
+
+**Research question / project goal:**  
+What do you want to investigate, predict, or discover?
+
+**Dataset:**  
+What data will you use? Where does it come from?
+
+**Samples:**  
+What does one sample/observation represent?
+
+**Features:**  
+What variables or measurements will be used?
+
+**Type of task:**  
+Supervised or unsupervised?
+
+**Expected output:**  
+What would you like the model or analysis to reveal or do?
+
+**Programming language / tools:**  
+R / Python / other?
+
+**Team communication:**  
+How will you communicate and share work?
+
+**Initial division of tasks:**  
+Who will start with what?
+
+. . .
+
+<br>
+
+**Talk to Olga or Payam and briefly go through the main points before disconnecting**
