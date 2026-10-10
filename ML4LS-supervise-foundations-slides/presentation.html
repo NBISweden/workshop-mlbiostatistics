@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="presentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="presentation_files/libs/quarto-html/tabby.min.js"></script>
+<script src="presentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
+
+  <meta name="author" content="Olga Dethlefsen, PhD">
+  <title>Supervised learning: foundations, evaluation and tuning</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto-93391b96655de1d3e26fbd66e2de5458.css">
+  <link href="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Supervised learning: foundations, evaluation and tuning</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Olga Dethlefsen, PhD 
+</div>
+</div>
+</div>
+
+</section>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
+<p><br><br></p>
+<ul>
+<li>Introduction: from inference to prediction</li>
+<li>KNN: K-nearest neighbors</li>
+<li>SVM: Support vector machines</li>
+<li>Data splitting</li>
+<li>Model evaluation</li>
+<li>Tuning and cross-validation</li>
+<li>Final model</li>
+</ul>
+</section>
+<section id="what-is-supervised-learning" class="slide level2">
+<h2>What is supervised learning?</h2>
+<p><em>From inference to prediction</em> <br><br></p>
+<p><strong>Inference:</strong></p>
+<p>Understanding relationships between variables.</p>
+<ul>
+<li>Which variables are associated with an outcome?</li>
+<li>What is the magnitude and uncertainty of these associations?</li>
+</ul>
+<p><br></p>
+<div class="fragment">
+<p><strong>Prediction:</strong></p>
+<p>Predicting outcomes for new observations.</p>
+<ul>
+<li>Can we use measured variables to predict an outcome?</li>
+<li>How well does our model perform on unseen data?</li>
+</ul>
+</div>
+<div class="fragment">
+<p><br></p>
+<div class="text-box-1">
+<p><em>Explaining relationships is not the same as making accurate predictions. However, many methods, such as linear models, can be used for both inference and prediction.</em></p>
+</div>
+</div>
+</section>
+<section id="what-is-supervised-learning-1" class="slide level2">
+<h2>What is supervised learning?</h2>
+<p><em>Two types of prediction tasks</em> <br><br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="regression">Regression</h3>
+<p>Predict a <strong>continuous outcome</strong>.</p>
+<p><strong>Example:</strong> Predict chronological age from DNA methylation measurements.</p>
+<p><span class="math display">\[
+\hat{y} = \text{predicted age}
+\]</span></p>
+</div><div class="column" style="width:50%;">
+<h3 id="classification">Classification</h3>
+<p>Predict a <strong>categorical outcome</strong>.</p>
+<p><strong>Example:</strong> Predict whether a tumour is benign or malignant from biopsy measurements.</p>
+<p><span class="math display">\[
+\hat{y} \in \{\text{benign}, \text{malignant}\}
+\]</span></p>
+</div></div>
+</section>
+<section id="what-is-supervised-learning-2" class="slide level2">
+<h2>What is supervised learning?</h2>
+<p><br></p>
+<p>In <strong>supervised learning</strong>, we train a model using observations with <strong>known outcomes (labels)</strong>.</p>
+<ul>
+<li><strong>Features / predictors (<span class="math inline">\(X\)</span>):</strong> the input variables used for predictions, e.g.&nbsp;image-derived features</li>
+<li><strong>Target / outcome (<span class="math inline">\(y\)</span>):</strong> the known outcome we want to predict.e.g. treatment response</li>
+<li><strong>Training:</strong> Learning relationships between predictors and the outcome.</li>
+</ul>
+<div class="fragment">
+<div class="text-box-2">
+<p>The learning algorithm uses the features and their corresponding targets to learn a function:</p>
+<p><span class="math display">\[\hat{y} = f(X)\]</span></p>
+<p>where <span class="math inline">\(f\)</span> represents the model and <span class="math inline">\(\hat{y}\)</span> is the predicted outcome.</p>
+</div>
+</div>
+<div class="fragment">
+<p><br></p>
+<p>Once trained, the model can make predictions for <strong>new observations</strong>.</p>
+</div>
+</section>
+<section id="the-goal" class="slide level2 center">
+<h2>The goal</h2>
+<p><br></p>
+<p>The central goal is <strong>generalization</strong>: the ability to make accurate predictions on new, unseen data.</p>
+</section>
+<section id="what-is-supervised-learning-3" class="slide level2">
+<h2>What is supervised learning?</h2>
+<p><em>Supervised learning models</em> <br><br></p>
+<p>Different algorithms learn relationships between features and targets in different ways.</p>
+<div class="fragment">
+<p>Some commonly used supervised learning algorithms include:</p>
+<ul>
+<li class="fragment"><strong>Linear and logistic regression:</strong> Learn relationships between features and outcomes by <strong>estimating model coefficients</strong>.</li>
+<li class="fragment"><strong>K-nearest neighbors (KNN):</strong> Makes predictions using nearby training observations by <strong>comparing distances and identifying nearest neighbors</strong>.</li>
+<li class="fragment"><strong>Support Vector Machines (SVM):</strong> Learn by <strong>finding a decision boundary</strong> that separates classes with the largest possible margin (with extensions for nonlinear relationships and regression).</li>
+<li class="fragment"><strong>Decision trees:</strong> Learn by <strong>recursively splitting the data</strong> based on feature values to form prediction rules.</li>
+<li class="fragment"><strong>Random Forests:</strong> Learn by <strong>combining many decision trees</strong>, each trained on different samples and using random subsets of features.</li>
+<li class="fragment"><strong>Artificial Neural Networks (ANN):</strong> Learn by <strong>iteratively adjusting weights</strong> between interconnected computational units to minimize prediction errors.</li>
+</ul>
+</div>
+</section>
+<section>
+<section id="knn-k-nearest-neighbors" class="title-slide slide level1 center">
+<h1>KNN: K-nearest neighbors</h1>
+
+</section>
+<section id="knn" class="slide level2">
+<h2>KNN</h2>
+<p><br></p>
+<ul>
+<li class="fragment">A supervised learning algorithm that makes predictions based on <strong>similarity between observations</strong>.</li>
+<li class="fragment"><strong>Key assumption:</strong> Observations with similar features are likely to have similar outcomes.</li>
+<li class="fragment">For a new observation, KNN identifies the <span class="math inline">\(k\)</span> closest training observations:
+<ul>
+<li class="fragment"><strong>Classification:</strong> Predicts the most common class among the neighbors.</li>
+<li class="fragment"><strong>Regression:</strong> Predicts the average outcome among the neighbors.</li>
+</ul></li>
+<li class="fragment">KNN retains the training observations rather than fitting model coefficients during training (<em>lazy learning</em>).</li>
+</ul>
+</section>
+<section id="knn-1" class="slide level2">
+<h2>KNN</h2>
+<div class="r-stack">
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-00-1.png" class="fragment" width="700" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-01-1.png" class="fragment" width="700" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-02-1.png" class="fragment" width="700" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-03-1.png" class="fragment" width="700" height="600"></p>
+</div>
+<div class="footer">
+
+</div>
+</section>
+<section id="knn-2" class="slide level2">
+<h2>KNN</h2>
+<p><br></p>
+<div class="r-stack">
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-10-1.png" class="fragment" width="700" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-20-1.png" class="fragment" width="700" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-30-1.png" class="fragment" width="700" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-knn-40-1.png" class="fragment" width="700" height="600"></p>
+</div>
+<div class="footer">
+
+</div>
+</section>
+<section id="knn-3" class="slide level2">
+<h2>KNN</h2>
+<p><em>Choosing the number of neighbors (<span class="math inline">\(k\)</span>)</em></p>
+<p><br></p>
+<ul>
+<li class="fragment"><span class="math inline">\(k\)</span> is a <strong>hyperparameter</strong> that controls the flexibility of the KNN model.</li>
+<li class="fragment"><strong>Small <span class="math inline">\(k\)</span> (e.g., <span class="math inline">\(k=1\)</span>):</strong> More complex decision boundaries, sensitive to noise → risk of <strong>overfitting</strong>.</li>
+<li class="fragment"><strong>Large <span class="math inline">\(k\)</span>:</strong> Smoother decision boundaries, may miss local patterns → risk of <strong>underfitting</strong>.</li>
+<li class="fragment">There is <strong>no universally optimal <span class="math inline">\(k\)</span></strong>; the best value depends on the dataset.</li>
+<li class="fragment">We can select <span class="math inline">\(k\)</span> using <strong>validation data or cross-validation</strong>.</li>
+</ul>
+
+<img data-src="presentation_files/figure-revealjs/fig-knn-boundaries-1.png" width="1152" class="r-stretch quarto-figure-center" id="fig-knn-boundaries"><p class="caption">
+Figure&nbsp;1: Effect of the number of neighbors (k) on KNN decision boundaries. Smaller k produces more flexible boundaries, while larger k produces smoother predictions.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="knn-4" class="slide level2">
+<h2>KNN</h2>
+<p><em>Why is feature scaling important?</em> <br></p>
+<ul>
+<li><p>KNN relies on <strong>distances between observations</strong>, so features with larger numerical ranges can dominate the distance calculation.</p></li>
+<li><p><strong>Standardization</strong> puts features on a comparable scale:</p>
+<p><span class="math display">\[
+z = \frac{x-\mu}{\sigma}
+\]</span></p></li>
+</ul>
+<p>Each feature is transformed to have mean 0 and standard deviation 1 in the training data.</p>
+<p><br></p>
+<div class="fragment">
+<ul>
+<li><strong>To avoid data leakage!</strong>
+<ul>
+<li>We estimate scaling parameters using <strong>training data only</strong>.</li>
+<li>We then apply the same transformation to validation, test and new data.</li>
+<li>During cross-validation, we fit scaling separately within each training fold.</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="knn-5" class="slide level2">
+<h2>KNN</h2>
+<p><em>Advantages and limitations of KNN</em> <br><br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="advantages">Advantages</h3>
+<ul>
+<li>Simple to understand and implement.</li>
+<li>Makes few assumptions about the relationship between features and outcomes.</li>
+<li>Can capture nonlinear relationships.</li>
+<li>Works for both classification and regression.</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<h3 id="limitations">Limitations</h3>
+<ul>
+<li>Computationally expensive for large datasets at prediction time.</li>
+<li>Sensitive to feature scaling, noise and irrelevant features.</li>
+<li>Performance depends on the choice of <span class="math inline">\(k\)</span> and distance metric.</li>
+<li>Struggles with high-dimensional data (<strong>curse of dimensionality</strong>).</li>
+</ul>
+</div></div>
+<div class="fragment">
+<p><br> KNN is simple and flexible, but requires careful preprocessing, model evaluation and hyperparameter tuning.</p>
+</div>
+</section></section>
+<section>
+<section id="support-vector-machines-svm" class="title-slide slide level1 center">
+<h1>Support Vector Machines (SVM)</h1>
+
+</section>
+<section id="svm" class="slide level2">
+<h2>SVM</h2>
+<p><br></p>
+<ul>
+<li class="fragment">A supervised learning algorithm used primarily for <strong>classification</strong>, but also for regression (SVR).</li>
+<li class="fragment">SVM <strong>learns a decision boundary</strong> that separates observations belonging to different classes.</li>
+<li class="fragment">The goal is to find a boundary that <strong>maximizes the margin</strong> between the classes.</li>
+<li class="fragment">The observations closest to the boundary are called <strong>support vectors</strong> and help determine its position.</li>
+</ul>
+</section>
+<section id="svm-1" class="slide level2 smaller">
+<h2>SVM</h2>
+<p><em>Finding a decision boundary</em> <br></p>
+<ul>
+<li><p>A <strong>linear SVM</strong> separates classes using a straight line (2D), a plane (3D), or a <strong>hyperplane</strong> (higher dimensions).</p></li>
+<li><p>Among possible separating boundaries, SVM aims to find the one with the <strong>largest margin</strong> between the classes.</p></li>
+<li><p>The decision boundary is defined by:</p>
+<p><span class="math display">\[
+\mathbf{w}^{T}\mathbf{x} + b = 0
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{w}\)</span> represents learned feature weights, <span class="math inline">\(\mathbf{x}\)</span> the input features, and <span class="math inline">\(b\)</span> the intercept.</p></li>
+<li><p>New observations are classified according to <strong>which side of the boundary</strong> they fall on.</p></li>
+</ul>
+
+<img data-src="presentation_files/figure-revealjs/fig-svm-max-margin-1.png" width="1056" class="r-stretch quarto-figure-center" id="fig-svm-max-margin"><p class="caption">
+Figure&nbsp;2: Maximum-margin principle in linear SVM. (A) A separating boundary with a smaller margin. (B) The maximum-margin boundary selected by SVM. Circled observations are support vectors.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="svm-2" class="slide level2 smaller">
+<h2>SVM</h2>
+<p><em>Soft-margin SVM: Allowing classification errors</em> <br></p>
+<ul>
+<li>Real biological data often contain <strong>noise, variability and overlapping classes</strong>, making perfect separation impossible.</li>
+<li><strong>Soft-margin SVM</strong> allows some observations to fall inside the margin or be misclassified.</li>
+<li>The hyperparameter <strong><span class="math inline">\(C\)</span> (cost)</strong> controls the trade-off between maximizing the margin and penalizing margin violations:
+<ul>
+<li><strong>Small <span class="math inline">\(C\)</span>:</strong> Stronger regularization → wider margin, more tolerance for violations.</li>
+<li><strong>Large <span class="math inline">\(C\)</span>:</strong> Weaker regularization → stronger penalties for violations, potentially narrower margin.</li>
+</ul></li>
+<li>The best value of <span class="math inline">\(C\)</span> is typically selected using <strong>validation or cross-validation</strong>.</li>
+</ul>
+
+<img data-src="presentation_files/figure-revealjs/fig-svm-cost-1.png" width="1104" class="r-stretch quarto-figure-center" id="fig-svm-cost"><p class="caption">
+Figure&nbsp;3: Soft-margin linear SVM fitted to the same overlapping dataset. Smaller C permits more margin violations, while larger C penalizes them more strongly.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="svm-3" class="slide level2 smaller">
+<h2>SVM</h2>
+<p><em>Nonlinear SVM: The kernel trick</em> <br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<ul>
+<li>Biological relationships are often <strong>nonlinear</strong>, and classes may not be separable by a straight line.</li>
+<li><strong>Kernel functions</strong> allow SVM to learn nonlinear decision boundaries by implicitly working in a transformed feature space.</li>
+<li>Common kernels:
+<ul>
+<li><strong>Linear:</strong> Linear decision boundary.</li>
+<li><strong>Polynomial:</strong> Captures polynomial relationships.</li>
+<li><strong>Radial Basis Function (RBF):</strong> Flexible, nonlinear decision boundaries.</li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-svm-kernels" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-svm-kernels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img data-src="presentation_files/figure-revealjs/fig-svm-kernels-1.png" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-svm-kernels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Linear and RBF SVM fitted to the same nonlinear classification problem. Shaded regions indicate predicted classes; solid curves indicate decision boundaries.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="footer">
+
+</div>
+</section>
+<section id="svm-4" class="slide level2 smaller">
+<h2>SVM</h2>
+<p><em>Nonlinear SVM: The kernel trick</em> <br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<ul>
+<li>For the <strong>RBF kernel</strong>, <span class="math inline">\(\gamma\)</span> controls how quickly similarity decreases with distance:
+<ul>
+<li><strong>Small <span class="math inline">\(\gamma\)</span>:</strong> Broader influence of observations → generally smoother boundaries.</li>
+<li><strong>Large <span class="math inline">\(\gamma\)</span>:</strong> More localized influence → potentially more complex boundaries.</li>
+</ul></li>
+<li><strong><span class="math inline">\(C\)</span> and <span class="math inline">\(\gamma\)</span></strong> jointly control model flexibility and can be tuned using cross-validation.</li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-svm-kernels-02" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-svm-kernels-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img data-src="presentation_files/figure-revealjs/fig-svm-kernels-02-1.png" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-svm-kernels-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Linear and RBF SVM fitted to the same nonlinear classification problem. Shaded regions indicate predicted classes; solid curves indicate decision boundaries.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="footer">
+
+</div>
+</section>
+<section id="svm-5" class="slide level2">
+<h2>SVM</h2>
+<p><em>Choosing SVM hyperparameters</em> <br></p>
+<p>SVM has several <strong>hyperparameters</strong> that influence the model’s flexibility and predictive performance.</p>
+<p><br></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Hyperparameter</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Kernel</strong></td>
+<td>Determines whether the decision boundary is linear or nonlinear.</td>
+</tr>
+<tr class="even">
+<td><strong><span class="math inline">\(C\)</span> (cost)</strong></td>
+<td>Controls regularization and penalties for margin violations.</td>
+</tr>
+<tr class="odd">
+<td><strong><span class="math inline">\(\gamma\)</span> (gamma)</strong></td>
+<td>Controls how localized the influence of observations is (RBF kernel).</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<ul>
+<li><strong>Model parameters</strong> (e.g., weights and intercept) are learned during training.</li>
+<li><strong>Hyperparameters</strong> are selected using <strong>validation or cross-validation</strong>.</li>
+</ul>
+</section>
+<section id="svm-6" class="slide level2">
+<h2>SVM</h2>
+<p><br></p>
+<p><strong>Advantages</strong></p>
+<ul>
+<li>Can work well in high-dimensional feature spaces, such as gene expression or methylation datasets.</li>
+<li>Can model both linear and nonlinear decision boundaries.</li>
+<li>Regularization allows control over model complexity.</li>
+<li>Can generalize well when the kernel and hyperparameters are appropriately selected.</li>
+</ul>
+<p><br></p>
+<p><strong>Limitations</strong></p>
+<ul>
+<li>Requires careful selection of hyperparameters.</li>
+<li>Performance can be sensitive to feature scaling.</li>
+<li>Kernel SVMs can become computationally expensive for large datasets.</li>
+<li>Nonlinear SVMs are often less interpretable than simpler linear models.</li>
+<li>Performance may be affected by noisy features, class imbalance, and the choice of kernel.</li>
+</ul>
+</section>
+<section id="knn-vs-svm" class="slide level2">
+<h2>KNN vs SVM</h2>
+<p><br></p>
+<p>Although both KNN and SVM can be used for classification, they approach prediction differently.</p>
+<p><br></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>KNN</th>
+<th>SVM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Main idea</td>
+<td>Predict from nearby observations</td>
+<td>Learn a separating decision boundary</td>
+</tr>
+<tr class="even">
+<td>Learning approach</td>
+<td>Instance-based</td>
+<td>Optimization-based</td>
+</tr>
+<tr class="odd">
+<td>Decision boundaries</td>
+<td>Determined by local neighborhoods</td>
+<td>Determined by the fitted margin-based classifier</td>
+</tr>
+<tr class="even">
+<td>Key hyperparameters</td>
+<td>k, distance metric</td>
+<td>C, kernel, gamma</td>
+</tr>
+<tr class="odd">
+<td>Nonlinear classification</td>
+<td>Naturally supported</td>
+<td>Supported through kernels</td>
+</tr>
+<tr class="even">
+<td>Feature scaling</td>
+<td>Important</td>
+<td>Important</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="generalization" class="slide level2">
+<h2>Generalization</h2>
+<p><em>Underfitting and overfitting</em> <br></p>
+<p>The goal is to <strong>generalize well to new, unseen data</strong>, not just fit the training data.</p>
+<ul>
+<li><strong>Underfitting:</strong> Model is too simple to capture important patterns → poor training and validation performance.</li>
+<li><strong>Overfitting:</strong> Model learns noise and sample-specific patterns → good training performance but poor validation performance.</li>
+<li><strong>Bias–variance trade-off:</strong> Increasing model complexity generally reduces bias but may increase variance.</li>
+<li><strong>How to detect it?</strong> Compare training and validation performance:
+<ul>
+<li>Poor performance on both → possible <strong>underfitting</strong>.</li>
+<li>Large gap between training and validation performance → possible <strong>overfitting</strong>.</li>
+</ul></li>
+</ul>
+
+<img data-src="presentation_files/figure-revealjs/fig-under-overfitting-1.png" width="672" class="r-stretch quarto-figure-center" id="fig-under-overfitting"><p class="caption">
+Figure&nbsp;6: Conceptual relationship between model complexity and training and validation error.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="training-validation-and-test-sets" class="slide level2">
+<h2>Training, validation and test sets</h2>
+<p><br></p>
+<p>To estimate performance on <strong>new, unseen data</strong>, we divide observations into separate subsets:</p>
+<ul>
+<li><strong>Training set:</strong> Used to fit the model and learn relationships between features and outcomes.</li>
+<li><strong>Validation set:</strong> Used to compare models and select hyperparameters.</li>
+<li><strong>Test set:</strong> Used only for the final evaluation of the selected model.</li>
+</ul>
+<p><strong>Important:</strong> The test set must remain <strong>untouched during model development</strong>. Repeatedly using it to guide model selection can lead to overly optimistic performance estimates.</p>
+
+<img data-src="presentation_files/figure-revealjs/fig-train-valid-test-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-train-valid-test"><p class="caption">
+Figure&nbsp;7: Example of splitting data into training (60%), validation (20%), and test (20%) subsets.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="choosing-an-appropriate-splitting-strategy" class="slide level2">
+<h2>Choosing an appropriate splitting strategy</h2>
+<p><br><br></p>
+<p>Observations are not always independent, and random splitting may not be appropriate for every dataset.</p>
+<div class="fragment">
+<p><br> Depending on the study design, we may use:</p>
+<ul>
+<li class="fragment"><strong>Random splitting:</strong> Suitable when observations are approximately independent and identically distributed.</li>
+<li class="fragment"><strong>Stratified splitting:</strong> Preserves approximately the same class proportions in each subset, particularly useful for imbalanced classification datasets.</li>
+<li class="fragment"><strong>Grouped splitting:</strong> Keeps related observations together, such as repeated measurements from the same patient.</li>
+<li class="fragment"><strong>Temporal splitting:</strong> Uses earlier observations for training and later observations for evaluation, when the aim is to predict future outcomes.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><br></p>
+<p>The splitting strategy should reflect how the model will be used in practice.</p>
+</div>
+</section>
+<section id="data-leakage" class="slide level2">
+<h2>Data leakage</h2>
+<p><br></p>
+<p><strong>Data leakage</strong> occurs when information unavailable during real-world prediction influences model training or selection.</p>
+<div class="fragment">
+<p><br></p>
+<p><strong>Common examples:</strong></p>
+<ul>
+<li class="fragment">Selecting features using the <strong>entire dataset</strong> before splitting.</li>
+<li class="fragment">Standardizing or imputing using <strong>validation or test data</strong>.</li>
+<li class="fragment">Including repeated measurements from the same patient in both training and test sets.</li>
+<li class="fragment">Using predictors that become available <strong>only after the outcome</strong>.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>How to prevent leakage:</strong></p>
+<ul>
+<li class="fragment">Split data <strong>before data-dependent preprocessing and feature selection</strong>.</li>
+<li class="fragment">Learn preprocessing transformations from <strong>training data only</strong>.</li>
+<li class="fragment">During cross-validation, repeat these steps <strong>within each training fold</strong>.</li>
+</ul>
+</div>
+</section></section>
+<section>
+<section id="model-evaluation-classification" class="title-slide slide level1 center">
+<h1>Model evaluation: classification</h1>
+
+</section>
+<section id="model-evaluation-classification-1" class="slide level2">
+<h2>Model evaluation: classification</h2>
+<p><br></p>
+<ul>
+<li class="fragment">Classification performance is evaluated by comparing <strong>predicted classes</strong> with <strong>true class labels</strong>.</li>
+<li class="fragment">Classifiers may produce:
+<ul>
+<li class="fragment"><strong>Class labels</strong> directly (e.g., disease / healthy).</li>
+<li class="fragment"><strong>Scores or probabilities</strong> that can be converted into class labels using a threshold.</li>
+</ul></li>
+<li class="fragment"><strong>Example:</strong> With a probability threshold of 0.5:
+<ul>
+<li class="fragment">Probability <span class="math inline">\(\geq 0.5\)</span> → Positive class.</li>
+<li class="fragment">Probability <span class="math inline">\(&lt; 0.5\)</span> → Negative class.</li>
+</ul></li>
+<li class="fragment">The <strong>classification threshold</strong> affects the number of correct and incorrect predictions, and therefore model performance metrics.</li>
+</ul>
+</section>
+<section id="model-evaluation-classification-2" class="slide level2">
+<h2>Model evaluation: classification</h2>
+<p><em>Confusion matrix</em> <br></p>
+<p>A <strong>confusion matrix</strong> compares actual and predicted class labels.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: center;">Predicted positive</th>
+<th style="text-align: center;">Predicted negative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Actual positive</strong></td>
+<td style="text-align: center;">True positive (TP)</td>
+<td style="text-align: center;">False negative (FN)</td>
+</tr>
+<tr class="even">
+<td><strong>Actual negative</strong></td>
+<td style="text-align: center;">False positive (FP)</td>
+<td style="text-align: center;">True negative (TN)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>TP / TN:</strong> Correct predictions.</li>
+<li><strong>FP:</strong> Negative observation incorrectly predicted as positive.</li>
+<li><strong>FN:</strong> Positive observation incorrectly predicted as negative.</li>
+</ul>
+<p>These four quantities form the basis of common <strong>classification metrics</strong>.</p>
+</section>
+<section id="model-evaluation-classification-3" class="slide level2 smaller">
+<h2>Model evaluation: classification</h2>
+<p><em>Different metrics capture different aspects of predictive performance</em> <br><br><br><br></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Formula</th>
+<th>What does it measure?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Accuracy</strong></td>
+<td><span class="math inline">\(\frac{TP+TN}{TP+TN+FP+FN}\)</span></td>
+<td>Overall proportion of correct predictions</td>
+</tr>
+<tr class="even">
+<td><strong>Sensitivity (recall)</strong></td>
+<td><span class="math inline">\(\frac{TP}{TP+FN}\)</span></td>
+<td>How many actual positives did we detect?</td>
+</tr>
+<tr class="odd">
+<td><strong>Specificity</strong></td>
+<td><span class="math inline">\(\frac{TN}{TN+FP}\)</span></td>
+<td>How many actual negatives did we identify?</td>
+</tr>
+<tr class="even">
+<td><strong>Precision (PPV)</strong></td>
+<td><span class="math inline">\(\frac{TP}{TP+FP}\)</span></td>
+<td>How many predicted positives were correct?</td>
+</tr>
+<tr class="odd">
+<td><strong>F1 score</strong></td>
+<td><span class="math inline">\(2\frac{\mathrm{Precision}\times\mathrm{Recall}}{\mathrm{Precision}+\mathrm{Recall}}\)</span></td>
+<td>Harmonic mean of precision and recall</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="model-evaluation-classification-4" class="slide level2">
+<h2>Model evaluation: classification</h2>
+<p><em>Class imbalance</em> <br><br></p>
+<p>Why class imbalance matters</p>
+<ul>
+<li class="fragment"><strong>Accuracy can be misleading</strong> when one class is much more common than another.</li>
+<li class="fragment"><strong>Example:</strong> If only 5% of individuals have a disease, predicting <em>no disease</em> for everyone gives:
+<ul>
+<li class="fragment"><strong>95% accuracy</strong>, but</li>
+<li class="fragment"><strong>0% sensitivity</strong> — no affected individuals are identified.</li>
+</ul></li>
+<li class="fragment">For imbalanced data, consider <strong>sensitivity, precision, F1 score and PR AUC</strong>, rather than accuracy alone.</li>
+<li class="fragment">The choice of metric should reflect the <strong>scientific question and consequences of prediction errors</strong>.</li>
+</ul>
+</section>
+<section id="roc-curves-and-roc-auc" class="slide level2">
+<h2>ROC curves and ROC AUC</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p>A <strong>Receiver Operating Characteristic (ROC) curve</strong> evaluates a binary classifier across different classification thresholds.</p>
+<p>The ROC curve plots:</p>
+<ul>
+<li><strong>True positive rate (sensitivity)</strong> on the y-axis.</li>
+<li><strong>False positive rate (1 − specificity)</strong> on the x-axis.</li>
+</ul>
+<p>Thus, the ROC curve shows the trade-off between correctly identifying positive observations and incorrectly classifying negative observations as positive.</p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-roc-example" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-roc-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img data-src="presentation_files/figure-revealjs/fig-roc-example-1.png" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Example ROC curve. The curve shows sensitivity versus the false positive rate (1 - specificity) across different classification thresholds.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="footer">
+
+</div>
+</section>
+<section id="roc-curves-and-roc-auc-1" class="slide level2">
+<h2>ROC curves and ROC AUC</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p>The <strong>Area Under the ROC Curve (ROC AUC)</strong> summarizes the model’s ability to distinguish between the two classes, independently of any single classification threshold.</p>
+<ul>
+<li>ROC AUC = 0.5: no ranking discrimination, equivalent to random guessing.</li>
+<li>ROC AUC = 1: perfect discrimination.</li>
+<li>Higher ROC AUC generally indicates better discrimination.</li>
+</ul>
+<p>A high ROC AUC does not necessarily mean that a model performs well at a particular classification threshold or that its estimated probabilities are well calibrated.</p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-roc-example-02" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-roc-example-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img data-src="presentation_files/figure-revealjs/fig-roc-example-02-1.png" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-example-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Example ROC curve. The curve shows sensitivity versus the false positive rate (1 - specificity) across different classification thresholds.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="footer">
+
+</div>
+</section>
+<section id="which-metric-should-we-use" class="slide level2">
+<h2>Which metric should we use?</h2>
+<p><br></p>
+<p>There is no single best metric for every classification problem.</p>
+<ul>
+<li class="fragment"><strong>Accuracy:</strong> Overall proportion of correct predictions; most informative when class imbalance and error costs are not major concerns.</li>
+<li class="fragment"><strong>Sensitivity:</strong> Important when missing positive observations is particularly costly.</li>
+<li class="fragment"><strong>Specificity:</strong> Important when avoiding false-positive classifications is a priority.</li>
+<li class="fragment"><strong>Precision:</strong> Important when positive predictions need to be reliable.</li>
+<li class="fragment"><strong>F1:</strong> Useful when balancing precision and recall.</li>
+<li class="fragment"><strong>ROC AUC:</strong> Evaluates discrimination across classification thresholds.</li>
+<li class="fragment"><strong>PR AUC / AP:</strong> Particularly informative for rare positive outcomes.</li>
+</ul>
+</section></section>
+<section>
+<section id="model-evaluation-regression" class="title-slide slide level1 center">
+<h1>Model evaluation: regression</h1>
+
+</section>
+<section id="evaluating-regression-models" class="slide level2">
+<h2>Evaluating regression models</h2>
+<p><br></p>
+<ul>
+<li>In regression, we predict a <strong>continuous outcome</strong>, such as age or blood pressure.</li>
+<li>We compare <strong>observed values</strong> (<span class="math inline">\(y_i\)</span>) with <strong>predicted values</strong> (<span class="math inline">\(\hat{y}_i\)</span>).</li>
+<li>The difference is the <strong>prediction error</strong>:</li>
+</ul>
+<p><span class="math display">\[
+e_i = y_i - \hat{y}_i
+\]</span></p>
+
+<img data-src="presentation_files/figure-revealjs/fig-regression-predictions-1.png" width="576" class="r-stretch quarto-figure-center" id="fig-regression-predictions"><p class="caption">
+Figure&nbsp;10: Observed versus predicted age. Dashed line represents perfect predictions.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="evaluating-regression-models-1" class="slide level2 smaller">
+<h2>Evaluating regression models</h2>
+<p><em>Regression metrics</em> <br></p>
+<div class="text-box-1">
+<p><strong>Mean Absolute Error (MAE)</strong></p>
+<p><span class="math display">\[
+MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+\]</span></p>
+<ul>
+<li>Average absolute prediction error, in the <strong>same units as the outcome</strong>.</li>
+</ul>
+</div>
+<div class="text-box-2">
+<p><strong>Mean Squared Error (MSE)</strong></p>
+<p><span class="math display">\[
+MSE = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+\]</span></p>
+<ul>
+<li>Penalizes large errors more strongly; expressed in <strong>squared units</strong>.</li>
+</ul>
+</div>
+<div class="text-box-1">
+<p><strong>Root Mean Squared Error (RMSE)</strong></p>
+<p><span class="math display">\[
+RMSE = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
+\]</span></p>
+<ul>
+<li>Square root of MSE; penalizes large errors more strongly than MAE, but is expressed in the <strong>original units</strong>.</li>
+</ul>
+</div>
+</section>
+<section id="evaluating-regression-models-2" class="slide level2 smaller">
+<h2>Evaluating regression models</h2>
+<p><em>Which regression metric should we use?</em> <br><br><br></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Interpretation</th>
+<th>When useful</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MAE</td>
+<td>Average absolute error</td>
+<td>When typical prediction errors matter</td>
+</tr>
+<tr class="even">
+<td>MSE</td>
+<td>Average squared error</td>
+<td>When large errors should receive stronger penalties</td>
+</tr>
+<tr class="odd">
+<td>RMSE</td>
+<td>Square root of average squared error</td>
+<td>When large errors matter but results should remain in the original units</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p><br></p>
+<p>For example, in a model predicting chronological age:</p>
+<ul>
+<li><strong>MAE = 4 years:</strong> Predictions are off by 4 years on average in absolute terms.</li>
+<li><strong>RMSE = 6 years:</strong> Larger individual prediction errors contribute more strongly.</li>
+</ul>
+<p>The choice of evaluation metric should reflect the scientific question and the consequences of different prediction errors.</p>
+</div>
+</section></section>
+<section>
+<section id="hyperparameter-tuning-and-cross-validation" class="title-slide slide level1 center">
+<h1>Hyperparameter tuning and cross-validation</h1>
+
+</section>
+<section id="hyperparameter-tuning" class="slide level2">
+<h2>Hyperparameter tuning</h2>
+<p><br></p>
+<ul>
+<li><strong>Hyperparameters</strong> control how a model learns and how flexible it is.</li>
+<li>Unlike model parameters, they are <strong>not learned directly during model fitting</strong>.</li>
+</ul>
+<div class="fragment">
+<p><strong>Examples:</strong></p>
+<ul>
+<li><strong>KNN:</strong> Number of neighbors (<span class="math inline">\(k\)</span>).</li>
+<li><strong>SVM:</strong> Regularization parameter (<span class="math inline">\(C\)</span>), kernel type, and <span class="math inline">\(\gamma\)</span> for the RBF kernel.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Goal:</strong> Find hyperparameter values that give good <strong>predictive performance on unseen data</strong>, typically using validation or cross-validation.</p>
+</div>
+</section>
+<section id="hyperparameter-tuning-using-a-validation-set" class="slide level2">
+<h2>Hyperparameter tuning using a validation set</h2>
+<p><br></p>
+<p>Consider KNN classification. We want to choose the number of neighbors, <span class="math inline">\(k\)</span>.</p>
+<p>A simple approach is to:</p>
+<ol type="1">
+<li class="fragment">Split the development data into training and validation sets, keeping the test set separate.</li>
+<li class="fragment">Train KNN models using different values of <span class="math inline">\(k\)</span>, for example 1, 3, 5, 7, 9, and 11.</li>
+<li class="fragment">Evaluate each model on the validation set using a chosen performance metric, such as accuracy.</li>
+<li class="fragment">Select the value of <span class="math inline">\(k\)</span> with the best validation performance.</li>
+</ol>
+<div class="fragment">
+<div class="text-box-1">
+<p>However, <strong>the result may depend on which observations happen to be included in that split</strong>. A different random split might produce a different optimal value of <span class="math inline">\(k\)</span>.</p>
+</div>
+</div>
+</section>
+<section id="k-fold-cross-validation" class="slide level2">
+<h2>K-fold cross-validation</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p><strong>K-fold cross-validation (CV)</strong> provides a more systematic approach to model evaluation and hyperparameter selection.</p>
+<p>Instead of using one fixed validation set, we divide the development data into <span class="math inline">\(K\)</span> approximately equal-sized folds.</p>
+<p>For each candidate hyperparameter value:</p>
+<ol type="1">
+<li>Train the model using <span class="math inline">\(K-1\)</span> folds.</li>
+<li>Evaluate it on the remaining fold.</li>
+<li>Repeat the process until each fold has served as the validation set once.</li>
+<li>Calculate the mean performance across all <span class="math inline">\(K\)</span> folds.</li>
+</ol>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<p><br></p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fivefold-cv" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-fivefold-cv-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img data-src="presentation_files/figure-revealjs/fig-fivefold-cv-1.png" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fivefold-cv-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Five-fold cross-validation. Each fold is used once for validation, while the remaining folds are used for training.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="k-fold-cross-validation-1" class="slide level2">
+<h2>K-fold cross-validation</h2>
+<p><br></p>
+<p>The mean CV performance is:</p>
+<p><span class="math display">\[
+\overline{M}_{CV}=\frac{1}{K}\sum_{i=1}^{K}M_i
+\]</span></p>
+<p>where <span class="math inline">\(M_i\)</span> is the performance metric calculated on validation fold <span class="math inline">\(i\)</span>.</p>
+<p>We can compare mean CV scores for different values of <span class="math inline">\(k\)</span> and select the one with the best performance.</p>
+
+<img data-src="presentation_files/figure-revealjs/fig-knn-tuning-1.png" width="672" class="r-stretch quarto-figure-center" id="fig-knn-tuning"><p class="caption">
+Figure&nbsp;12: Hyperparameter tuning in KNN. Mean CV accuracy for different values of k. The best-performing value is highlighted.
+</p><div class="footer">
+
+</div>
+</section>
+<section id="fitting-and-evaluating-the-final-model" class="slide level2">
+<h2>Fitting and evaluating the final model</h2>
+<p><br></p>
+<ul>
+<li><strong>Select the best model and hyperparameters</strong> using validation or cross-validation.</li>
+<li><strong>Refit the model</strong> using all training and validation data.</li>
+<li><strong>Evaluate once</strong> on the untouched test set to estimate performance on unseen data.</li>
+<li><strong>Report results</strong>, including the model, hyperparameters, splitting strategy, evaluation metrics and uncertainty where appropriate.</li>
+<li><strong>Use the final model</strong> to predict outcomes for new observations.</li>
+</ul>
+<p><strong>Key principle:</strong> The test set must not influence model selection or tuning.</p>
+</section>
+<section id="nested-cross-validation" class="slide level2">
+<h2>Nested cross-validation</h2>
+<p><br></p>
+<p><strong>Nested cross-validation</strong> uses two CV loops to separate model selection from performance evaluation.</p>
+<ul>
+<li><strong>Inner loop:</strong> Selects the best hyperparameters using cross-validation on the outer training data.</li>
+<li><strong>Outer loop:</strong> Evaluates the selected model on held-out observations not used during tuning.</li>
+<li>The process is repeated across all outer folds, and performance is <strong>summarized across outer test folds</strong>.</li>
+</ul>
+<div class="fragment">
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Reduces optimistic bias caused by hyperparameter tuning.</li>
+<li>Particularly useful for <strong>small datasets</strong>, where efficient use of observations is important.</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="text-box-1">
+<p>The inner loop selects the model; the outer loop estimates the performance of the entire model-selection procedure.</p>
+</div>
+</div>
+</section>
+<section id="machine-learning-frameworks-and-libraries" class="slide level2">
+<h2>Machine learning frameworks and libraries</h2>
+<p><br></p>
+<p><strong>General-purpose ML frameworks:</strong></p>
+<ul>
+<li><strong>R:</strong> <code>caret</code>, <code>tidymodels</code>, <code>mlr3</code></li>
+<li><strong>Python:</strong> <code>scikit-learn</code></li>
+</ul>
+<p><strong>Specialized libraries:</strong></p>
+<ul>
+<li><strong>Regularized regression:</strong> <code>glmnet</code></li>
+<li><strong>Tree-based methods:</strong> <code>ranger</code>, <code>XGBoost</code>, <code>LightGBM</code>, <code>CatBoost</code></li>
+<li><strong>Survival analysis:</strong> <code>scikit-survival</code>, <code>mlr3proba</code></li>
+<li><strong>Imbalanced classification:</strong> <code>imbalanced-learn</code></li>
+<li><strong>Deep learning:</strong> <code>PyTorch</code>, <code>TensorFlow/Keras</code></li>
+</ul>
+<div class="fragment">
+<div class="text-box-2">
+<p>Different tools, same principles of data splitting, preprocessing, avoiding leakage, model evaluation and reproducibility.</p>
+</div>
+</div>
+</section>
+<section id="labs" class="slide level2">
+<h2>Labs</h2>
+<p><br></p>
+<p><strong>KNN demo: data splitting into train, validation and test</strong></p>
+<ul>
+<li>In R, follow carefully to understand splitting data into train/validation/test</li>
+</ul>
+<p><strong>Exercise: cross-validation</strong></p>
+<ul>
+<li>Try adding code to replace train/validation/test tunning using CV</li>
+</ul>
+<p><strong>Tidymodels demo</strong></p>
+<ul>
+<li>See if you get the syntax and once you do, how easy is to use SVM instead of KNN</li>
+</ul>
+<p><strong>Sklearn demo</strong></p>
+<ul>
+<li>Same as above, see if you get the syntax and once you do, how easy is to use SVM instead of KNN</li>
+</ul>
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>Machine Learning for Life Sciences (ML4LS)</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="presentation_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="presentation_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 10,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
