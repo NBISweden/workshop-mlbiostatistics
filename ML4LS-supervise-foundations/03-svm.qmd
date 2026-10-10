@@ -1,0 +1,562 @@
+---
+title: "Support Vector Machines (SVM)"
+subtitle: "Machine Learning for Life Sciences"
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+
+**Support Vector Machines (SVM)** are supervised learning algorithms used primarily for classification, although they can also be adapted for regression (Support Vector Regression, SVR).
+
+Unlike KNN, which predicts the class of a new observation based on its nearest neighbors, SVM learns a **decision boundary** that separates observations belonging to different classes.
+
+The central idea of SVM is to find a decision boundary that separates classes while **maximizing the margin** between them.
+
+## Linear SVM: Finding a decision boundary
+
+Consider a dataset containing measurements of two genes, Gene A and Gene B, for patients belonging to two disease subtypes.
+
+Each patient can be represented as a point in a two-dimensional feature space, with Gene A on the x-axis and Gene B on the y-axis.
+
+If the two classes can be separated by a straight line, there may be several possible lines that correctly classify all training observations.
+
+SVM aims to identify the line that provides the **largest margin** between the classes.
+
+In two dimensions, the decision boundary is a line. With three features, it becomes a plane, and in higher-dimensional feature spaces, it is called a *hyperplane*.
+
+The decision boundary of a linear SVM is defined by:
+
+$$
+\mathbf{w}^{T}\mathbf{x}+b=0
+$$
+where:
+
+- $\mathbf{x}$ is the vector of input features.
+- $\mathbf{w}$ is the vector of learned feature weights, which determines the orientation of the decision boundary.
+- $b$ is the intercept, which determines its position.
+
+A new observation is classified according to which side of the decision boundary it falls on:
+
+$$
+\hat{y} = \operatorname{sign}(\mathbf{w}^{T}\mathbf{x}+b)
+$$
+
+for binary classes encoded as $-1$ and $+1$.
+
+The model learns the values of $\mathbf{w}$ and $b$ from the training data.
+
+
+## Maximum margin and support vectors
+
+The **margin** is the distance between the decision boundary and the nearest training observations from each class.
+
+For linearly separable data, a hard-margin SVM selects the separating hyperplane that maximizes this margin.
+
+Why maximize the margin?
+
+A decision boundary passing very close to training observations may be sensitive to small changes in feature values. A larger margin provides a greater separation from nearby observations and can support better generalization to unseen data.
+
+The observations that determine the position of the optimal decision boundary are called **support vectors**.
+
+These are the training observations that lie closest to the decision boundary or, in a soft-margin SVM, on or inside the margin, including potential margin violations.
+
+Support vectors are particularly important because they determine the fitted classifier. In contrast, many observations far from the boundary do not directly affect its position.
+
+
+```{r}
+#| label: setup-svm
+#| include: false
+
+library(e1071)
+
+# Shared colors and plotting symbols
+class_cols <- c(A = "#2578A8", B = "#CE6547")
+class_pch  <- c(A = 16, B = 17)
+
+plot_samples <- function(dat, main = "", xlim = NULL, ylim = NULL) {
+  plot(
+    dat$GeneA, dat$GeneB,
+    col = class_cols[as.character(dat$Class)],
+    pch = class_pch[as.character(dat$Class)],
+    xlab = "Gene A", ylab = "Gene B",
+    main = main, cex = 1.15,
+    xlim = xlim, ylim = ylim
+  )
+}
+
+# Extract coefficients of a linear SVM
+linear_coefficients <- function(model) {
+  w <- as.vector(t(model$coefs) %*% model$SV)
+  list(w = w, b = -as.numeric(model$rho))
+}
+
+# Draw decision boundary and margins
+add_linear_svm <- function(model, margin = TRUE) {
+  p <- linear_coefficients(model)
+
+  abline(
+    a = -p$b / p$w[2],
+    b = -p$w[1] / p$w[2],
+    col = "#343434", lwd = 2.5
+  )
+
+  if (margin) {
+    for (s in c(-1, 1)) {
+      abline(
+        a = (s - p$b) / p$w[2],
+        b = -p$w[1] / p$w[2],
+        col = "#343434", lty = 2, lwd = 1.4
+      )
+    }
+  }
+}
+
+# Highlight support vectors
+add_support_vectors <- function(model) {
+  points(
+    model$SV[, 1], model$SV[, 2],
+    pch = 1, cex = 1.8, lwd = 1.5,
+    col = "#252525"
+  )
+}
+
+# Plot predicted decision regions
+plot_regions <- function(model, dat, main = "",
+                         xlim = c(-3, 3),
+                         ylim = c(-3, 3)) {
+
+  xs <- seq(xlim[1], xlim[2], length.out = 230)
+  ys <- seq(ylim[1], ylim[2], length.out = 230)
+
+  grid <- expand.grid(GeneA = xs, GeneB = ys)
+
+  pred <- predict(model, grid, decision.values = TRUE)
+
+  z <- matrix(as.integer(pred), nrow = length(xs))
+
+  image(
+    xs, ys, z,
+    col = c("#DAECF6", "#F6DDD4"),
+    xlab = "Gene A", ylab = "Gene B",
+    main = main, useRaster = TRUE
+  )
+
+  dv <- matrix(
+    as.numeric(attr(pred, "decision.values")),
+    nrow = length(xs)
+  )
+
+  contour(
+    xs, ys, dv,
+    levels = 0, add = TRUE,
+    drawlabels = FALSE,
+    lwd = 2, col = "#333333"
+  )
+
+  points(
+    dat$GeneA, dat$GeneB,
+    col = class_cols[as.character(dat$Class)],
+    pch = class_pch[as.character(dat$Class)],
+    cex = 1.05
+  )
+}
+```
+
+```{r}
+#| label: fig-svm-max-margin
+#| fig-cap: "Maximum-margin principle in linear SVM. (A) A separating boundary with a smaller margin. (B) The maximum-margin boundary selected by SVM. Circled observations are support vectors."
+#| fig-width: 11
+#| fig-height: 4.8
+#| echo: false
+
+
+set.seed(13)
+
+n <- 18
+
+a <- data.frame(
+  GeneA = rnorm(n, -1.25, 0.38),
+  GeneB = rnorm(n, -0.65, 0.40),
+  Class = "A"
+)
+
+b <- data.frame(
+  GeneA = rnorm(n, 1.25, 0.38),
+  GeneB = rnorm(n, 0.65, 0.40),
+  Class = "B"
+)
+
+dat_linear <- rbind(a, b)
+dat_linear$Class <- factor(
+  dat_linear$Class, levels = c("A", "B")
+)
+
+fit_linear <- svm(
+  Class ~ GeneA + GeneB,
+  data = dat_linear,
+  kernel = "linear",
+  cost = 100,
+  scale = FALSE
+)
+
+op <- par(
+  mar = c(4.5, 4.5, 2, 1),
+  cex.lab = 1.25,
+  cex.axis = 1.05
+)
+
+
+
+# Requires dat_linear, fit_linear and the plotting
+# functions from the previous SVM section.
+
+# Extract optimal linear SVM coefficients
+p <- linear_coefficients(fit_linear)
+w <- p$w
+b <- p$b
+
+# Express the fitted boundary using a unit normal vector
+normal <- w / sqrt(sum(w^2))
+offset <- b / sqrt(sum(w^2))
+
+# Signed distances of training points to SVM boundary
+coords <- as.matrix(dat_linear[, c("GeneA", "GeneB")])
+labels <- ifelse(dat_linear$Class == "A", -1, 1)
+
+signed_dist <- as.vector(coords %*% normal + offset)
+
+# Find a small shift that keeps all observations
+# correctly classified but reduces the margin.
+left_space <- min(signed_dist[labels == 1])
+right_space <- -max(signed_dist[labels == -1])
+
+shift <- 0.55 * min(left_space, right_space)
+
+# Shift toward one class (still separating)
+offset_shifted <- offset + shift
+
+draw_boundary <- function(offset_value, normal, col = "#333333") {
+  abline(
+    a = -offset_value / normal[2],
+    b = -normal[1] / normal[2],
+    col = col,
+    lwd = 2.5
+  )
+}
+
+draw_margin <- function(offset_value, normal, margin_size) {
+  for (s in c(-1, 1)) {
+    abline(
+      a = -(offset_value + s * margin_size) / normal[2],
+      b = -normal[1] / normal[2],
+      col = "#777777",
+      lty = 2,
+      lwd = 1.5
+    )
+  }
+}
+
+op <- par(
+  mfrow = c(1, 2),
+  mar = c(4.5, 4.5, 3, 1),
+  cex.lab = 1.3,
+  cex.axis = 1.1,
+  cex.main = 1.3
+)
+
+# A: Shifted boundary with a smaller geometric margin
+plot_samples(
+  dat_linear,
+  main = "A. Smaller margin",
+  xlim = c(-2.5, 2.5),
+  ylim = c(-2.2, 2.2)
+)
+
+dist_shifted <- as.vector(
+  coords %*% normal + offset_shifted
+)
+
+margin_shifted <- min(labels * dist_shifted)
+
+draw_boundary(offset_shifted, normal)
+draw_margin(offset_shifted, normal, margin_shifted)
+
+# B: Maximum-margin SVM
+plot_samples(
+  dat_linear,
+  main = "B. Maximum margin",
+  xlim = c(-2.5, 2.5),
+  ylim = c(-2.2, 2.2)
+)
+
+draw_boundary(offset, normal)
+
+# Geometric margin (distance from boundary to support vectors)
+margin_opt <- 1 / sqrt(sum(w^2))
+draw_margin(offset, normal, margin_opt)
+
+add_support_vectors(fit_linear)
+
+par(op)
+```
+
+
+## Soft-margin SVM: Allowing some classification errors
+
+Real biological datasets are rarely perfectly separable.
+
+Measurements may contain noise, biological variability, overlapping disease subtypes, or incorrectly labeled observations.
+
+If the classes overlap, it may be impossible to find a straight line that separates all training observations correctly.
+
+**Soft-margin SVM** addresses this problem by allowing some observations to fall inside the margin or even on the wrong side of the decision boundary.
+
+This introduces a trade-off between:
+
+- Maximizing the margin.
+- Penalizing margin violations and classification errors.
+
+The trade-off is controlled by the hyperparameter **$C$**, commonly called the *cost* or regularization parameter.
+
+- **Small C:** Stronger regularization. The model tolerates more margin violations in exchange for a wider margin.
+- **Large C:** Weaker regularization. The model penalizes margin violations more strongly, potentially producing a narrower margin to better fit the training data.
+
+A very large $C$ may lead to a model that is overly sensitive to the training observations, while a very small $C$ may produce an overly simple decision boundary.
+
+The appropriate value of $C$ depends on the dataset and is typically chosen using validation or cross-validation.
+
+
+```{r}
+#| label: fig-svm-cost
+#| fig-cap: "Soft-margin linear SVM fitted to the same overlapping dataset. Smaller C permits more margin violations, while larger C penalizes them more strongly."
+#| fig-width: 11.5
+#| fig-height: 4.7
+#| echo: false
+
+set.seed(23)
+
+n <- 32
+
+a <- data.frame(
+  GeneA = rnorm(n, -0.65, 0.65),
+  GeneB = rnorm(n, -0.20, 0.70),
+  Class = "A"
+)
+
+b <- data.frame(
+  GeneA = rnorm(n, 0.65, 0.65),
+  GeneB = rnorm(n, 0.20, 0.70),
+  Class = "B"
+)
+
+dat_overlap <- rbind(a, b)
+dat_overlap$Class <- factor(
+  dat_overlap$Class, levels = c("A", "B")
+)
+
+op <- par(
+  mfrow = c(1, 2),
+  mar = c(4.3, 4.5, 3, 1),
+  cex.lab = 1.25,
+  cex.axis = 1.02,
+  cex.main = 1.3
+)
+
+for (C in c(0.1, 100)) {
+
+  fit <- svm(
+    Class ~ GeneA + GeneB,
+    data = dat_overlap,
+    kernel = "linear",
+    cost = C,
+    scale = FALSE
+  )
+
+  plot_samples(
+    dat_overlap,
+    main = paste0("C = ", C),
+    xlim = c(-2.8, 2.8),
+    ylim = c(-2.6, 2.6)
+  )
+
+  add_linear_svm(fit)
+  add_support_vectors(fit)
+}
+
+par(op)
+```
+
+
+
+## Nonlinear SVM: The kernel trick
+
+So far, we have considered linear decision boundaries. However, relationships between molecular measurements and biological outcomes are often nonlinear.
+
+For example, two disease subtypes might occupy different regions of a feature space but cannot be separated by a single straight line.
+
+SVM can model nonlinear decision boundaries using **kernel functions**.
+
+A kernel computes similarities between observations in a way that corresponds to working in a transformed feature space, without necessarily calculating the transformed features explicitly. This is known as the **kernel trick**.
+
+A linear separating boundary in the transformed feature space can correspond to a nonlinear decision boundary in the original feature space.
+
+Common kernels include:
+
+- **Linear kernel:** Produces a linear decision boundary in the original feature space.
+- **Polynomial kernel:** Allows polynomial relationships between features.
+- **Radial Basis Function (RBF) kernel:** Allows flexible, nonlinear decision boundaries based on distances between observations.
+
+The RBF kernel is a commonly used choice for nonlinear classification.
+
+It is defined as:
+
+$$
+K(\mathbf{x}_i,\mathbf{x}_j) =
+\exp\left(-\gamma \|\mathbf{x}_i-\mathbf{x}_j\|^2\right)
+$$
+
+where $\gamma$ controls how quickly similarity decreases with distance.
+
+- **Small gamma:** Similarity decreases slowly with distance, generally producing smoother decision boundaries.
+- **Large gamma:** Similarity decreases rapidly, allowing more localized and potentially complex decision boundaries.
+
+The flexibility of an RBF SVM depends on the interaction between $\gamma$, $C$, and the dataset.
+
+```{r}
+#| label: fig-svm-kernels
+#| fig-cap: "Linear and RBF SVM fitted to the same nonlinear classification problem. Shaded regions indicate predicted classes; solid curves indicate decision boundaries."
+#| fig-width: 11.5
+#| fig-height: 4.7
+#| echo: false
+
+set.seed(31)
+
+n <- 65
+
+ang1 <- runif(n, 0, 2 * pi)
+ang2 <- runif(n, 0, 2 * pi)
+
+r1 <- pmax(0.05, rnorm(n, 0.75, 0.17))
+r2 <- pmax(0.05, rnorm(n, 2.05, 0.23))
+
+dat_rings <- data.frame(
+  GeneA = c(r1 * cos(ang1), r2 * cos(ang2)),
+  GeneB = c(r1 * sin(ang1), r2 * sin(ang2)),
+  Class = factor(
+    rep(c("A", "B"), each = n),
+    levels = c("A", "B")
+  )
+)
+
+# Linear SVM
+fit_lin_rings <- svm(
+  Class ~ GeneA + GeneB,
+  data = dat_rings,
+  kernel = "linear",
+  cost = 1,
+  scale = FALSE
+)
+
+# Nonlinear SVM
+fit_rbf_rings <- svm(
+  Class ~ GeneA + GeneB,
+  data = dat_rings,
+  kernel = "radial",
+  cost = 10,
+  gamma = 0.7,
+  scale = FALSE
+)
+
+op <- par(
+  mfrow = c(1, 2),
+  mar = c(4.3, 4.5, 3, 1),
+  cex.lab = 1.25,
+  cex.axis = 1.02,
+  cex.main = 1.3
+)
+
+plot_regions(
+  fit_lin_rings, dat_rings,
+  main = "Linear SVM"
+)
+
+plot_regions(
+  fit_rbf_rings, dat_rings,
+  main = "RBF SVM"
+)
+
+par(op)
+```
+
+
+
+## Choosing SVM hyperparameters
+
+As with KNN, SVM requires us to select hyperparameters that influence model behavior.
+
+The most important choices include:
+
+| Hyperparameter | Role |
+|---|---|
+| Kernel | Determines the type of decision boundary (e.g., linear or nonlinear). |
+| C | Controls regularization and the penalty for margin violations. |
+| Gamma | Controls how locally observations influence the decision boundary for the RBF kernel. |
+
+The model parameters, such as the linear SVM weights and intercept, are learned during training. In contrast, **hyperparameters are selected through a model selection procedure**, typically using validation data or cross-validation.
+
+We will return to hyperparameter selection later in the lecture.
+
+## Feature scaling in SVM
+
+Like KNN, SVM is sensitive to differences in feature scales, particularly when using distance-based kernels such as RBF.
+
+If one feature has a much larger numerical range than another, it may disproportionately influence the model.
+
+Therefore, numerical features are commonly standardized before fitting SVM.
+
+As with KNN, scaling must be estimated using only the relevant training data, and the same transformation is then applied to validation, test, and future observations.
+
+## Advantages and limitations of SVM
+
+**Advantages**
+
+- Can work well in high-dimensional feature spaces, such as gene expression or methylation datasets.
+- Can model both linear and nonlinear decision boundaries.
+- Regularization allows control over model complexity.
+- Can generalize well when the kernel and hyperparameters are appropriately selected.
+
+**Limitations**
+
+- Requires careful selection of hyperparameters.
+- Performance can be sensitive to feature scaling.
+- Kernel SVMs can become computationally expensive for large datasets.
+- Nonlinear SVMs are often less interpretable than simpler linear models.
+- Performance may be affected by noisy features, class imbalance, and the choice of kernel.
+
+## KNN vs SVM
+
+Although both KNN and SVM can be used for classification, they approach prediction differently.
+
+| | KNN | SVM |
+|---|---|---|
+| Main idea | Predict from nearby observations | Learn a separating decision boundary |
+| Learning approach | Instance-based | Optimization-based |
+| Decision boundaries | Determined by local neighborhoods | Determined by the fitted margin-based classifier |
+| Key hyperparameters | k, distance metric | C, kernel, gamma |
+| Nonlinear classification | Naturally supported | Supported through kernels |
+| Feature scaling | Important | Important |
+
+**Key takeaway**
+
+KNN makes predictions based on the nearest training observations, whereas SVM learns a decision boundary that aims to separate classes with a large margin.
+
+Despite their differences, both algorithms involve choices that affect model flexibility and predictive performance.
+
+This raises two important questions:
+
+- How can we determine whether a model will perform well on new observations?
+- How can we choose appropriate hyperparameters without overfitting the training data?
+
+These questions lead directly to **generalization, overfitting, model evaluation, and hyperparameter tuning**.

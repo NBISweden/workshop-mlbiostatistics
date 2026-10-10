@@ -1,0 +1,182 @@
+---
+format:
+  html:
+    code-fold: false
+execute:
+  warning: false
+  message: false
+editor_options:
+  chunk_output_type: console
+---
+# KNN demo: data splitting into train, validation and test {.unnumbered}
+
+Let's build a KNN classifier to predict whether BMI is **greater than 30** using two variables from the diabetes dataset: `waist` and `hdl`. We will use **overall classification accuracy** throughout.
+
+We will first reserve 20% of the observations as an untouched test set. The remaining 80% will be split equally into training and validation sets. We will select the best value of `k` using validation accuracy, then **refit on the whole 80% development set** and evaluate once on the test data.
+
+Because KNN is distance-based, we standardize waist and HDL using the **training data only**. 
+
+## Setup
+
+```{r}
+#| label: knn-setup
+#| include: false
+library(tidyverse)
+library(splitTools)
+library(kknn)
+
+# Standardize predictors using ONLY the current training observations.
+# Return datasets with the same outcome and feature names.
+scale_using_train <- function(train, new) {
+  feature_names <- c("waist", "hdl")
+  means <- vapply(train[feature_names], mean, numeric(1))
+  sds <- vapply(train[feature_names], sd, numeric(1))
+  if (any(!is.finite(sds) | sds == 0)) {
+    stop("Cannot standardize a feature with zero or undefined SD.")
+  }
+  for (feature in feature_names) {
+    train[[feature]] <- (train[[feature]] - means[[feature]]) / sds[[feature]]
+    new[[feature]] <- (new[[feature]] - means[[feature]]) / sds[[feature]]
+  }
+  list(train = train, new = new)
+}
+```
+
+## Read and explore the data
+
+```{r}
+#| label: knn-read-data
+#| fig-width: 7
+#| fig-height: 5
+#| fig-align: center
+
+# Input data (same diabetes data used in the original demo).
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# Convert units and calculate BMI.
+inch2cm <- 2.54
+pound2kg <- 0.45359237
+
+data_diabetes <- input_diabetes %>%
+  mutate(
+    height = height * inch2cm / 100,
+    waist = waist * inch2cm,
+    weight = weight * pound2kg,
+    BMI = weight / height^2,
+    `BMI>30` = factor(if_else(BMI > 30, "1", "0"), levels = c("0", "1")),
+    diabetic = factor(if_else(glyhb > 7, "Yes", "No"), levels = c("No", "Yes")),
+    location = factor(location),
+    frame = factor(frame),
+    gender = factor(gender)
+  )
+
+data_input <- data_diabetes %>%
+  select(`BMI>30`, waist, hdl) %>%
+  drop_na()
+
+count(data_input, `BMI>30`)
+glimpse(data_input)
+
+ggplot(data_input, aes(x = waist, y = hdl, fill = `BMI>30`)) +
+  geom_point(shape = 21, alpha = 0.7, size = 2) +
+  scale_fill_manual(values = c("0" = "blue3", "1" = "brown1")) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+## Split the data
+
+```{r}
+#| label: knn-data-split
+
+# First isolate the SAME 20% test set used by the CV exercise.
+randseed <- 123
+splits <- partition(
+  data_input$`BMI>30`,
+  p = c(other = 0.80, test = 0.20),
+  seed = randseed
+)
+data_other <- data_input[splits$other, ]
+data_test <- data_input[splits$test, ]
+
+# For this single-validation-split demo, divide the 80% development
+# data equally into training and validation (40/40/20 overall).
+development_splits <- partition(
+  data_other$`BMI>30`,
+  p = c(train = 0.50, valid = 0.50),
+  seed = randseed
+)
+data_train <- data_other[development_splits$train, ]
+data_valid <- data_other[development_splits$valid, ]
+
+# Dimensions and class proportions in each subset.
+bind_rows(
+  mutate(count(data_train, `BMI>30`), split = "Training"),
+  mutate(count(data_valid, `BMI>30`), split = "Validation"),
+  mutate(count(data_test, `BMI>30`), split = "Test")
+) %>%
+  group_by(split) %>%
+  mutate(proportion = n / sum(n)) %>%
+  ungroup()
+```
+
+## Train KNN for different values of k
+
+```{r}
+#| label: knn-train
+
+# Learn scaling only from the training observations.
+scaled <- scale_using_train(data_train, data_valid)
+train_scaled <- scaled$train
+valid_scaled <- scaled$new
+
+# Test a manageable set of odd k values, all valid for this training set.
+k_values <- seq(1, min(31, nrow(train_scaled)), by = 2)
+validation_accuracy <- numeric(length(k_values))
+
+for (i in seq_along(k_values)) {
+  model <- kknn(
+    `BMI>30` ~ ., train = train_scaled, test = valid_scaled,
+    k = k_values[i], kernel = "rectangular", scale = FALSE
+  )
+  predictions <- fitted(model)  # Predicted class labels.
+  validation_accuracy[i] <- mean(predictions == valid_scaled$`BMI>30`)
+}
+```
+
+## Choose the best k using validation accuracy
+
+```{r}
+#| label: fig-knn-best-parameters
+#| fig-cap: "Validation accuracy as a function of the number of neighbors (k)."
+#| fig-height: 4.8
+#| fig-width: 7
+#| fig-align: center
+
+plot(
+  k_values, validation_accuracy,
+  type = "b", pch = 16, col = "#2578A8",
+  xlab = "Number of neighbors (k)", ylab = "Validation accuracy"
+)
+k_best <- k_values[which.max(validation_accuracy)]
+abline(v = k_best, lty = 2, col = "grey50")
+cat("Best k (single validation split):", k_best, "\n")
+cat("Best validation accuracy:", max(validation_accuracy), "\n")
+```
+
+## Refit the final model and evaluate on the test set
+
+```{r}
+#| label: knn-final-model
+
+# Refit using ALL development observations (training + validation).
+# Only now evaluate once on the previously untouched test set.
+final_scaled <- scale_using_train(data_other, data_test)
+model_final <- kknn(
+  `BMI>30` ~ ., train = final_scaled$train, test = final_scaled$new,
+  k = k_best, kernel = "rectangular", scale = FALSE
+)
+test_pred <- fitted(model_final)
+test_accuracy <- mean(test_pred == final_scaled$new$`BMI>30`)
+cat("Final test accuracy (single validation split):", test_accuracy, "\n")
+```

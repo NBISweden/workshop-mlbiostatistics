@@ -1,0 +1,199 @@
+---
+title: "Model evaluation: regression"
+subtitle: "Machine Learning for Life Sciences"
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+
+In regression tasks, the target variable is continuous, and the model predicts a numerical value rather than a class label.
+
+For example, we might predict a patient's chronological age from DNA methylation measurements, blood pressure from clinical variables, or drug response from gene expression data.
+
+To evaluate a regression model, we compare the **observed values** ($y_i$) with the **predicted values** ($\hat{y}_i$).
+
+The difference between them is called the *prediction error* or *residual*:
+
+$$e_i = y_i - \hat{y}_i$$
+
+### Evaluating regression models
+
+In regression tasks, the target variable is continuous, and the model predicts a numerical value rather than a class label.
+
+For example, we might predict a patient's chronological age from DNA methylation measurements, blood pressure from clinical variables, or drug response from gene expression data.
+
+To evaluate a regression model, we compare the **observed values** ($y_i$) with the **predicted values** ($\hat{y}_i$).
+
+The difference between them is called the *prediction error* or *residual*:
+
+$$
+e_i = y_i - \hat{y}_i
+$$
+
+Different regression metrics summarize these errors in different ways.
+
+#### Mean Absolute Error (MAE)
+
+**MAE** measures the average absolute difference between observed and predicted values.
+
+$$
+MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+$$
+
+- Expressed in the same units as the target variable.
+- Easy to interpret.
+- Less sensitive to large individual errors than metrics based on squared errors.
+
+For example, an MAE of 4 years when predicting age means that predictions differ from the actual ages by 4 years on average, in absolute terms.
+
+#### Mean Squared Error (MSE)
+
+**MSE** measures the average squared prediction error.
+
+$$
+MSE = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+$$
+
+- Gives disproportionately more weight to large errors.
+- Expressed in squared units of the target variable.
+- Useful when large prediction errors should be penalized strongly.
+
+#### Root Mean Squared Error (RMSE)
+
+**RMSE** is the square root of the MSE.
+
+$$
+RMSE = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
+$$
+
+Like MAE, RMSE is expressed in the same units as the target variable, making it easier to interpret than MSE.
+
+However, because errors are squared before averaging, RMSE is more sensitive to large prediction errors than MAE.
+
+#### Coefficient of determination (R²)
+
+**$R^2$** compares a model's squared prediction error with that of a simple baseline that predicts the mean outcome.
+
+$$
+R^2 = 1 -
+\frac{\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
+{\sum_{i=1}^{n}(y_i-\bar{y})^2}
+$$
+
+where $\bar{y}$ is the mean observed outcome in the evaluation dataset.
+
+When evaluated on new, unseen data:
+
+- **$R^2=1$:** Perfect predictions.
+- **$R^2=0$:** The model performs as well as predicting the mean of the evaluation outcomes.
+- **$R^2<0$:** The model performs worse than that reference prediction.
+
+Unlike MAE and RMSE, $R^2$ is unitless.
+
+An important distinction is that **$R^2$ calculated on training data measures in-sample fit, whereas $R^2$ calculated on held-out data evaluates predictive performance**.
+
+### Which regression metric should we use?
+
+There is no universally best regression metric.
+
+| Metric | Interpretation | When useful |
+|---|---|---|
+| MAE | Average absolute error | When typical prediction errors matter |
+| MSE | Average squared error | When large errors should receive stronger penalties |
+| RMSE | Square root of average squared error | When large errors matter but results should remain in the original units |
+| R² | Performance relative to a mean-prediction reference | When comparing explained variation or predictive performance relative to a baseline |
+
+For example, in a model predicting chronological age:
+
+- **MAE = 4 years:** Predictions are off by 4 years on average in absolute terms.
+- **RMSE = 6 years:** Larger individual prediction errors contribute more strongly.
+- **R² = 0.85:** The model achieves an 85% reduction in squared error relative to predicting the evaluation-set mean.
+
+The choice of evaluation metric should reflect the scientific question and the consequences of different prediction errors.
+
+As with classification, regression models should be evaluated using **validation, cross-validation, or held-out test data** to estimate performance on new observations.
+
+Different regression metrics summarize these errors in different ways.
+
+#### Mean Absolute Error (MAE)
+
+**MAE** measures the average absolute difference between observed and predicted values.
+
+$$
+MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+$$
+
+- Expressed in the same units as the target variable.
+- Easy to interpret.
+- Less sensitive to large individual errors than metrics based on squared errors.
+
+For example, an MAE of 4 years when predicting age means that predictions differ from the actual ages by 4 years on average, in absolute terms.
+
+#### Mean Squared Error (MSE)
+
+**MSE** measures the average squared prediction error.
+
+$$
+MSE = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+$$
+
+- Gives disproportionately more weight to large errors.
+- Expressed in squared units of the target variable.
+- Useful when large prediction errors should be penalized strongly.
+
+#### Root Mean Squared Error (RMSE)
+
+**RMSE** is the square root of the MSE.
+
+$$
+RMSE = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
+$$
+
+Like MAE, RMSE is expressed in the same units as the target variable, making it easier to interpret than MSE.
+
+However, because errors are squared before averaging, RMSE is more sensitive to large prediction errors than MAE.
+
+#### Coefficient of determination (R²)
+
+**$R^2$** compares a model's squared prediction error with that of a simple baseline that predicts the mean outcome.
+
+$$
+R^2 = 1 -
+\frac{\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
+{\sum_{i=1}^{n}(y_i-\bar{y})^2}
+$$
+
+where $\bar{y}$ is the mean observed outcome in the evaluation dataset.
+
+When evaluated on new, unseen data:
+
+- **$R^2=1$:** Perfect predictions.
+- **$R^2=0$:** The model performs as well as predicting the mean of the evaluation outcomes.
+- **$R^2<0$:** The model performs worse than that reference prediction.
+
+Unlike MAE and RMSE, $R^2$ is unitless.
+
+An important distinction is that **$R^2$ calculated on training data measures in-sample fit, whereas $R^2$ calculated on held-out data evaluates predictive performance**.
+
+### Which regression metric should we use?
+
+There is no universally best regression metric.
+
+| Metric | Interpretation | When useful |
+|---|---|---|
+| MAE | Average absolute error | When typical prediction errors matter |
+| MSE | Average squared error | When large errors should receive stronger penalties |
+| RMSE | Square root of average squared error | When large errors matter but results should remain in the original units |
+| R² | Performance relative to a mean-prediction reference | When comparing explained variation or predictive performance relative to a baseline |
+
+For example, in a model predicting chronological age:
+
+- **MAE = 4 years:** Predictions are off by 4 years on average in absolute terms.
+- **RMSE = 6 years:** Larger individual prediction errors contribute more strongly.
+- **R² = 0.85:** The model achieves an 85% reduction in squared error relative to predicting the evaluation-set mean.
+
+The choice of evaluation metric should reflect the scientific question and the consequences of different prediction errors.
+
+As with classification, regression models should be evaluated using **validation, cross-validation, or held-out test data** to estimate performance on new observations.

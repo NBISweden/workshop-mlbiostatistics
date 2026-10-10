@@ -1,0 +1,89 @@
+---
+title: "Generalization"
+subtitle: "Machine Learning for Life Sciences"
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+The goal of supervised learning is not simply to make accurate predictions on the training data, but to **generalize well to new, unseen observations**.
+
+A model may perform extremely well on the data used for training but poorly on new data. This is often caused by **overfitting**.
+
+Two common problems in supervised learning are:
+
+- **Underfitting:** The model is too simple to capture important patterns in the data. As a result, it performs poorly on both training and unseen data.
+- **Overfitting:** The model is too closely adapted to the training data, including random noise and sample-specific patterns. It achieves good training performance but performs poorly on unseen data.
+
+The relationship between model complexity and predictive performance is often described as the **bias–variance trade-off**:
+
+- Models with low complexity tend to have higher bias and lower variance, potentially leading to underfitting.
+- Highly flexible models tend to have lower bias but higher variance, potentially leading to overfitting.
+
+The objective is to find a model that captures the underlying relationships without fitting unnecessary details of the training data.
+
+We have already seen this with KNN: a very small value of \(k\) produces a flexible classifier, whereas a very large value produces a smoother, less flexible classifier.
+
+**How can we identify overfitting?**
+
+By comparing model performance on training data with performance on independent validation data.
+
+A large gap between training and validation performance may indicate overfitting, while poor performance on both may indicate underfitting.
+
+However, training performance is typically optimistic, and the difference alone does not prove overfitting. We need appropriate validation strategies to assess generalization.
+
+```{r}
+#| label: fig-under-overfitting
+#| fig-cap: "Conceptual relationship between model complexity and training and validation error."
+#| fig-width: 7
+#| fig-height: 4.5
+#| echo: false
+
+complexity <- seq(0, 10, length.out = 200)
+
+train_error <- 0.1 + 0.7 * exp(-0.45 * complexity)
+
+valid_error <- 0.22 + 0.025 * (complexity - 5)^2
+
+op <- par(
+  mar = c(4.5, 4.5, 2, 1),
+  cex.lab = 1.3,
+  cex.axis = 1.1
+)
+
+plot(
+  complexity, train_error,
+  type = "l", lwd = 3,
+  col = "#357ABD",
+  ylim = c(0, 1),
+  xlab = "Model complexity",
+  ylab = "Prediction error",
+  xaxt = "n"
+)
+
+lines(
+  complexity, valid_error,
+  col = "#D68A35",
+  lwd = 3
+)
+
+abline(v = 5, lty = 2, col = "grey60")
+
+axis(
+  1, at = c(0, 10),
+  labels = c("Low", "High")
+)
+
+text(1.5, 0.15, "Underfitting", cex = 1.1)
+text(8.5, 0.85, "Overfitting", cex = 1.1)
+
+legend(
+  "top",
+  legend = c("Training error", "Validation error"),
+  col = c("#357ABD", "#D68A35"),
+  lwd = 3, bty = "n", horiz = TRUE
+)
+
+par(op)
+```
