@@ -1,0 +1,296 @@
+---
+title: "K-nearest neighbors (KNN)"
+subtitle: "Machine Learning for Life Sciences"
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+
+
+**K-nearest neighbors (KNN)** is a simple, intuitive supervised learning algorithm that makes predictions based on the similarity between observations.
+
+The underlying assumption is that **observations with similar features are likely to have similar outcomes**.
+
+For example, consider a dataset containing gene expression measurements from patients with two different disease subtypes. If a new patient has an expression profile similar to patients belonging to one subtype, we might expect the new patient to belong to that same subtype.
+
+KNN can be used for both classification and regression:
+
+- **KNN classification:** The predicted class is determined by the most common class among the $k$ nearest neighbors.
+- **KNN regression:** The predicted value is typically the average of the target values among the $k$ nearest neighbors.
+
+Unlike many other machine learning algorithms, KNN does not explicitly estimate a set of coefficients or learn a decision boundary during training. Instead, it retains the training observations and uses them to make predictions when new observations are presented.
+
+For this reason, KNN is sometimes described as an *instance-based* or *lazy learning* algorithm.
+
+## How does KNN classification work?
+
+Suppose we have measurements of two genes, Gene A and Gene B, for a group of patients. Each patient belongs to one of two known disease subtypes.
+
+We want to classify a new patient using their expression levels of these two genes.
+
+The KNN algorithm follows these steps:
+
+1. **Choose the number of neighbors ($k$).** This determines how many nearby training observations will contribute to the prediction.
+2. **Calculate distances.** Measure the distance between the new observation and each observation in the training dataset.
+3. **Identify the $k$ nearest neighbors.** Select the $k$ training observations with the smallest distances.
+4. **Determine their classes.** Examine the known class labels of these neighbors.
+5. **Make a prediction.** Assign the new observation to the class most frequently represented among its $k$ nearest neighbors.
+
+For example, with $k=3$:
+
+- If all three nearest neighbors belong to subtype A, the new patient is classified as subtype A.
+- If two neighbors belong to subtype B and one to subtype A, the new patient is classified as subtype B.
+
+This is called **majority voting**.
+
+Using an odd value of $k$ can reduce the possibility of ties in binary classification, although it does not eliminate ties in multiclass classification.
+
+```{r}
+#| label: fig-knn
+#| fig-cap: An example of k-nearest neighbors algorithm with k=3; A) in the top a new sample (blue) is closest to three red triangle samples based on its gene A and gene B measurements and thus is classified as a red (B); in the bottom (C), a new sample (blue) is closest to 2 black dots and 1 red triangle based on its gene A and B measurements and is thus classified by majority vote as a black dot (D).
+#| fig-width: 8
+#| fig-height: 8
+#| fig-align: center
+#| echo: false
+#| fig-cap-location: margin
+
+
+# Example data
+n1 <- 10
+n2 <- 10
+set.seed(1)
+x <- c(rnorm(n1, mean=0, sd=1), rnorm(n2, mean=0.5, sd=1))
+y <- rnorm(n1+n2, mean=0, sd=1)
+
+group <- rep(1, (n1+n2))
+group[1:n1] <- 0
+idx.1 <- which(group==0)
+idx.2 <- which(group==1)
+
+# new points
+p1 <- c(1.5, 0.5)
+p2 <- c(0, 0.6)
+
+# distance 
+dist.1 <- c()
+dist.2 <- c()
+for (i in 1:length(x))
+{
+  dist.1[i] <- round(sqrt((p1[1]-x[i])^2 + (p1[2]-y[i])^2),2)
+  dist.2[i] <- round(sqrt((p2[1]-x[i])^2 + (p2[2]-y[i])^2),2)
+}
+
+# find nearest friends
+n.idx1 <- order(dist.1)
+n.idx2 <- order(dist.2)
+
+my.xlab <- "gene A"
+my.ylab <- "gene B"
+
+par(mfrow=c(2,2), mar=c(4, 4, 3, 1) + 0.1)
+# a) 
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab = my.xlab, ylab = "gene B", main = "A", cex.main = 0.8)
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+# b) 
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab = my.xlab, ylab = "gene B", main = "B", cex.main = 0.8)
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+# c) 
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab = my.xlab, ylab = "gene B", main = "C", cex.main = 0.8)
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+# d)
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab = my.xlab, ylab = "gene B", main = "D", cex.main = 0.8)
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+
+## Measuring similarity: distance metrics
+
+To identify the nearest neighbors, KNN needs a way to quantify how similar or different two observations are.
+The most commonly used distance measure for numerical features is **Euclidean distance**.
+For two observations, $i$ and $j$, described by $p$ features, Euclidean distance is defined as:
+
+$$
+d(i,j)=\sqrt{\sum_{m=1}^{p}(x_{im}-x_{jm})^2}
+$$
+
+where $x_{im}$ and $x_{jm}$ represent the values of feature $m$ for the two observations.
+
+For a dataset containing only two features, such as Gene A and Gene B, this corresponds to the straight-line distance between two points in a two-dimensional scatterplot.
+
+Other distance measures are possible, including Manhattan and Minkowski distances. The choice of distance metric can influence which observations are considered nearest neighbors and therefore affect the predictions.
+
+## Choosing the number of neighbors (k)
+
+The number of neighbors, $k$, is a **hyperparameter**: a setting that must be chosen before making predictions, rather than a parameter estimated directly from the training data.
+
+Its value influences how flexible the classifier is.
+
+- **Small k (e.g., k = 1):** Predictions depend on very few observations. The model can produce complex, irregular decision boundaries and may be sensitive to noise or unusual training observations.
+- **Large k:** Predictions depend on more observations. Decision boundaries become smoother, but the classifier may overlook important local patterns.
+
+The figure below illustrates how changing (k) affects the decision boundaries for the same training dataset. With (k=1), the classifier closely follows individual observations. As (k) increases to 5 and 19, the decision boundaries become progressively smoother, and local patterns have less influence on predictions.
+
+This illustrates the relationship between model complexity and generalization: small values of (k) increase the risk of overfitting, while excessively large values increase the risk of underfitting.
+
+There is no universally optimal value of (k). The best choice depends on the dataset, including sample size, feature distributions, noise, and the complexity of the relationships between features and outcomes.
+
+We can select (k) by comparing the predictive performance of different values using validation data or cross-validation.
+
+We will return to this when discussing hyperparameter tuning.
+
+```{r}
+#| label: fig-knn-boundaries
+#| fig-cap: "Effect of the number of neighbors (k) on KNN decision boundaries. Smaller k produces more flexible boundaries, while larger k produces smoother predictions."
+#| fig-width: 12
+#| fig-height: 4.5
+#| echo: false
+
+library(class)
+
+# Use the same data as in the previous KNN example
+# x, y, and group should already be defined
+
+train <- data.frame(
+  GeneA = x,
+  GeneB = y,
+  Class = factor(group, levels = c(0, 1))
+)
+
+# Grid covering the feature space
+x_seq <- seq(min(x) - 0.5, max(x) + 0.5, length.out = 200)
+y_seq <- seq(min(y) - 0.5, max(y) + 0.5, length.out = 200)
+
+grid <- expand.grid(
+  GeneA = x_seq,
+  GeneB = y_seq
+)
+
+# Values of k to compare
+k_values <- c(1, 5, 19)
+
+# Colors
+bg_cols <- c("#E6E6E6", "#FADDDD")
+point_cols <- c("#333333", "#D04A4A")
+
+# Plot
+old_par <- par(no.readonly = TRUE)
+par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))
+
+for (k in k_values) {
+
+  # Predict class for every point on the grid
+  pred <- knn(
+    train = train[, c("GeneA", "GeneB")],
+    test = grid,
+    cl = train$Class,
+    k = k
+  )
+
+  # Convert predictions to a matrix
+  z <- matrix(
+    as.integer(pred),
+    nrow = length(x_seq),
+    ncol = length(y_seq)
+  )
+
+  # Decision regions
+  image(
+    x_seq, y_seq, z,
+    col = bg_cols,
+    xlab = "Gene A",
+    ylab = "Gene B",
+    main = paste0("k = ", k),
+    useRaster = TRUE,
+      cex.lab = 2,
+  cex.axis = 2,
+  cex.main = 2
+  )
+
+  # Decision boundary
+  contour(
+    x_seq, y_seq, z,
+    levels = 1.5,
+    add = TRUE,
+    drawlabels = FALSE,
+    lwd = 1.5
+  )
+
+  # Training observations
+  points(
+    train$GeneA, train$GeneB,
+    pch = ifelse(train$Class == "0", 16, 17),
+    col = point_cols[as.integer(train$Class)],
+    cex = 1.1
+  )
+}
+
+par(old_par)
+```
+
+
+## Why is feature scaling important?
+
+KNN relies on distances between observations. Consequently, **the scale of the input features directly affects which observations are considered nearest neighbors**.
+
+Consider a dataset containing:
+
+- Age, measured in years (e.g., 20–80).
+- Gene expression, measured on a scale from 0 to 10.
+- Protein concentration, measured in units ranging from 0 to 10,000.
+
+Without scaling, features with larger numerical ranges may dominate the distance calculation, even if they are not more important for prediction.
+
+A common solution is **standardization**, where each feature is transformed by subtracting its mean and dividing by its standard deviation:
+
+$$
+z=\frac{x-\mu}{\sigma}
+$$
+
+This gives features a mean of zero and a standard deviation of one in the data used to fit the transformation.
+
+Other scaling approaches, such as min-max normalization, may also be appropriate depending on the data.
+
+**Important:** Scaling parameters must be estimated from the training data and then applied to validation, test, or new observations. Estimating them using the full dataset before splitting introduces information leakage.
+
+During cross-validation, scaling must be fitted separately within each training fold. Machine learning pipelines can automate this process.
+
+## Advantages and limitations of KNN
+
+**Advantages**
+
+- Simple to understand and implement.
+- Makes relatively few assumptions about the relationship between features and outcomes.
+- Can capture nonlinear decision boundaries.
+- Can be used for both classification and regression.
+
+**Limitations**
+
+- Predictions may be computationally expensive for large training datasets because distances to many observations must be calculated.
+- Sensitive to feature scaling and the choice of distance measure.
+- Sensitive to irrelevant features and noisy observations.
+- Performance may deteriorate with many features, a problem related to the *curse of dimensionality*.
+- Choosing an appropriate value of $k$ is important for good predictive performance.
+
+The curse of dimensionality is particularly relevant in life sciences, where datasets may contain thousands of molecular features but relatively few samples.
+
+As the number of features increases, distances between observations can become less informative, making it harder to identify genuinely similar samples.
+
+Feature selection or dimensionality reduction may help, but these operations must be incorporated correctly into the model training and validation workflow.
+
+## Key takeaway
+
+KNN predicts outcomes from nearby training observations. Its simplicity makes it a useful introduction to supervised learning, but its performance depends strongly on the choice of $k$, the distance metric, feature scaling, and the structure of the data.
+
+KNN also provides a natural example of why we need **model evaluation and hyperparameter tuning**: different choices of $k$ can produce different predictions, and we need a systematic way to determine which choice generalizes best to new data.
+
+
+

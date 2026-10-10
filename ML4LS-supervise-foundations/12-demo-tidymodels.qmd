@@ -1,0 +1,209 @@
+---
+format:
+  html:
+    code-fold: show
+execute:
+  warning: false
+  message: false
+---
+
+# Tidymodels demo {.unnumbered}
+
+In the previous demonstration, we implemented KNN with separate training, validation, and test sets. We then extended this approach to cross-validation. Here, we repeat the KNN workflow using **tidymodels**, a collection of R packages designed to make machine learning workflows more consistent and reproducible.
+
+In `tidymodels`, we define different parts of the analysis separately:
+
+- A **recipe** describes how to prepare the data, including steps such as normalization or handling missing values.
+- A **model specification** defines the algorithm and any hyperparameters we want to tune.
+- A **workflow** combines the recipe and model, so the same preprocessing is applied whenever the model is fitted or used for prediction.
+- **Resampling and tuning** allow us to compare hyperparameter values using cross-validation.
+
+We will predict whether **BMI > 30** using `waist` and `hdl`, select the number of neighbors (\(k\)) using **stratified five-fold cross-validation**, and evaluate performance using **accuracy**. As before, we hold out 20% of the data for a final test, and use the remaining 80% for model development.
+
+The key advantage of a workflow is that preprocessing is performed **within each training fold**. This means that the means and standard deviations used to normalize predictors are estimated without looking at the corresponding validation fold, helping prevent data leakage.
+
+## Load libraries and prepare data
+
+```{r}
+#| label: tm-data
+
+library(tidymodels)
+library(kknn)
+library(readr)
+library(dplyr)
+
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+data_input <- input_diabetes %>%
+  mutate(
+    height = height * 2.54 / 100,
+    waist = waist * 2.54,
+    weight = weight * 0.45359237,
+    BMI = weight / height^2,
+    `BMI>30` = factor(if_else(BMI > 30, "1", "0"), levels = c("0", "1"))
+  ) %>%
+  select(`BMI>30`, waist, hdl) %>%
+  tidyr::drop_na()
+
+count(data_input, `BMI>30`)
+```
+
+## Split the data and create CV folds
+
+We keep the test set untouched while selecting \(k\). The five folds are created **only from the development data**. Stratification helps preserve the outcome class proportions across splits.
+
+
+```{r}
+#| label: tm-split
+
+set.seed(123)
+data_split <- initial_split(data_input, prop = 0.8, strata = `BMI>30`)
+data_other <- training(data_split)
+data_test <- testing(data_split)
+
+set.seed(123)
+folds <- vfold_cv(data_other, v = 5, strata = `BMI>30`)
+folds
+```
+
+## Define preprocessing with a recipe
+
+KNN relies on distances, so predictors measured on different scales should be standardized. `step_normalize()` specifies this operation; it does not calculate means and standard deviations yet. Those values are learned when the recipe is fitted, separately for each CV training fold.
+
+```{r}
+#| label: tm-recipe
+
+knn_recipe <- recipe(`BMI>30` ~ waist + hdl, data = data_other) %>%
+  step_normalize(all_numeric_predictors())
+
+knn_recipe
+```
+
+## Specify KNN and build a workflow
+
+Here, `tune()` tells `tidymodels` that we want to choose the number of neighbors using cross-validation. We keep uniform neighbor voting (`weight_func = "rectangular"`) to match the manual KNN demonstration. The workflow then bundles the model and recipe together.
+
+```{r}
+#| label: tm-workflow
+
+knn_spec <- nearest_neighbor(
+  mode = "classification",
+  neighbors = tune(),
+  weight_func = "rectangular"
+) %>%
+  set_engine("kknn")
+
+knn_workflow <- workflow() %>%
+  add_recipe(knn_recipe) %>%
+  add_model(knn_spec)
+
+knn_workflow
+```
+
+## Tune k with five-fold cross-validation
+
+We evaluate odd values of \(k\) from 1 to 31 using the same five folds for each candidate. `tune_grid()` fits the workflow on the training portion of each fold and evaluates it on the corresponding validation portion. Each candidate must be smaller than the smallest training-fold size.
+
+```{r}
+#| label: tm-tune
+
+k_values <- seq(1, 31, by = 2)
+k_grid <- tibble(neighbors = k_values)
+
+set.seed(123)
+knn_results <- tune_grid(
+  knn_workflow,
+  resamples = folds,
+  grid = k_grid,
+  metrics = metric_set(accuracy)
+)
+
+knn_results
+```
+
+## Examine cross-validation performance
+
+`collect_metrics()` summarizes accuracy across folds for each value of \(k\). Its `mean` column gives average CV accuracy, while `std_err` is the standard error of that average. For the plot, we calculate the **standard deviation across folds** as `std_err * sqrt(n)`, where `n` is the number of non-missing fold estimates. These error bars illustrate variation between folds; they are **not** confidence intervals for future performance.
+
+```{r}
+#| label: tm-summarize
+
+cv_results <- collect_metrics(knn_results) %>%
+  mutate(sd = std_err * sqrt(n))
+
+cv_results %>%
+  select(neighbors, mean, sd, n)
+```
+
+```{r}
+#| label: fig-tm-knn-cv
+#| fig-cap: "Mean five-fold cross-validation accuracy for different values of k; error bars show ±1 SD across folds."
+#| fig-width: 8
+#| fig-height: 4.8
+
+best_k <- select_best(knn_results, metric = "accuracy")
+
+ggplot(cv_results, aes(x = neighbors, y = mean)) +
+  geom_errorbar(aes(ymin = pmax(0, mean - sd),
+                    ymax = pmin(1, mean + sd)),
+                width = 0.35, color = "grey55") +
+  geom_line(color = "#2578A8", linewidth = 1) +
+  geom_point(color = "#2578A8", size = 2) +
+  geom_vline(xintercept = best_k$neighbors, linetype = "dashed",
+             color = "#CE6547") +
+  scale_x_continuous(breaks = k_values) +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(x = "Number of neighbors (k)", y = "Mean CV accuracy") +
+  theme_bw(base_size = 14)
+```
+
+## Select k and evaluate on the test set
+
+`select_best()` chooses the value of \(k\) with the highest mean CV accuracy. `finalize_workflow()` inserts that value into our model specification. Finally, `last_fit()` refits the complete workflow (including normalization) using **all development data (80%)** and evaluates it **once** on the held-out test set (20%).
+
+```{r}
+#| label: tm-final
+
+best_k
+
+final_workflow <- finalize_workflow(knn_workflow, best_k)
+final_results <- last_fit(
+  final_workflow,
+  split = data_split,
+  metrics = metric_set(accuracy)
+)
+
+collect_metrics(final_results)
+```
+
+## Swapping KNN for a support vector machine
+
+One advantage of `tidymodels` is that we can **reuse the same recipe and cross-validation folds** with a different algorithm. For example, to fit a **linear support vector machine (SVM)**, we change the model specification and replace it in the workflow. Here we use a fixed cost value (`cost = 1`) for illustration, rather than tuning it.
+
+```{r}
+#| label: tm-svm
+
+# Requires the kernlab package: install.packages("kernlab")
+svm_spec <- svm_linear(mode = "classification", cost = 1) %>%
+  set_engine("kernlab")
+
+svm_workflow <- knn_workflow %>%
+  update_model(svm_spec)
+
+set.seed(123)
+svm_results <- fit_resamples(
+  svm_workflow,
+  resamples = folds,
+  metrics = metric_set(accuracy)
+)
+
+collect_metrics(svm_results)
+```
+
+The **data split, normalization, folds, and accuracy metric stay the same**. Only the model changes. We use `fit_resamples()` here because we are evaluating one fixed SVM configuration; if we wanted to choose its `cost` using CV, we could use `tune()` and `tune_grid()` as we did for KNN. These CV results are for demonstration, not a final test-set evaluation.
+
+## Take-home message
+
+The modeling logic is the same as in our manual KNN demonstration: **split the data → use CV to tune \(k\) → refit on all development data → evaluate on the test set**. `tidymodels` makes these steps easier to organize and helps ensure that preprocessing is learned from training data only.
+
+> **Comparison with the manual demo:** The two approaches may produce slightly different results because `rsample` and `splitTools` use different splitting procedures. Using the same random seed does **not** guarantee identical observations in each split. For a strict numerical comparison, reuse exactly the same row indices, candidate values of \(k\), and preprocessing steps.

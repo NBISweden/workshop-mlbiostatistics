@@ -1,0 +1,195 @@
+---
+format:
+  html:
+    toc: true
+    code-fold: show
+execute:
+  warning: false
+---
+
+# Scikit-learn demo {.unnumbered}
+
+In the previous demonstration, we used **tidymodels** in R to build a complete KNN classification workflow. Here, we implement the same analysis in Python using **scikit-learn** (`sklearn`). The main steps remain unchanged: **split the data → tune k with cross-validation → refit on all development data → evaluate on the test set**.
+
+In `scikit-learn`, we use a few related components:
+
+- A **transformer** describes a preprocessing step, such as `StandardScaler()` for standardization.
+- An **estimator** specifies the model, such as `KNeighborsClassifier()`.
+- A **pipeline** combines preprocessing and the model. Like a `tidymodels` workflow, it ensures that preprocessing is learned from training data only.
+- **Cross-validation and grid search** (`StratifiedKFold()` and `GridSearchCV()`) evaluate different hyperparameter settings and select one based on validation performance.
+
+We will predict whether **BMI > 30** using `waist` and `hdl`, select the number of neighbors (\(k\)) with **stratified five-fold cross-validation**, and use **accuracy** as our metric. As before, we reserve 20% of observations as a final test set.
+
+## Load libraries and prepare data
+
+```{python}
+#| label: sk-data
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import (
+    train_test_split, StratifiedKFold, GridSearchCV, cross_val_score
+)
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+input_diabetes = pd.read_csv("data/data-diabetes.csv")
+
+data_input = input_diabetes.copy()
+height_m = data_input["height"] * 2.54 / 100
+weight_kg = data_input["weight"] * 0.45359237
+data_input["waist"] = data_input["waist"] * 2.54
+data_input["BMI"] = weight_kg / height_m**2
+data_input["BMI>30"] = (data_input["BMI"] > 30).astype(int)
+data_input = data_input[["BMI>30", "waist", "hdl"]].dropna()
+
+print(data_input["BMI>30"].value_counts().sort_index())
+```
+
+## Split the data and create CV folds
+
+We hold out 20% for the final test. We use **only the remaining 80%** for model selection. `stratify=y` preserves the approximate class proportions in the development/test split; `StratifiedKFold` does the same within cross-validation.
+
+```{python}
+#| label: sk-split
+
+X = data_input[["waist", "hdl"]]
+y = data_input["BMI>30"]
+
+X_dev, X_test, y_dev, y_test = train_test_split(
+    X, y, test_size=0.20, stratify=y, random_state=123
+)
+
+folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=123)
+
+print("Development samples:", len(X_dev))
+print("Test samples:", len(X_test))
+```
+
+## Define preprocessing and the KNN pipeline
+
+Because KNN uses distances, predictors on different scales should be standardized. `StandardScaler()` subtracts the training mean and divides by the training standard deviation. By including it **inside the pipeline**, scikit-learn fits the scaler separately on each CV training fold and applies that scaler to the corresponding validation fold. This avoids data leakage.
+
+A `Pipeline` is the closest analogue to the combined **recipe + workflow** in our `tidymodels` demonstration.
+
+```{python}
+#| label: sk-pipeline
+
+knn_pipeline = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", KNeighborsClassifier(weights="uniform"))
+])
+
+knn_pipeline
+```
+
+## Tune k with five-fold cross-validation
+
+We compare odd values of \(k\) from 1 to 31. The parameter name `model__n_neighbors` refers to `n_neighbors` in the pipeline step called `model`. `GridSearchCV` trains and validates the **entire pipeline** within each fold, so normalization is never learned from validation observations.
+
+```{python}
+#| label: sk-tune
+
+k_values = list(range(1, 32, 2))
+param_grid = {"model__n_neighbors": k_values}
+
+grid_search = GridSearchCV(
+    estimator=knn_pipeline,
+    param_grid=param_grid,
+    cv=folds,
+    scoring="accuracy",
+    refit=True
+)
+grid_search.fit(X_dev, y_dev)
+
+print("Best k:", grid_search.best_params_["model__n_neighbors"])
+print("Best mean CV accuracy:", round(grid_search.best_score_, 3))
+```
+
+## Examine cross-validation performance
+
+The mean CV accuracy for each candidate \(k\) is calculated across the five held-out folds. To show variability between folds, we plot **±1 sample standard deviation** of the fold accuracies; these error bars are **not** confidence intervals for future predictive performance.
+
+```{python}
+#| label: sk-summary
+
+results = pd.DataFrame(grid_search.cv_results_)
+fold_cols = [f"split{i}_test_score" for i in range(folds.n_splits)]
+
+cv_results = pd.DataFrame({
+    "neighbors": results["param_model__n_neighbors"].astype(int),
+    "mean": results[fold_cols].mean(axis=1),
+    "sd": results[fold_cols].std(axis=1, ddof=1)
+}).sort_values("neighbors")
+
+print(cv_results.to_string(index=False))
+```
+
+```{python}
+#| label: fig-sk-knn-cv
+#| fig-cap: "Mean five-fold cross-validation accuracy for different values of k; error bars show ±1 SD across folds."
+#| fig-width: 8
+#| fig-height: 4.8
+
+best_k = grid_search.best_params_["model__n_neighbors"]
+
+fig, ax = plt.subplots()
+ax.errorbar(
+    cv_results["neighbors"], cv_results["mean"],
+    yerr=cv_results["sd"], fmt="-o", capsize=3
+)
+ax.axvline(best_k, linestyle="--", label=f"Selected k = {best_k}")
+ax.set(xlabel="Number of neighbors (k)", ylabel="Mean CV accuracy", ylim=(0, 1))
+ax.set_xticks(k_values)
+ax.legend()
+plt.show()
+```
+
+## Evaluate the final model on the test set
+
+`GridSearchCV(refit=True)` has already **refitted the full pipeline** at the selected \(k\) on **all development data (80%)**. The held-out 20% test data has not been used to choose \(k\) or fit the scaler. We now evaluate it **once**.
+
+```{python}
+#| label: sk-final
+
+final_model = grid_search.best_estimator_
+y_pred = final_model.predict(X_test)
+test_accuracy = accuracy_score(y_test, y_pred)
+
+print("Selected k:", best_k)
+print(f"Test accuracy: {test_accuracy:.3f}")
+```
+
+## Swapping KNN for a support vector machine
+
+As with `tidymodels`, we can **reuse the same preprocessing and CV folds** with another algorithm. For a **linear support vector machine (SVM)**, only the model step changes. We use a fixed regularization parameter (`C=1`, corresponding to `cost = 1` in the R demo) and evaluate its CV accuracy without tuning.
+
+```{python}
+#| label: sk-svm
+
+svm_pipeline = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", SVC(kernel="linear", C=1))
+])
+
+svm_scores = cross_val_score(
+    svm_pipeline, X_dev, y_dev,
+    cv=folds, scoring="accuracy"
+)
+
+print(f"SVM mean CV accuracy: {svm_scores.mean():.3f}")
+print(f"SVM SD across folds: {svm_scores.std(ddof=1):.3f}")
+```
+
+The **development/test split, normalization, CV folds, and accuracy metric stay the same**. Only the model changes. This SVM result is a **cross-validation estimate**, not an evaluation on the held-out test set. To tune the SVM's `C`, we could use `GridSearchCV` again.
+
+## Take-home message
+
+The logic is identical in R and Python: **split the data → build a preprocessing + model pipeline → tune with CV → refit on development data → evaluate on the untouched test set**. Pipelines reduce the risk of data leakage and make it easy to replace one algorithm with another.
+
+> **Comparison with tidymodels:** Results will not necessarily match numerically because R and Python may choose different rows for the splits, even with the same seed. `StandardScaler()` also uses the population standard deviation, whereas the R `step_normalize()` default uses the sample standard deviation. KNN neighbor ordering is unchanged by this scaling difference when it is common to all predictors, but SVM behavior can differ slightly. For a strict comparison, supply identical fold indices and match preprocessing conventions.
