@@ -1,0 +1,395 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Exercises {.unnumbered}
+
+**Data for exercises** are on Canvas under Files -> data_exercises --> linear-models
+
+::: {#exr-lasso}
+
+## Lasso
+
+Follow and try to run the code below for fitting Lasso model to predict `BMI` given all the numerical variables in the `diabetes` data set. 
+
+:::
+
+::: {#exr-evaluate-regression}
+
+## MAE
+
+- Calculate MAE for the LASSO model from Exercise 1 using its predictions on the test data.
+- Refit the LASSO model, this time excluding weight from the predictors. Keep the same cross-validation procedure and default MSE criterion for selecting $\lambda$.
+- Evaluate the new model on the test data using the same metrics as before, including MAE.
+- Compare the predictive performance of the two models. How much does removing weight affect the predictions? Why might this be the case?
+
+Note: By default, cv.glmnet() uses mean squared error (MSE) to select the regularization parameter $\lambda$ for Gaussian regression. In this exercise, we keep the same cross-validation criterion for both models to make the comparison consistent, but also calculate MAE as an additional test-set evaluation metric. However, we could choose a different metric for tuning by specifying the type.measure argument in cv.glmnet() (e.g., type.measure = "mae").
+
+:::
+
+::: {#exr-logistic-lasso}
+
+## Logistic Lasso
+
+Adjust the original code to model probability of having BMI over 30. Evaluate the final model using overall accuracy. 
+
+:::
+
+::: {#exr-regularization-comparison}
+
+## Regularization comparison
+
+In the previous exercise, we fitted a **logistic LASSO** model to predict `BMI_gt30`. Let's explore how changing the regularization method affects predictive performance and feature selection.
+
+1. Modify your logistic LASSO code to fit two additional models:
+   - **Ridge regression** (`alpha = 0`)
+   - **Elastic Net** (`alpha = 0.5`)
+
+2. Use `cv.glmnet()` to select $\lambda$ for each model, keeping the same cross-validation settings and evaluation criterion.
+
+3. Evaluate all three models on the **test data** using accuracy and compare the number of non-zero coefficients (excluding the intercept).
+
+4. Consider the following questions:
+   - Which model achieves the highest predictive accuracy?
+   - How does the number of non-zero coefficients differ between the models?
+   - Do LASSO and Elastic Net select the same predictors?
+   - Does the model with the fewest predictors necessarily perform best?
+
+
+
+:::
+
+## Load data & reformat data
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(glmnet)
+library(caret)
+library(splitTools)
+
+# import raw data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# preview data
+glimpse(input_diabetes)
+
+# run basic feature engieering of the data
+# exclude bp.2s, pb.2d due to large number of missing data 
+# create BMI based on weight and height
+# keep only numerical variables
+# keep samples for which none missing data is present (complete case analysis)
+
+# define numerical predictors
+pred_numeric <- c("chol", "stab.glu", "hdl", "ratio", "glyhb", "age", "weight", "bp.1s", "bp.1d", "waist", "hip", "time.ppn")
+
+# and only numerical predictors
+conv_factor <- 703 # conversion factor to calculate BMI from inches and pounds BMI = weight (lb) / [height (in)]2 x 703
+data_diabetes <- input_diabetes %>%
+  mutate(BMI = weight / height^2 * 703, BMI = round(BMI, 2)) %>%
+  relocate(BMI, .after = id) %>%
+  dplyr::select(-bp.2s, -bp.2d) %>%
+  select(all_of(c("BMI", pred_numeric))) %>%
+  na.omit()
+  
+# preview reformatted data
+glimpse(data_diabetes)
+
+```
+
+## split data and scale
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# split data into non-test (development) (70%) and test (30%)
+set.seed(123)
+inds <- partition(data_diabetes$BMI, p = c(train = 0.7, test = 0.3))
+
+data_dev <- data_diabetes %>%
+  slice(inds$train)
+
+data_test <- data_diabetes %>%
+  slice(inds$test)
+
+# standardize variables
+# Note: the correct approach is to scale the non-test data (development data) 
+# and then scale the test data using the parameters of the development data (e.g. mean or sd)
+# Here we will use preProcess() function from caret package to do that
+# We do not scale response (BMI)
+
+scaling <- preProcess(data_dev[, pred_numeric], method = c("center", "scale"))
+data_dev[, pred_numeric] <- predict(scaling, data_dev[, pred_numeric])
+data_test[, pred_numeric] <- predict(scaling, data_test[, pred_numeric])
+
+# preview scaled data
+glimpse(data_dev)
+glimpse(data_test)
+```
+
+## fit Lasso
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# define x (predictors) and y (response)
+x <- model.matrix(BMI ~.-1, data = data_dev)
+y <- data_dev$BMI
+
+# we use glmnet function to fit Lasso, alpha = 1 for Lasso, alpha = 0 for Ridge
+fit <- glmnet(x, y, alpha=1) 
+
+# by default this returns many Lasso models, fitted across a range of lambda values
+# and we can plot a whole path of models, to see how coefficients change as a function of lambda
+plot(fit, xvar="lambda", label=TRUE)
+
+```
+
+## train Lasso model 
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# To train Lasso model we can use k-fold cross validation
+# We can use cv.glmnet() function for that
+# Alternatively, we could try writing our code from scratch doing more data splits...
+cv <- cv.glmnet(x, y, alpha = 1)
+
+# plot MSE as a function of the lambda
+plot(cv)
+
+```
+
+## create final model
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# `lambda.min` gives the lowest cross-validation error.
+# `lambda.1se` gives a more strongly regularized, simpler model
+# whose error is still within one standard error of the minimum.
+# lambda.1se is often preferred when a simpler, more regularized
+# model is desired with little loss in predictive performance.
+
+cv$lambda.1se
+
+# fit the final model with the selected lambda value
+fit_final <- glmnet(x, y, alpha = 1, lambda =cv$lambda.1se) 
+
+# check model coefficients. "." indicates 0
+coef(fit_final)
+
+```
+
+We can see that the largest coefficients (in terms of absolute values) are for `weight` and `height`, which of course it makes sense as we are predicting `BMI` that was defined based on weight and height in the first place. This is naturally for demonstration purposes only.
+
+## predict BMI
+```{r}
+#| code-fold: false
+#| message: false
+#| warning: false
+
+# Let's see how the model performs on new unseen test data
+x_test <- model.matrix(BMI ~.-1, data_test)
+y_pred <- fit_final %>% predict(x_test) %>% as.vector()
+
+plot(data_test$BMI, y_pred, xlab = "BMI", ylab = "predicted BMI")
+
+# evaluate final model using MSE
+mae  <- mean(abs(data_test$BMI - y_pred))
+print(paste("MAE: ", round(mae, 2), sep=""))
+```
+
+
+# Hints & Code Snippets
+
+
+::: {.callout-tip collapse="true"}
+### @exr-evaluate-regression (evaluate regression)
+
+**1. Calculate MAE for the original model**
+
+MAE is the average absolute difference between observed and predicted values:
+
+$$
+MAE = \frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+$$
+
+You can calculate it using base R:
+
+```{r}
+#| eval: false
+
+mean(abs(y_true - y_pred))
+```
+
+Replace `y_true` and `y_pred` with your observed and predicted BMI values from Exercise 1.
+
+**2. Remove `weight` from the predictors**
+
+You can exclude a variable directly in a model formula using `-`:
+
+```{r}
+#| eval: false
+
+x_dev <- model.matrix(
+  BMI ~ . - weight - 1,
+  data = data_dev
+)
+```
+
+Remember to update the predictor matrix for the test data in the same way.
+
+**3. Refit and evaluate the LASSO model**
+
+Use `cv.glmnet()` as in Exercise 1. Keep the default MSE criterion for cross-validation.
+
+```{r}
+#| eval: false
+
+cv_model <- cv.glmnet(
+  x = x_dev,
+  y = data_dev$BMI,
+  alpha = 1
+)
+```
+
+Use the selected $\lambda$ to obtain predictions on the test data. Then calculate RMSE and MAE as before.
+
+**4. Compare the results**
+
+- Which model has lower test-set RMSE and MAE?
+- How much does excluding `weight` affect predictive performance?
+- Why might `weight` be particularly informative when predicting BMI?
+
+:::
+
+
+::: {.callout-tip collapse="true"}
+
+### @exr-logistic-lasso (Logistic Lasso)
+
+**1. Prepare the binary outcome and predictor matrices**
+
+For logistic LASSO, the outcome should be binary (0 or 1). In our dataset, `BMI_gt30` indicates whether BMI exceeds 30.
+
+When constructing the predictor matrices, remember to exclude the outcome itself and any variables used directly to calculate it, such as `BMI`.
+
+```{r}
+#| eval: false
+
+x_dev <- model.matrix(
+  BMI_gt30 ~ . - BMI - 1,
+  data = data_dev
+)
+```
+
+Prepare the test predictor matrix in the same way.
+
+**2. Fit logistic LASSO using cross-validation**
+
+The main difference from linear LASSO is specifying `family = "binomial"` in `cv.glmnet()`.
+
+```{r}
+#| eval: false
+
+cv_model <- cv.glmnet(
+  x = x_dev,
+  y = data_dev$BMI_gt30,
+  family = "binomial",
+  alpha = 1
+)
+```
+
+By default, `cv.glmnet()` uses binomial deviance for logistic regression. You could instead specify `type.measure = "class"` to tune using classification error, or `type.measure = "auc"` to tune using ROC AUC.
+
+**3. Predict probabilities and class labels**
+
+For logistic regression, use `type = "response"` to obtain predicted probabilities rather than log-odds.
+
+```{r}
+#| eval: false
+
+prob_pred <- predict(
+  cv_model,
+  newx = x_test,
+  s = "lambda.1se",
+  type = "response"
+)
+```
+
+To obtain predicted classes, apply a classification threshold, for example 0.5:
+
+```{r}
+#| eval: false
+
+class_pred <- ifelse(prob_pred >= 0.5, 1, 0)
+```
+
+**4. Evaluate classification performance**
+
+Classification accuracy is the proportion of correctly classified observations:
+
+```{r}
+#| eval: false
+
+mean(class_pred == y_true)
+```
+
+You can also create a confusion matrix:
+
+```{r}
+#| eval: false
+
+table(Actual = y_true, Predicted = class_pred)
+```
+
+Replace `y_true` with the observed binary outcome in your test dataset.
+
+**5. Interpret the results**
+
+- How many predictors have non-zero coefficients?
+- How well does the model classify observations in the test data?
+- Would accuracy alone be sufficient if the classes were strongly imbalanced?
+
+:::
+
+
+::: {.callout-tip collapse="true"}
+### @exr-regularization-comparison (Regularization comparison)
+
+The `alpha` parameter in `glmnet()` controls the mixture of L1 and L2 regularization:
+
+```{r}
+#| eval: false
+
+# Change alpha to fit different models
+cv_model <- cv.glmnet(
+  x = x_dev,
+  y = data_dev$BMI_gt30,
+  family = "binomial",
+  alpha = 0.5
+)
+```
+
+You can inspect the estimated coefficients using:
+
+```{r}
+#| eval: false
+
+coef(cv_model, s = "lambda.1se")
+```
+
+To count selected predictors, remember to exclude the intercept and count coefficients that are not zero.
+
+:::
+

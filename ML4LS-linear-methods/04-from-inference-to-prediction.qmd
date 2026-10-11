@@ -1,0 +1,93 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## From inference to prediction
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(faraway)
+library(kableExtra)
+library(gridExtra)
+library(ggplot2)
+
+font.size <- 12
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") + 
+        theme_bw()
+
+# add obesity and diabetes status to diabetes faraway data
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  na.omit()
+
+```
+
+So far, we have mainly considered linear models (LM) and generalized linear models (GLM) in the context of **statistical inference**: describing relationships between variables, estimating model coefficients, and assessing their uncertainty through confidence intervals and hypothesis tests.
+
+However, **the same models can also be used for prediction**, which is one of their main applications in machine learning.
+
+The difference is primarily in the objective and how we evaluate the model:
+
+- **Inference:** Are the predictors associated with the outcome, and what can we conclude about these relationships?
+- **Prediction:** How accurately can the model predict outcomes for new, unseen observations?
+
+As discussed earlier, predictive modelling involves fitting models on training data and evaluating their performance on held-out data. Depending on the outcome, we may use metrics such as **RMSE, MAE, or $R^2$** for continuous outcomes, and **ROC AUC, sensitivity, specificity, or log loss** for binary outcomes.
+
+Importantly, **good model fit or statistically significant coefficients do not necessarily imply good predictive performance** on new data.
+
+Thus, the underlying statistical models remain the same, but our focus shifts from interpreting relationships to evaluating **generalization and predictive performance**.
+
+For instance, we can build a model to predict weight give height and age. Then we can use the model for predictions, given new observations:
+
+```{r}
+#| code-fold: show
+
+
+# Linear regression: predict a continuous outcome
+lm_model <- lm(weight ~ height + age, data = data_diabetes)
+
+new_data <- data.frame(height = 1.60, age = 50)
+predict(lm_model, newdata = new_data)
+
+```
+
+## Model fit versus predictive performance
+
+It is important to distinguish measures used to describe or compare fitted models from metrics that evaluate predictions on unseen data.
+
+| Measure | Main purpose |
+|---|---|
+| $R^2$ | Describes the proportion of variation explained in the fitted data |
+| Adjusted $R^2$ | Adjusts $R^2$ for the number of predictors |
+| AIC / BIC | Compares models using likelihood and a complexity penalty |
+| Test-set or cross-validated RMSE | Evaluates prediction error on observations not used to fit the model |
+| Test-set or cross-validated ROC AUC | Evaluates how well a binary classifier distinguishes between classes |
+
+AIC is motivated by expected predictive information loss, but neither AIC nor BIC directly measures performance on a held-out test set. Similarly, a high training $R^2$ or statistically significant coefficients do not necessarily imply good predictive performance.
+
+As discussed earlier, in machine learning we typically use **validation or cross-validation** to select and tune predictive models, and **independent test data** to evaluate their final performance.
+
+When working with many predictors, however, models can become overly complex and may fit the training data better than they predict new observations. One approach to controlling model complexity and improving generalization is **regularization**, which we introduce next.
+
+
+
