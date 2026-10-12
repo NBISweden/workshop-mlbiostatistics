@@ -43,6 +43,7 @@ library(patchwork)
 ## Outline
 <br><br>
 
+::: incremental
 - Introduction:	from inference to prediction
 - KNN: K-nearest neighbors
 - SVM: Support vector machines
@@ -50,6 +51,7 @@ library(patchwork)
 - Model evaluation
 - Tuning and cross-validation
 - Final model
+:::
 
 ## What is supervised learning?
 *From inference to prediction*
@@ -93,10 +95,10 @@ Predicting outcomes for new observations.
 
 Predict a **continuous outcome**.
 
-**Example:** Predict chronological age from DNA methylation measurements.
+**Example:** Predict blood glucose level from clinical measurements
 
 $$
-\hat{y} = \text{predicted age}
+\hat{y} = \text{predicted glucose}
 $$
 
 :::
@@ -150,7 +152,7 @@ Once trained, the model can make predictions for **new observations**.
 
 <br>
 
-The central goal is **generalization**: the ability to make accurate predictions on new, unseen data.
+The central goal is **generalization**: the ability to make accurate predictions on <u>new, unseen data</u>.
 
 ## What is supervised learning?
 *Supervised learning models*
@@ -503,7 +505,7 @@ Each feature is transformed to have mean 0 and standard deviation 1 in the train
 
 ::: {.column width="50%"}
 
-### Advantages
+### [{{< fa circle-check >}}]{style="color: #2E8B57;"} Advantages
 
 - Simple to understand and implement.
 - Makes few assumptions about the relationship between features and outcomes.
@@ -514,7 +516,7 @@ Each feature is transformed to have mean 0 and standard deviation 1 in the train
 
 ::: {.column width="50%"}
 
-### Limitations
+### [{{< fa circle-xmark >}}]{style="color: #C0392B;"} Limitations
 
 - Computationally expensive for large datasets at prediction time.
 - Sensitive to feature scaling, noise and irrelevant features.
@@ -525,10 +527,10 @@ Each feature is transformed to have mean 0 and standard deviation 1 in the train
 
 :::
 
-. . .
+<!-- . . .
 
 <br>
-KNN is simple and flexible, but requires careful preprocessing, model evaluation and hyperparameter tuning.
+KNN is simple and flexible, but requires careful preprocessing, model evaluation and hyperparameter tuning. -->
 
 
 
@@ -802,11 +804,21 @@ par(op)
 ::: footer
 :::
 
+
+::: notes
+The idea is that a larger margin should make our classifier less sensitive to small changes in the data and potentially help it generalize to new observations.
+
+Notice the circled observations in plot B. These are called support vectors. They are particularly important because they determine the position of the boundary.
+
+SVM can extend to multiple classes. One common approach is to train a separate SVM for every pair of classes, and then combine their predictions to assign a new observation to one of the classes.
+Each binary SVM still uses the same maximum-margin principle. We just combine multiple binary classifiers to solve a multiclass problem.
+:::
+
 ## SVM {.smaller}
 *Soft-margin SVM: Allowing classification errors*
 <br>
 
-- Real biological data often contain **noise, variability and overlapping classes**, making perfect separation impossible.
+- Biological data often contain **noise, variability and overlapping classes**, making perfect separation impossible.
 - **Soft-margin SVM** allows some observations to fall inside the margin or be misclassified.
 - The hyperparameter **$C$ (cost)** controls the trade-off between maximizing the margin and penalizing margin violations:
   - **Small $C$:** Stronger regularization → wider margin, more tolerance for violations.
@@ -891,8 +903,8 @@ par(op)
 - **Kernel functions** allow SVM to learn nonlinear decision boundaries by implicitly working in a transformed feature space.
 - Common kernels:
   - **Linear:** Linear decision boundary.
-  - **Polynomial:** Captures polynomial relationships.
   - **Radial Basis Function (RBF):** Flexible, nonlinear decision boundaries.
+  - **Polynomial:** Captures polynomial relationships.
 :::
 
 ::: {.column width="5%"}
@@ -976,12 +988,16 @@ par(op)
 
 
 ## SVM {.smaller}
-*Nonlinear SVM: The kernel trick*
+*RBF kernel*
 <br>
 
 
 :::: {.columns}
 ::: {.column width="45%"}
+
+$$
+K(x, z) = \exp\left(-\gamma \|x-z\|^2\right)
+$$
 
 - For the **RBF kernel**, $\gamma$ controls how quickly similarity decreases with distance:
   - **Small $\gamma$:** Broader influence of observations → generally smoother boundaries.
@@ -1070,43 +1086,55 @@ par(op)
 
 ## SVM
 *Choosing SVM hyperparameters*
+<br><br>
+
+::: incremental
+- **Kernel**: determine whether the decision boundary is linear or nonlinear
+- $C$ and $\gamma$ are examples of **hyperparameters** and they values influence model's flexibility and predictive performance.
+:::
+
+. . .
+
 <br>
-
-SVM has several **hyperparameters** that influence the model's flexibility and predictive performance.
-
 <br>
 
 | Hyperparameter | Role |
 |---|---|
-| **Kernel** | Determines whether the decision boundary is linear or nonlinear. |
 | **$C$ (cost)** | Controls regularization and penalties for margin violations. |
 | **$\gamma$ (gamma)** | Controls how localized the influence of observations is (RBF kernel). |
 
-<br>
+<br><br>
 
-- **Model parameters** (e.g., weights and intercept) are learned during training.
+. . . 
+
 - **Hyperparameters** are selected using **validation or cross-validation**.
 
 
 ## SVM
 <br>
 
-**Advantages**
+[{{< fa circle-check >}}]{style="color: #2E8B57;"} **Advantages**
 
+::: incremental
 - Can work well in high-dimensional feature spaces, such as gene expression or methylation datasets.
 - Can model both linear and nonlinear decision boundaries.
 - Regularization allows control over model complexity.
 - Can generalize well when the kernel and hyperparameters are appropriately selected.
+:::
 
 <br>
 
-**Limitations**
+. . . 
 
+[{{< fa circle-xmark >}}]{style="color: #C0392B;"} **Limitations**
+
+::: incremental
 - Requires careful selection of hyperparameters.
 - Performance can be sensitive to feature scaling.
 - Kernel SVMs can become computationally expensive for large datasets.
 - Nonlinear SVMs are often less interpretable than simpler linear models.
 - Performance may be affected by noisy features, class imbalance, and the choice of kernel.
+:::
 
 
 ## KNN vs SVM
@@ -1583,6 +1611,10 @@ There is no single best metric for every classification problem.
 - **PR AUC / AP:** Particularly informative for rare positive outcomes.
 :::
 
+::: notes
+PR AUC: 0 to 1, but random = prevalence of the positive class
+:::
+
 # Model evaluation: regression
 
 ## Evaluating regression models
@@ -1635,7 +1667,9 @@ ggplot(data, aes(x = observed, y = predicted)) +
 
 ## Evaluating regression models {.smaller}
 *Regression metrics*
-<br>
+<br><br>
+
+. . .
 
 ::: {.text-box-1}
 **Mean Absolute Error (MAE)**
@@ -1647,6 +1681,8 @@ $$
 - Average absolute prediction error, in the **same units as the outcome**.
 :::
 
+. . .
+
 ::: {.text-box-2}
 **Mean Squared Error (MSE)**
 
@@ -1656,6 +1692,8 @@ $$
 
 - Penalizes large errors more strongly; expressed in **squared units**.
 :::
+
+. . .
 
 ::: {.text-box-1}
 **Root Mean Squared Error (RMSE)**
@@ -1696,14 +1734,13 @@ The choice of evaluation metric should reflect the scientific question and the c
 <br>
 
 - **Hyperparameters** control how a model learns and how flexible it is.
-- Unlike model parameters, they are **not learned directly during model fitting**.
 
 . . .
 
 **Examples:**
 
 - **KNN:** Number of neighbors ($k$).
-- **SVM:** Regularization parameter ($C$), kernel type, and $\gamma$ for the RBF kernel.
+- **SVM:** Regularization parameter ($C$) and $\gamma$ for the RBF kernel.
 
 . . .
 
@@ -1712,6 +1749,48 @@ The choice of evaluation metric should reflect the scientific question and the c
 
 ## Hyperparameter tuning using a validation set
 <br>
+
+```{r}
+#| label: train-valid-test-02
+#| echo: false
+#| fig-format: png
+#| fig-dpi: 300
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 1.3
+#| out-width: 85%
+
+op <- par(mar = c(0, 0, 0, 0), xpd = NA)
+
+plot(
+  NA,
+  xlim = c(0, 100),
+  ylim = c(0, 1),
+  axes = FALSE,
+  xlab = "",
+  ylab = "",
+  bty = "n",
+  xaxs = "i",
+  yaxs = "i"
+)
+
+# Data splits
+rect(0, 0.42, 60, 0.95, col = "#D8E9F7", border = "white", lwd = 2)
+rect(60, 0.42, 80, 0.95, col = "#F9E5C8", border = "white", lwd = 2)
+rect(80, 0.42, 100, 0.95, col = "#D7E9DD", border = "white", lwd = 2)
+
+# Labels
+text(30, 0.69, "Training\n60%", cex = 1.05)
+text(70, 0.69, "Validation\n20%", cex = 1.05)
+text(90, 0.69, "Test\n20%", cex = 1.05)
+
+# Purpose of each split
+text(30, 0.20, "Fit model", cex = 0.9)
+text(70, 0.20, "Select model", cex = 0.9)
+text(90, 0.20, "Final evaluation", cex = 0.9)
+
+par(op)
+```
 
 Consider KNN classification. We want to choose the number of neighbors, $k$.
 
@@ -1729,7 +1808,6 @@ A simple approach is to:
 
 ::: {.text-box-1}
 However, **the result may depend on which observations happen to be included in that split**.
-A different random split might produce a different optimal value of $k$.
 :::
 
 ## K-fold cross-validation
@@ -1756,15 +1834,93 @@ For each candidate hyperparameter value:
 
 ::: {.column width="45%"}
 
-<br>
+```{r}
+#| label: split-dev-test-cv
+#| fig-cap: "Data are first split into a development set and an independent test set. Cross-validation is then performed only within the development set."
+#| fig-width: 9
+#| fig-height: 3.8
+#| fig-align: center
+#| echo: false
 
+dev_col  <- "#8BB5D6"
+test_col <- "#CFCFCF"
+val_col  <- "#E5A04B"
+
+op <- par(
+  mar = c(3, 1, 0, 1)
+)
+
+plot(
+  NA,
+  xlim = c(0, 10),
+  ylim = c(0, 4),
+  axes = FALSE,
+  xlab = "",
+  ylab = "",
+  bty = "n"
+)
+
+# --- Top row: full data split into development and test ---
+text(5, 3.6, "Step 1: Split data into development and test sets", cex = 1.1)
+
+# Development set
+rect(1, 2.7, 6.8, 3.2, col = dev_col, border = "white", lwd = 2)
+text(3.9, 2.95, "Development set", cex = 1)
+
+# Test set
+rect(6.8, 2.7, 9.2, 3.2, col = test_col, border = "white", lwd = 2)
+text(8.0, 2.95, "Test set", cex = 1)
+
+# --- Bottom row: CV inside development only ---
+text(5, 2.1, "Step 2: Perform cross-validation only within the development set", cex = 1.1)
+
+x_start <- 1
+x_end   <- 6.8
+fold_width <- (x_end - x_start) / 5
+
+for (j in 1:5) {
+  rect(
+    xleft = x_start + (j - 1) * fold_width,
+    ybottom = 0.9,
+    xright = x_start + j * fold_width,
+    ytop = 1.5,
+    col = if (j == 3) val_col else dev_col,
+    border = "white",
+    lwd = 2
+  )
+}
+
+text((x_start + x_end) / 2, 0.55, "Example CV split within development set", cex = 0.95)
+text(seq(x_start + fold_width/2, x_end - fold_width/2, length.out = 5),
+     1.2,
+     labels = paste("Fold", 1:5),
+     cex = 0.9)
+
+# Test set shown separately below too
+rect(6.8, 0.9, 9.2, 1.5, col = test_col, border = "white", lwd = 2)
+text(8.0, 1.2, "Test set", cex = 0.9)
+
+legend(
+  "bottom",
+  legend = c("Development / training portion", "Validation fold", "Independent test set"),
+  fill = c(dev_col, val_col, test_col),
+  bty = "n",
+  horiz = TRUE,
+  cex = 0.95,
+  inset = c(0, -0.02),
+  xpd = TRUE
+)
+
+par(op)
+```
 
 
 ```{r}
-#| label: fig-fivefold-cv
-#| fig-cap: "Five-fold cross-validation. Each fold is used once for validation, while the remaining folds are used for training."
+#| label: fivefold-cv
+#| fig-cap: "Within the development set, five-fold cross-validation is performed. Each fold is used once for validation, while the remaining folds are used for training."
 #| fig-width: 8
 #| fig-height: 4.5
+#| fig-align: center
 #| echo: false
 
 k_folds <- 5
@@ -1839,6 +1995,9 @@ par(op)
 :::
 
 ::::
+
+::: footer
+:::
 
 
 ## K-fold cross-validation
@@ -1932,23 +2091,118 @@ par(op)
 ## Nested cross-validation
 <br>
 
-**Nested cross-validation** uses two CV loops to separate model selection from performance evaluation.
+Nested cross-validation uses **two CV loops** to separate model selection from performance evaluation.
 
-- **Inner loop:** Selects the best hyperparameters using cross-validation on the outer training data.
-- **Outer loop:** Evaluates the selected model on held-out observations not used during tuning.
-- The process is repeated across all outer folds, and performance is **summarized across outer test folds**.
+- **Inner CV:** Tunes hyperparameters using the outer training data.
+- **Outer CV:** Evaluates the tuned model on held-out outer test folds.
+- **Final result:** Predictive performance is summarized across outer test folds.
 
-. . .
+```{r}
+#| label: nested-cv-diagram
+#| echo: false
+#| fig-format: png
+#| fig-dpi: 250
+#| fig-align: center
+#| fig-width: 9
+#| fig-height: 3.5
+#| out-width: 80%
 
-**Advantages:**
+train_col <- "#8BB5D6"
+valid_col <- "#E5A04B"
+test_col  <- "#A8D5BA"
+unused_col <- "#E8E8E8"
 
-- Reduces optimistic bias caused by hyperparameter tuning.
+op <- par(mar = c(0.3, 0.5, 0.3, 0.5))
+
+plot(
+  NA,
+  xlim = c(0, 10),
+  ylim = c(0, 7),
+  axes = FALSE,
+  xlab = "", ylab = "",
+  xaxs = "i", yaxs = "i"
+)
+
+draw_block <- function(x1, x2, y, color, label = "") {
+  rect(
+    x1, y, x2, y + 0.52,
+    col = color, border = "white", lwd = 2
+  )
+  if (nzchar(label)) {
+    text((x1 + x2) / 2, y + 0.26,
+         label, cex = 0.85)
+  }
+}
+
+# Outer CV
+text(5, 6.65, "Outer CV: Performance evaluation",
+     font = 2, cex = 1.15)
+
+outer_x <- seq(1.5, 8.7, length.out = 4)
+
+for (i in 1:3) {
+  y <- 5.8 - (i - 1) * 0.75
+
+  text(1.25, y + 0.26, paste("Run", i),
+       adj = 1, cex = 0.9)
+
+  for (j in 1:3) {
+    draw_block(
+      outer_x[j], outer_x[j + 1], y,
+      if (i == j) test_col else train_col,
+      if (i == j) "Test" else "Train"
+    )
+  }
+}
+
+# Arrow to inner CV
+arrows(5.1, 4.25, 5.1, 3.6,
+       length = 0.10, lwd = 1.5)
+
+text(6.6, 3.9, "Outer Run 1 training data",
+     cex = 0.85, adj = 0)
+
+# Inner CV
+text(5, 3.35, "Inner CV: Hyperparameter tuning",
+     font = 2, cex = 1.15)
+
+inner_x <- seq(1.5, 6.3, length.out = 4)
+
+for (i in 1:3) {
+  y <- 2.45 - (i - 1) * 0.65
+
+  text(1.25, y + 0.26, paste("Run", i),
+       adj = 1, cex = 0.9)
+
+  for (j in 1:3) {
+    draw_block(
+      inner_x[j], inner_x[j + 1], y,
+      if (i == j) valid_col else train_col,
+      if (i == j) "Validation" else "Train"
+    )
+  }
+
+  draw_block(6.3, 8.7, y, unused_col, "Outer test: unused")
+}
+
+legend(
+  "bottom",
+  legend = c("Training", "Inner validation",
+             "Outer test", "Not used in inner CV"),
+  fill = c(train_col, valid_col, test_col, unused_col),
+  horiz = TRUE,
+  bty = "n",
+  cex = 0.8,
+  inset = c(0, -0.005),
+  xpd = TRUE
+)
+
+par(op)
+```
+
+::: notes
 - Particularly useful for **small datasets**, where efficient use of observations is important.
-
-. . . 
-
-::: {.text-box-1}
-The inner loop selects the model; the outer loop estimates the performance of the entire model-selection procedure.
+- The inner loop selects the model; the outer loop estimates the performance of the entire model-selection procedure.
 :::
 
 
@@ -1959,6 +2213,8 @@ The inner loop selects the model; the outer loop estimates the performance of th
 
 - **R:** `caret`, `tidymodels`, `mlr3`
 - **Python:** `scikit-learn`
+
+. . .
 
 **Specialized libraries:**
 
