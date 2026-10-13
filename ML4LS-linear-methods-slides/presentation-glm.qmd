@@ -1,0 +1,443 @@
+---
+title: "From linear models to GLMs"
+# subtitle: "From linear models to GLMs"
+# author: Olga Dethlefsen
+format: 
+  revealjs:
+    slide-number: true
+    theme: [default, styles.scss]
+    chalkboard: 
+      buttons: true
+    footer: "Statistical Methods for Life Sciences"
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+
+---
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(faraway)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(gridExtra)
+library(ggiraphExtra)
+library(latex2exp)
+
+font.size <- 16
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- 
+  theme_bw() + 
+  theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") 
+        
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+
+```
+
+
+## Plan for today {.central}
+<br>
+
+
+Let's
+
+::: incremental
+
+- see how to expand linear models to model outcomes other than continous
+- and practice some common cases together
+
+:::
+
+
+## Linear models describe expected outcomes
+<br>
+
+In the linear model, we describe the expected value of the outcome:
+
+$$
+E(Y_i \mid \mathbf{x}_i)
+=
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}
+$$
+
+This works well for many continuous outcomes.
+
+. . .
+
+<br>
+
+But not all outcomes are continuous.
+
+## When the outcome is not continuous
+<br>
+
+Examples:
+
+- binary: disease yes/no, response yes/no
+- counts: number of events, number of cases
+- proportions: successes out of trials
+
+. . .
+
+<br>
+
+For these outcomes, the expected value has restrictions:
+
+::: incremental
+
+- probabilities must be between 0 and 1
+- expected counts must be positive
+
+:::
+
+## Restrictions
+*Example*
+
+<br>
+
+
+-   Fitting a regression line to binary data yields predicted values that could take any value, including $<0$,
+
+
+```{r}
+#| label: log-example
+#| message: false
+#| warning: false
+#| fig-cap: "Example of fitting linear model to binary data, to model obesity status coded as 1 (Yes) and 0 (No) with waist variable. Linear model does not fit the data well in this case and the predicted values can take any value, not only 0 and 1."
+#| fig-cap-location: bottom
+#| fig-height: 10
+
+font.size <- 24
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme_bw() + 
+  theme(axis.title = element_text(size = font.size),
+        axis.text = element_text(size = font.size),
+        legend.text = element_text(size = font.size),
+        legend.title = element_blank(),
+        legend.position = "top") 
+        
+
+data_diabetes %>%
+  mutate(obese = as.numeric(obese) - 1) %>%
+  ggplot(aes(y=obese, x=waist)) +
+  geom_jitter(width=0, height = 0.1, size = 3, alpha = 0.8) +
+  geom_smooth(method="lm", se=FALSE, color=col.blue.dark) + 
+  my.ggtheme
+
+```
+
+
+## The GLM idea
+
+We keep the same **linear predictor**:
+
+$$
+\eta_i =
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+$$
+
+But instead of modelling the expected outcome directly, we connect it to
+the linear predictor through a **link function**:
+
+$$
+g(\mu_i)=\eta_i,
+$$
+
+where
+
+$$
+\mu_i=E(Y_i\mid\mathbf{x}_i).
+$$
+
+## Link functions {.center}
+
+<br>
+
+| Outcome              | Model               | Distribution | Link     |
+| -------------------- | ------------------- | ------------ | -------- |
+| Continuous           | Linear regression   | Normal       | identity |
+| Binary / proportions | Logistic regression | Binomial     | logit    |
+| Counts               | Poisson regression  | Poisson      | log      |
+| Positive continuous  | Gamma regression    | Gamma        | log      |
+
+
+
+# Logistic regression
+
+## Logistic regression {.smaller}
+
+<br>
+
+::: columns
+::: {.column width="50%"}
+- Since the response variable takes only two values (Yes/No), we use a
+  **logistic regression** model to model the **probability of being obese
+  (Yes)**.
+
+- Let
+
+  $$
+  p_i = P(Y_i = 1)
+  $$
+
+  denote the probability that individual $i$ is obese.
+
+- For a binary response, we assume
+
+  $$
+  Y_i \sim \operatorname{Binomial}(1,p_i),
+  $$
+
+  which is equivalent to a Bernoulli distribution.
+
+- Logistic regression uses the **logit link** to relate this probability to
+  the linear predictor:
+
+  $$
+  \log\left(\frac{p_i}{1-p_i}\right)
+  =
+  \beta_0+\beta_1x_i.
+  $$
+
+- Equivalently, the probability can be written as
+
+  $$
+  p_i =
+  \frac{\exp(\beta_0+\beta_1x_i)}
+  {1+\exp(\beta_0+\beta_1x_i)}.
+  $$
+
+  This ensures that the fitted probabilities always lie between 0 and 1.
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+```{r}
+#| fig-height: 8
+
+p1 <- data_diabetes %>%
+  mutate(obese = as.numeric(obese) - 1) %>%
+  ggplot(aes(y=obese, x=waist)) +
+  geom_jitter(width=0, height = 0.05, alpha = 0.7, size = 3) +
+  my.ggtheme
+
+p2 <- data_diabetes %>%
+  ggplot(aes(x = obese, y = waist, fill = obese)) + 
+  geom_boxplot() + 
+  scale_fill_brewer(palette = "Set2") + 
+  my.ggtheme
+
+# 
+p1
+```
+:::
+:::
+
+
+## Logistic regression
+*R* 
+<br>
+
+In R we can use `glm()` function to fit GLM models:
+
+``` r
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+
+# print model summary
+print(summary(logmodel_1))
+```
+
+```{r}
+#| code-fold: false
+#| collapse: true
+#| message: false
+#| warning: false
+#| fig-cap: "Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status."
+
+# re-code obese status from Yes/No to 1/0
+data_diabetes <- 
+  data_diabetes %>%
+  mutate(obese = as.numeric(obese) - 1)
+
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+
+# print model summary
+print(summary(logmodel_1))
+
+```
+
+
+. . .
+
+## Logistic regression
+
+*R* <br>
+
+```{r}
+#| code-fold: false
+#| collapse: true
+#| message: false
+#| warning: false
+#| fig-cap: "Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status."
+#| fig-width: 10
+#| fig-height: 6
+#| fig-align: center
+
+
+font.size <- 14
+col.blue.light <- "#a6cee3"
+col.blue.dark <- "#1f78b4"
+my.ggtheme <- theme(axis.title = element_text(size = font.size), 
+        axis.text = element_text(size = font.size), 
+        legend.text = element_text(size = font.size), 
+        legend.title = element_blank(), 
+        legend.position = "top") + 
+        theme_bw()
+
+# plot
+ggPredict(logmodel_1) + 
+  my.ggtheme
+
+```
+
+## Logistic regression
+*Hypothesis testing* 
+<br>
+
+::: columns
+::: {.column width="40%"}
+- As in linear regression, we can test whether a predictor is associated with the outcome by testing
+
+  $$
+  H_0:\beta_j=0.
+  $$
+-  The Wald test compares how far the estimated coefficient is from the value specified under the null hypothesis, relative to its standard error: $$W = \frac{\hat\beta-\beta}{e.s.e.(\hat\beta)} \sim N(0,1)$$
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="55%"}
+``` r
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+summary(logmodel_1)
+```
+
+```{r}
+summary(logmodel_1)
+```
+:::
+:::
+
+
+
+## Logistic regression
+*Deviance (rather than R^2)* 
+<br>
+<br>
+
+- **Deviance** measures how well a model fits the observed data relative to a
+  perfectly fitting (saturated) model. Smaller deviance indicates better fit.
+
+- Deviance can also be used to compare **nested models**, for example to test
+  whether adding an explanatory variable improves the model.
+
+- In a **likelihood ratio test**, the test statistic is the difference in
+  deviance between the reduced and full models:
+
+  $$
+  \Delta D = D_{\text{reduced}} - D_{\text{full}}.
+  $$
+
+  Under the null hypothesis,
+
+  $$
+  \Delta D \approx \chi^2_{df},
+  $$
+
+  where $df$ is the difference in the number of estimated parameters between
+  the two models.
+
+
+## Logistic regression
+*Odds ratio* 
+<br>
+
+::: columns
+::: {.column width="40%"}
+
+- In logistic regression, we often interpret coefficients by exponentiating them:
+
+  $$
+  OR = e^{\hat{\beta}}.
+  $$
+
+- This gives an **odds ratio**.
+
+- For example, if $\hat{\beta}=0.18$,
+
+  $$
+  e^{0.18}\approx1.2.
+  $$
+
+  This means that for each one-unit increase in `waist`, the odds of obesity are multiplied by about 1.2.
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="55%"}
+``` r
+# fit logistic regression model
+logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
+
+# print model summary
+print(summary(logmodel_1))
+```
+
+```{r}
+summary(logmodel_1)
+```
+:::
+:::
+
+
+# Common cases
+
+-   Let's go over some common linear models cases together.
