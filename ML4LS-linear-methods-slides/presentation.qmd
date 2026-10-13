@@ -64,10 +64,9 @@ data_diabetes <- diabetes %>%
 
 ::: incremental
 
-- Linear regression (recap)
+- Linear regression
 - Generalized linear models
 - Regularization
-- Practical considerations
 
 :::
 
@@ -474,7 +473,7 @@ $$
 
 where:
 
-- $x$: is **predictor**, **feature**,  exposure variable, explanatory variable, independent variable,covariate
+- $x$: is **predictor**, **feature**,  exposure variable, explanatory variable, independent variable, covariate
 - $Y$: is **response**, **outcome**, dependent variable
 - $\alpha$: intercept (coefficient)
 - $\beta$: regression coefficient
@@ -600,25 +599,33 @@ ggplot(data.reg, aes(x=weight, plasma)) +
 :::
 :::
 
+::: notes
+
+Ordinary least squares (OLS) minimizes the residual sum of squares (RSS) analytically, using differentiation. Differentiate RSS with respect to each parameter.Set both derivatives equal to zero and solve the resulting equations.
+:::
+
 ## Another way to view the linear model
 *Expected-value interpretation*
 
 <br>
 
-Another way to think about a linear regression model is that it describes the expected value of the outcome for a given value of the predictor.
+A linear regression model describes the **expected value of the outcome for a given value of the predictor**:
 
 $$
 E(Y \mid X=x)=\alpha+\beta x
 $$
 
-. . .
 
-<br>
+
+<!-- <br>
 
 Individuals with the same value of the predictor can have different outcomes. The regression line describes their expected, or average, outcome.
 
-<br>
+<br> -->
 
+::: notes
+Individuals with the same value of the predictor can have different outcomes. The regression line describes their expected, or average, outcome.
+:::
 
 ## Slope
 
@@ -738,8 +745,17 @@ $$
 **Statistical significance does not necessarily imply biological importance or predictive usefulness.**
 :::
 
+::: notes
+
+- $\hat{\alpha}$ and $\hat{\beta}$ are **estimates of unknown population parameters** and are therefore subject to **sampling variation**
+- their precision is quantified by their **standard errors**
+- we can use this uncertainty to test hypotheses about the model parameters
+
+:::
+
 ## Predictions
-<br>
+*Predicting plasma volume given new weight information*
+<br><br>
 
 $$
 \hat{y}_i=0.086+ 0.044 \cdot x_i
@@ -804,7 +820,7 @@ df %>%
 
 
 
-## R^2 and R^2(adj)
+## $R^2$ and $R^2$(adj)
 *measuring the model fit*
 <br>
 
@@ -848,18 +864,27 @@ Measure of model fit is given by $$R^2 = 1 - \frac{RSS}{TSS}$$ where:
 <br>
 
 -   In the case of multiple linear regression we are using the **adjusted version of** $R^2$ to account for multiple predictors:
-$$R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}$$
+
+$$R^2(adj) = 1-\frac{\frac{RSS}{n-p-1}}{\frac{TSS}{n-1}}$$
 :::
 :::
 
 
+::: notes
+
+Model fitting is not equivalent with good predictions on the new data
+
+:::
 ## Multiple regression
+*Beyond simple regression*
 <br>
 
 ```{r}
 #| echo: false
 #| fig-width: 7
 #| fig-height: 4.5
+#| fig-align: center
+
 
 library(ggplot2)
 
@@ -892,148 +917,185 @@ ggplot(df, aes(Age, BMI, color = Sex)) +
     linewidth = 1.2
   ) +
   labs(
-    title = "Multiple regression: Age + Sex",
-    x = "Age (years)",
-    y = "BMI (kg/m²)"
+    title = "BMI ~ Age + Sex",
+    x = "Age",
+    y = "BMI"
   ) +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 12) + 
+  scale_color_brewer(palette = "Set1") + 
+  theme(legend.title = element_blank())
 
 ```
+
+::: footer
+:::
 
 ## Multiple regression
 <br>
 
 ```{r}
-
 #| echo: false
 #| warning: false
+#| fig-align: center
 
 library(plotly)
-
 set.seed(123)
 
 n <- 120
 
 df <- data.frame(
   Age = runif(n, 20, 80),
-  BMI = runif(n, 18, 38)
+  SBP = runif(n, 100, 170)
 )
 
-df$SBP <- 75 + 0.6 * df$Age +
-  1.2 * df$BMI +
-  rnorm(n, sd = 8)
+# Simulate BMI
+df$BMI <- 10 + 0.08 * df$Age +
+  0.10 * df$SBP +
+  rnorm(n, sd = 3)
 
-fit <- lm(SBP ~ Age + BMI, data = df)
+# Multiple linear regression
+fit <- lm(BMI ~ Age + SBP, data = df)
 
 age_grid <- seq(20, 80, length.out = 30)
-bmi_grid <- seq(18, 38, length.out = 30)
+sbp_grid <- seq(100, 170, length.out = 30)
 
 # Predicted values on the regression plane
-grid <- expand.grid(Age = age_grid, BMI = bmi_grid)
+grid <- expand.grid(
+  Age = age_grid,
+  SBP = sbp_grid
+)
 
 z <- matrix(
   predict(fit, newdata = grid),
   nrow = length(age_grid),
-  ncol = length(bmi_grid)
+  ncol = length(sbp_grid)
 )
 
 plot_ly() %>%
   add_markers(
     data = df,
-    x = ~Age, y = ~BMI, z = ~SBP,
-    marker = list(size = 3, color = "#4477AA",
-                  opacity = 0.65),
+    x = ~Age, y = ~SBP, z = ~BMI,
+    marker = list(
+      size = 3,
+      color = "#4477AA",
+      opacity = 0.65
+    ),
     name = "Observations"
   ) %>%
   add_surface(
     x = age_grid,
-    y = bmi_grid,
+    y = sbp_grid,
     z = t(z),
     opacity = 0.55,
     showscale = FALSE,
     name = "Regression plane"
   ) %>%
   layout(
-    title = "Multiple regression: Age + BMI",
+    title = "BMI ~ Age + SBP",
     scene = list(
-      xaxis = list(title = "Age (years)"),
-      yaxis = list(title = "BMI (kg/m²)"),
-      zaxis = list(title = "Systolic BP (mmHg)")
+      xaxis = list(title = "Age"),
+      yaxis = list(title = "Systolic BP"),
+      zaxis = list(title = "BMI")
     )
   )
-
 ```
 
 
-## Assumptions of linear regression
+## The assumptions of a linear model
 <br>
 
-Ordinary linear regression relies on several assumptions:
+. . .
 
-- **Linearity:** The expected outcome is a linear combination of the predictors.
-- **Independence:** Errors are independent across observations.
-- **Constant variance (homoscedasticity):** Errors have similar variance across fitted values.
-- **Normality:** Errors are normally distributed (important for classical small-sample inference).
-- **No perfect multicollinearity:** Predictors are not exact linear combinations of one another.
+::: incremental
 
+- **Linearity:** the expected value of $Y$ is a linear function of the model coefficients.
+- **Independence of errors:** errors from different observations are independent.
+- **Normality of errors:** errors are normally distributed.
+- **Constant variance (homoscedasticity):** the variance of the errors is constant across predictor values.
+:::
+
+
+. . .
+
+**Residuals**, $e_i = y_i - \hat{y}_i$ are the **main ingredient to check model assumptions**.
+
+```{r}
+#| code-fold: false
+#| collapse: true
+#| fig-height: 3.5
+
+# fit simple linear regression model
+model <- lm(BMI ~ waist, data = data_diabetes)
+par(mfrow=c(1,2), mar = c(3, 2, 2, 1) + 0.1)
+plot(model, which = 1:2)
+```
+
+::: footer
+:::
+
+## Simple and multiple regression
+*Recap*
+<br><br>
+
+::: incremental
+- Useful when we want to predict a **numerical outcome**.
+- **Simple regression** uses one predictor, while **multiple regression** uses two or more predictors.
+- Ordinary linear regression assumes a **linear relationship** between predictors and the expected outcome.
+- But what if the outcome is **binary**, a **count**, **proportion** or another type of variable?
+:::
 
 # Generalized Linear Models (GLMs)
 
 
-## Linear models describe expected outcomes
+## GLMs
+*Why do we need GLMs?*
 <br>
 
-In the linear model, we describe the expected value of the outcome:
+. . .
+
+In ordinary linear regression, the expected outcome is modeled as:
 
 $$
-E(Y_i \mid \mathbf{x}_i)
-=
-\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}
+E(Y_i \mid \mathbf{x}_i) = \beta_0 + \beta_1 x_{1i} + \cdots + \beta_p x_{pi}
 $$
 
-This works well for many continuous outcomes.
+. . . 
+
+<br>
+
+This works well for many **continuous outcomes**, but if our outcome is:
+
+- **Binary:** disease yes/no, treatment response yes/no
+- **Count:** number of events, number of cases
+- **Proportion:** number of successes out of trials
 
 . . .
 
 <br>
 
-But not all outcomes are continuous.
+The expected value must respect certain **constraints**:
 
-## When the outcome is not continuous
+- Probabilities must be between **0 and 1**.
+- Expected counts cannot be **negative**.
+
 <br>
-
-Examples:
-
-- binary: disease yes/no, response yes/no
-- counts: number of events, number of cases
-- proportions: successes out of trials
 
 . . .
 
-<br>
+**Generalized linear models (GLMs)** extend linear regression to accommodate these different types of outcomes.
 
-For these outcomes, the expected value has restrictions:
 
-::: incremental
-
-- probabilities must be between 0 and 1
-- expected counts must be positive
-
-:::
-
-## Restrictions
+## Constraints
 *Example*
-
 <br>
 
--   Fitting a regression line to binary data yields predicted values that could take any value, including $<0$,
-
+<!-- -   Fitting a regression line to binary data yields predicted values that could take any value, including $<0$, -->
 
 ```{r}
 #| label: log-example
 #| message: false
 #| warning: false
-#| fig-cap: "Example of fitting linear model to binary data, to model obesity status coded as 1 (Yes) and 0 (No) with waist variable. Linear model does not fit the data well in this case and the predicted values can take any value, not only 0 and 1."
+#| fig-cap: "Fitting linear model to binary data, to model `high BMI status` coded as 1 (BMI>30) and 0 (otherwise) using `waist` variable. Linear model does not fit the data well in this case and the predicted values can take any value, not only 0 and 1."
 #| fig-cap-location: bottom
 #| fig-height: 10
 
@@ -1049,11 +1111,13 @@ my.ggtheme <- theme_bw() +
         
 
 data_diabetes %>%
-  mutate(obese = as.numeric(obese) - 1) %>%
-  ggplot(aes(y=obese, x=waist)) +
+  mutate(BMI_gt30 = ifelse(BMI > 30, 1, 0)) |>
+  mutate(BMI_gt30 = as.numeric(obese) - 1) %>%
+  ggplot(aes(y=BMI_gt30, x=waist)) +
   geom_jitter(width=0, height = 0.1, size = 3, alpha = 0.8) +
   geom_smooth(method="lm", se=FALSE, color=col.blue.dark) + 
-  my.ggtheme
+  my.ggtheme + 
+  ylab("BMI>30")
 
 ```
 
@@ -1102,8 +1166,11 @@ data_diabetes <- input_diabetes %>%
 
 ```
 
+::: footer
+:::
 
 ## The GLM idea
+<br>
 
 We keep the same **linear predictor**:
 
@@ -1112,126 +1179,90 @@ $$
 \beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
 $$
 
-But instead of modelling the expected outcome directly, we connect it to
-the linear predictor through a **link function**:
+But instead of modelling the expected outcome directly, we connect it to the linear predictor using a **link function**:
 
 $$
-g(\mu_i)=\eta_i,
+\boxed{g(\mu_i) = \eta_i}
 $$
 
-where
+where $\mu_i = E(Y_i \mid \mathbf{x}_i)$ is the **expected outcome**.
 
-$$
-\mu_i=E(Y_i\mid\mathbf{x}_i).
-$$
 
-## Link functions {.center}
+
+
+::: notes
+
+- $\eta$, eta pronounced “EE-tuh”, represents the linear predictor
+- $\mu$,  pronounced “mew”, the expected outcome
+
+:::
+
+
+## The link function
+<br>
+
+Different link functions allow us to model different types of outcomes:
 
 <br>
 
-| Outcome              | Model               | Distribution | Link     |
-| -------------------- | ------------------- | ------------ | -------- |
-| Continuous           | Linear regression   | Normal       | identity |
-| Binary / proportions | Logistic regression | Binomial     | logit    |
-| Counts               | Poisson regression  | Poisson      | log      |
-| Positive continuous  | Gamma regression    | Gamma        | log      |
-
-
-
-# Logistic regression
-
-## Logistic regression {.smaller}
+| Outcome | Model | Distribution | Link function $g(\mu)$ |
+|---|---|---|---|
+| Continuous | Linear regression | Gaussian | Identity: $\mu$ |
+| Binary / proportions | Logistic regression | Binomial | Logit: $\log\left(\frac{\mu}{1-\mu}\right)$ |
+| Counts | Poisson regression | Poisson | Log: $\log(\mu)$ |
+| Positive continuous | Gamma regression | Gamma | Log: $\log(\mu)$ |
 
 <br>
 
-::: columns
-::: {.column width="50%"}
-- Since the response variable takes only two values (Yes/No), we use a
-  **logistic regression** model to model the **probability of having BMI over 30
-  (Yes)**.
+All models share the same general structure:
 
-- Let
+$$
+g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{1i} + \cdots + \beta_p x_{pi}
+$$
 
-  $$
-  p_i = P(Y_i = 1)
-  $$
-
-  denote the probability that individual $i$ has BMI > 30
-
-- For a binary response, we assume
-
-  $$
-  Y_i \sim \operatorname{Binomial}(1,p_i),
-  $$
-
-  which is equivalent to a Bernoulli distribution.
-
-- Logistic regression uses the **logit link** to relate this probability to
-  the linear predictor:
-
-  $$
-  \log\left(\frac{p_i}{1-p_i}\right)
-  =
-  \beta_0+\beta_1x_i.
-  $$
-
-- Equivalently, the probability can be written as
-
-  $$
-  p_i =
-  \frac{\exp(\beta_0+\beta_1x_i)}
-  {1+\exp(\beta_0+\beta_1x_i)}.
-  $$
-
-  This ensures that the fitted probabilities always lie between 0 and 1.
+::: notes
+- Distribution (family): Describes how the observed outcome \(Y\) varies around its expected value.
+- Link function: Describes how the expected outcome is connected to the linear predictor.
 :::
 
-::: {.column width="5%"}
-:::
 
-::: {.column width="45%"}
+## Example: logistic regression
+
+Suppose we want to predict whether an individual has **BMI > 30** using age.
+
+<br>
+
+- **Outcome:** $Y_i = 1$ if BMI > 30, otherwise $Y_i = 0$
+- **Distribution:** $Y_i \sim \operatorname{Bernoulli}(p_i)$
+- **Expected outcome:** $E(Y_i \mid x_i) = p_i$
+
+. . .
+
+Logistic regression uses the **logit link**:
+
+$$
+\underbrace{\log\left(\frac{p_i}{1-p_i}\right)}_{\text{logit link}}
+=
+\underbrace{\beta_0 + \beta_1 x_i}_{\text{linear predictor}}
+$$
+
+where $p_i = P(Y_i = 1 \mid x_i)$.
+
+## Logistic regression: predicting probabilities
+
+The inverse logit transforms the linear predictor into a probability:
+
+$$
+p_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_i)}}
+$$
+
 ```{r}
-#| fig-height: 8
-
 p1 <- data_diabetes %>%
   mutate(BMI_gt30 = as.numeric(BMI_gt30)) %>% 
   ggplot(aes(y=BMI_gt30, x=waist)) +
   geom_jitter(width=0, height = 0.05, alpha = 0.7, size = 3) +
-  my.ggtheme
-
-p2 <- data_diabetes %>%
-  ggplot(aes(x = BMI_gt30, y = waist, fill = BMI_gt30)) + 
-  geom_boxplot() + 
-  scale_fill_brewer(palette = "Set2") + 
-  my.ggtheme
-
-p1
-```
-
-:::
-:::
-
-
-## Logistic regression
-*R* 
-<br>
-
-In R we can use `glm()` function to fit GLM models:
-
-``` r
-# fit logistic regression model
-logmodel_1 <- glm(obese ~ waist, family = binomial(link="logit"), data = data_diabetes)
-
-# print model summary
-print(summary(logmodel_1))
-```
-
-```{r}
-#| code-fold: false
-#| collapse: true
-#| message: false
-#| warning: false
-#| fig-cap: "Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status."
+  my.ggtheme + 
+  ylab("BMI>30")
 
 # re-code obese status from Yes/No to 1/0
 data_diabetes <- 
@@ -1242,27 +1273,7 @@ data_diabetes <-
 logmodel_1 <- glm(BMI_gt30 ~ waist, family = binomial(link="logit"), data = data_diabetes)
 
 # print model summary
-print(summary(logmodel_1))
-
-```
-
-
-. . .
-
-## Logistic regression
-
-*R* <br>
-
-```{r}
-#| code-fold: false
-#| collapse: true
-#| message: false
-#| warning: false
-#| fig-cap: "Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status."
-#| fig-width: 10
-#| fig-height: 6
-#| fig-align: center
-
+# print(summary(logmodel_1))
 
 font.size <- 14
 col.blue.light <- "#a6cee3"
@@ -1272,26 +1283,71 @@ my.ggtheme <- theme(axis.title = element_text(size = font.size),
         legend.text = element_text(size = font.size), 
         legend.title = element_blank(), 
         legend.position = "top") + 
-        theme_bw()
-
-# plot
-ggPredict(logmodel_1) + 
+        theme_bw() + 
+        ylab("Probablity of BMI>30") +
   my.ggtheme
 
+# plot
+# ggPredict(logmodel_1, col = "red") + 
+#   my.ggtheme 
+
+p <- ggPredict(logmodel_1)
+p$layers[[length(p$layers)]]$aes_params$colour <- "#4477AA"
+p$layers[[length(p$layers)]]$aes_params$linewidth <- 1.5
+p + my.ggtheme + ylab("Probability BMI>30")
 ```
+
+**The link function allows a linear predictor to produce probabilities between 0 and 1.**
+
+::: footer
+:::
+
+## Logistic regression
+<br>
+
+R
+
+```r
+# fit logistic regression model
+library(glm)
+logmodel_1 <- glm(BMI_gt30 ~ waist, family = binomial(link="logit"), data = data_diabetes)
+```
+
+<br>
+
+Python
+
+```python
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+logmodel_1 = smf.glm(
+    formula="BMI_gt30 ~ waist",
+    data=data_diabetes,
+    family=sm.families.Binomial(link=sm.families.links.Logit())
+).fit()
+```
+
+. . .
+
+<br>
+
+Or as part of `tidymodels` and `scikit-learn`
+
 
 ## Logistic regression
 *Inference & Predictions* 
-<br>
+<br><br>
 
 ::: columns
 ::: {.column width="40%"}
-- As in linear regression, we can test whether a predictor is associated with the outcome by testing
+- We can test whether a predictor is associated with the outcome by testing
 
   $$
   H_0:\beta_j=0.
   $$
 
+- We classify new observations by applying a probability threshold (e.g., 0.5) to the predicted probabilities.
 :::
 
 ::: {.column width="5%"}
@@ -1312,32 +1368,83 @@ summary(logmodel_1)
 :::
 
 
+
+## How are logistic regression coefficients estimated?
+<br>
+
+
+**Maximum likelihood estimation (MLE)** finds the coefficients that make the observed outcomes most probable.
+
+The coefficients are estimated by maximizing the likelihood:
+
+$$
+\hat{\boldsymbol{\beta}} = \arg\max_{\boldsymbol{\beta}} L(\boldsymbol{\beta})
+$$
+<br>
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-width: 9
+#| fig-height: 4
+#| out-width: 85%
+
+library(ggplot2)
+
+# Fitted coefficients
+b0 <- coef(logmodel_1)[1]
+b1 <- coef(logmodel_1)[2]
+
+# Vary the slope, holding the intercept fixed
+slopes <- seq(b1 - 0.1, b1 + 0.1, length.out = 200)
+
+# Use observations actually included in the model
+X <- model.matrix(logmodel_1)
+y <- model.response(model.frame(logmodel_1))
+
+# Calculate log-likelihood for each slope
+loglik <- sapply(slopes, function(b) {
+  eta <- b0 + b * X[, 2]
+  sum(dbinom(y, size = 1, prob = plogis(eta), log = TRUE))
+})
+
+df_ll <- data.frame(slope = slopes, loglik = loglik)
+
+ggplot(df_ll, aes(slope, loglik)) +
+  geom_line(color = "#4477AA", linewidth = 1.3) +
+  geom_vline(
+    xintercept = b1, linetype = "dashed",
+    color = "#CC6677"
+  ) +
+  labs(
+    x = expression(beta[1] ~ "(waist coefficient)"),
+    y = "Log-likelihood"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+
+
+::: notes
+- Unlike ordinary linear regression, logistic regression estimates coefficients using **maximum likelihood estimation (MLE)** rather than minimizing RSS.
+- MLE finds the coefficients that make the **observed outcomes most probable**, typically using iterative numerical optimization.
+- The horizontal axis shows different possible values of the waist coefficient. The vertical axis shows how well those values explain the outcomes we observed, measured by log-likelihood. We choose the coefficients where the likelihood is highest.”
+:::
+
 ## Logistic regression
 *Deviance (rather than $R^2$)* 
-<br>
-<br>
+<br><br>
 
-- **Deviance** measures how well a model fits the observed data relative to a
-  perfectly fitting (saturated) model. Smaller deviance indicates better fit.
 
-- Deviance can also be used to compare **nested models**, for example to test
-  whether adding an explanatory variable improves the model.
+**Deviance:** measures how well the fitted model explains the observed data compared with a perfectly fitting (saturated) model.
 
-- In a **likelihood ratio test**, the test statistic is the difference in
-  deviance between the reduced and full models:
+In R, `summary(glm(...))` reports:
 
-  $$
-  \Delta D = D_{\text{reduced}} - D_{\text{full}}.
-  $$
+- **Null deviance:** deviance of the intercept-only model.
+- **Residual deviance:** deviance of the fitted model.
 
-  Under the null hypothesis,
-
-  $$
-  \Delta D \approx \chi^2_{df},
-  $$
-
-  where $df$ is the difference in the number of estimated parameters between
-  the two models.
+A reduction in deviance indicates improved fit to the training data.
 
 
 ## Logistic regression
@@ -1361,7 +1468,7 @@ summary(logmodel_1)
   e^{0.18}\approx1.2.
   $$
 
-  This means that for each one-unit increase in `waist`, the odds of obesity are multiplied by about 1.2.
+  This means that for each one-unit increase in `waist`, the odds of having $BMI>30$ are multiplied by about 1.2.
 
 :::
 
@@ -1384,14 +1491,38 @@ summary(logmodel_1)
 :::
 
 
-# Regularization
+## From linear models to regularization
+<br>
+
+Both linear and logistic regression estimate model coefficients by **optimizing an objective function**:
+
+- **Linear regression:** minimizes the residual sum of squares (RSS).
+- **Logistic regression:** minimizes the negative log-likelihood.
+
+<br>
+
+. . .
+
+But with **many predictors**, especially correleated predictors:
+
+::: incremental
+
+- Models may **overfit** the training data.
+- Coefficient estimates may become **unstable**.
+- Predictions may generalize poorly to new observations.
+:::
+
+. . .
+
+
+**Regularization** addresses these problems.
+
 
 ## Regularized linear models
 *definition* <br><br>
 
 ::: incremental
 -   Regularized regression expands on the regression by adding a **penalty term(s)** to **shrink the model coefficients** of less important features towards zero.
--   This can help to prevent overfitting and improve the accuracy of the predictive model.
 -   Depending on the penalty added, we talk about **Ridge**, **Lasso** or **Elastic Nets regression**.
 :::
 
@@ -1580,6 +1711,7 @@ ggplot(df, aes(
   theme(
     legend.position = "top"
   )
+
 ```
 
 
