@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="presentation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="presentation_files/libs/quarto-html/tabby.min.js"></script>
+<script src="presentation_files/libs/quarto-html/popper.min.js"></script>
+<script src="presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
+
+  <meta name="author" content="Olga Dethlefsen, PhD">
+  <title>Linear and regularized models</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto-a8a6af3b829b499f088d4e6302670957.css">
+  <link href="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <link href="presentation_files/libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+  <script src="presentation_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+  <script src="presentation_files/libs/plotly-binding-4.12.1/plotly.js"></script>
+  <script src="presentation_files/libs/typedarray-0.1/typedarray.min.js"></script>
+  <script src="presentation_files/libs/jquery-3.5.1/jquery.min.js"></script>
+  <link href="presentation_files/libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+  <script src="presentation_files/libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+  <link href="presentation_files/libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+  <script src="presentation_files/libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Linear and regularized models</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Olga Dethlefsen, PhD 
+</div>
+</div>
+</div>
+
+</section>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
+<p><br><br></p>
+<ul>
+<li class="fragment">Linear regression (recap)</li>
+<li class="fragment">Generalized linear models</li>
+<li class="fragment">Regularization</li>
+<li class="fragment">Practical considerations</li>
+</ul>
+</section>
+<section id="why-linear-and-regularized-models" class="slide level2">
+<h2>Why linear and regularized models?</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li class="fragment"><strong>Simple and interpretable:</strong> Show how predictors relate to outcomes.</li>
+<li class="fragment"><strong>Versatile:</strong> Used for both regression and classification.</li>
+<li class="fragment"><strong>Strong baselines:</strong> Often competitive with more complex models.</li>
+<li class="fragment"><strong>Useful in life sciences:</strong> Regularization helps with high-dimensional data</li>
+<li class="fragment"><strong>Inference and prediction</strong></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-2-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="what-linear-models-are" class="slide level2">
+<h2>What linear models are</h2>
+<p><em>definition</em> <br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li class="fragment"><p>A linear model describes a <strong>continuous outcome</strong> <span class="math inline">\(Y\)</span> using one or more predictors <span class="math inline">\(X\)</span>.</p></li>
+<li class="fragment"><p>For example, <span class="math display">\[ Y_i = \beta_0 + \beta_1x_{1i} + \dots + \beta_px_{pi} + \epsilon_i \]</span></p></li>
+<li class="fragment"><p>where:</p></li>
+<li class="fragment"><p><span class="math inline">\(Y_i\)</span> is the observed outcome for individual <span class="math inline">\(i\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(x_{1i},\dots,x_{pi}\)</span> are predictor values</p></li>
+<li class="fragment"><p><span class="math inline">\(\beta_0,\dots,\beta_p\)</span> are unknown model parameters describing how the expected outcome depends on the predictors (systematic part)</p></li>
+<li class="fragment"><p><span class="math inline">\(\epsilon_i\)</span> represents variation not explained by the systematic part of the model</p></li>
+<li class="fragment"><p>Predictors can be <strong>numerical, categorical, or a mixture of both.</strong></p></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="what-does-linear-mean" class="slide level2">
+<h2>What does “linear” mean?</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p>A linear model is <strong>linear in its model parameters</strong>.</p>
+<p>For example:</p>
+<p><span class="math display">\[
+Y_i = \beta_0 + \beta_1X_i + \epsilon_i
+\]</span></p>
+<p>is a linear model.</p>
+<p><br></p>
+<p>But so is:</p>
+<p><span class="math display">\[
+Y_i = \beta_0 + \beta_1X_i + \beta_2X_i^2 + \epsilon_i
+\]</span></p>
+<p>because the parameters <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> still enter the model linearly.</p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-4-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="simple-linear-regression" class="slide level2">
+<h2>Simple linear regression</h2>
+<p><br></p>
+<div class="fragment">
+<p>Simple linear regression describes the relationship between <strong>the numerical outcome and one numerical explanatory variable</strong></p>
+</div>
+<div class="fragment">
+<div id="exm-simple-lm" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1</strong></span> Weight and plasma volume</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">74</span>, <span class="fl">63.5</span>, <span class="fl">62.0</span>, <span class="fl">70.5</span>, <span class="fl">71.0</span>, <span class="fl">66.0</span>) <span class="co"># body weight (kg)</span></span>
+<span id="cb1-2"><a href=""></a>plasma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">2.86</span>, <span class="fl">3.37</span>, <span class="fl">2.76</span>, <span class="fl">2.62</span>, <span class="fl">3.49</span>, <span class="fl">3.05</span>, <span class="fl">3.12</span>) <span class="co"># plasma volume (liters)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/lm-intro-example-1.png" class="quarto-figure quarto-figure-center" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="footer">
+
+</div>
+</div>
+</section>
+<section id="simple-linear-regression-1" class="slide level2">
+<h2>Simple linear regression</h2>
+<div class="r-stack">
+<p><img data-src="presentation_files/figure-revealjs/fig-lm-01-1.png" class="fragment" width="600" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-lm-02-1.png" class="fragment" width="600" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-lm-03-1.png" class="fragment" width="600" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-lm-03b-1.png" class="fragment" width="600" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-lm-04-1.png" class="fragment" width="600" height="600"></p>
+<p><img data-src="presentation_files/figure-revealjs/fig-lm-05-1.png" class="fragment" width="600" height="600"></p>
+</div>
+</section>
+<section id="simple-linear-regression-2" class="slide level2 smaller">
+<h2>Simple linear regression</h2>
+<p><br></p>
+<p>In other words, we are finding the best-fitting straight line to <strong>build a model</strong> to represent the relationship between plasma volume (<span class="math inline">\(Y\)</span>) and explanatory body weight variable (<span class="math inline">\(x\)</span>)</p>
+<div class="fragment">
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:55%;">
+<p>The model can be written as:</p>
+<p><span class="math display">\[
+Y_i = \alpha + \beta x_i + \epsilon_i,
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(x\)</span>: is <strong>predictor</strong>, <strong>feature</strong>, exposure variable, explanatory variable, independent variable,covariate</li>
+<li><span class="math inline">\(Y\)</span>: is <strong>response</strong>, <strong>outcome</strong>, dependent variable</li>
+<li><span class="math inline">\(\alpha\)</span>: intercept (coefficient)</li>
+<li><span class="math inline">\(\beta\)</span>: regression coefficient</li>
+<li><span class="math inline">\(\epsilon_i\)</span>: random error term</li>
+</ul>
+<p>The fitted model gives predicted values:</p>
+<p><span class="math display">\[
+\hat{y}_i=\hat{\alpha}+\hat{\beta}\cdot x_i
+\]</span> In our case:</p>
+<p><span class="math display">\[
+\hat{y}_i=0.086+ 0.044 \cdot x_i
+\]</span></p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:40%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-6-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="footer">
+
+</div>
+<aside class="notes">
+<ul>
+<li><span class="math inline">\(\epsilon_i\)</span> represents variation of individual observations around the systematic relationship.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="least-squares" class="slide level2">
+<h2>Least squares</h2>
+<p><em>estimating coefficients by minimizing RSS</em> <br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p>Let</p>
+<p><span class="math display">\[
+\hat{y}_i=\hat{\alpha}+\hat{\beta}x_i
+\]</span></p>
+<p>be the fitted value for observation <span class="math inline">\(i\)</span>.</p>
+<ul>
+<li>The <strong>residual</strong> is</li>
+</ul>
+<p><span class="math display">\[
+e_i = y_i-\hat{y}_i
+\]</span></p>
+<ul>
+<li>The <strong>residual sum of squares</strong> is</li>
+</ul>
+<p><span class="math display">\[
+RSS = \sum_{i=1}^n e_i^2
+\]</span></p>
+<div class="text-box-1">
+<ul>
+<li>Least squares chooses <span class="math inline">\(\hat{\alpha}\)</span> and <span class="math inline">\(\hat{\beta}\)</span> to <strong>minimize RSS</strong>.</li>
+</ul>
+</div>
+</div><div class="column" style="width:10%;">
+
+</div><div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/reg-errors-1.png" class="margin-caption quarto-figure quarto-figure-center" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="another-way-to-view-the-linear-model" class="slide level2">
+<h2>Another way to view the linear model</h2>
+<p><em>Expected-value interpretation</em></p>
+<p><br></p>
+<p>Another way to think about a linear regression model is that it describes the expected value of the outcome for a given value of the predictor.</p>
+<p><span class="math display">\[
+E(Y \mid X=x)=\alpha+\beta x
+\]</span></p>
+<div class="fragment">
+<p><br></p>
+<p>Individuals with the same value of the predictor can have different outcomes. The regression line describes their expected, or average, outcome.</p>
+<p><br></p>
+</div>
+</section>
+<section id="slope" class="slide level2">
+<h2>Slope</h2>
+<p><span class="math inline">\(\widehat{plasma} = 0.0857 + 0.0436 \cdot weight\)</span></p>
+<p>Linear regression estimates the model parameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>: <span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span></p>
+<p>The slope <span class="math inline">\(\hat{\beta}=0.0436\)</span> describes the expected change in plasma volume for a one-unit increase in body weight.</p>
+
+<img data-src="presentation_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>Increasing weight by 5 kg corresponds to <span class="math inline">\(3.14 - 2.92 = 0.22\)</span> increase in plasma volume. Increasing weight by 1 kg corresponds <span class="math inline">\(2.96 - 2.92 = 0.04\)</span> increase in plasma volume</p>
+<div class="footer">
+
+</div>
+</section>
+<section id="intercept" class="slide level2">
+<h2>Intercept</h2>
+<p><span class="math inline">\(\widehat{plasma} = 0.0857 + 0.0436 \cdot weight\)</span></p>
+<p>Linear regression estimates the model parameters <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>: <span class="math inline">\(Y_i = \alpha + \beta x_i + \epsilon_i\)</span></p>
+
+<img data-src="presentation_files/figure-revealjs/unnamed-chunk-8-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>The intercept <span class="math inline">\(\hat{\alpha}=0.0857\)</span> is the expected outcome when the predictor equals zero. It is not always meaningful.</p>
+<div class="footer">
+
+</div>
+</section>
+<section id="inference" class="slide level2 smaller">
+<h2>Inference</h2>
+<p><em>Hypothesis testing in linear regression</em> <br></p>
+<p>We can test whether a predictor is associated with the outcome.</p>
+<p><strong>Hypotheses:</strong></p>
+<ul>
+<li><span class="math inline">\(H_0: \beta = 0\)</span> — no linear association between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span></li>
+<li><span class="math inline">\(H_a: \beta \neq 0\)</span> — a non-zero linear association</li>
+</ul>
+<div class="fragment">
+<p><strong>Test statistic:</strong></p>
+<p><span class="math display">\[
+t = \frac{\hat{\beta}}{SE(\hat{\beta})}
+\]</span></p>
+<ul>
+<li>Compares the estimated coefficient to its <strong>standard error</strong>.</li>
+<li>Under <span class="math inline">\(H_0\)</span>, follows a <strong>t-distribution</strong> with <span class="math inline">\(n-p\)</span> degrees of freedom.</li>
+<li>A larger absolute <span class="math inline">\(t\)</span>-value provides stronger evidence against <span class="math inline">\(H_0\)</span>.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>The p-value</strong> measures how unusual a result this extreme (or more extreme) would be if <span class="math inline">\(H_0\)</span> were true.</p>
+</div>
+<div class="fragment">
+<p><br></p>
+<div class="key-message-box">
+<p><strong>Statistical significance does not necessarily imply biological importance or predictive usefulness.</strong></p>
+</div>
+</div>
+</section>
+<section id="predictions" class="slide level2">
+<h2>Predictions</h2>
+<p><br></p>
+<p><span class="math display">\[
+\hat{y}_i=0.086+ 0.044 \cdot x_i
+\]</span></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co"># model plasma using weight</span></span>
+<span id="cb2-2"><a href=""></a>data_plasma <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">plasma =</span> plasma, <span class="at">weight =</span> weight)</span>
+<span id="cb2-3"><a href=""></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(plasma <span class="sc">~</span> weight, <span class="at">data =</span> data_plasma)</span>
+<span id="cb2-4"><a href=""></a></span>
+<span id="cb2-5"><a href=""></a></span>
+<span id="cb2-6"><a href=""></a><span class="co"># use model for predictions</span></span>
+<span id="cb2-7"><a href=""></a>data_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">weight =</span> <span class="dv">60</span>)</span>
+<span id="cb2-8"><a href=""></a><span class="fu">predict</span>(model, <span class="at">newdata =</span> data_new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1 
+2.702645 </code></pre>
+</div>
+</div>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-10-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="r2-and-r2adj" class="slide level2">
+<h2>R^2 and R^2(adj)</h2>
+<p><em>measuring the model fit</em> <br></p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-11-1.png" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<p><br></p>
+<p>Measure of model fit is given by <span class="math display">\[R^2 = 1 - \frac{RSS}{TSS}\]</span> where:</p>
+<ul>
+<li>RSS is the residual sum-of-squares the fitted model of interest</li>
+<li>TSS is the sum of squares of the <strong>null model</strong></li>
+</ul>
+<p><br></p>
+<ul>
+<li>In the case of multiple linear regression we are using the <strong>adjusted version of</strong> <span class="math inline">\(R^2\)</span> to account for multiple predictors: <span class="math display">\[R^2(adj) = 1 - (1-R^2)\frac{n-1}{n-p-1}\]</span></li>
+</ul>
+</div></div>
+</section>
+<section id="multiple-regression" class="slide level2">
+<h2>Multiple regression</h2>
+<p><br></p>
+
+<img data-src="presentation_files/figure-revealjs/unnamed-chunk-12-1.png" width="672" class="r-stretch"></section>
+<section id="multiple-regression-1" class="slide level2">
+<h2>Multiple regression</h2>
+<p><br></p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-155dc90fc4a3b1a0cf9b" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-155dc90fc4a3b1a0cf9b">{"x":{"visdat":{"1720f532a881":["function () ","plotlyVisDat"],"1720f40d4afd1":["function () ","data"]},"cur_data":"1720f40d4afd1","attrs":{"1720f40d4afd1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"markers","marker":{"size":3,"color":"#4477AA","opacity":0.65000000000000002},"name":"Observations","inherit":true},"1720f40d4afd1.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":[[107.10947067242955,108.39988711660182,109.69030356077408,110.98072000494635,112.27113644911861,113.56155289329088,114.85196933746315,116.14238578163541,117.43280222580766,118.72321866997993,120.01363511415219,121.30405155832446,122.59446800249674,123.88488444666901,125.17530089084127,126.46571733501352,127.75613377918579,129.04655022335805,130.33696666753031,131.62738311170258,132.91779955587484,134.20821600004712,135.49863244421937,136.78904888839165,138.0794653325639,139.36988177673618,140.66029822090843,141.95071466508071,143.24113110925296,144.53154755342524],[107.97562080381381,109.26603724798608,110.55645369215834,111.84687013633061,113.13728658050287,114.42770302467514,115.71811946884741,117.00853591301967,118.29895235719192,119.58936880136419,120.87978524553645,122.17020168970872,123.460618133881,124.75103457805326,126.04145102222553,127.33186746639778,128.62228391057005,129.9127003547423,131.20311679891458,132.49353324308683,133.78394968725911,135.07436613143136,136.36478257560364,137.65519901977589,138.94561546394817,140.23603190812042,141.5264483522927,142.81686479646496,144.10728124063723,145.39769768480949],[108.84177093519807,110.13218737937034,111.4226038235426,112.71302026771487,114.00343671188713,115.2938531560594,116.58426960023166,117.87468604440393,119.16510248857618,120.45551893274845,121.74593537692071,123.03635182109298,124.32676826526526,125.61718470943752,126.90760115360979,128.19801759778204,129.48843404195432,130.77885048612657,132.06926693029885,133.3596833744711,134.65009981864338,135.94051626281563,137.23093270698791,138.52134915116017,139.81176559533245,141.1021820395047,142.39259848367698,143.68301492784923,144.97343137202151,146.26384781619376],[109.70792106658233,110.9983375107546,112.28875395492686,113.57917039909913,114.86958684327139,116.16000328744366,117.45041973161592,118.74083617578819,120.03125261996044,121.32166906413271,122.61208550830497,123.90250195247724,125.19291839664952,126.48333484082178,127.77375128499405,129.06416772916631,130.35458417333857,131.64500061751085,132.9354170616831,134.22583350585538,135.51624995002763,136.80666639419991,138.09708283837216,139.38749928254444,140.67791572671669,141.96833217088897,143.25874861506122,144.5491650592335,145.83958150340575,147.12999794757803],[110.5740711979666,111.86448764213887,113.15490408631113,114.4453205304834,115.73573697465567,117.02615341882793,118.3165698630002,119.60698630717246,120.89740275134471,122.18781919551698,123.47823563968925,124.76865208386151,126.05906852803379,127.34948497220606,128.63990141637831,129.93031786055056,131.22073430472284,132.51115074889509,133.80156719306737,135.09198363723962,136.3824000814119,137.67281652558415,138.96323296975643,140.25364941392868,141.54406585810096,142.83448230227322,144.1248987464455,145.41531519061775,146.70573163479003,147.99614807896228],[111.44022132935085,112.73063777352311,114.02105421769538,115.31147066186765,116.60188710603991,117.89230355021218,119.18271999438444,120.47313643855671,121.76355288272896,123.05396932690122,124.34438577107349,125.63480221524576,126.92521865941804,128.2156351035903,129.50605154776258,130.79646799193483,132.08688443610708,133.37730088027936,134.66771732445162,135.9581337686239,137.24855021279615,138.53896665696843,139.82938310114068,141.11979954531296,142.41021598948521,143.70063243365749,144.99104887782974,146.28146532200202,147.57188176617427,148.86229821034655],[112.30637146073512,113.59678790490739,114.88720434907965,116.17762079325192,117.46803723742418,118.75845368159645,120.04887012576872,121.33928656994098,122.62970301411323,123.9201194582855,125.21053590245776,126.50095234663003,127.79136879080231,129.08178523497457,130.37220167914683,131.66261812331908,132.95303456749136,134.24345101166361,135.53386745583589,136.82428390000814,138.11470034418042,139.40511678835267,140.69553323252495,141.9859496766972,143.27636612086948,144.56678256504173,145.85719900921401,147.14761545338627,148.43803189755855,149.7284483417308],[113.17252159211938,114.46293803629165,115.75335448046391,117.04377092463618,118.33418736880844,119.62460381298071,120.91502025715297,122.20543670132524,123.49585314549749,124.78626958966976,126.07668603384202,127.36710247801429,128.65751892218657,129.94793536635882,131.2383518105311,132.52876825470335,133.8191846988756,135.10960114304788,136.40001758722013,137.69043403139241,138.98085047556467,140.27126691973695,141.5616833639092,142.85209980808148,144.14251625225373,145.43293269642601,146.72334914059826,148.01376558477054,149.30418202894279,150.59459847311507],[114.03867172350364,115.32908816767591,116.61950461184817,117.90992105602044,119.2003375001927,120.49075394436497,121.78117038853723,123.0715868327095,124.36200327688175,125.65241972105402,126.94283616522628,128.23325260939856,129.52366905357084,130.81408549774309,132.10450194191537,133.39491838608762,134.68533483025988,135.97575127443216,137.26616771860441,138.55658416277669,139.84700060694894,141.13741705112122,142.42783349529347,143.71824993946575,145.008666383638,146.29908282781028,147.58949927198253,148.87991571615481,150.17033216032706,151.46074860449934],[114.9048218548879,116.19523829906016,117.48565474323243,118.7760711874047,120.06648763157696,121.35690407574923,122.64732051992149,123.93773696409376,125.22815340826601,126.51856985243828,127.80898629661054,129.09940274078281,130.38981918495509,131.68023562912737,132.97065207329962,134.26106851747187,135.55148496164415,136.8419014058164,138.13231784998868,139.42273429416093,140.71315073833321,142.00356718250546,143.29398362667774,144.58440007084999,145.87481651502227,147.16523295919453,148.45564940336681,149.74606584753906,151.03648229171134,152.32689873588359],[115.77097198627217,117.06138843044444,118.3518048746167,119.64222131878897,120.93263776296124,122.2230542071335,123.51347065130577,124.80388709547803,126.09430353965028,127.38471998382255,128.6751364279948,129.96555287216708,131.25596931633936,132.54638576051161,133.83680220468389,135.12721864885614,136.41763509302839,137.70805153720067,138.99846798137293,140.28888442554521,141.57930086971746,142.86971731388974,144.16013375806199,145.45055020223427,146.74096664640652,148.0313830905788,149.32179953475105,150.61221597892333,151.90263242309558,153.19304886726786],[116.63712211765642,117.92753856182868,119.21795500600095,120.50837145017321,121.79878789434548,123.08920433851775,124.37962078269001,125.67003722686228,126.96045367103453,128.25087011520679,129.54128655937907,130.83170300355133,132.12211944772361,133.41253589189589,134.70295233606814,135.99336878024039,137.28378522441267,138.57420166858492,139.8646181127572,141.15503455692945,142.44545100110173,143.73586744527398,145.02628388944626,146.31670033361851,147.60711677779079,148.89753322196304,150.18794966613532,151.47836611030758,152.76878255447986,154.05919899865211],[117.50327224904069,118.79368869321296,120.08410513738522,121.37452158155749,122.66493802572975,123.95535446990202,125.24577091407428,126.53618735824655,127.8266038024188,129.11702024659107,130.40743669076332,131.6978531349356,132.98826957910788,134.27868602328013,135.56910246745241,136.85951891162466,138.14993535579691,139.44035179996919,140.73076824414144,142.02118468831372,143.31160113248598,144.60201757665826,145.89243402083051,147.18285046500279,148.47326690917504,149.76368335334732,151.05409979751957,152.34451624169185,153.6349326858641,154.92534913003638],[118.36942238042495,119.65983882459722,120.95025526876948,122.24067171294175,123.53108815711401,124.82150460128628,126.11192104545854,127.40233748963081,128.69275393380306,129.98317037797531,131.27358682214759,132.56400326631984,133.85441971049212,135.1448361546644,136.43525259883666,137.72566904300891,139.01608548718119,140.30650193135344,141.59691837552572,142.88733481969797,144.17775126387025,145.4681677080425,146.75858415221478,148.04900059638703,149.33941704055931,150.62983348473156,151.92024992890384,153.21066637307609,154.50108281724837,155.79149926142063],[119.23557251180921,120.52598895598148,121.81640540015374,123.10682184432601,124.39723828849827,125.68765473267054,126.9780711768428,128.26848762101508,129.55890406518733,130.84932050935959,132.13973695353187,133.43015339770412,134.7205698418764,136.01098628604868,137.30140273022093,138.59181917439318,139.88223561856546,141.17265206273771,142.46306850690999,143.75348495108224,145.04390139525452,146.33431783942677,147.62473428359905,148.91515072777131,150.20556717194358,151.49598361611584,152.78640006028812,154.07681650446037,155.36723294863265,156.6576493928049],[120.10172264319347,121.39213908736573,122.682555531538,123.97297197571027,125.26338841988253,126.5538048640548,127.84422130822706,129.13463775239933,130.42505419657158,131.71547064074386,133.00588708491611,134.29630352908839,135.58671997326067,136.87713641743292,138.1675528616052,139.45796930577745,140.7483857499497,142.03880219412198,143.32921863829424,144.61963508246652,145.91005152663877,147.20046797081105,148.4908844149833,149.78130085915558,151.07171730332783,152.36213374750011,153.65255019167236,154.94296663584464,156.23338308001689,157.52379952418917],[120.96787277457774,122.25828921875001,123.54870566292227,124.83912210709454,126.1295385512668,127.41995499543907,128.71037143961132,130.0007878837836,131.29120432795585,132.5816207721281,133.87203721630038,135.16245366047264,136.45287010464492,137.7432865488172,139.03370299298945,140.3241194371617,141.61453588133398,142.90495232550623,144.19536876967851,145.48578521385076,146.77620165802304,148.06661810219529,149.35703454636757,150.64745099053982,151.9378674347121,153.22828387888435,154.51870032305663,155.80911676722889,157.09953321140117,158.38994965557342],[121.834022905962,123.12443935013427,124.41485579430653,125.7052722384788,126.99568868265106,128.28610512682332,129.5765215709956,130.86693801516785,132.1573544593401,133.44777090351238,134.73818734768463,136.02860379185691,137.31902023602919,138.60943668020144,139.89985312437372,141.19026956854597,142.48068601271822,143.7711024568905,145.06151890106275,146.35193534523503,147.64235178940729,148.93276823357957,150.22318467775182,151.5136011219241,152.80401756609635,154.09443401026863,155.38485045444088,156.67526689861316,157.96568334278541,159.25609978695769],[122.70017303734626,123.99058948151853,125.28100592569079,126.57142236986306,127.86183881403532,129.15225525820759,130.44267170237987,131.73308814655212,133.02350459072437,134.31392103489665,135.6043374790689,136.89475392324118,138.18517036741346,139.47558681158571,140.76600325575799,142.05641969993025,143.3468361441025,144.63725258827478,145.92766903244703,147.21808547661931,148.50850192079156,149.79891836496384,151.08933480913609,152.37975125330837,153.67016769748062,154.9605841416529,156.25100058582515,157.54141702999743,158.83183347416968,160.12224991834196],[123.56632316873052,124.85673961290279,126.14715605707505,127.43757250124732,128.72798894541958,130.01840538959186,131.30882183376411,132.59923827793639,133.88965472210865,135.1800711662809,136.47048761045318,137.76090405462543,139.05132049879771,140.34173694296999,141.63215338714224,142.92256983131449,144.21298627548677,145.50340271965902,146.7938191638313,148.08423560800355,149.37465205217583,150.66506849634808,151.95548494052036,153.24590138469262,154.5363178288649,155.82673427303715,157.11715071720943,158.40756716138168,159.69798360555396,160.98840004972621],[124.43247330011478,125.72288974428704,127.01330618845931,128.30372263263158,129.59413907680386,130.88455552097611,132.17497196514839,133.46538840932064,134.75580485349289,136.04622129766517,137.33663774183742,138.6270541860097,139.91747063018198,141.20788707435423,142.49830351852651,143.78871996269876,145.07913640687102,146.3695528510433,147.65996929521555,148.95038573938783,150.24080218356008,151.53121862773236,152.82163507190461,154.11205151607689,155.40246796024914,156.69288440442142,157.98330084859367,159.27371729276595,160.5641337369382,161.85455018111048],[125.29862343149905,126.58903987567132,127.87945631984358,129.16987276401585,130.4602892081881,131.75070565236038,133.04112209653263,134.33153854070491,135.62195498487716,136.91237142904941,138.20278787322169,139.49320431739395,140.78362076156623,142.07403720573851,143.36445364991076,144.65487009408301,145.94528653825529,147.23570298242754,148.52611942659982,149.81653587077207,151.10695231494435,152.3973687591166,153.68778520328888,154.97820164746113,156.26861809163341,157.55903453580567,158.84945097997795,160.1398674241502,161.43028386832248,162.72070031249473],[126.1647735628833,127.45519000705556,128.74560645122784,130.03602289540009,131.32643933957237,132.61685578374463,133.90727222791691,135.19768867208916,136.48810511626141,137.77852156043369,139.06893800460594,140.35935444877822,141.6497708929505,142.94018733712275,144.23060378129503,145.52102022546728,146.81143666963953,148.10185311381181,149.39226955798406,150.68268600215634,151.9731024463286,153.26351889050088,154.55393533467313,155.84435177884541,157.13476822301766,158.42518466718994,159.71560111136219,161.00601755553447,162.29643399970672,163.586850443879],[127.03092369426757,128.32134013843984,129.61175658261209,130.90217302678437,132.19258947095662,133.4830059151289,134.77342235930115,136.06383880347343,137.35425524764568,138.64467169181793,139.93508813599021,141.22550458016246,142.51592102433474,143.80633746850702,145.09675391267928,146.38717035685153,147.67758680102381,148.96800324519606,150.25841968936834,151.54883613354059,152.83925257771287,154.12966902188512,155.4200854660574,156.71050191022965,158.00091835440193,159.29133479857418,160.58175124274646,161.87216768691871,163.16258413109099,164.45300057526325],[127.89707382565183,129.18749026982408,130.47790671399636,131.76832315816861,133.05873960234089,134.34915604651314,135.63957249068542,136.92998893485768,138.22040537902993,139.51082182320221,140.80123826737446,142.09165471154674,143.38207115571902,144.67248759989127,145.96290404406355,147.2533204882358,148.54373693240805,149.83415337658033,151.12456982075258,152.41498626492486,153.70540270909711,154.99581915326939,156.28623559744165,157.57665204161393,158.86706848578618,160.15748492995846,161.44790137413071,162.73831781830299,164.02873426247524,165.31915070664752],[128.76322395703608,130.05364040120836,131.34405684538061,132.63447328955289,133.92488973372514,135.21530617789742,136.50572262206967,137.79613906624195,139.0865555104142,140.37697195458645,141.66738839875873,142.95780484293098,144.24822128710326,145.53863773127554,146.82905417544779,148.11947061962005,149.40988706379233,150.70030350796458,151.99071995213686,153.28113639630911,154.57155284048139,155.86196928465364,157.15238572882592,158.44280217299817,159.73321861717045,161.0236350613427,162.31405150551498,163.60446794968723,164.89488439385951,166.18530083803176],[129.62937408842035,130.91979053259263,132.21020697676488,133.50062342093716,134.79103986510941,136.08145630928169,137.37187275345394,138.66228919762622,139.95270564179847,141.24312208597073,142.53353853014301,143.82395497431526,145.11437141848754,146.40478786265982,147.69520430683207,148.98562075100432,150.2760371951766,151.56645363934885,152.85687008352113,154.14728652769338,155.43770297186566,156.72811941603791,158.01853586021019,159.30895230438244,160.59936874855472,161.88978519272698,163.18020163689926,164.47061808107151,165.76103452524379,167.05145096941604],[130.49552421980462,131.78594066397687,133.07635710814915,134.3667735523214,135.65718999649368,136.94760644066594,138.23802288483822,139.52843932901047,140.81885577318272,142.109272217355,143.39968866152725,144.69010510569953,145.98052154987181,147.27093799404406,148.56135443821634,149.85177088238859,151.14218732656084,152.43260377073312,153.72302021490538,155.01343665907766,156.30385310324991,157.59426954742219,158.88468599159444,160.17510243576672,161.46551887993897,162.75593532411125,164.0463517682835,165.33676821245578,166.62718465662803,167.91760110080031],[131.36167435118887,132.65209079536115,133.9425072395334,135.23292368370568,136.52334012787793,137.81375657205021,139.10417301622246,140.39458946039474,141.68500590456699,142.97542234873924,144.26583879291152,145.55625523708378,146.84667168125605,148.13708812542833,149.42750456960059,150.71792101377284,152.00833745794512,153.29875390211737,154.58917034628965,155.8795867904619,157.17000323463418,158.46041967880643,159.75083612297871,161.04125256715096,162.33166901132324,163.62208545549549,164.91250189966777,166.20291834384003,167.49333478801231,168.78375123218456],[132.22782448257314,133.51824092674539,134.80865737091767,136.09907381508992,137.3894902592622,138.67990670343445,139.97032314760673,141.26073959177899,142.55115603595124,143.84157248012352,145.13198892429577,146.42240536846805,147.71282181264033,149.00323825681258,150.29365470098486,151.58407114515711,152.87448758932936,154.16490403350164,155.45532047767389,156.74573692184617,158.03615336601843,159.3265698101907,160.61698625436296,161.90740269853524,163.19781914270749,164.48823558687977,165.77865203105202,167.0690684752243,168.35948491939655,169.64990136356883]],"type":"surface","x":[20,22.068965517241381,24.137931034482758,26.206896551724139,28.275862068965516,30.344827586206897,32.413793103448278,34.482758620689658,36.551724137931032,38.620689655172413,40.689655172413794,42.758620689655174,44.827586206896555,46.896551724137936,48.965517241379317,51.03448275862069,53.103448275862071,55.172413793103452,57.241379310344833,59.310344827586206,61.379310344827587,63.448275862068968,65.517241379310349,67.58620689655173,69.65517241379311,71.724137931034477,73.793103448275872,75.862068965517238,77.931034482758633,80],"y":[18,18.689655172413794,19.379310344827587,20.068965517241381,20.758620689655174,21.448275862068964,22.137931034482758,22.827586206896552,23.517241379310345,24.206896551724139,24.896551724137932,25.586206896551722,26.275862068965516,26.96551724137931,27.655172413793103,28.344827586206897,29.03448275862069,29.724137931034484,30.413793103448278,31.103448275862071,31.793103448275865,32.482758620689658,33.172413793103445,33.862068965517238,34.551724137931032,35.241379310344826,35.931034482758619,36.620689655172413,37.310344827586206,38],"opacity":0.55000000000000004,"showscale":false,"name":"Regression plane","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Multiple regression: Age + BMI","scene":{"xaxis":{"title":"Age (years)"},"yaxis":{"title":"BMI (kg/m²)"},"zaxis":{"title":"Systolic BP (mmHg)"}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[37.254651207476854,67.298308126628399,44.538615308701992,72.981044240295887,76.428037057630718,22.733389963395894,51.686329282820225,73.545142663642764,53.086100867949426,47.396884118206799,77.410000720992684,47.20004937145859,60.654238127171993,54.358004117384553,26.175480959936976,73.989498224109411,34.765264061279595,22.523572011850774,39.675243156962097,77.270218948833644,73.372358963824809,61.568204369395971,58.430408826097846,79.656186597421765,59.342347946949303,62.511828090064228,52.643961482681334,55.648521226830781,37.349584237672389,28.826818838715553,77.78145395219326,74.137942707166076,61.442316705361009,67.728045061230659,21.476821070536971,48.667758265510201,65.507572251372039,32.984476150013506,39.090860458090901,33.897547121159732,28.56800134293735,44.872780148871243,44.823459577746689,42.130727055482566,29.146684864535928,28.328363806940615,33.982045967131853,47.957747015170753,35.95835842192173,71.469662920571864,22.7498700004071,46.532004452310503,67.935490738600492,27.313955598510802,53.656879025511444,32.391883376985788,27.651899014599621,65.198471858166158,73.702721549198031,42.467766553163528,59.90691167768091,25.690439655445516,43.038178267888725,36.463018674403429,68.878402332775295,46.910980483517051,68.603861182928085,68.743370571173728,67.660539266653359,46.38990125618875,65.268509518355131,57.753267893567681,62.610944081097841,20.037486399523914,48.51899444591254,33.207133109681308,42.788992263376713,56.766260196454823,41.10787455458194,26.668125460855663,34.617168363183737,60.083335246890783,45.058806780725718,67.291750041767955,26.171878655441105,46.093564489856362,79.097418799065053,73.583066863939166,73.188143647275865,30.503159016370773,27.8417414939031,59.186115502379835,40.610988335683942,59.405487678013742,39.222394549287856,31.261467156000435,66.937658078968525,25.615699202753603,48.006742494180799,50.690327594056726,55.999337555840611,39.969412419013679,49.316782020032406,77.268429649993777,48.974143830128014,73.42101332731545,74.866291214711964,56.524098939262331,44.64138659182936,28.825681456364691,76.117988196201622,38.073733998462558,23.643234292976558,76.863616402260959,63.235776405781507,28.537657735869288,52.95707936398685,77.245474313385785,55.129001187160611,44.270616904832423],"y":[30.957869586534798,24.396412341855466,24.154400217346847,22.395352625288069,25.389777316711843,37.684384069405496,21.084046016447246,19.820879997685552,20.838138155639172,31.800142030231655,30.385129667818546,35.827882342971861,31.459981852211058,32.741554758511484,28.422714515589178,31.196768993511796,34.43610920291394,33.725631034001708,37.596438347361982,26.78863072488457,24.234044041484594,26.189499052241445,18.209342236630619,21.676990480162203,34.854586377739906,22.623235641047359,22.781999113038182,19.533823306672275,22.914473560638726,32.642704110592604,34.949063302017748,27.950545341707766,25.758180596865714,22.928979882970452,20.221929226070642,25.799888704903424,29.438706279732287,22.337855256162584,26.895360040478408,22.359813374467194,28.04599126521498,25.078091436997056,30.999703176319599,25.494279132224619,25.108907615765929,28.673758909106255,32.806687207892537,22.42205875646323,26.254922372289002,23.313733736984432,30.599461069330573,21.676569815725088,35.272882228717208,32.931360082700849,31.365692994557321,30.360357465222478,25.444761204533279,28.596713717095554,35.493646857328713,29.63500199560076,34.79535529576242,24.248963298276067,32.165806444361806,23.300356121733785,29.88686388079077,27.625796009786427,23.3006546292454,29.291808695532382,36.26376446057111,36.037487789988518,23.483332430012524,24.429655128158629,37.712817687541246,30.399866203777492,36.746281783096492,27.330654046498239,26.136651865206659,31.184606484137475,21.046932336874306,29.45734116435051,22.774520536884665,37.247178728692234,30.027314519509673,28.300594544969499,26.051466844044626,35.60493082460016,25.281837295740843,23.76478561386466,21.41290470212698,21.443434927612543,27.640852110460401,23.059298570267856,22.325095792300999,31.487527761608362,18.953272548504174,32.017061749473214,25.037772769108415,26.178879958577454,34.419026479125023,36.3771469630301,23.650566602125764,37.222095874138176,32.5678885653615,31.727501640096307,19.056878855451941,25.90440269280225,27.556907596997917,29.205065273679793,31.965231897309422,36.313670768402517,30.367024547420442,26.568430175073445,28.841607344336808,19.16956977173686,23.217137141153216,25.943039066158235,21.95489473361522,34.638551256619394,21.057744456455112,34.068370840512216],"z":[135.44340700512888,137.07488277272518,126.78398989643206,143.61431215693725,166.07545105649029,128.64569564776045,133.19574536770767,143.53582839191799,124.16257323449562,141.02783621821328,169.46456290136464,149.92552085907511,149.47438447489998,143.5246935219275,108.38656822234506,165.88051943399319,125.49736891286591,134.9044805349312,159.19370046475149,141.95734295138726,153.71854291107408,141.27074156910757,119.33230270645154,136.6887593043937,139.61862303286071,135.40772744593295,122.23073114528742,137.33303488791182,141.70799033957528,121.17109242765902,169.90965911353868,159.17575796235624,145.43282737105639,135.08459003008687,111.19678686056167,132.91735872382824,154.13490715226581,118.61660194857257,138.5447354169136,119.17365745992035,134.21768204865504,123.62396176039069,129.01247760016662,156.7998906714983,119.28383935235721,128.7913497074176,139.84980962202093,126.81087371118838,132.2158182544087,148.80999445580511,123.64623122230739,129.45343071845892,157.81621508771323,147.93362065047694,138.90227023859302,122.09958884786113,122.42716004756834,150.91898557095945,165.30619698959472,132.37573966493017,144.19196428975391,129.6185011599145,136.62467159033895,117.91413564949561,150.30104150508532,134.72013634706553,153.00246458256046,152.07409111492066,165.14527119415351,142.08458996432137,144.05666710368092,136.37005959800427,158.57861589909677,116.33942442042699,137.72052254063954,143.69877179959039,136.84304818565334,136.4711130058383,120.03171620355496,116.86584399695552,140.69020845324158,166.24591943403323,135.9469010382762,153.68131595288088,118.65016782276733,141.57208052650938,146.4878333315261,142.91064471532499,157.81563156961141,118.60179232227398,125.82802932031501,140.13232702254206,136.01651498005427,144.29981527318003,113.33730658464141,145.58292985219364,141.67861643506893,115.99954771242611,135.21669232039216,138.78904713352779,132.38849462167138,148.59204903770623,152.55032060189097,165.09476658879655,124.34348254785711,150.61589072682878,147.35129213578412,138.22279239938106,147.22031422368428,127.74707316707347,172.75357409856522,129.00379985743885,125.51218000202383,138.21343192952421,136.20692089474662,112.71811246246952,131.65671819174855,166.26540533537045,135.94112881333353,136.1921232550761],"type":"scatter3d","mode":"markers","marker":{"color":"#4477AA","size":3,"opacity":0.65000000000000002,"line":{"color":"rgba(31,119,180,1)"}},"name":"Observations","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"SBP","ticklen":2},"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333335","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666666","rgba(119,207,85,1)"],["0.833333333333334","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":false,"z":[[107.10947067242955,108.39988711660182,109.69030356077408,110.98072000494635,112.27113644911861,113.56155289329088,114.85196933746315,116.14238578163541,117.43280222580766,118.72321866997993,120.01363511415219,121.30405155832446,122.59446800249674,123.88488444666901,125.17530089084127,126.46571733501352,127.75613377918579,129.04655022335805,130.33696666753031,131.62738311170258,132.91779955587484,134.20821600004712,135.49863244421937,136.78904888839165,138.0794653325639,139.36988177673618,140.66029822090843,141.95071466508071,143.24113110925296,144.53154755342524],[107.97562080381381,109.26603724798608,110.55645369215834,111.84687013633061,113.13728658050287,114.42770302467514,115.71811946884741,117.00853591301967,118.29895235719192,119.58936880136419,120.87978524553645,122.17020168970872,123.460618133881,124.75103457805326,126.04145102222553,127.33186746639778,128.62228391057005,129.9127003547423,131.20311679891458,132.49353324308683,133.78394968725911,135.07436613143136,136.36478257560364,137.65519901977589,138.94561546394817,140.23603190812042,141.5264483522927,142.81686479646496,144.10728124063723,145.39769768480949],[108.84177093519807,110.13218737937034,111.4226038235426,112.71302026771487,114.00343671188713,115.2938531560594,116.58426960023166,117.87468604440393,119.16510248857618,120.45551893274845,121.74593537692071,123.03635182109298,124.32676826526526,125.61718470943752,126.90760115360979,128.19801759778204,129.48843404195432,130.77885048612657,132.06926693029885,133.3596833744711,134.65009981864338,135.94051626281563,137.23093270698791,138.52134915116017,139.81176559533245,141.1021820395047,142.39259848367698,143.68301492784923,144.97343137202151,146.26384781619376],[109.70792106658233,110.9983375107546,112.28875395492686,113.57917039909913,114.86958684327139,116.16000328744366,117.45041973161592,118.74083617578819,120.03125261996044,121.32166906413271,122.61208550830497,123.90250195247724,125.19291839664952,126.48333484082178,127.77375128499405,129.06416772916631,130.35458417333857,131.64500061751085,132.9354170616831,134.22583350585538,135.51624995002763,136.80666639419991,138.09708283837216,139.38749928254444,140.67791572671669,141.96833217088897,143.25874861506122,144.5491650592335,145.83958150340575,147.12999794757803],[110.5740711979666,111.86448764213887,113.15490408631113,114.4453205304834,115.73573697465567,117.02615341882793,118.3165698630002,119.60698630717246,120.89740275134471,122.18781919551698,123.47823563968925,124.76865208386151,126.05906852803379,127.34948497220606,128.63990141637831,129.93031786055056,131.22073430472284,132.51115074889509,133.80156719306737,135.09198363723962,136.3824000814119,137.67281652558415,138.96323296975643,140.25364941392868,141.54406585810096,142.83448230227322,144.1248987464455,145.41531519061775,146.70573163479003,147.99614807896228],[111.44022132935085,112.73063777352311,114.02105421769538,115.31147066186765,116.60188710603991,117.89230355021218,119.18271999438444,120.47313643855671,121.76355288272896,123.05396932690122,124.34438577107349,125.63480221524576,126.92521865941804,128.2156351035903,129.50605154776258,130.79646799193483,132.08688443610708,133.37730088027936,134.66771732445162,135.9581337686239,137.24855021279615,138.53896665696843,139.82938310114068,141.11979954531296,142.41021598948521,143.70063243365749,144.99104887782974,146.28146532200202,147.57188176617427,148.86229821034655],[112.30637146073512,113.59678790490739,114.88720434907965,116.17762079325192,117.46803723742418,118.75845368159645,120.04887012576872,121.33928656994098,122.62970301411323,123.9201194582855,125.21053590245776,126.50095234663003,127.79136879080231,129.08178523497457,130.37220167914683,131.66261812331908,132.95303456749136,134.24345101166361,135.53386745583589,136.82428390000814,138.11470034418042,139.40511678835267,140.69553323252495,141.9859496766972,143.27636612086948,144.56678256504173,145.85719900921401,147.14761545338627,148.43803189755855,149.7284483417308],[113.17252159211938,114.46293803629165,115.75335448046391,117.04377092463618,118.33418736880844,119.62460381298071,120.91502025715297,122.20543670132524,123.49585314549749,124.78626958966976,126.07668603384202,127.36710247801429,128.65751892218657,129.94793536635882,131.2383518105311,132.52876825470335,133.8191846988756,135.10960114304788,136.40001758722013,137.69043403139241,138.98085047556467,140.27126691973695,141.5616833639092,142.85209980808148,144.14251625225373,145.43293269642601,146.72334914059826,148.01376558477054,149.30418202894279,150.59459847311507],[114.03867172350364,115.32908816767591,116.61950461184817,117.90992105602044,119.2003375001927,120.49075394436497,121.78117038853723,123.0715868327095,124.36200327688175,125.65241972105402,126.94283616522628,128.23325260939856,129.52366905357084,130.81408549774309,132.10450194191537,133.39491838608762,134.68533483025988,135.97575127443216,137.26616771860441,138.55658416277669,139.84700060694894,141.13741705112122,142.42783349529347,143.71824993946575,145.008666383638,146.29908282781028,147.58949927198253,148.87991571615481,150.17033216032706,151.46074860449934],[114.9048218548879,116.19523829906016,117.48565474323243,118.7760711874047,120.06648763157696,121.35690407574923,122.64732051992149,123.93773696409376,125.22815340826601,126.51856985243828,127.80898629661054,129.09940274078281,130.38981918495509,131.68023562912737,132.97065207329962,134.26106851747187,135.55148496164415,136.8419014058164,138.13231784998868,139.42273429416093,140.71315073833321,142.00356718250546,143.29398362667774,144.58440007084999,145.87481651502227,147.16523295919453,148.45564940336681,149.74606584753906,151.03648229171134,152.32689873588359],[115.77097198627217,117.06138843044444,118.3518048746167,119.64222131878897,120.93263776296124,122.2230542071335,123.51347065130577,124.80388709547803,126.09430353965028,127.38471998382255,128.6751364279948,129.96555287216708,131.25596931633936,132.54638576051161,133.83680220468389,135.12721864885614,136.41763509302839,137.70805153720067,138.99846798137293,140.28888442554521,141.57930086971746,142.86971731388974,144.16013375806199,145.45055020223427,146.74096664640652,148.0313830905788,149.32179953475105,150.61221597892333,151.90263242309558,153.19304886726786],[116.63712211765642,117.92753856182868,119.21795500600095,120.50837145017321,121.79878789434548,123.08920433851775,124.37962078269001,125.67003722686228,126.96045367103453,128.25087011520679,129.54128655937907,130.83170300355133,132.12211944772361,133.41253589189589,134.70295233606814,135.99336878024039,137.28378522441267,138.57420166858492,139.8646181127572,141.15503455692945,142.44545100110173,143.73586744527398,145.02628388944626,146.31670033361851,147.60711677779079,148.89753322196304,150.18794966613532,151.47836611030758,152.76878255447986,154.05919899865211],[117.50327224904069,118.79368869321296,120.08410513738522,121.37452158155749,122.66493802572975,123.95535446990202,125.24577091407428,126.53618735824655,127.8266038024188,129.11702024659107,130.40743669076332,131.6978531349356,132.98826957910788,134.27868602328013,135.56910246745241,136.85951891162466,138.14993535579691,139.44035179996919,140.73076824414144,142.02118468831372,143.31160113248598,144.60201757665826,145.89243402083051,147.18285046500279,148.47326690917504,149.76368335334732,151.05409979751957,152.34451624169185,153.6349326858641,154.92534913003638],[118.36942238042495,119.65983882459722,120.95025526876948,122.24067171294175,123.53108815711401,124.82150460128628,126.11192104545854,127.40233748963081,128.69275393380306,129.98317037797531,131.27358682214759,132.56400326631984,133.85441971049212,135.1448361546644,136.43525259883666,137.72566904300891,139.01608548718119,140.30650193135344,141.59691837552572,142.88733481969797,144.17775126387025,145.4681677080425,146.75858415221478,148.04900059638703,149.33941704055931,150.62983348473156,151.92024992890384,153.21066637307609,154.50108281724837,155.79149926142063],[119.23557251180921,120.52598895598148,121.81640540015374,123.10682184432601,124.39723828849827,125.68765473267054,126.9780711768428,128.26848762101508,129.55890406518733,130.84932050935959,132.13973695353187,133.43015339770412,134.7205698418764,136.01098628604868,137.30140273022093,138.59181917439318,139.88223561856546,141.17265206273771,142.46306850690999,143.75348495108224,145.04390139525452,146.33431783942677,147.62473428359905,148.91515072777131,150.20556717194358,151.49598361611584,152.78640006028812,154.07681650446037,155.36723294863265,156.6576493928049],[120.10172264319347,121.39213908736573,122.682555531538,123.97297197571027,125.26338841988253,126.5538048640548,127.84422130822706,129.13463775239933,130.42505419657158,131.71547064074386,133.00588708491611,134.29630352908839,135.58671997326067,136.87713641743292,138.1675528616052,139.45796930577745,140.7483857499497,142.03880219412198,143.32921863829424,144.61963508246652,145.91005152663877,147.20046797081105,148.4908844149833,149.78130085915558,151.07171730332783,152.36213374750011,153.65255019167236,154.94296663584464,156.23338308001689,157.52379952418917],[120.96787277457774,122.25828921875001,123.54870566292227,124.83912210709454,126.1295385512668,127.41995499543907,128.71037143961132,130.0007878837836,131.29120432795585,132.5816207721281,133.87203721630038,135.16245366047264,136.45287010464492,137.7432865488172,139.03370299298945,140.3241194371617,141.61453588133398,142.90495232550623,144.19536876967851,145.48578521385076,146.77620165802304,148.06661810219529,149.35703454636757,150.64745099053982,151.9378674347121,153.22828387888435,154.51870032305663,155.80911676722889,157.09953321140117,158.38994965557342],[121.834022905962,123.12443935013427,124.41485579430653,125.7052722384788,126.99568868265106,128.28610512682332,129.5765215709956,130.86693801516785,132.1573544593401,133.44777090351238,134.73818734768463,136.02860379185691,137.31902023602919,138.60943668020144,139.89985312437372,141.19026956854597,142.48068601271822,143.7711024568905,145.06151890106275,146.35193534523503,147.64235178940729,148.93276823357957,150.22318467775182,151.5136011219241,152.80401756609635,154.09443401026863,155.38485045444088,156.67526689861316,157.96568334278541,159.25609978695769],[122.70017303734626,123.99058948151853,125.28100592569079,126.57142236986306,127.86183881403532,129.15225525820759,130.44267170237987,131.73308814655212,133.02350459072437,134.31392103489665,135.6043374790689,136.89475392324118,138.18517036741346,139.47558681158571,140.76600325575799,142.05641969993025,143.3468361441025,144.63725258827478,145.92766903244703,147.21808547661931,148.50850192079156,149.79891836496384,151.08933480913609,152.37975125330837,153.67016769748062,154.9605841416529,156.25100058582515,157.54141702999743,158.83183347416968,160.12224991834196],[123.56632316873052,124.85673961290279,126.14715605707505,127.43757250124732,128.72798894541958,130.01840538959186,131.30882183376411,132.59923827793639,133.88965472210865,135.1800711662809,136.47048761045318,137.76090405462543,139.05132049879771,140.34173694296999,141.63215338714224,142.92256983131449,144.21298627548677,145.50340271965902,146.7938191638313,148.08423560800355,149.37465205217583,150.66506849634808,151.95548494052036,153.24590138469262,154.5363178288649,155.82673427303715,157.11715071720943,158.40756716138168,159.69798360555396,160.98840004972621],[124.43247330011478,125.72288974428704,127.01330618845931,128.30372263263158,129.59413907680386,130.88455552097611,132.17497196514839,133.46538840932064,134.75580485349289,136.04622129766517,137.33663774183742,138.6270541860097,139.91747063018198,141.20788707435423,142.49830351852651,143.78871996269876,145.07913640687102,146.3695528510433,147.65996929521555,148.95038573938783,150.24080218356008,151.53121862773236,152.82163507190461,154.11205151607689,155.40246796024914,156.69288440442142,157.98330084859367,159.27371729276595,160.5641337369382,161.85455018111048],[125.29862343149905,126.58903987567132,127.87945631984358,129.16987276401585,130.4602892081881,131.75070565236038,133.04112209653263,134.33153854070491,135.62195498487716,136.91237142904941,138.20278787322169,139.49320431739395,140.78362076156623,142.07403720573851,143.36445364991076,144.65487009408301,145.94528653825529,147.23570298242754,148.52611942659982,149.81653587077207,151.10695231494435,152.3973687591166,153.68778520328888,154.97820164746113,156.26861809163341,157.55903453580567,158.84945097997795,160.1398674241502,161.43028386832248,162.72070031249473],[126.1647735628833,127.45519000705556,128.74560645122784,130.03602289540009,131.32643933957237,132.61685578374463,133.90727222791691,135.19768867208916,136.48810511626141,137.77852156043369,139.06893800460594,140.35935444877822,141.6497708929505,142.94018733712275,144.23060378129503,145.52102022546728,146.81143666963953,148.10185311381181,149.39226955798406,150.68268600215634,151.9731024463286,153.26351889050088,154.55393533467313,155.84435177884541,157.13476822301766,158.42518466718994,159.71560111136219,161.00601755553447,162.29643399970672,163.586850443879],[127.03092369426757,128.32134013843984,129.61175658261209,130.90217302678437,132.19258947095662,133.4830059151289,134.77342235930115,136.06383880347343,137.35425524764568,138.64467169181793,139.93508813599021,141.22550458016246,142.51592102433474,143.80633746850702,145.09675391267928,146.38717035685153,147.67758680102381,148.96800324519606,150.25841968936834,151.54883613354059,152.83925257771287,154.12966902188512,155.4200854660574,156.71050191022965,158.00091835440193,159.29133479857418,160.58175124274646,161.87216768691871,163.16258413109099,164.45300057526325],[127.89707382565183,129.18749026982408,130.47790671399636,131.76832315816861,133.05873960234089,134.34915604651314,135.63957249068542,136.92998893485768,138.22040537902993,139.51082182320221,140.80123826737446,142.09165471154674,143.38207115571902,144.67248759989127,145.96290404406355,147.2533204882358,148.54373693240805,149.83415337658033,151.12456982075258,152.41498626492486,153.70540270909711,154.99581915326939,156.28623559744165,157.57665204161393,158.86706848578618,160.15748492995846,161.44790137413071,162.73831781830299,164.02873426247524,165.31915070664752],[128.76322395703608,130.05364040120836,131.34405684538061,132.63447328955289,133.92488973372514,135.21530617789742,136.50572262206967,137.79613906624195,139.0865555104142,140.37697195458645,141.66738839875873,142.95780484293098,144.24822128710326,145.53863773127554,146.82905417544779,148.11947061962005,149.40988706379233,150.70030350796458,151.99071995213686,153.28113639630911,154.57155284048139,155.86196928465364,157.15238572882592,158.44280217299817,159.73321861717045,161.0236350613427,162.31405150551498,163.60446794968723,164.89488439385951,166.18530083803176],[129.62937408842035,130.91979053259263,132.21020697676488,133.50062342093716,134.79103986510941,136.08145630928169,137.37187275345394,138.66228919762622,139.95270564179847,141.24312208597073,142.53353853014301,143.82395497431526,145.11437141848754,146.40478786265982,147.69520430683207,148.98562075100432,150.2760371951766,151.56645363934885,152.85687008352113,154.14728652769338,155.43770297186566,156.72811941603791,158.01853586021019,159.30895230438244,160.59936874855472,161.88978519272698,163.18020163689926,164.47061808107151,165.76103452524379,167.05145096941604],[130.49552421980462,131.78594066397687,133.07635710814915,134.3667735523214,135.65718999649368,136.94760644066594,138.23802288483822,139.52843932901047,140.81885577318272,142.109272217355,143.39968866152725,144.69010510569953,145.98052154987181,147.27093799404406,148.56135443821634,149.85177088238859,151.14218732656084,152.43260377073312,153.72302021490538,155.01343665907766,156.30385310324991,157.59426954742219,158.88468599159444,160.17510243576672,161.46551887993897,162.75593532411125,164.0463517682835,165.33676821245578,166.62718465662803,167.91760110080031],[131.36167435118887,132.65209079536115,133.9425072395334,135.23292368370568,136.52334012787793,137.81375657205021,139.10417301622246,140.39458946039474,141.68500590456699,142.97542234873924,144.26583879291152,145.55625523708378,146.84667168125605,148.13708812542833,149.42750456960059,150.71792101377284,152.00833745794512,153.29875390211737,154.58917034628965,155.8795867904619,157.17000323463418,158.46041967880643,159.75083612297871,161.04125256715096,162.33166901132324,163.62208545549549,164.91250189966777,166.20291834384003,167.49333478801231,168.78375123218456],[132.22782448257314,133.51824092674539,134.80865737091767,136.09907381508992,137.3894902592622,138.67990670343445,139.97032314760673,141.26073959177899,142.55115603595124,143.84157248012352,145.13198892429577,146.42240536846805,147.71282181264033,149.00323825681258,150.29365470098486,151.58407114515711,152.87448758932936,154.16490403350164,155.45532047767389,156.74573692184617,158.03615336601843,159.3265698101907,160.61698625436296,161.90740269853524,163.19781914270749,164.48823558687977,165.77865203105202,167.0690684752243,168.35948491939655,169.64990136356883]],"type":"surface","x":[20,22.068965517241381,24.137931034482758,26.206896551724139,28.275862068965516,30.344827586206897,32.413793103448278,34.482758620689658,36.551724137931032,38.620689655172413,40.689655172413794,42.758620689655174,44.827586206896555,46.896551724137936,48.965517241379317,51.03448275862069,53.103448275862071,55.172413793103452,57.241379310344833,59.310344827586206,61.379310344827587,63.448275862068968,65.517241379310349,67.58620689655173,69.65517241379311,71.724137931034477,73.793103448275872,75.862068965517238,77.931034482758633,80],"y":[18,18.689655172413794,19.379310344827587,20.068965517241381,20.758620689655174,21.448275862068964,22.137931034482758,22.827586206896552,23.517241379310345,24.206896551724139,24.896551724137932,25.586206896551722,26.275862068965516,26.96551724137931,27.655172413793103,28.344827586206897,29.03448275862069,29.724137931034484,30.413793103448278,31.103448275862071,31.793103448275865,32.482758620689658,33.172413793103445,33.862068965517238,34.551724137931032,35.241379310344826,35.931034482758619,36.620689655172413,37.310344827586206,38],"opacity":0.55000000000000004,"name":"Regression plane","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="assumptions-of-linear-regression" class="slide level2">
+<h2>Assumptions of linear regression</h2>
+<p><br></p>
+<p>Ordinary linear regression relies on several assumptions:</p>
+<ul>
+<li><strong>Linearity:</strong> The expected outcome is a linear combination of the predictors.</li>
+<li><strong>Independence:</strong> Errors are independent across observations.</li>
+<li><strong>Constant variance (homoscedasticity):</strong> Errors have similar variance across fitted values.</li>
+<li><strong>Normality:</strong> Errors are normally distributed (important for classical small-sample inference).</li>
+<li><strong>No perfect multicollinearity:</strong> Predictors are not exact linear combinations of one another.</li>
+</ul>
+</section>
+<section>
+<section id="generalized-linear-models-glms" class="title-slide slide level1 center">
+<h1>Generalized Linear Models (GLMs)</h1>
+
+</section>
+<section id="linear-models-describe-expected-outcomes" class="slide level2">
+<h2>Linear models describe expected outcomes</h2>
+<p><br></p>
+<p>In the linear model, we describe the expected value of the outcome:</p>
+<p><span class="math display">\[
+E(Y_i \mid \mathbf{x}_i)
+=
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}
+\]</span></p>
+<p>This works well for many continuous outcomes.</p>
+<div class="fragment">
+<p><br></p>
+<p>But not all outcomes are continuous.</p>
+</div>
+</section>
+<section id="when-the-outcome-is-not-continuous" class="slide level2">
+<h2>When the outcome is not continuous</h2>
+<p><br></p>
+<p>Examples:</p>
+<ul>
+<li>binary: disease yes/no, response yes/no</li>
+<li>counts: number of events, number of cases</li>
+<li>proportions: successes out of trials</li>
+</ul>
+<div class="fragment">
+<p><br></p>
+<p>For these outcomes, the expected value has restrictions:</p>
+<ul>
+<li class="fragment">probabilities must be between 0 and 1</li>
+<li class="fragment">expected counts must be positive</li>
+</ul>
+</div>
+</section>
+<section id="restrictions" class="slide level2">
+<h2>Restrictions</h2>
+<p><em>Example</em></p>
+<p><br></p>
+<ul>
+<li>Fitting a regression line to binary data yields predicted values that could take any value, including <span class="math inline">\(&lt;0\)</span>,</li>
+</ul>
+
+<img data-src="presentation_files/figure-revealjs/log-example-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Example of fitting linear model to binary data, to model obesity status coded as 1 (Yes) and 0 (No) with waist variable. Linear model does not fit the data well in this case and the predicted values can take any value, not only 0 and 1.</p></section>
+<section id="the-glm-idea" class="slide level2">
+<h2>The GLM idea</h2>
+<p>We keep the same <strong>linear predictor</strong>:</p>
+<p><span class="math display">\[
+\eta_i =
+\beta_0+\beta_1x_{1i}+\cdots+\beta_px_{pi}.
+\]</span></p>
+<p>But instead of modelling the expected outcome directly, we connect it to the linear predictor through a <strong>link function</strong>:</p>
+<p><span class="math display">\[
+g(\mu_i)=\eta_i,
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\mu_i=E(Y_i\mid\mathbf{x}_i).
+\]</span></p>
+</section>
+<section id="link-functions" class="slide level2 center">
+<h2>Link functions</h2>
+<p><br></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Outcome</th>
+<th>Model</th>
+<th>Distribution</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Continuous</td>
+<td>Linear regression</td>
+<td>Normal</td>
+<td>identity</td>
+</tr>
+<tr class="even">
+<td>Binary / proportions</td>
+<td>Logistic regression</td>
+<td>Binomial</td>
+<td>logit</td>
+</tr>
+<tr class="odd">
+<td>Counts</td>
+<td>Poisson regression</td>
+<td>Poisson</td>
+<td>log</td>
+</tr>
+<tr class="even">
+<td>Positive continuous</td>
+<td>Gamma regression</td>
+<td>Gamma</td>
+<td>log</td>
+</tr>
+</tbody>
+</table>
+</section></section>
+<section>
+<section id="logistic-regression" class="title-slide slide level1 center">
+<h1>Logistic regression</h1>
+
+</section>
+<section id="logistic-regression-1" class="slide level2 smaller">
+<h2>Logistic regression</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li><p>Since the response variable takes only two values (Yes/No), we use a <strong>logistic regression</strong> model to model the <strong>probability of having BMI over 30 (Yes)</strong>.</p></li>
+<li><p>Let</p>
+<p><span class="math display">\[
+p_i = P(Y_i = 1)
+\]</span></p>
+<p>denote the probability that individual <span class="math inline">\(i\)</span> has BMI &gt; 30</p></li>
+<li><p>For a binary response, we assume</p>
+<p><span class="math display">\[
+Y_i \sim \operatorname{Binomial}(1,p_i),
+\]</span></p>
+<p>which is equivalent to a Bernoulli distribution.</p></li>
+<li><p>Logistic regression uses the <strong>logit link</strong> to relate this probability to the linear predictor:</p>
+<p><span class="math display">\[
+\log\left(\frac{p_i}{1-p_i}\right)
+=
+\beta_0+\beta_1x_i.
+\]</span></p></li>
+<li><p>Equivalently, the probability can be written as</p>
+<p><span class="math display">\[
+p_i =
+\frac{\exp(\beta_0+\beta_1x_i)}
+{1+\exp(\beta_0+\beta_1x_i)}.
+\]</span></p>
+<p>This ensures that the fitted probabilities always lie between 0 and 1.</p></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-15-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="logistic-regression-2" class="slide level2">
+<h2>Logistic regression</h2>
+<p><em>R</em> <br></p>
+<p>In R we can use <code>glm()</code> function to fit GLM models:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb4-2"><a href=""></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(obese <span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb4-3"><a href=""></a></span>
+<span id="cb4-4"><a href=""></a><span class="co"># print model summary</span></span>
+<span id="cb4-5"><a href=""></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<pre><code>## 
+## Call:
+## glm(formula = BMI_gt30 ~ waist, family = binomial(link = "logit"), 
+##     data = data_diabetes)
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -18.29349    1.83541  -9.967   &lt;2e-16 ***
+## waist         0.18013    0.01843   9.774   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 518.24  on 394  degrees of freedom
+## Residual deviance: 282.93  on 393  degrees of freedom
+##   (8 observations deleted due to missingness)
+## AIC: 286.93
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</section>
+<section id="logistic-regression-3" class="slide level2">
+<h2>Logistic regression</h2>
+<p><em>R</em> <br></p>
+
+<img data-src="presentation_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch quarto-figure-center"><p class="caption">Fitted logistic model to diabetes data given the 130 study participants and using waist as explantatory variable to model obesity status.</p></section>
+<section id="logistic-regression-4" class="slide level2">
+<h2>Logistic regression</h2>
+<p><em>Inference &amp; Predictions</em> <br></p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<ul>
+<li><p>As in linear regression, we can test whether a predictor is associated with the outcome by testing</p>
+<p><span class="math display">\[
+H_0:\beta_j=0.
+\]</span></p></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:55%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb6-2"><a href=""></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(BMI_gt30<span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb6-3"><a href=""></a><span class="fu">summary</span>(logmodel_1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = BMI_gt30 ~ waist, family = binomial(link = "logit"), 
+    data = data_diabetes)
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -18.29349    1.83541  -9.967   &lt;2e-16 ***
+waist         0.18013    0.01843   9.774   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 518.24  on 394  degrees of freedom
+Residual deviance: 282.93  on 393  degrees of freedom
+  (8 observations deleted due to missingness)
+AIC: 286.93
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</div>
+</div></div>
+</section>
+<section id="logistic-regression-5" class="slide level2">
+<h2>Logistic regression</h2>
+<p><em>Deviance (rather than <span class="math inline">\(R^2\)</span>)</em> <br> <br></p>
+<ul>
+<li><p><strong>Deviance</strong> measures how well a model fits the observed data relative to a perfectly fitting (saturated) model. Smaller deviance indicates better fit.</p></li>
+<li><p>Deviance can also be used to compare <strong>nested models</strong>, for example to test whether adding an explanatory variable improves the model.</p></li>
+<li><p>In a <strong>likelihood ratio test</strong>, the test statistic is the difference in deviance between the reduced and full models:</p>
+<p><span class="math display">\[
+\Delta D = D_{\text{reduced}} - D_{\text{full}}.
+\]</span></p>
+<p>Under the null hypothesis,</p>
+<p><span class="math display">\[
+\Delta D \approx \chi^2_{df},
+\]</span></p>
+<p>where <span class="math inline">\(df\)</span> is the difference in the number of estimated parameters between the two models.</p></li>
+</ul>
+</section>
+<section id="logistic-regression-6" class="slide level2">
+<h2>Logistic regression</h2>
+<p><em>Odds ratio</em> <br></p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<ul>
+<li><p>In logistic regression, we often interpret coefficients by exponentiating them:</p>
+<p><span class="math display">\[
+OR = e^{\hat{\beta}}.
+\]</span></p></li>
+<li><p>This gives an <strong>odds ratio</strong>.</p></li>
+<li><p>For example, if <span class="math inline">\(\hat{\beta}=0.18\)</span>,</p>
+<p><span class="math display">\[
+e^{0.18}\approx1.2.
+\]</span></p>
+<p>This means that for each one-unit increase in <code>waist</code>, the odds of obesity are multiplied by about 1.2.</p></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:55%;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="co"># fit logistic regression model</span></span>
+<span id="cb8-2"><a href=""></a>logmodel_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(BMI_gt30<span class="sc">~</span> waist, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link=</span><span class="st">"logit"</span>), <span class="at">data =</span> data_diabetes)</span>
+<span id="cb8-3"><a href=""></a></span>
+<span id="cb8-4"><a href=""></a><span class="co"># print model summary</span></span>
+<span id="cb8-5"><a href=""></a><span class="fu">print</span>(<span class="fu">summary</span>(logmodel_1))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = BMI_gt30 ~ waist, family = binomial(link = "logit"), 
+    data = data_diabetes)
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -18.29349    1.83541  -9.967   &lt;2e-16 ***
+waist         0.18013    0.01843   9.774   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 518.24  on 394  degrees of freedom
+Residual deviance: 282.93  on 393  degrees of freedom
+  (8 observations deleted due to missingness)
+AIC: 286.93
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</div>
+</div></div>
+</section></section>
+<section>
+<section id="regularization" class="title-slide slide level1 center">
+<h1>Regularization</h1>
+
+</section>
+<section id="regularized-linear-models" class="slide level2">
+<h2>Regularized linear models</h2>
+<p><em>definition</em> <br><br></p>
+<ul>
+<li class="fragment">Regularized regression expands on the regression by adding a <strong>penalty term(s)</strong> to <strong>shrink the model coefficients</strong> of less important features towards zero.</li>
+<li class="fragment">This can help to prevent overfitting and improve the accuracy of the predictive model.</li>
+<li class="fragment">Depending on the penalty added, we talk about <strong>Ridge</strong>, <strong>Lasso</strong> or <strong>Elastic Nets regression</strong>.</li>
+</ul>
+</section>
+<section id="regularized-regression" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>Ridge regression</em> <br></p>
+<ul>
+<li>Previously we saw that the least squares fitting procedure estimates model coefficients <span class="math inline">\(\beta_0, \beta_1, \cdots, \beta_p\)</span> using the values that minimize the residual sum of squares: <span class="math display">\[RSS = \sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2\]</span></li>
+</ul>
+<div class="fragment">
+<ul>
+<li>In <strong>regularized regression</strong> the coefficients are estimated by minimizing slightly different quantity. Specifically, in <strong>Ridge regression</strong> we estimate <span class="math inline">\(\hat\beta^{L}\)</span> that minimizes <span id="eq-ridge"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \tag{1}\]</span></span></li>
+</ul>
+<p>where:</p>
+<p><span class="math inline">\(\lambda \ge 0\)</span> is a <strong>tuning parameter</strong> to be determined separately e.g.&nbsp;via cross-validation</p>
+</div>
+</section>
+<section id="regularized-regression-1" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>Ridge regression</em> <br> <br></p>
+<p><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2\]</span></p>
+<p><br><br></p>
+<p><a href="#/eq-ridge" class="quarto-xref">Equation&nbsp;1</a> trades two different criteria:</p>
+<ul>
+<li>lasso regression seeks coefficient estimates that fit the data well, by making RSS small</li>
+<li>however, the second term <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span>, called <strong>shrinkage penalty</strong> is small when <span class="math inline">\(\beta_1, \cdots, \beta_p\)</span> are close to zero, so it has the effect of <strong>shrinking</strong> the estimates of <span class="math inline">\(\beta_j\)</span> towards zero.</li>
+<li>the tuning parameter <span class="math inline">\(\lambda\)</span> controls the relative impact of these two terms on the regression coefficient estimates
+<ul>
+<li>when <span class="math inline">\(\lambda = 0\)</span>, the penalty term has no effect</li>
+<li>as <span class="math inline">\(\lambda \rightarrow \infty\)</span> the impact of the shrinkage penalty grows and the ridge regression coefficient estimates approach zero</li>
+</ul></li>
+</ul>
+</section>
+<section id="regularized-regression-2" class="slide level2">
+<h2>Regularized regression</h2>
+<p><em>Ridge regression</em> <br></p>
+
+<img data-src="presentation_files/figure-revealjs/ridge-run-1.png" class="margin-caption r-stretch quarto-figure-center" width="960"><p class="caption">Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values.</p></section>
+<section id="bias-variance-trade-off" class="slide level2">
+<h2>Bias-variance trade-off</h2>
+<p><br><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p>Ridge regression can improve prediction by accepting a little more <strong>bias</strong> in exchange for lower <strong>variance</strong>.</p>
+<ul>
+<li class="fragment"><p><strong>Bias</strong>: error from a model that is too simple<br>
+→ may miss real patterns<br>
+→ <strong>underfitting</strong></p></li>
+<li class="fragment"><p><strong>Variance</strong>: error from a model that is too sensitive to the training data<br>
+→ may capture noise<br>
+→ <strong>overfitting</strong></p></li>
+<li class="fragment"><p>Regularization reduces flexibility by shrinking coefficients<br>
+→ often lower variance<br>
+→ better prediction on new data</p></li>
+</ul>
+<p><span class="math display">\[
+\text{prediction error} \approx \text{bias}^2 + \text{variance} + \text{irreducible error}
+\]</span></p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-bias-variance-new" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig">
+<div aria-describedby="fig-bias-variance-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img data-src="presentation_files/figure-revealjs/fig-bias-variance-new-1.png" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-variance-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Bias-variance trade-off. Increasing model flexibility decreases bias but increases variance. Prediction error is minimized at an intermediate level of complexity.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="ridge-vs.-lasso" class="slide level2">
+<h2>Ridge vs.&nbsp;Lasso</h2>
+<p>In <strong>Ridge</strong> regression we minimize: <span id="eq-ridge2"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}\beta_j^2 \tag{2}\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}\beta_j^2\)</span> is also known as <strong>L2</strong> regularization element or <span class="math inline">\(l_2\)</span> penalty</p>
+<p><br> <br></p>
+<p>In <strong>Lasso</strong> regression, that is Least Absolute Shrinkage and Selection Operator regression we change penalty term to absolute value of the regression coefficients: <span id="eq-lasso"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| = RSS + \lambda \sum_{j=1}^{p}|\beta_j| \tag{3}\]</span></span> where <span class="math inline">\(\lambda \sum_{j=1}^{p}|\beta_j|\)</span> is also known as <strong>L1</strong> regularization element or <span class="math inline">\(l_1\)</span> penalty</p>
+<p><br></p>
+</section>
+<section id="ridge-vs.-lasso-1" class="slide level2">
+<h2>Ridge vs.&nbsp;Lasso</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/ridge-run-02-1.png" width="960"></p>
+<figcaption>Example of Ridge regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero for larger lambda values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/lasso-run-1.png" width="960"></p>
+<figcaption>Example of Lasso regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values, showing how initially for small lambda values all variables are part of the model and how they gradually shrink towards zero and are also set to zero for larger lambda values.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="elastic-net" class="slide level2">
+<h2>Elastic Net</h2>
+<p><br></p>
+<p><strong>Elastic Net</strong> use both L1 and L2 penalties to try to find middle grounds by performing parameter shrinkage and variable selection. <span id="eq-elastic-net"><span class="math display">\[\sum_{i=1}^{n} \left( y_i - \beta_0 - \sum_{j=1}^{p}\beta_jx_{ij} \right)^2 + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2 = RSS + \lambda \sum_{j=1}^{p}|\beta_j| + \lambda \sum_{j=1}^{p}\beta_j^2  \tag{4}\]</span></span></p>
+
+<img data-src="presentation_files/figure-revealjs/elastic-net-1.png" class="margin-caption r-stretch quarto-figure-center" width="960"><p class="caption">Example of Elastic Net regression to model BMI using age, chol, hdl and glucose variables: model coefficients are plotted over a range of lambda values and alpha value 0.1, showing the changes of model coefficients as a function of lambda being somewhere between those for Ridge and Lasso regression.</p></section>
+<section id="elastic-net-1" class="slide level2">
+<h2>Elastic Net</h2>
+<p><em>In R with <code>glmnet</code></em> <br></p>
+<p>In the <code>glmnet</code> library we can fit Elastic Net by setting parameters <span class="math inline">\(\alpha\)</span>. Under the hood <code>glmnet</code> minimizes a cost function: <span class="math display">\[\sum_{i_=1}^{n}(y_i-\hat y_i)^2 + \lambda \left ( (1-\alpha) \sum_{j=1}^{p}\beta_j^2 + \alpha \sum_{j=1}^{p}|\beta_j|\right )\]</span> where:</p>
+<ul>
+<li><span class="math inline">\(n\)</span> is the number of samples</li>
+<li><span class="math inline">\(p\)</span> is the number of parameters</li>
+<li><span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\alpha\)</span> hyperparameters control the shrinkage</li>
+</ul>
+<p>and:</p>
+<ul>
+<li><span class="math inline">\(\alpha = 0\)</span> corresponds to Ridge regression</li>
+<li><span class="math inline">\(\alpha=1\)</span> this corresponds to Lasso regression</li>
+<li><span class="math inline">\(0 &lt; \alpha &lt; 1\)</span> gives <strong>Elastic Net regularization</strong>, combining both L1 and L2 regularization terms</li>
+</ul>
+</section>
+<section id="logistic-lasso" class="slide level2">
+<h2>Logistic Lasso</h2>
+<p><em>Logistic regression + Lasso regularization</em></p>
+<p><br></p>
+<div class="fragment">
+<ul>
+<li>We estimate set of coefficients <span class="math inline">\(\hat \beta\)</span> that minimize the combined logistic loss function and the Lasso penalty:</li>
+</ul>
+<p><span class="math display">\[
+\left( \sum_{i=1}^n [y_i \log(p_i) + (1-y_i) \log(1-p_i)] \right) + \lambda \sum_{j=1}^p |\beta_j|
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(y_i\)</span> represents the binary outcome (0 or 1)</li>
+<li><span class="math inline">\(p_i\)</span> is the predicted probability of <span class="math inline">\(y_i = 1\)</span> given by the logistic model</li>
+<li><span class="math inline">\(\lambda\)</span> is the regularization parameter that controls the strength of the Lasso penalty</li>
+<li><span class="math inline">\(n\)</span> is the number of observations</li>
+<li><span class="math inline">\(p\)</span> is the number of predictors.</li>
+</ul>
+</div>
+</section>
+<section id="practical-considerations" class="slide level2">
+<h2>Practical considerations</h2>
+<p><br></p>
+<ul>
+<li class="fragment"><strong>Feature scaling:</strong> Standardize predictors before ridge, lasso, or elastic net to ensure comparable penalization.</li>
+<li class="fragment"><strong>Missing values and categorical predictors:</strong> Handle missing data and encode categorical variables appropriately.</li>
+<li class="fragment"><strong>Hyperparameter tuning:</strong> Select the regularization strength (<span class="math inline">\(\lambda\)</span> or <span class="math inline">\(\alpha\)</span>) using cross-validation.</li>
+<li class="fragment"><strong>Avoid data leakage:</strong> Fit preprocessing steps and tune hyperparameters using training data only.</li>
+<li class="fragment"><strong>Interpretation:</strong> Regularized coefficients are biased towards zero; selected features are not necessarily biologically important.</li>
+</ul>
+</section>
+<section id="take-home-messages" class="slide level2">
+<h2>Take-home messages</h2>
+<p><br></p>
+<ul>
+<li class="fragment"><strong>Linear regression:</strong> Predicts continuous outcomes using a linear combination of predictors.</li>
+<li class="fragment"><strong>Generalized linear models:</strong> Extend the framework to binary, count, and other outcome types.</li>
+<li class="fragment"><strong>Ridge:</strong> Shrinks coefficients and handles correlated predictors.</li>
+<li class="fragment"><strong>Lasso:</strong> Shrinks coefficients and can perform feature selection.</li>
+<li class="fragment"><strong>Elastic net:</strong> Combines ridge and lasso penalties.</li>
+</ul>
+<div class="fragment">
+<ul>
+<li><strong>Regularization helps control overfitting</strong>, particularly in high-dimensional datasets.</li>
+<li><strong>Evaluate models on unseen data</strong> — good training fit does not guarantee good predictions.</li>
+</ul>
+</div>
+</section>
+<section id="labs" class="slide level2">
+<h2>Labs</h2>
+<p><br><br></p>
+<ul>
+<li>LASSO demo</li>
+<li>MAE: regression evaluation metric</li>
+<li>Logistic LASSO</li>
+<li>Ridge vs.&nbsp;LASSO vs.&nbsp;Elastic Nets</li>
+</ul>
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>Machine Learning for Life Sciences</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="presentation_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="presentation_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="presentation_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
